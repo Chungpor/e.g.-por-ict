@@ -1,6 +1,6 @@
 /**
  * Por ICT Analytics System
- * Multi-account support, auto-save state, and persistent iPhone session
+ * Multi-account support, reset password flow, TradingView Live Charting, Contact Us screen, and persistent session
  */
 
 // ==========================================
@@ -20,7 +20,7 @@ const defaultGenericAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.
 
 let accountsDatabase = JSON.parse(localStorage.getItem("por_all_accounts")) || {
   "chungpor908@gmail.com": {
-    name: "Chungpor",
+    name: "@KaingChungpor",
     email: "chungpor908@gmail.com",
     tier: "Member",
     avatar: "por.jpg",
@@ -34,6 +34,14 @@ function saveAccountsToStorage() {
 
 let activeUserEmail = localStorage.getItem("por_active_user") || "chungpor908@gmail.com";
 let currentAccount = accountsDatabase[activeUserEmail] || accountsDatabase["chungpor908@gmail.com"];
+
+// Sync and ensure default user name updates to @KaingChungpor
+if (currentAccount && currentAccount.email === "chungpor908@gmail.com" && currentAccount.name !== "@KaingChungpor") {
+  currentAccount.name = "@KaingChungpor";
+  accountsDatabase["chungpor908@gmail.com"].name = "@KaingChungpor";
+  saveAccountsToStorage();
+}
+
 let tradeDatabase = currentAccount.trades || {};
 
 function saveCurrentAccountTrades() {
@@ -53,12 +61,18 @@ let currentTier = currentAccount.tier || "Member";
 let isYearlyBilling = false;
 let currentVerificationCode = "";
 
+// Live TradingView Chart State
+let currentChartSymbol = "OANDA:XAUUSD";
+let currentChartInterval = "15";
+let tradingViewWidget = null;
+
 // ==========================================
 // 2. BILINGUAL DICTIONARY (EN & KH)
 // ==========================================
 const translations = {
   EN: {
     nav_home: "Home",
+    nav_live_chart: "Live Chart",
     nav_membership: "Membership",
     nav_news: "News",
     nav_contact: "Contact Us",
@@ -74,9 +88,28 @@ const translations = {
 
     breadcrumb_sections: "← Sections",
     breadcrumb_dashboard: "← Back to Dashboard",
+    breadcrumb_back: "← Back",
     tag_member: "Member",
     tag_upgrade: "Upgrade ⚡",
     tag_verified: "Email verified ✓",
+
+    prod_new_title: "New Product",
+    prod_live_btn: "LIVE CHART",
+    chart_category: "NEW PRODUCT",
+    chart_title: "Live Market Chart",
+    chart_subtitle: "Track gold, Bitcoin, and more in real time — add indicators as you like",
+    asset_label: "ASSET:",
+    timeframe_label: "TIMEFRAME:",
+    asset_gold: "Gold",
+    asset_silver: "Silver",
+    tf_1m: "1m (Live Ticks)",
+
+    contact_tag: "CONTACT US",
+    contact_title: "Get in Touch with the Mentor",
+    contact_subtitle: "Have questions about the course, or want to learn more? Reach out on Telegram",
+    contact_telegram_label: "TELEGRAM",
+    contact_channel_name: "Chungpor",
+    contact_mentor_name: "Private Mentorship",
 
     title_overview: "Trading Overview",
     card_profit_title: "PROFIT",
@@ -125,6 +158,13 @@ const translations = {
     verify_back: "Back",
     verify_success: "Code verified successfully!",
     verify_resent_msg: "A new 6-digit code has been sent!",
+
+    reset_title: "Reset Password",
+    reset_subtitle: "Enter your email and we'll send you a link to reset your password",
+    reset_email_label: "EMAIL",
+    reset_submit: "Send Reset Link",
+    reset_back: "← Back to Login",
+    reset_success: "Reset link sent! Please check your inbox.",
 
     member_pill: "POR ICT VIP CLUB",
     member_title: "Choose Your Trading Tier",
@@ -179,6 +219,7 @@ const translations = {
   },
   KH: {
     nav_home: "ទំព័រដើម",
+    nav_live_chart: "តារាង Live Chart",
     nav_membership: "សមាជិកភាព",
     nav_news: "ព័ត៌មាន",
     nav_contact: "ទំនាក់ទំនង",
@@ -194,9 +235,28 @@ const translations = {
 
     breadcrumb_sections: "← ផ្នែកសិក្សា",
     breadcrumb_dashboard: "← ត្រឡប់ទៅផ្ទាំង Dashboard",
+    breadcrumb_back: "← ត្រឡប់ក្រោយ",
     tag_member: "សមាជិកទូទៅ",
     tag_upgrade: "តម្លើង Tier ⚡",
     tag_verified: "អ៊ីមែលបានផ្ទៀងផ្ទាត់ ✓",
+
+    prod_new_title: "ផលិតផលថ្មី",
+    prod_live_btn: "LIVE CHART",
+    chart_category: "ផលិតផលថ្មី",
+    chart_title: "តារាងទីផ្សារផ្ទាល់ (Live Market Chart)",
+    chart_subtitle: "តាមដានមាស Bitcoin និងច្រើនទៀតក្នុងពេលជាក់ស្តែង — អាចបន្ថែម indicators តាមចិត្ត",
+    asset_label: "ទ្រព្យសកម្ម:",
+    timeframe_label: "ចន្លោះពេល:",
+    asset_gold: "មាស (Gold)",
+    asset_silver: "ប្រាក់ (Silver)",
+    tf_1m: "១នាទី (Live Ticks)",
+
+    contact_tag: "ទំនាក់ទំនងយើង",
+    contact_title: "ទាក់ទងផ្ទាល់ជាមួយគ្រូបង្រៀន",
+    contact_subtitle: "មានចម្ងល់អំពីវគ្គសិក្សា ឬចង់ដឹងព័ត៌មានបន្ថែម? អាចទាក់ទងតាមរយៈ Telegram",
+    contact_telegram_label: "TELEGRAM",
+    contact_channel_name: "Chungpor",
+    contact_mentor_name: "Private Mentorship",
 
     title_overview: "ទិដ្ឋភាពទូទៅការ Trade",
     card_profit_title: "ចំណេញ",
@@ -246,6 +306,13 @@ const translations = {
     verify_success: "ការផ្ទៀងផ្ទាត់បានជោគជ័យ!",
     verify_resent_msg: "លេខកូដ ៦ ខ្ទង់ថ្មីត្រូវបានផ្ញើរួចរាល់!",
 
+    reset_title: "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
+    reset_subtitle: "បញ្ចូលអ៊ីមែលរបស់អ្នក ហើយយើងនឹងផ្ញើតំណភ្ជាប់ដើម្បីកំណត់ពាក្យសម្ងាត់ឡើងវិញ",
+    reset_email_label: "អ៊ីមែល",
+    reset_submit: "ផ្ញើតំណភ្ជាប់កំណត់ឡើងវិញ",
+    reset_back: "← ត្រឡប់ទៅចូលគណនី",
+    reset_success: "តំណភ្ជាប់កំណត់ឡើងវិញត្រូវបានផ្ញើទៅអ៊ីមែលរបស់អ្នករួចរាល់!",
+
     member_pill: "POR ICT VIP CLUB",
     member_title: "ជ្រើសរើសប្រភេទសមាជិកភាព",
     member_subtitle: "បើកដំណើរការម៉ូឌែល ICT កម្រិតស្ថាប័ន ការវិភាគ និងការ Live Trade ជាក់ស្តែង។",
@@ -288,7 +355,7 @@ const translations = {
     modal_pnl_label: "ចំណេញ/ខាត ($)",
     modal_pair_label: "គូរូបិយប័ណ្ណ (ស្រេចចិត្ត)",
     modal_note_label: "កំណត់ចំណាំ (ស្រេចចិត្ត)",
-    modal_delete: "លុប",
+    modal_delete: "លប",
     modal_save: "រក្សាទុក",
     no_trade: "មិនបាន trade",
 
@@ -332,20 +399,31 @@ function setLanguage(lang) {
 const loginView = document.getElementById("loginView");
 const signupView = document.getElementById("signupView");
 const verifyView = document.getElementById("verifyView");
+const resetPasswordView = document.getElementById("resetPasswordView");
 const dashboardView = document.getElementById("dashboardView");
+const liveChartView = document.getElementById("liveChartView");
 const membershipView = document.getElementById("membershipView");
+const contactView = document.getElementById("contactView");
 
 const loginForm = document.getElementById("loginForm");
 const navLogoutBtn = document.getElementById("navLogoutBtn");
 const navProfileWrapper = document.getElementById("navProfileWrapper");
 const navCenterLinks = document.getElementById("navCenterLinks");
 const navHomeLink = document.getElementById("navHomeLink");
+const navLiveChartLink = document.getElementById("navLiveChartLink");
 const navMembershipLink = document.getElementById("navMembershipLink");
+const navContactLink = document.getElementById("navContactLink");
+
 const membershipBackBtn = document.getElementById("membershipBackBtn");
+const liveChartBackBtn = document.getElementById("liveChartBackBtn");
+const contactBackBtn = document.getElementById("contactBackBtn");
+const openLiveChartBtn = document.getElementById("openLiveChartBtn");
 const bannerUpgradeBtn = document.getElementById("bannerUpgradeBtn");
+
 const togglePasswordBtn = document.getElementById("togglePasswordBtn");
 const loginPasswordInput = document.getElementById("loginPassword");
 const loginEmailInput = document.getElementById("loginEmail");
+const forgotPasswordLink = document.getElementById("forgotPasswordLink");
 
 const goToSignupBtn = document.getElementById("goToSignupBtn");
 const goToLoginBtn = document.getElementById("goToLoginBtn");
@@ -364,7 +442,14 @@ const resendCodeBtn = document.getElementById("resendCodeBtn");
 const verifyBackBtn = document.getElementById("verifyBackBtn");
 const verifyStatusMsg = document.getElementById("verifyStatusMsg");
 
+const resetPasswordForm = document.getElementById("resetPasswordForm");
+const resetEmailInput = document.getElementById("resetEmailInput");
+const resetBackToLoginBtn = document.getElementById("resetBackToLoginBtn");
+const resetStatusMsg = document.getElementById("resetStatusMsg");
+
 const emailToast = document.getElementById("emailToast");
+const toastTitle = document.getElementById("toastTitle");
+const toastDesc = document.getElementById("toastDesc");
 const toastCodeValue = document.getElementById("toastCodeValue");
 const toastFillBtn = document.getElementById("toastFillBtn");
 const toastCloseBtn = document.getElementById("toastCloseBtn");
@@ -440,6 +525,9 @@ function applyTheme(theme) {
   if (dashboardView && !dashboardView.classList.contains("hidden")) {
     initOrUpdateChart(true);
   }
+  if (liveChartView && !liveChartView.classList.contains("hidden")) {
+    initTradingViewChart();
+  }
 }
 
 function toggleTheme() {
@@ -461,7 +549,7 @@ function loadAccount(email) {
 
   if (!accountsDatabase[email]) {
     accountsDatabase[email] = {
-      name: email.split("@")[0],
+      name: email === "chungpor908@gmail.com" ? "@KaingChungpor" : email.split("@")[0],
       email: email,
       tier: "Member",
       avatar: defaultGenericAvatar,
@@ -552,13 +640,14 @@ document.addEventListener("click", () => {
 });
 
 // ==========================================
-// 7. LOGIN, SIGN UP & CODE GENERATION
+// 7. LOGIN, SIGN UP & RESET PASSWORD
 // ==========================================
 if (goToSignupBtn) {
   goToSignupBtn.addEventListener("click", (e) => {
     e.preventDefault();
     loginView.classList.add("hidden");
     signupView.classList.remove("hidden");
+    resetPasswordView.classList.add("hidden");
     if (signupErrorMsg) signupErrorMsg.classList.add("hidden");
     signupForm.reset();
   });
@@ -568,7 +657,54 @@ if (goToLoginBtn) {
   goToLoginBtn.addEventListener("click", (e) => {
     e.preventDefault();
     signupView.classList.add("hidden");
+    resetPasswordView.classList.add("hidden");
     loginView.classList.remove("hidden");
+  });
+}
+
+if (forgotPasswordLink) {
+  forgotPasswordLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    loginView.classList.add("hidden");
+    signupView.classList.add("hidden");
+    verifyView.classList.add("hidden");
+    resetPasswordView.classList.remove("hidden");
+    if (resetStatusMsg) resetStatusMsg.classList.add("hidden");
+    if (resetEmailInput) {
+      resetEmailInput.value = loginEmailInput ? loginEmailInput.value : "";
+      setTimeout(() => resetEmailInput.focus(), 50);
+    }
+  });
+}
+
+if (resetBackToLoginBtn) {
+  resetBackToLoginBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    resetPasswordView.classList.add("hidden");
+    loginView.classList.remove("hidden");
+    if (resetStatusMsg) resetStatusMsg.classList.add("hidden");
+  });
+}
+
+if (resetPasswordForm) {
+  resetPasswordForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = resetEmailInput.value.trim().toLowerCase();
+    const dict = translations[currentLang] || translations.EN;
+
+    if (resetStatusMsg) {
+      resetStatusMsg.textContent = dict.reset_success;
+      resetStatusMsg.className = "reset-status-msg success";
+      resetStatusMsg.classList.remove("hidden");
+    }
+
+    if (toastTitle) toastTitle.textContent = "Password Reset Link";
+    if (toastDesc) toastDesc.innerHTML = `Reset link sent to: <strong>${email}</strong>`;
+    if (toastFillBtn) toastFillBtn.classList.add("hidden");
+    if (emailToast) {
+      emailToast.classList.remove("hidden");
+      setTimeout(() => emailToast.classList.add("hidden"), 10000);
+    }
   });
 }
 
@@ -654,7 +790,9 @@ if (signupForm) {
 function generateAndSendCode(recipientEmail) {
   currentVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-  if (toastCodeValue) toastCodeValue.textContent = currentVerificationCode;
+  if (toastTitle) toastTitle.textContent = "New Email from Por ICT";
+  if (toastDesc) toastDesc.innerHTML = `Your 6-digit verification code is: <strong id="toastCodeValue">${currentVerificationCode}</strong>`;
+  if (toastFillBtn) toastFillBtn.classList.remove("hidden");
   if (emailToast) {
     emailToast.classList.remove("hidden");
     setTimeout(() => {
@@ -786,21 +924,35 @@ if (verifyBackBtn) {
 // ==========================================
 // 9. PERSISTENT SESSION CONTROLLER
 // ==========================================
-function enterDashboard() {
-  localStorage.setItem("por_is_logged_in", "true");
-
+function hideAllViews() {
   if (loginView) loginView.classList.add("hidden");
   if (signupView) signupView.classList.add("hidden");
   if (verifyView) verifyView.classList.add("hidden");
+  if (resetPasswordView) resetPasswordView.classList.add("hidden");
+  if (dashboardView) dashboardView.classList.add("hidden");
+  if (liveChartView) liveChartView.classList.add("hidden");
   if (membershipView) membershipView.classList.add("hidden");
+  if (contactView) contactView.classList.add("hidden");
+}
+
+function updateNavActiveLink(activeLinkEl) {
+  [navHomeLink, navLiveChartLink, navMembershipLink, navContactLink].forEach((link) => {
+    if (link) link.classList.remove("active");
+  });
+  if (activeLinkEl) activeLinkEl.classList.add("active");
+}
+
+function enterDashboard() {
+  localStorage.setItem("por_is_logged_in", "true");
+
+  hideAllViews();
   if (dashboardView) dashboardView.classList.remove("hidden");
 
   if (navLogoutBtn) navLogoutBtn.classList.remove("hidden");
   if (navProfileWrapper) navProfileWrapper.classList.remove("hidden");
   if (navCenterLinks) navCenterLinks.classList.remove("hidden");
 
-  if (navHomeLink) navHomeLink.classList.add("active");
-  if (navMembershipLink) navMembershipLink.classList.remove("active");
+  updateNavActiveLink(navHomeLink);
 
   renderCalendar();
   initOrUpdateChart(true);
@@ -809,10 +961,7 @@ function enterDashboard() {
 function handleLogout() {
   localStorage.setItem("por_is_logged_in", "false");
 
-  if (dashboardView) dashboardView.classList.add("hidden");
-  if (membershipView) membershipView.classList.add("hidden");
-  if (signupView) signupView.classList.add("hidden");
-  if (verifyView) verifyView.classList.add("hidden");
+  hideAllViews();
   if (loginView) loginView.classList.remove("hidden");
 
   if (navLogoutBtn) navLogoutBtn.classList.add("hidden");
@@ -832,30 +981,97 @@ if (savedLoginState === "true") {
 }
 
 // ==========================================
-// 10. MEMBERSHIP & BILLING ROUTING
+// 10. LIVE MARKET CHART CONTROLS
 // ==========================================
-function openMembershipView(e) {
+function openLiveChartView(e) {
   if (e) e.preventDefault();
-  if (dashboardView) dashboardView.classList.add("hidden");
-  if (membershipView) membershipView.classList.remove("hidden");
+  hideAllViews();
+  if (liveChartView) liveChartView.classList.remove("hidden");
 
-  if (navHomeLink) navHomeLink.classList.remove("active");
-  if (navMembershipLink) navMembershipLink.classList.add("active");
+  updateNavActiveLink(navLiveChartLink);
   if (profilePopoverCard) profilePopoverCard.classList.remove("show");
 
-  updateTierButtons();
+  initTradingViewChart();
 }
 
 function openDashboardView(e) {
   if (e) e.preventDefault();
-  if (membershipView) membershipView.classList.add("hidden");
-  if (dashboardView) dashboardView.classList.remove("hidden");
+  enterDashboard();
+}
 
-  if (navMembershipLink) navMembershipLink.classList.remove("active");
-  if (navHomeLink) navHomeLink.classList.add("active");
+if (openLiveChartBtn) openLiveChartBtn.addEventListener("click", openLiveChartView);
+if (navLiveChartLink) navLiveChartLink.addEventListener("click", openLiveChartView);
+if (liveChartBackBtn) liveChartBackBtn.addEventListener("click", openDashboardView);
 
-  renderCalendar();
-  initOrUpdateChart(true);
+function initTradingViewChart() {
+  const container = document.getElementById("tradingview_live_chart");
+  if (!container || typeof TradingView === "undefined") return;
+
+  const isLight = document.documentElement.getAttribute("data-theme") === "light";
+
+  container.innerHTML = "";
+
+  tradingViewWidget = new TradingView.widget({
+    autosize: true,
+    symbol: currentChartSymbol,
+    interval: currentChartInterval,
+    timezone: "Asia/Phnom_Penh",
+    theme: isLight ? "light" : "dark",
+    style: "1",
+    locale: "en",
+    enable_publishing: false,
+    allow_symbol_change: true,
+    withdateranges: true,
+    hide_side_toolbar: false,
+    container_id: "tradingview_live_chart"
+  });
+}
+
+document.querySelectorAll("#assetPillsTrack .chart-pill-btn").forEach((btn) => {
+  btn.addEventListener("click", (e) => {
+    document.querySelectorAll("#assetPillsTrack .chart-pill-btn").forEach((b) => b.classList.remove("active"));
+    e.currentTarget.classList.add("active");
+    currentChartSymbol = e.currentTarget.getAttribute("data-symbol");
+    initTradingViewChart();
+  });
+});
+
+document.querySelectorAll("#timeframePillsTrack .chart-pill-btn").forEach((btn) => {
+  btn.addEventListener("click", (e) => {
+    document.querySelectorAll("#timeframePillsTrack .chart-pill-btn").forEach((b) => b.classList.remove("active"));
+    e.currentTarget.classList.add("active");
+    currentChartInterval = e.currentTarget.getAttribute("data-interval");
+    initTradingViewChart();
+  });
+});
+
+// ==========================================
+// 11. CONTACT US SCREEN CONTROLLER
+// ==========================================
+function openContactView(e) {
+  if (e) e.preventDefault();
+  hideAllViews();
+  if (contactView) contactView.classList.remove("hidden");
+
+  updateNavActiveLink(navContactLink);
+  if (profilePopoverCard) profilePopoverCard.classList.remove("show");
+}
+
+if (navContactLink) navContactLink.addEventListener("click", openContactView);
+if (contactBackBtn) contactBackBtn.addEventListener("click", openDashboardView);
+
+// ==========================================
+// 12. MEMBERSHIP & BILLING ROUTING
+// ==========================================
+function openMembershipView(e) {
+  if (e) e.preventDefault();
+  hideAllViews();
+  if (membershipView) membershipView.classList.remove("hidden");
+
+  updateNavActiveLink(navMembershipLink);
+  if (profilePopoverCard) profilePopoverCard.classList.remove("show");
+
+  updateTierButtons();
 }
 
 if (navMembershipLink) navMembershipLink.addEventListener("click", openMembershipView);
@@ -926,7 +1142,7 @@ document.querySelectorAll(".tier-select-btn").forEach((btn) => {
 });
 
 // ==========================================
-// 11. CALENDAR SYSTEM
+// 13. CALENDAR SYSTEM
 // ==========================================
 function renderCalendar() {
   if (!calendarGrid || !monthLabel) return;
@@ -999,7 +1215,7 @@ function renderCalendar() {
 }
 
 // ==========================================
-// 12. TRADE MODAL (SAVE & DELETE)
+// 14. TRADE MODAL (SAVE & DELETE)
 // ==========================================
 function openTradeModal(dateKey, dayNumber) {
   if (!modal) return;
@@ -1074,7 +1290,7 @@ if (deleteTradeBtn) {
 }
 
 // ==========================================
-// 13. METRIC KPI SYNC (CLEAN SLATE SUPPORT)
+// 15. METRIC KPI SYNC (CLEAN SLATE SUPPORT)
 // ==========================================
 function syncTopStats() {
   let totalProfit = 0;
@@ -1159,7 +1375,7 @@ if (nextBtn) {
 }
 
 // ==========================================
-// 14. PERFORMANCE CHART ENGINE
+// 16. PERFORMANCE CHART ENGINE
 // ==========================================
 function initOrUpdateChart(forceRecreate = false) {
   const canvas = document.getElementById("performanceChart");

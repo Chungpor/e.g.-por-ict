@@ -17,6 +17,9 @@
   <!-- Chart.js Engine -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
+  <!-- TradingView Live Market Chart Engine -->
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -52,9 +55,9 @@
       <!-- Center Navigation Links -->
       <nav id="navCenterLinks" class="nav-center-links hidden">
         <a href="#" id="navHomeLink" class="nav-link active" data-i18n="nav_home">Home</a>
+        <a href="#" id="navLiveChartLink" class="nav-link" data-i18n="nav_live_chart">Live Chart</a>
         <a href="#" id="navMembershipLink" class="nav-link" data-i18n="nav_membership">Membership</a>
-        <a href="#" class="nav-link" data-i18n="nav_news">News</a>
-        <a href="#" class="nav-link" data-i18n="nav_contact">Contact Us</a>
+        <a href="#" id="navContactLink" class="nav-link" data-i18n="nav_contact">Contact Us</a>
       </nav>
 
       <!-- Right Action Controls -->
@@ -112,7 +115,7 @@
             <div class="popover-header">
               <img src="por.jpg" alt="Avatar" class="popover-avatar" id="popoverAvatarImg" />
               <div class="popover-user-info">
-                <h4 class="popover-name" id="popoverName">Chungpor</h4>
+                <h4 class="popover-name" id="popoverName">@KaingChungpor</h4>
                 <p class="popover-email" id="popoverEmail">chungpor908@gmail.com</p>
               </div>
             </div>
@@ -174,7 +177,7 @@
               src="por.jpg" 
               alt="Por ICT Logo" 
               class="brand-logo-img"
-              onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80';"
+              onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80';" 
             />
           </div>
         </div>
@@ -194,7 +197,7 @@
                 type="email" 
                 id="loginEmail" 
                 class="login-input" 
-                value="" 
+                value="chungpor908@gmail.com" 
                 required 
               />
             </div>
@@ -203,7 +206,7 @@
           <div class="form-group">
             <div class="label-row">
               <label class="form-label" for="loginPassword" data-i18n="login_password">Password</label>
-              <a href="#" class="forgot-link" data-i18n="login_forgot">Forgot password?</a>
+              <a href="#" id="forgotPasswordLink" class="forgot-link" data-i18n="login_forgot">Forgot password?</a>
             </div>
             <div class="input-icon-wrapper">
               <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -214,7 +217,7 @@
                 type="password" 
                 id="loginPassword" 
                 class="login-input" 
-                value="" 
+                value="Chungpor220504" 
                 required 
               />
               <button type="button" id="togglePasswordBtn" class="toggle-password-btn" aria-label="Toggle Password Visibility">
@@ -393,6 +396,53 @@
   </div>
 
   <!-- ==========================================
+       VIEW 1D: RESET PASSWORD SCREEN
+       ========================================== -->
+  <div id="resetPasswordView" class="login-page-container hidden">
+    <main class="login-card-wrapper">
+      <div class="login-card reset-card">
+        <h1 class="reset-title" data-i18n="reset_title">Reset Password</h1>
+        <p class="reset-subtitle" data-i18n="reset_subtitle">
+          Enter your email and we'll send you a link to reset your password
+        </p>
+
+        <form id="resetPasswordForm" class="login-form">
+          <div class="form-group">
+            <label class="form-label form-label-upper" for="resetEmailInput" data-i18n="reset_email_label">EMAIL</label>
+            <div class="input-icon-wrapper">
+              <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+              </svg>
+              <input 
+                type="email" 
+                id="resetEmailInput" 
+                class="login-input" 
+                placeholder="you@email.com" 
+                required 
+              />
+            </div>
+          </div>
+
+          <div id="resetStatusMsg" class="reset-status-msg hidden"></div>
+
+          <button type="submit" class="reset-action-btn">
+            <span data-i18n="reset_submit">Send Reset Link</span>
+          </button>
+        </form>
+
+        <div class="reset-divider-line"></div>
+
+        <div class="reset-footer-actions">
+          <button type="button" id="resetBackToLoginBtn" class="reset-back-btn" data-i18n="reset_back">
+            ← Back to Login
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ==========================================
        VIEW 2: TRADING DASHBOARD & CALENDAR
        ========================================== -->
   <div id="dashboardView" class="dashboard-page-container hidden">
@@ -424,7 +474,7 @@
           </div>
 
           <div class="profile-info">
-            <h1 class="profile-name" id="profileName">Chungpor</h1>
+            <h1 class="profile-name" id="profileName">@KaingChungpor</h1>
             <p class="profile-email" id="profileEmail">chungpor908@gmail.com</p>
             <div class="profile-tags">
               <span class="tag-member" id="bannerTierTag" data-i18n="tag_member">Member</span>
@@ -434,6 +484,25 @@
           </div>
         </div>
       </header>
+
+      <!-- SECTION: NEW PRODUCT (LIVE CHART CARD) -->
+      <section class="products-grid-section">
+        <div class="product-feature-card">
+          <div class="product-card-badge">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+              <path d="M5 3v4"/>
+              <path d="M19 17v4"/>
+              <path d="M3 5h4"/>
+              <path d="M17 19h4"/>
+            </svg>
+          </div>
+          <h3 class="product-card-title" data-i18n="prod_new_title">New Product</h3>
+          <button type="button" id="openLiveChartBtn" class="product-chart-btn" data-i18n="prod_live_btn">
+            LIVE CHART
+          </button>
+        </div>
+      </section>
 
       <!-- SECTION: TRADING OVERVIEW -->
       <section class="overview-section">
@@ -527,7 +596,65 @@
   </div>
 
   <!-- ==========================================
-       VIEW 3: MEMBERSHIP & PLANS
+       VIEW 3: LIVE MARKET CHART (NEW PRODUCT SCREEN)
+       ========================================== -->
+  <div id="liveChartView" class="dashboard-page-container hidden">
+    <div class="dashboard-inner">
+      
+      <!-- Breadcrumb Link -->
+      <div class="nav-breadcrumbs-row">
+        <a href="#" id="liveChartBackBtn" class="breadcrumb-link" data-i18n="breadcrumb_sections">← Sections</a>
+      </div>
+
+      <!-- Live Chart Header -->
+      <header class="live-chart-header">
+        <span class="live-chart-subtitle-tag" data-i18n="chart_category">NEW PRODUCT</span>
+        <h1 class="live-chart-main-title" data-i18n="chart_title">Live Market Chart</h1>
+        <p class="live-chart-description" data-i18n="chart_subtitle">
+          Track gold, Bitcoin, and more in real time — add indicators as you like
+        </p>
+      </header>
+
+      <!-- Chart Control Toolbar: Assets & Timeframes -->
+      <div class="live-chart-controls-bar">
+        <!-- Asset Selectors -->
+        <div class="controls-pill-group">
+          <span class="control-group-label" data-i18n="asset_label">ASSET:</span>
+          <div class="pills-scroll-track" id="assetPillsTrack">
+            <button type="button" class="chart-pill-btn active" data-symbol="OANDA:XAUUSD" data-i18n="asset_gold">Gold</button>
+            <button type="button" class="chart-pill-btn" data-symbol="OANDA:XAGUSD" data-i18n="asset_silver">Silver</button>
+            <button type="button" class="chart-pill-btn" data-symbol="FX:EURUSD">EUR/USD</button>
+            <button type="button" class="chart-pill-btn" data-symbol="FX:GBPUSD">GBP/USD</button>
+            <button type="button" class="chart-pill-btn" data-symbol="FX:USDJPY">USD/JPY</button>
+            <button type="button" class="chart-pill-btn" data-symbol="BINANCE:BTCUSDT">BTC/USD</button>
+          </div>
+        </div>
+
+        <!-- Timeframe Selectors -->
+        <div class="controls-pill-group">
+          <span class="control-group-label" data-i18n="timeframe_label">TIMEFRAME:</span>
+          <div class="pills-scroll-track" id="timeframePillsTrack">
+            <button type="button" class="chart-pill-btn icon-bolt" data-interval="1">
+              ⚡ <span data-i18n="tf_1m">1m (Live Ticks)</span>
+            </button>
+            <button type="button" class="chart-pill-btn" data-interval="5">5m</button>
+            <button type="button" class="chart-pill-btn active" data-interval="15">15m (ICT)</button>
+            <button type="button" class="chart-pill-btn" data-interval="60">1H</button>
+            <button type="button" class="chart-pill-btn" data-interval="240">4H</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TradingView Advanced Candlestick Chart Container -->
+      <div class="live-chart-viewport-box">
+        <div id="tradingview_live_chart" class="tradingview-embed-target"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==========================================
+       VIEW 4: MEMBERSHIP & PLANS
        ========================================== -->
   <div id="membershipView" class="dashboard-page-container hidden">
     <div class="dashboard-inner">
@@ -638,6 +765,62 @@
   </div>
 
   <!-- ==========================================
+       VIEW 5: CONTACT US SCREEN
+       ========================================== -->
+  <div id="contactView" class="dashboard-page-container hidden">
+    <div class="dashboard-inner">
+      
+      <!-- Back to Dashboard -->
+      <div class="nav-breadcrumbs-row">
+        <a href="#" id="contactBackBtn" class="breadcrumb-link" data-i18n="breadcrumb_back">← Back</a>
+      </div>
+
+      <!-- Contact Us Header -->
+      <header class="contact-header">
+        <span class="contact-subtitle-tag" data-i18n="contact_tag">CONTACT US</span>
+        <h1 class="contact-main-title" data-i18n="contact_title">Get in Touch with the Mentor</h1>
+        <p class="contact-description" data-i18n="contact_subtitle">
+          Have questions about the course, or want to learn more? Reach out on Telegram
+        </p>
+      </header>
+
+      <!-- Telegram Direct Link Cards -->
+      <div class="contact-cards-stack">
+        
+        <!-- Card 1: Direct Telegram to @KaingChungpor -->
+        <a href="https://t.me/KaingChungpor" target="_blank" rel="noopener noreferrer" class="contact-card-link">
+          <div class="contact-icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.93-1.27 4.88-2.11 5.86-2.52 2.79-1.16 3.37-1.36 3.75-1.36.08 0 .28.02.4.12.1.08.13.19.14.27-.01.06.01.24 0 .37z"/>
+            </svg>
+          </div>
+          <div class="contact-info">
+            <span class="contact-platform-label" data-i18n="contact_telegram_label">TELEGRAM</span>
+            <h3 class="contact-channel-title" data-i18n="contact_channel_name">Chungpor</h3>
+          </div>
+          <span class="contact-arrow-icon">→</span>
+        </a>
+
+        <!-- Card 2: Private Mentorship with @KaingChungpor -->
+        <a href="https://t.me/KaingChungpor" target="_blank" rel="noopener noreferrer" class="contact-card-link">
+          <div class="contact-icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.93-1.27 4.88-2.11 5.86-2.52 2.79-1.16 3.37-1.36 3.75-1.36.08 0 .28.02.4.12.1.08.13.19.14.27-.01.06.01.24 0 .37z"/>
+            </svg>
+          </div>
+          <div class="contact-info">
+            <span class="contact-platform-label" data-i18n="contact_telegram_label">TELEGRAM</span>
+            <h3 class="contact-channel-title" data-i18n="contact_mentor_name">Private Mentorship</h3>
+          </div>
+          <span class="contact-arrow-icon">→</span>
+        </a>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==========================================
        POPUP MODAL: ADD / EDIT / DELETE TRADE
        ========================================== -->
   <div id="tradeModal" class="modal-overlay">
@@ -694,8 +877,8 @@
   <div id="emailToast" class="email-toast hidden">
     <div class="toast-icon">✉️</div>
     <div class="toast-body">
-      <div class="toast-title">New Email from Por ICT</div>
-      <div class="toast-desc">
+      <div class="toast-title" id="toastTitle">New Email from Por ICT</div>
+      <div class="toast-desc" id="toastDesc">
         Your 6-digit verification code is: <strong id="toastCodeValue">123456</strong>
       </div>
     </div>
