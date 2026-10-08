@@ -1,6 +1,7 @@
 /**
  * Por ICT Analytics System
- * Multi-account support, reset password flow, TradingView Live Charting, Contact Us screen, and persistent session
+ * Multi-account support, reset password flow, TradingView Live Charting, Contact Us screen,
+ * Ambient 4K Background YouTube Audio player (Zen Flute & Guzheng), and Menu Audio Button.
  */
 
 // ==========================================
@@ -20,7 +21,7 @@ const defaultGenericAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.
 
 let accountsDatabase = JSON.parse(localStorage.getItem("por_all_accounts")) || {
   "chungpor908@gmail.com": {
-    name: "@KaingChungpor",
+    name: "Chungpor",
     email: "chungpor908@gmail.com",
     tier: "Member",
     avatar: "por.jpg",
@@ -35,10 +36,9 @@ function saveAccountsToStorage() {
 let activeUserEmail = localStorage.getItem("por_active_user") || "chungpor908@gmail.com";
 let currentAccount = accountsDatabase[activeUserEmail] || accountsDatabase["chungpor908@gmail.com"];
 
-// Sync and ensure default user name updates to @KaingChungpor
-if (currentAccount && currentAccount.email === "chungpor908@gmail.com" && currentAccount.name !== "@KaingChungpor") {
-  currentAccount.name = "@KaingChungpor";
-  accountsDatabase["chungpor908@gmail.com"].name = "@KaingChungpor";
+if (currentAccount && currentAccount.email === "chungpor908@gmail.com" && currentAccount.name !== "Chungpor") {
+  currentAccount.name = "Chungpor";
+  accountsDatabase["chungpor908@gmail.com"].name = "Chungpor";
   saveAccountsToStorage();
 }
 
@@ -66,6 +66,13 @@ let currentChartSymbol = "OANDA:XAUUSD";
 let currentChartInterval = "15";
 let tradingViewWidget = null;
 
+// Ambient YouTube Audio State
+// Video link: https://youtu.be/yGbaHLXUZWY
+const YT_AUDIO_VIDEO_ID = "yGbaHLXUZWY";
+let ytAudioPlayer = null;
+let isAudioPlaying = false;
+let ytPlayerReady = false;
+
 // ==========================================
 // 2. BILINGUAL DICTIONARY (EN & KH)
 // ==========================================
@@ -74,8 +81,8 @@ const translations = {
     nav_home: "Home",
     nav_live_chart: "Live Chart",
     nav_membership: "Membership",
-    nav_news: "News",
     nav_contact: "Contact Us",
+    nav_audio_btn: "4K Zen Music",
     logout_btn: "Log out",
 
     pop_status: "Status",
@@ -110,6 +117,10 @@ const translations = {
     contact_telegram_label: "TELEGRAM",
     contact_channel_name: "Chungpor",
     contact_mentor_name: "Private Mentorship",
+
+    ez_contact_btn: "EZ Contact Us",
+    sound_on: "Music: ON",
+    sound_off: "Music: OFF",
 
     title_overview: "Trading Overview",
     card_profit_title: "PROFIT",
@@ -221,8 +232,8 @@ const translations = {
     nav_home: "ទំព័រដើម",
     nav_live_chart: "តារាង Live Chart",
     nav_membership: "សមាជិកភាព",
-    nav_news: "ព័ត៌មាន",
     nav_contact: "ទំនាក់ទំនង",
+    nav_audio_btn: "តន្ត្រី Zen 4K",
     logout_btn: "ចាកចេញ",
 
     pop_status: "ស្ថានភាព",
@@ -257,6 +268,10 @@ const translations = {
     contact_telegram_label: "TELEGRAM",
     contact_channel_name: "Chungpor",
     contact_mentor_name: "Private Mentorship",
+
+    ez_contact_btn: "ទាក់ទងយើង EZ",
+    sound_on: "តន្ត្រី: បើក",
+    sound_off: "តន្ត្រី: បិទ",
 
     title_overview: "ទិដ្ឋភាពទូទៅការ Trade",
     card_profit_title: "ចំណេញ",
@@ -389,6 +404,16 @@ function setLanguage(lang) {
     opt.classList.toggle("active", opt.getAttribute("data-lang") === lang);
   });
 
+  const soundStatusText = document.getElementById("soundStatusText");
+  if (soundStatusText) {
+    soundStatusText.textContent = isAudioPlaying ? dict.sound_on : dict.sound_off;
+  }
+
+  const mobileMusicStateText = document.getElementById("mobileMusicStateText");
+  if (mobileMusicStateText) {
+    mobileMusicStateText.textContent = isAudioPlaying ? "ON" : "OFF";
+  }
+
   renderCalendar();
   updateTierButtons();
 }
@@ -413,12 +438,31 @@ const navHomeLink = document.getElementById("navHomeLink");
 const navLiveChartLink = document.getElementById("navLiveChartLink");
 const navMembershipLink = document.getElementById("navMembershipLink");
 const navContactLink = document.getElementById("navContactLink");
+const navMusicBtn = document.getElementById("navMusicBtn");
+
+// Mobile Drawer Elements
+const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+const mobileMenuDrawer = document.getElementById("mobileMenuDrawer");
+const mobileDrawerBackdrop = document.getElementById("mobileDrawerBackdrop");
+const mobileHomeLink = document.getElementById("mobileHomeLink");
+const mobileLiveChartLink = document.getElementById("mobileLiveChartLink");
+const mobileMembershipLink = document.getElementById("mobileMembershipLink");
+const mobileContactLink = document.getElementById("mobileContactLink");
+const mobileMusicBtn = document.getElementById("mobileMusicBtn");
+const mobileMusicStateText = document.getElementById("mobileMusicStateText");
+const mobileLogoutLink = document.getElementById("mobileLogoutLink");
+const mobileViewProfileBtn = document.getElementById("mobileViewProfileBtn");
+
+const mobileEzContactFab = document.getElementById("mobileEzContactFab");
 
 const membershipBackBtn = document.getElementById("membershipBackBtn");
 const liveChartBackBtn = document.getElementById("liveChartBackBtn");
 const contactBackBtn = document.getElementById("contactBackBtn");
 const openLiveChartBtn = document.getElementById("openLiveChartBtn");
 const bannerUpgradeBtn = document.getElementById("bannerUpgradeBtn");
+
+const soundToggleBtn = document.getElementById("soundToggleBtn");
+const soundStatusText = document.getElementById("soundStatusText");
 
 const togglePasswordBtn = document.getElementById("togglePasswordBtn");
 const loginPasswordInput = document.getElementById("loginPassword");
@@ -465,12 +509,16 @@ const avatarUploadTrigger = document.getElementById("avatarUploadTrigger");
 const avatarFileInput = document.getElementById("avatarFileInput");
 const profileAvatarImg = document.getElementById("profileAvatarImg");
 const popoverAvatarImg = document.getElementById("popoverAvatarImg");
+const mobileUserAvatar = document.getElementById("mobileUserAvatar");
 const profileNameEl = document.getElementById("profileName");
 const profileEmailEl = document.getElementById("profileEmail");
 const popoverNameEl = document.getElementById("popoverName");
 const popoverEmailEl = document.getElementById("popoverEmail");
+const mobileUserName = document.getElementById("mobileUserName");
+const mobileUserEmail = document.getElementById("mobileUserEmail");
 const bannerTierTag = document.getElementById("bannerTierTag");
 const popoverTierBadge = document.getElementById("popoverTierBadge");
+const mobileTierBadge = document.getElementById("mobileTierBadge");
 
 const themeToggleSwitch = document.getElementById("themeToggleSwitch");
 const thumbSun = document.querySelector(".thumb-sun");
@@ -507,7 +555,141 @@ const inputNote = document.getElementById("inputNote");
 let pendingSignupUser = null;
 
 // ==========================================
-// 4. THEME & LANGUAGE INITIALIZATION
+// 4. AMBIENT YOUTUBE AUDIO ENGINE
+// ==========================================
+window.onYouTubeIframeAPIReady = function() {
+  initYouTubeAudio();
+};
+
+function initYouTubeAudio() {
+  const container = document.getElementById("youtubeAudioPlayer");
+  if (!container || typeof YT === "undefined" || !YT.Player) return;
+
+  try {
+    ytAudioPlayer = new YT.Player("youtubeAudioPlayer", {
+      height: "1",
+      width: "1",
+      videoId: YT_AUDIO_VIDEO_ID,
+      playerVars: {
+        autoplay: 0,
+        controls: 0,
+        disablekb: 1,
+        fs: 0,
+        loop: 1,
+        playlist: YT_AUDIO_VIDEO_ID,
+        modestbranding: 1,
+        playsinline: 1,
+        rel: 0
+      },
+      events: {
+        onReady: () => {
+          ytPlayerReady = true;
+          ytAudioPlayer.setVolume(75);
+          const savedSoundState = localStorage.getItem("por_music_playing");
+          if (savedSoundState === "true") {
+            playAudioMusic();
+          }
+        },
+        onStateChange: (event) => {
+          if (event.data === YT.PlayerState.PLAYING) {
+            setAudioUIState(true);
+          } else if (event.data === YT.PlayerState.PAUSED) {
+            setAudioUIState(false);
+          } else if (event.data === YT.PlayerState.ENDED) {
+            if (ytAudioPlayer && ytAudioPlayer.playVideo) {
+              ytAudioPlayer.playVideo();
+            }
+          }
+        }
+      }
+    });
+  } catch (err) {
+    console.warn("YouTube audio player init notice:", err);
+  }
+}
+
+function setAudioUIState(isPlaying) {
+  isAudioPlaying = isPlaying;
+  localStorage.setItem("por_music_playing", isPlaying ? "true" : "false");
+
+  const dict = translations[currentLang] || translations.EN;
+  
+  if (soundToggleBtn) {
+    soundToggleBtn.classList.toggle("is-playing", isPlaying);
+  }
+  if (soundStatusText) {
+    soundStatusText.textContent = isPlaying ? dict.sound_on : dict.sound_off;
+  }
+  if (navMusicBtn) {
+    navMusicBtn.classList.toggle("is-playing", isPlaying);
+  }
+  if (mobileMusicBtn) {
+    mobileMusicBtn.classList.toggle("is-playing", isPlaying);
+  }
+  if (mobileMusicStateText) {
+    mobileMusicStateText.textContent = isPlaying ? "ON" : "OFF";
+  }
+}
+
+function playAudioMusic() {
+  if (ytAudioPlayer && typeof ytAudioPlayer.playVideo === "function") {
+    try {
+      ytAudioPlayer.unMute();
+      ytAudioPlayer.setVolume(75);
+      ytAudioPlayer.playVideo();
+      setAudioUIState(true);
+    } catch (err) {
+      console.warn("Audio play exception:", err);
+    }
+  }
+}
+
+function pauseAudioMusic() {
+  if (ytAudioPlayer && typeof ytAudioPlayer.pauseVideo === "function") {
+    try {
+      ytAudioPlayer.pauseVideo();
+      setAudioUIState(false);
+    } catch (err) {
+      console.warn("Audio pause exception:", err);
+    }
+  }
+}
+
+function toggleAudioPlayback() {
+  if (!ytPlayerReady) {
+    initYouTubeAudio();
+    setTimeout(() => {
+      if (ytAudioPlayer && typeof ytAudioPlayer.playVideo === "function") {
+        playAudioMusic();
+      }
+    }, 600);
+    return;
+  }
+
+  if (isAudioPlaying) {
+    pauseAudioMusic();
+  } else {
+    playAudioMusic();
+  }
+}
+
+if (soundToggleBtn) soundToggleBtn.addEventListener("click", toggleAudioPlayback);
+if (navMusicBtn) navMusicBtn.addEventListener("click", toggleAudioPlayback);
+if (mobileMusicBtn) mobileMusicBtn.addEventListener("click", toggleAudioPlayback);
+
+// Interaction audio bootstrap
+document.addEventListener("click", () => {
+  if (localStorage.getItem("por_music_playing") === "true" && !isAudioPlaying && ytPlayerReady) {
+    playAudioMusic();
+  }
+}, { once: true });
+
+if (window.YT && window.YT.Player) {
+  initYouTubeAudio();
+}
+
+// ==========================================
+// 5. THEME & LANGUAGE CONTROLLER
 // ==========================================
 function applyTheme(theme) {
   const isLight = theme === "light";
@@ -541,7 +723,7 @@ applyTheme(localStorage.getItem("por_theme") || "dark");
 setLanguage(currentLang);
 
 // ==========================================
-// 5. ACCOUNT SWITCHER & STATE SYNC
+// 6. ACCOUNT SWITCHER & STATE SYNC
 // ==========================================
 function loadAccount(email) {
   activeUserEmail = email;
@@ -549,7 +731,7 @@ function loadAccount(email) {
 
   if (!accountsDatabase[email]) {
     accountsDatabase[email] = {
-      name: email === "chungpor908@gmail.com" ? "@KaingChungpor" : email.split("@")[0],
+      name: email === "chungpor908@gmail.com" ? "Chungpor" : email.split("@")[0],
       email: email,
       tier: "Member",
       avatar: defaultGenericAvatar,
@@ -566,13 +748,17 @@ function loadAccount(email) {
   if (profileEmailEl) profileEmailEl.textContent = currentAccount.email;
   if (popoverNameEl) popoverNameEl.textContent = currentAccount.name;
   if (popoverEmailEl) popoverEmailEl.textContent = currentAccount.email;
+  if (mobileUserName) mobileUserName.textContent = currentAccount.name;
+  if (mobileUserEmail) mobileUserEmail.textContent = currentAccount.email;
 
   const avatarSrc = currentAccount.avatar || defaultGenericAvatar;
   if (profileAvatarImg) profileAvatarImg.src = avatarSrc;
   if (popoverAvatarImg) popoverAvatarImg.src = avatarSrc;
+  if (mobileUserAvatar) mobileUserAvatar.src = avatarSrc;
 
   if (bannerTierTag) bannerTierTag.textContent = currentTier;
   if (popoverTierBadge) popoverTierBadge.textContent = currentTier;
+  if (mobileTierBadge) mobileTierBadge.textContent = currentTier;
 
   updateTierButtons();
 }
@@ -591,6 +777,7 @@ if (avatarUploadTrigger && avatarFileInput) {
 
         if (profileAvatarImg) profileAvatarImg.src = photo;
         if (popoverAvatarImg) popoverAvatarImg.src = photo;
+        if (mobileUserAvatar) mobileUserAvatar.src = photo;
       };
       reader.readAsDataURL(file);
     }
@@ -598,7 +785,7 @@ if (avatarUploadTrigger && avatarFileInput) {
 }
 
 // ==========================================
-// 6. LANGUAGE MENU & POPOVER HANDLERS
+// 7. LANGUAGE MENU & POPOVER HANDLERS
 // ==========================================
 if (langToggleBtn && langMenu) {
   langToggleBtn.addEventListener("click", (e) => {
@@ -639,8 +826,30 @@ document.addEventListener("click", () => {
   if (profilePopoverCard) profilePopoverCard.classList.remove("show");
 });
 
+// Mobile Drawer Controls
+function openMobileDrawer() {
+  if (mobileMenuDrawer) mobileMenuDrawer.classList.remove("hidden");
+}
+
+function closeMobileDrawer() {
+  if (mobileMenuDrawer) mobileMenuDrawer.classList.add("hidden");
+}
+
+if (mobileMenuBtn) mobileMenuBtn.addEventListener("click", openMobileDrawer);
+if (mobileDrawerBackdrop) mobileDrawerBackdrop.addEventListener("click", closeMobileDrawer);
+
+if (mobileViewProfileBtn && profileCardSection) {
+  mobileViewProfileBtn.addEventListener("click", () => {
+    closeMobileDrawer();
+    if (dashboardView.classList.contains("hidden")) {
+      openDashboardView();
+    }
+    profileCardSection.scrollIntoView({ behavior: "smooth" });
+  });
+}
+
 // ==========================================
-// 7. LOGIN, SIGN UP & RESET PASSWORD
+// 8. LOGIN, SIGN UP & RESET PASSWORD
 // ==========================================
 if (goToSignupBtn) {
   goToSignupBtn.addEventListener("click", (e) => {
@@ -821,7 +1030,7 @@ if (toastFillBtn) {
 }
 
 // ==========================================
-// 8. 6-DIGIT OTP BOX HANDLING
+// 9. 6-DIGIT OTP BOX HANDLING
 // ==========================================
 if (otpBoxes.length > 0) {
   otpBoxes.forEach((input, index) => {
@@ -922,7 +1131,7 @@ if (verifyBackBtn) {
 }
 
 // ==========================================
-// 9. PERSISTENT SESSION CONTROLLER
+// 10. PERSISTENT SESSION CONTROLLER
 // ==========================================
 function hideAllViews() {
   if (loginView) loginView.classList.add("hidden");
@@ -935,11 +1144,16 @@ function hideAllViews() {
   if (contactView) contactView.classList.add("hidden");
 }
 
-function updateNavActiveLink(activeLinkEl) {
+function updateNavActiveLink(activeLinkEl, mobileActiveLinkEl) {
   [navHomeLink, navLiveChartLink, navMembershipLink, navContactLink].forEach((link) => {
     if (link) link.classList.remove("active");
   });
   if (activeLinkEl) activeLinkEl.classList.add("active");
+
+  [mobileHomeLink, mobileLiveChartLink, mobileMembershipLink, mobileContactLink].forEach((link) => {
+    if (link) link.classList.remove("active");
+  });
+  if (mobileActiveLinkEl) mobileActiveLinkEl.classList.add("active");
 }
 
 function enterDashboard() {
@@ -951,8 +1165,9 @@ function enterDashboard() {
   if (navLogoutBtn) navLogoutBtn.classList.remove("hidden");
   if (navProfileWrapper) navProfileWrapper.classList.remove("hidden");
   if (navCenterLinks) navCenterLinks.classList.remove("hidden");
+  if (mobileMenuBtn) mobileMenuBtn.classList.remove("hidden");
 
-  updateNavActiveLink(navHomeLink);
+  updateNavActiveLink(navHomeLink, mobileHomeLink);
 
   renderCalendar();
   initOrUpdateChart(true);
@@ -967,10 +1182,13 @@ function handleLogout() {
   if (navLogoutBtn) navLogoutBtn.classList.add("hidden");
   if (navProfileWrapper) navProfileWrapper.classList.add("hidden");
   if (navCenterLinks) navCenterLinks.classList.add("hidden");
+  if (mobileMenuBtn) mobileMenuBtn.classList.add("hidden");
   if (profilePopoverCard) profilePopoverCard.classList.remove("show");
+  closeMobileDrawer();
 }
 
 if (navLogoutBtn) navLogoutBtn.addEventListener("click", handleLogout);
+if (mobileLogoutLink) mobileLogoutLink.addEventListener("click", handleLogout);
 
 const savedLoginState = localStorage.getItem("por_is_logged_in");
 if (savedLoginState === "true") {
@@ -981,15 +1199,16 @@ if (savedLoginState === "true") {
 }
 
 // ==========================================
-// 10. LIVE MARKET CHART CONTROLS
+// 11. LIVE MARKET CHART CONTROLS
 // ==========================================
 function openLiveChartView(e) {
   if (e) e.preventDefault();
   hideAllViews();
   if (liveChartView) liveChartView.classList.remove("hidden");
 
-  updateNavActiveLink(navLiveChartLink);
+  updateNavActiveLink(navLiveChartLink, mobileLiveChartLink);
   if (profilePopoverCard) profilePopoverCard.classList.remove("show");
+  closeMobileDrawer();
 
   initTradingViewChart();
 }
@@ -997,10 +1216,12 @@ function openLiveChartView(e) {
 function openDashboardView(e) {
   if (e) e.preventDefault();
   enterDashboard();
+  closeMobileDrawer();
 }
 
 if (openLiveChartBtn) openLiveChartBtn.addEventListener("click", openLiveChartView);
 if (navLiveChartLink) navLiveChartLink.addEventListener("click", openLiveChartView);
+if (mobileLiveChartLink) mobileLiveChartLink.addEventListener("click", openLiveChartView);
 if (liveChartBackBtn) liveChartBackBtn.addEventListener("click", openDashboardView);
 
 function initTradingViewChart() {
@@ -1046,38 +1267,46 @@ document.querySelectorAll("#timeframePillsTrack .chart-pill-btn").forEach((btn) 
 });
 
 // ==========================================
-// 11. CONTACT US SCREEN CONTROLLER
+// 12. CONTACT US CONTROLLER
 // ==========================================
 function openContactView(e) {
   if (e) e.preventDefault();
   hideAllViews();
   if (contactView) contactView.classList.remove("hidden");
 
-  updateNavActiveLink(navContactLink);
+  updateNavActiveLink(navContactLink, mobileContactLink);
   if (profilePopoverCard) profilePopoverCard.classList.remove("show");
+  closeMobileDrawer();
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 if (navContactLink) navContactLink.addEventListener("click", openContactView);
+if (mobileContactLink) mobileContactLink.addEventListener("click", openContactView);
+if (mobileEzContactFab) mobileEzContactFab.addEventListener("click", openContactView);
 if (contactBackBtn) contactBackBtn.addEventListener("click", openDashboardView);
 
 // ==========================================
-// 12. MEMBERSHIP & BILLING ROUTING
+// 13. MEMBERSHIP & BILLING ROUTING
 // ==========================================
 function openMembershipView(e) {
   if (e) e.preventDefault();
   hideAllViews();
   if (membershipView) membershipView.classList.remove("hidden");
 
-  updateNavActiveLink(navMembershipLink);
+  updateNavActiveLink(navMembershipLink, mobileMembershipLink);
   if (profilePopoverCard) profilePopoverCard.classList.remove("show");
+  closeMobileDrawer();
 
   updateTierButtons();
 }
 
 if (navMembershipLink) navMembershipLink.addEventListener("click", openMembershipView);
+if (mobileMembershipLink) mobileMembershipLink.addEventListener("click", openMembershipView);
 if (bannerUpgradeBtn) bannerUpgradeBtn.addEventListener("click", openMembershipView);
 if (membershipBackBtn) membershipBackBtn.addEventListener("click", openDashboardView);
 if (navHomeLink) navHomeLink.addEventListener("click", openDashboardView);
+if (mobileHomeLink) mobileHomeLink.addEventListener("click", openDashboardView);
 
 if (billingCycleToggle) {
   billingCycleToggle.addEventListener("click", () => {
@@ -1107,6 +1336,7 @@ function applyUserTier(newTier) {
 
   if (bannerTierTag) bannerTierTag.textContent = newTier;
   if (popoverTierBadge) popoverTierBadge.textContent = newTier;
+  if (mobileTierBadge) mobileTierBadge.textContent = newTier;
 
   updateTierButtons();
 }
@@ -1142,7 +1372,7 @@ document.querySelectorAll(".tier-select-btn").forEach((btn) => {
 });
 
 // ==========================================
-// 13. CALENDAR SYSTEM
+// 14. CALENDAR SYSTEM
 // ==========================================
 function renderCalendar() {
   if (!calendarGrid || !monthLabel) return;
@@ -1215,7 +1445,7 @@ function renderCalendar() {
 }
 
 // ==========================================
-// 14. TRADE MODAL (SAVE & DELETE)
+// 15. TRADE MODAL (SAVE & DELETE)
 // ==========================================
 function openTradeModal(dateKey, dayNumber) {
   if (!modal) return;
@@ -1290,7 +1520,7 @@ if (deleteTradeBtn) {
 }
 
 // ==========================================
-// 15. METRIC KPI SYNC (CLEAN SLATE SUPPORT)
+// 16. METRIC KPI SYNC
 // ==========================================
 function syncTopStats() {
   let totalProfit = 0;
@@ -1375,7 +1605,7 @@ if (nextBtn) {
 }
 
 // ==========================================
-// 16. PERFORMANCE CHART ENGINE
+// 17. PERFORMANCE CHART ENGINE
 // ==========================================
 function initOrUpdateChart(forceRecreate = false) {
   const canvas = document.getElementById("performanceChart");

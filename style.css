@@ -111,7 +111,7 @@ body {
 }
 
 /* ========================================================
-   4K VIDEO BACKGROUND
+   4K VIDEO BACKGROUND & YOUTUBE AUDIO CONTAINER
    ======================================================== */
 .bg-video {
   position: fixed;
@@ -136,6 +136,17 @@ body {
   z-index: 1;
   pointer-events: none;
   transition: background 0.25s ease;
+}
+
+.hidden-yt-audio-container {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  left: -9999px;
+  top: -9999px;
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* ========================================================
@@ -208,7 +219,7 @@ body {
 .nav-center-links {
   display: flex;
   align-items: center;
-  gap: 22px;
+  gap: 18px;
 }
 
 .nav-link {
@@ -224,6 +235,66 @@ body {
   color: var(--text-main);
 }
 
+/* Nav Menu Audio Button (Desktop Center Nav) */
+.nav-music-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(13, 148, 136, 0.1);
+  border: 1px solid rgba(13, 148, 136, 0.35);
+  padding: 5px 12px;
+  border-radius: 18px;
+  color: var(--teal-accent);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.nav-music-link-btn:hover {
+  background: rgba(13, 148, 136, 0.2);
+  border-color: var(--teal-accent);
+  transform: translateY(-1px);
+}
+
+.nav-music-link-btn.is-playing {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: var(--emerald-green);
+  color: var(--emerald-green);
+}
+
+.music-icon-pulse {
+  font-size: 13px;
+}
+
+.sound-wave-mini {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.sound-wave-mini .wave-bar {
+  width: 2.5px;
+  height: 3px;
+  background: var(--text-muted);
+  border-radius: 1px;
+}
+
+.nav-music-link-btn.is-playing .sound-wave-mini .wave-bar {
+  background: var(--emerald-green);
+  animation: miniWaveBounce 0.8s ease-in-out infinite alternate;
+}
+
+.nav-music-link-btn.is-playing .sound-wave-mini .wave-bar:nth-child(1) { animation-delay: 0.1s; }
+.nav-music-link-btn.is-playing .sound-wave-mini .wave-bar:nth-child(2) { animation-delay: 0.3s; }
+.nav-music-link-btn.is-playing .sound-wave-mini .wave-bar:nth-child(3) { animation-delay: 0.2s; }
+
+@keyframes miniWaveBounce {
+  0% { height: 3px; }
+  100% { height: 12px; }
+}
+
 .nav-controls-group {
   display: flex;
   align-items: center;
@@ -231,7 +302,59 @@ body {
   flex-shrink: 0;
 }
 
-/* Theme Switch */
+/* Sound Toggle Pill (Top-Right) */
+.sound-toggle-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--pill-bg);
+  border: 1.5px solid var(--pill-border);
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.sound-label-text {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-sub);
+}
+
+.sound-wave-track {
+  display: flex;
+  align-items: flex-end;
+  gap: 2.5px;
+  height: 14px;
+}
+
+.sound-wave-bar {
+  width: 3px;
+  height: 4px;
+  background: var(--text-muted);
+  border-radius: 2px;
+  transition: height 0.2s ease, background 0.2s ease;
+}
+
+.sound-toggle-pill.is-playing .sound-wave-bar {
+  background: var(--emerald-green);
+  animation: soundBounce 0.8s ease-in-out infinite alternate;
+}
+
+.sound-toggle-pill.is-playing .sound-label-text {
+  color: var(--emerald-green);
+}
+
+.sound-toggle-pill.is-playing .sound-wave-bar:nth-child(1) { height: 12px; animation-delay: 0.1s; }
+.sound-toggle-pill.is-playing .sound-wave-bar:nth-child(2) { height: 14px; animation-delay: 0.3s; }
+.sound-toggle-pill.is-playing .sound-wave-bar:nth-child(3) { height: 9px; animation-delay: 0.2s; }
+
+@keyframes soundBounce {
+  0% { height: 3px; }
+  100% { height: 14px; }
+}
+
+/* Theme Switch Pill */
 .theme-switch-pill {
   width: 62px;
   height: 32px;
@@ -474,6 +597,260 @@ body {
   color: var(--text-sub);
   cursor: pointer;
   white-space: nowrap;
+}
+
+.mobile-menu-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--pill-bg);
+  border: 1.5px solid var(--pill-border);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* ========================================================
+   MOBILE DRAWER SHEET
+   ======================================================== */
+.mobile-menu-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+}
+
+.mobile-drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.mobile-drawer-sheet {
+  position: relative;
+  margin-left: auto;
+  width: 82%;
+  max-width: 320px;
+  height: 100%;
+  background: var(--bg-card);
+  border-left: 1px solid var(--card-border);
+  padding: 22px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  box-shadow: -8px 0 30px rgba(0, 0, 0, 0.4);
+}
+
+.mobile-user-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-avatar-circle {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--teal-accent);
+}
+
+.mobile-user-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mobile-user-details {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.mobile-user-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.mobile-user-email {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.mobile-drawer-divider {
+  height: 1px;
+  background: var(--card-border);
+  margin: 4px 0;
+}
+
+.mobile-drawer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.mobile-row-label { color: var(--text-sub); }
+.mobile-value-bold { font-weight: 700; color: var(--text-main); }
+
+.mobile-full-profile-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(13, 148, 136, 0.12);
+  border: 1px solid rgba(13, 148, 136, 0.35);
+  color: var(--teal-accent);
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 4px;
+}
+
+.mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mobile-nav-link-item {
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-sub);
+  text-decoration: none;
+}
+
+.mobile-nav-link-item.active {
+  background: rgba(13, 148, 136, 0.12);
+  color: var(--teal-accent);
+  font-weight: 700;
+}
+
+.mobile-music-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--input-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mobile-music-menu-btn.is-playing {
+  border-color: var(--emerald-green);
+  color: var(--emerald-green);
+}
+
+.mobile-music-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-music-state {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: rgba(100, 116, 139, 0.2);
+  color: var(--text-muted);
+}
+
+.mobile-music-menu-btn.is-playing .mobile-music-state {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--emerald-green);
+}
+
+.mobile-drawer-ez-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.15) 0%, rgba(13, 148, 136, 0.18) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 14px;
+  text-decoration: none;
+  color: var(--text-main);
+}
+
+.ez-btn-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ez-btn-badge { font-size: 18px; }
+
+.ez-btn-texts {
+  display: flex;
+  flex-direction: column;
+}
+
+.ez-btn-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #38bdf8;
+}
+
+.ez-btn-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.ez-btn-arrow {
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.mobile-logout-link {
+  color: var(--danger-red);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 4px 0;
+}
+
+/* Floating EZ Button for Mobile */
+.mobile-ez-contact-fab-wrapper {
+  position: fixed;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  right: 18px;
+  z-index: 120;
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-ez-contact-fab-wrapper {
+    display: block;
+  }
+}
+
+.mobile-ez-contact-fab {
+  background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
+  border: none;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  font-family: inherit;
+  box-shadow: 0 4px 18px rgba(2, 132, 199, 0.45);
+  cursor: pointer;
 }
 
 /* ========================================================
@@ -748,7 +1125,6 @@ body {
 
 [data-theme="light"] .verify-email-highlight { color: #0f172a; }
 
-/* 6-Digit OTP inputs */
 .otp-inputs-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -811,7 +1187,7 @@ body {
 .verify-status-msg.success { color: #34d399; }
 .verify-status-msg.error { color: #f87171; }
 
-/* Reset Password Card */
+/* Reset Password Screen */
 .reset-card {
   border: 1px solid rgba(59, 130, 246, 0.28);
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55), 0 0 32px rgba(37, 99, 235, 0.1);
@@ -866,10 +1242,6 @@ body {
   transform: translateY(-1px);
 }
 
-.reset-action-btn:active {
-  transform: translateY(0);
-}
-
 .reset-divider-line {
   height: 1px;
   background: var(--card-border);
@@ -908,7 +1280,7 @@ body {
 .reset-status-msg.success { color: #34d399; }
 .reset-status-msg.error { color: #f87171; }
 
-/* Email Notification Toast */
+/* Email Toast */
 .email-toast {
   position: fixed;
   top: 76px;
@@ -932,7 +1304,7 @@ body {
 }
 
 .toast-icon { font-size: 22px; flex-shrink: 0; }
-.toast-body { display: flex; flex-direction: column; gap: 2px; }
+.toast-body { display: flex; flex-direction: gap 2px; }
 .toast-title { font-size: 13px; font-weight: 800; color: var(--text-main); }
 .toast-desc { font-size: 11.5px; color: var(--text-muted); }
 .toast-desc strong { color: #38bdf8; font-size: 13.5px; letter-spacing: 1px; }
@@ -959,7 +1331,7 @@ body {
 }
 
 /* ========================================================
-   DASHBOARD VIEW (LAPTOP SIZE 1)
+   DASHBOARD VIEW (LAPTOP & TABLET)
    ======================================================== */
 .dashboard-page-container {
   display: flex;
@@ -989,9 +1361,7 @@ body {
   cursor: pointer;
 }
 
-.breadcrumb-link:hover {
-  text-decoration: underline;
-}
+.breadcrumb-link:hover { text-decoration: underline; }
 
 .text-green { color: var(--emerald-green); }
 .text-cyan { color: var(--sky-blue); }
@@ -999,7 +1369,7 @@ body {
 .text-best-pair { color: var(--text-main); }
 .mb-16 { margin-bottom: 16px; }
 
-/* Profile Banner Card */
+/* Profile Banner */
 .profile-banner-card {
   background: var(--bg-card);
   border: 1px solid var(--card-border);
@@ -1104,9 +1474,7 @@ body {
   font-weight: 600;
 }
 
-/* ========================================================
-   SECTION: NEW PRODUCT CARD
-   ======================================================== */
+/* Products Grid */
 .products-grid-section {
   display: flex;
   width: 100%;
@@ -1183,9 +1551,7 @@ body {
   color: #ffffff;
 }
 
-/* ========================================================
-   SECTION: LIVE MARKET CHART SCREEN
-   ======================================================== */
+/* Live Market Chart View */
 .live-chart-header {
   display: flex;
   flex-direction: column;
@@ -1250,9 +1616,7 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-.pills-scroll-track::-webkit-scrollbar {
-  display: none;
-}
+.pills-scroll-track::-webkit-scrollbar { display: none; }
 
 .chart-pill-btn {
   background: var(--input-bg);
@@ -1274,7 +1638,6 @@ body {
 }
 
 .chart-pill-btn.active {
-  background: #0284c7;
   background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
   border-color: #38bdf8;
   color: #ffffff;
@@ -1287,7 +1650,6 @@ body {
   gap: 4px;
 }
 
-/* TradingView Box Container */
 .live-chart-viewport-box {
   width: 100%;
   height: 600px;
@@ -1305,9 +1667,7 @@ body {
   height: 100%;
 }
 
-/* ========================================================
-   SECTION: CONTACT US SCREEN
-   ======================================================== */
+/* Contact Us Screen */
 .contact-header {
   display: flex;
   flex-direction: column;
@@ -1393,9 +1753,7 @@ body {
   text-transform: uppercase;
 }
 
-[data-theme="light"] .contact-platform-label {
-  color: #475569;
-}
+[data-theme="light"] .contact-platform-label { color: #475569; }
 
 .contact-channel-title {
   font-size: 17px;
@@ -1416,7 +1774,7 @@ body {
   transform: translateX(4px);
 }
 
-/* Stat Cards */
+/* Stats Overview */
 .stats-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -1531,7 +1889,7 @@ body {
   box-shadow: var(--card-shadow);
 }
 
-/* Calendar Board */
+/* Trading Calendar */
 .calendar-board {
   background: var(--bg-card);
   border: 1px solid var(--card-border);
@@ -1655,9 +2013,7 @@ body {
   box-shadow: 0 0 16px rgba(13, 148, 136, 0.25);
 }
 
-/* ========================================================
-   MEMBERSHIP VIEW
-   ======================================================== */
+/* Membership View */
 .membership-header {
   text-align: center;
   padding: 6px 0 18px;
@@ -1897,9 +2253,7 @@ body {
   cursor: default;
 }
 
-/* ========================================================
-   MODAL POPUP
-   ======================================================== */
+/* Trade Modal Popup */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -2007,7 +2361,7 @@ body {
 }
 
 /* ========================================================
-   SIZE 2: IPHONE & MOBILE PHONE FIXES (max-width: 768px)
+   RESPONSIVE DESIGN (MOBILE PHONES & IPHONE: max-width: 768px)
    ======================================================== */
 @media (max-width: 768px) {
   input,
@@ -2144,7 +2498,6 @@ body {
     min-height: 420px;
   }
 
-  /* Contact Us on Mobile */
   .contact-card-link {
     padding: 14px 16px;
   }
@@ -2249,7 +2602,7 @@ body {
 }
 
 /* ========================================================
-   SMALL IPHONE (e.g., iPhone SE / mini: max-width: 390px)
+   SMALL IPHONE (e.g. iPhone SE / Mini: max-width: 390px)
    ======================================================== */
 @media (max-width: 390px) {
   .otp-inputs-grid {
