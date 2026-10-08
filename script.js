@@ -1,7 +1,12 @@
 /**
- * Por ICT Analytics System
- * Multi-account support, reset password flow, TradingView Live Charting, Contact Us screen,
- * Ambient 4K Background YouTube Audio player (Zen Flute & Guzheng), and Menu Audio Button.
+ * Por ICT - Calendar & Market Analytics System
+ * Full JavaScript Engine with:
+ * - Live Ingestion of News API with instant rebranding (zoqira.pro -> Por ICT)
+ * - Forex Factory Official Sync (https://www.forexfactory.com/)
+ * - USD Focus Filters: High Impact (Red), Medium (Orange), Low (Yellow)
+ * - Bilingual Support (English & Khmer via title_en / title_km)
+ * - TradingView Institutional Charting, Calendar Trade Journal & Analytics
+ * - Multi-account authentication, OTP verification, Ambient 4K Audio Engine
  */
 
 // ==========================================
@@ -67,18 +72,875 @@ let currentChartInterval = "15";
 let tradingViewWidget = null;
 
 // Ambient YouTube Audio State
-// Video link: https://youtu.be/yGbaHLXUZWY
 const YT_AUDIO_VIDEO_ID = "yGbaHLXUZWY";
 let ytAudioPlayer = null;
 let isAudioPlaying = false;
 let ytPlayerReady = false;
 
+// Active News Filter State
+let currentNewsFilter = "usd"; // Default focused on USD
+
 // ==========================================
-// 2. BILINGUAL DICTIONARY (EN & KH)
+// 2. RAW JSON API INGESTION & POR ICT TRANSFORMATION
+// ==========================================
+const rawApiPayload = {
+  "count": 50,
+  "data": [
+    {
+      "id": 26260,
+      "slug": "9797494-eu-the-ggas-system-is-prepared-for-winter-despite-lower-storage-level",
+      "title_en": "EU: The Ggas system is prepared for winter despite lower storage levels.",
+      "title_km": "អឺរ៉ុប៖ ប្រព័ន្ធឧស្ម័នរួចរាល់សម្រាប់រដូវរងារ ទោះបីជាកម្រិតស្តុកទាបក៏ដោយ។",
+      "category": "COMMODITY",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["TTF", "USOIL"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 22:50 ICT",
+      "url": "https://zoqira.pro/news/9797494-eu-the-ggas-system-is-prepared-for-winter-despite-lower-storage-level",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26258,
+      "slug": "9797493-head-of-irans-atomic-energy-organization-iran-will-not-abandon-urani",
+      "title_en": "Head Of Iran's Atomic Energy Organization: Iran will not abandon uranium enrichment or hand over its uranium - State Media.",
+      "title_km": "ប្រធានអង្គការថាមពលបរមាណូអ៊ីរ៉ង់៖ អ៊ីរ៉ង់នឹងមិនបោះបង់ការចម្រាញ់អ៊ុយរ៉ាញ៉ូម ឬប្រគល់អ៊ុយរ៉ាញ៉ូមរបស់ខ្លួនឡើយ - ទីភ្នាក់ងារព័ត៌មានរដ្ឋ។",
+      "category": "GEOPOLITICS",
+      "impact": "MEDIUM",
+      "is_mover": false,
+      "affected": ["XAUUSD", "USOIL", "USD"],
+      "bias": { "XAUUSD": "BULLISH", "USOIL": "BULLISH", "USD": "BULLISH" },
+      "regime": "RISK_OFF",
+      "why": "Iran's refusal to curb enrichment keeps nuclear-deal hopes alive but raises sanctions and conflict risk, supporting haven gold and dollar and adding an oil risk premium.",
+      "published_at_ict": "08 Oct 2026 • 22:49 ICT",
+      "url": "https://zoqira.pro/news/9797493-head-of-irans-atomic-energy-organization-iran-will-not-abandon-urani",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26259,
+      "slug": "9797492-yemens-houthis-attacked-the-airport-in-najran-and-the-airbase-in-kham",
+      "title_en": "Yemen's Houthis attacked the airport in Najran and the airbase in Khamis Mushait with ballistic missiles - Houthi Spokesperson.",
+      "title_km": "អ្នកនាំពាក្យហ៊ូធី៖ ក្រុមហ៊ូធីក្នុងប្រទេសយេមែន បានវាយប្រហារអាកាសយានដ្ឋាននៅ Najran និងមូលដ្ឋានទ័ពអាកាសនៅ Khamis Mushait ដោយមីស៊ីលបាលីស្ទីក។",
+      "category": "GEOPOLITICS",
+      "impact": "MEDIUM",
+      "is_mover": false,
+      "affected": ["XAUUSD", "USOIL", "USD"],
+      "bias": { "XAUUSD": "BULLISH", "USOIL": "BULLISH", "USD": "BULLISH" },
+      "regime": "RISK_OFF",
+      "why": "Strikes on Saudi soil raise Middle East supply and escalation risk, driving haven demand for gold and the dollar while oil gains on supply fear.",
+      "published_at_ict": "08 Oct 2026 • 22:48 ICT",
+      "url": "https://zoqira.pro/news/9797492-yemens-houthis-attacked-the-airport-in-najran-and-the-airbase-in-kham",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26256,
+      "slug": "9797491-irans-major-general-vahidi-no-extra-regional-power-has-the-right-to",
+      "title_en": "Iran's Major General Vahidi: No extra-regional power has the right to threaten or interfere in the Strait of Hormuz or the Persian Gulf.",
+      "title_km": "ឧត្តមសេនីយ៍ធំអ៊ីរ៉ង់ វ៉ាហ៊ីឌី៖ គ្មានមហាអំណាចក្រៅតំបន់ណាមានសិទ្ធិគំរាមកំហែង ឬជ្រៀតជ្រែកក្នុងច្រកសមុទ្រហ័រមូស ឬឈូងសមុទ្រពែរ្ស៊ីនោះទេ។",
+      "category": "GEOPOLITICS",
+      "impact": "MEDIUM",
+      "is_mover": false,
+      "affected": ["USOIL", "XAUUSD", "USD"],
+      "bias": { "USOIL": "BULLISH", "XAUUSD": "BULLISH", "USD": "BULLISH" },
+      "regime": "RISK_OFF",
+      "why": "Iranian warning over Hormuz keeps tanker and supply risk premium alive, supporting oil and haven flows into gold and USD.",
+      "published_at_ict": "08 Oct 2026 • 22:47 ICT",
+      "url": "https://zoqira.pro/news/9797491-irans-major-general-vahidi-no-extra-regional-power-has-the-right-to",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26257,
+      "slug": "9797488-yemens-houthis-attacked-riyadhs-king-khalid-airport-with-two-missile",
+      "title_en": "Yemen's Houthis attacked Riyadh's King Khalid Airport with two missiles - Houthi Spokesperson.",
+      "title_km": "អ្នកនាំពាក្យហ៊ូធី៖ ក្រុមហ៊ូធីក្នុងប្រទេសយេមែនបានវាយប្រហារអាកាសយានដ្ឋាន King Khalid នៅទីក្រុងរីយ៉ាដដោយមីស៊ីលពីរ។",
+      "category": "GEOPOLITICS",
+      "impact": "HIGH",
+      "is_mover": true,
+      "affected": ["XAUUSD", "USOIL", "USD", "US500"],
+      "bias": { "XAUUSD": "BULLISH", "USOIL": "BULLISH", "USD": "BULLISH", "US500": "BEARISH" },
+      "regime": "RISK_OFF",
+      "why": "Strike on Saudi soil raises Gulf supply and escalation risk, driving haven demand for gold and USD while oil spikes and equities fall.",
+      "published_at_ict": "08 Oct 2026 • 22:46 ICT",
+      "url": "https://zoqira.pro/news/9797488-yemens-houthis-attacked-riyadhs-king-khalid-airport-with-two-missile",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26255,
+      "slug": "9797484-irans-major-general-vahidi-irgc-navy-ready-to-respond-decisively-to",
+      "title_en": "Iran's Major General Vahidi: IRGC Navy ready to respond decisively to unauthorized vessels entering waters under its control.",
+      "title_km": "ឧត្តមសេនីយ៍វ៉ាហ៊ីឌី នៃអ៊ីរ៉ង់៖ កងទ័ពជើងទឹក IRGC ត្រៀមខ្លួនឆ្លើយតបយ៉ាងដាច់ខាត ចំពោះនាវាដែលចូលក្នុងតំបន់ទឹកក្រោមការគ្រប់គ្រងរបស់ខ្លួនដោយគ្មានការអនុញ្ញាត។",
+      "category": "GEOPOLITICS",
+      "impact": "MEDIUM",
+      "is_mover": false,
+      "affected": ["XAUUSD", "USOIL", "USD"],
+      "bias": { "XAUUSD": "BULLISH", "USOIL": "BULLISH", "USD": "BULLISH" },
+      "regime": "RISK_OFF",
+      "why": "Threat to Gulf shipping raises oil supply risk and drives safe-haven flows into gold and the dollar.",
+      "published_at_ict": "08 Oct 2026 • 22:44 ICT",
+      "url": "https://zoqira.pro/news/9797484-irans-major-general-vahidi-irgc-navy-ready-to-respond-decisively-to",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26254,
+      "slug": "9797481-us-4-week-bill-bid-to-cover-actual-2400-forecast-previous-2830",
+      "title_en": "US 4-Week Bill Bid-to-Cover Actual 2.400 (Forecast -, Previous 2.830)",
+      "title_km": "អត្រាតម្លៃដេញថ្លៃលើវិក័យប័ត្ររយៈពេល ៤ សប្តាហ៍របស់សហរដ្ឋអាមេរិកធ្លាក់មក ២.៤០០ (ព្យាករណ៍ - លើកមុន ២.៨៣០)",
+      "category": "MACRO",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USD"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 22:32 ICT",
+      "url": "https://zoqira.pro/news/9797481-us-4-week-bill-bid-to-cover-actual-2400-forecast-previous-2830",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26253,
+      "slug": "9797482-us-4-week-bill-high-yield-actual-3980-forecast-previous-3890",
+      "title_en": "US 4-Week Bill High Yield Actual 3.980% (Forecast -, Previous 3.890%)",
+      "title_km": "ទិន្នផលមធ្យមនៃវិក័យប័ត្ររយៈពេល ៤ សប្តាហ៍របស់សហរដ្ឋអាមេរិកឡើងដល់ ៣.៩៨០% (ព្យាករណ៍ - លើកមុន ៣.៨៩០%)",
+      "category": "MACRO",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USD"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 22:32 ICT",
+      "url": "https://zoqira.pro/news/9797482-us-4-week-bill-high-yield-actual-3980-forecast-previous-3890",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26252,
+      "slug": "9797483-us-4-week-bill-auction",
+      "title_en": "US 4-Week Bill Auction",
+      "title_km": "ការដេញថ្លៃវិក្កយបត្ររយៈពេល ៤ សប្តាហ៍របស់សហរដ្ឋអាមេរិក",
+      "category": "MACRO",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USD"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 22:32 ICT",
+      "url": "https://zoqira.pro/news/9797483-us-4-week-bill-auction",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26251,
+      "slug": "9797455-us-publishes-diesel-executive-order-in-federal-register",
+      "title_en": "US publishes diesel executive order in Federal register",
+      "title_km": "សហរដ្ឋអាមេរិកបានចេញផ្សាយបទបញ្ជាប្រតិបត្តិស្តីពីម៉ាស៊ីនដុតដោយប្រើប្រេងឌីសែលនៅក្នុងទិនានុប្បវត្តិសហព័ន្ធ",
+      "category": "COMMODITY",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USOIL"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 22:18 ICT",
+      "url": "https://zoqira.pro/news/9797455-us-publishes-diesel-executive-order-in-federal-register",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26250,
+      "slug": "9797452-most-ownership-in-us-russia-oil-deal-to-go-to-middle-east-funds-nyt",
+      "title_en": "Most ownership in US-Russia oil deal to go to Middle East funds - NYT",
+      "title_km": "ការកាន់កាប់ភាគច្រើននៅក្នុងកិច្ចព្រមព្រៀងប្រេងរវាងសហរដ្ឋអាមេរិក និងរុស្ស៊ី នឹងទៅលើមូលនិធិមជ្ឈិមបូព៌ា - NYT",
+      "category": "COMMODITY",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USOIL", "BRENT"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 22:16 ICT",
+      "url": "https://zoqira.pro/news/9797452-most-ownership-in-us-russia-oil-deal-to-go-to-middle-east-funds-nyt",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26249,
+      "slug": "9797449-fed-bids-for-4-week-bills-total-93-bln",
+      "title_en": "Fed bids for 4-Week bills total $9.3 bln",
+      "title_km": "ធនាគារកណ្តាលអាមេរិក (Fed) ដាក់ដេញថ្លៃទិញវិក្កយបត្រ ៤ សប្តាហ៍ សរុប ៩,៣ ពាន់លានដុល្លារ",
+      "category": "CENTRAL_BANK",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USD"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 22:15 ICT",
+      "url": "https://zoqira.pro/news/9797449-fed-bids-for-4-week-bills-total-93-bln",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26247,
+      "slug": "9797448-cbos-swagel-i-do-think-fiscal-trajectory-will-put-pressure-on-rates",
+      "title_en": "CBO's Swagel: I do think fiscal trajectory will put pressure on rates",
+      "title_km": "លោក Swagel នៃ CBO៖ ខ្ញុំគិតថា ទិសដៅហិរញ្ញវត្ថុសាធារណៈនឹងដាក់សម្ពាធលើអត្រាការប្រាក់",
+      "category": "MACRO",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USD", "US10Y"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 22:13 ICT",
+      "url": "https://zoqira.pro/news/9797448-cbos-swagel-i-do-think-fiscal-trajectory-will-put-pressure-on-rates",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26248,
+      "slug": "9797447-cbo-director-swagel-i-think-the-debt-concerns-impact-on-yields-is-sm",
+      "title_en": "CBO Director Swagel: I think the debt concern's impact on yields is small.",
+      "title_km": "នាយក CBO លោក Swagel៖ ខ្ញុំគិតថា កង្វល់អំពីបំណុលមានផលប៉ះពាល់តិចតួចលើទិន្នផលប័ណ្ណបំណុល",
+      "category": "MACRO",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USD", "US10Y"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 22:12 ICT",
+      "url": "https://zoqira.pro/news/9797447-cbo-director-swagel-i-think-the-debt-concerns-impact-on-yields-is-sm",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26245,
+      "slug": "9797446-cbo-director-swagel-growth-estimates-for-debt-stabilization-assume-4",
+      "title_en": "CBO Director Swagel: Growth estimates for debt stabilization assume 4%-5% rates.",
+      "title_km": "នាយក CBO លោក Swagel៖ ការប៉ាន់ស្មានកំណើនសម្រាប់ស្ថិរភាពបំណុលសន្មតអត្រា ៤%-៥%។",
+      "category": "MACRO",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USD", "US10Y"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 22:07 ICT",
+      "url": "https://zoqira.pro/news/9797446-cbo-director-swagel-growth-estimates-for-debt-stabilization-assume-4",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26246,
+      "slug": "9797445-cbo-director-swagel-we-need-5-6-gdp-gains-to-stabilize-debt-via-gro",
+      "title_en": "CBO Director Swagel: We need 5%-6% GDP gains to stabilize debt via growth.",
+      "title_km": "នាយក CBO លោក Swagel៖ យើងត្រូវការកំណើន GDP ៥%-៦% ដើម្បីធ្វើឱ្យបំណុលមានស្ថិរភាពតាមរយៈកំណើន។",
+      "category": "MACRO",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USD", "US10Y"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 22:06 ICT",
+      "url": "https://zoqira.pro/news/9797445-cbo-director-swagel-we-need-5-6-gdp-gains-to-stabilize-debt-via-gro",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26241,
+      "slug": "9797442-cbo-director-swagel-theres-a-structural-fiscal-deficit-of-6",
+      "title_en": "CBO Director Swagel: There's a structural fiscal deficit of 6%.",
+      "title_km": "នាយក CBO លោក Swagel៖ មានឱនភាពសារពើពន្ធរចនាសម្ព័ន្ធចំនួន ៦%",
+      "category": "MACRO",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USD", "US500"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 22:01 ICT",
+      "url": "https://zoqira.pro/news/9797442-cbo-director-swagel-theres-a-structural-fiscal-deficit-of-6",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26242,
+      "slug": "9797441-cbo-director-swagel-it-could-be-markets-bring-forward-the-need-to-act",
+      "title_en": "CBO Director Swagel: It could be markets bring forward the need to act on debt.",
+      "title_km": "នាយក CBO លោក Swagel៖ ទីផ្សារអាចនាំឱ្យមានតម្រូវការប្រតិបត្តិលើបំណុលលឿនជាងមុន",
+      "category": "MACRO",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USD", "US500"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 22:01 ICT",
+      "url": "https://zoqira.pro/news/9797441-cbo-director-swagel-it-could-be-markets-bring-forward-the-need-to-act",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26243,
+      "slug": "9797438-us-treasury-announces-bill-auctions",
+      "title_en": "US Treasury Announces Bill Auctions",
+      "title_km": "ក្រសួងរតនាគារអាមេរិកប្រកាសការដេញថ្លៃវិក្កយបត្រ",
+      "category": "MACRO",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USD"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 22:00 ICT",
+      "url": "https://zoqira.pro/news/9797438-us-treasury-announces-bill-auctions",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26244,
+      "slug": "9797436-cbo-director-swagel-it-is-unlikely-that-growth-alone-can-stabilize-th",
+      "title_en": "CBO Director Swagel: It is unlikely that growth alone can stabilize the debt trajectory.",
+      "title_km": "នាយក CBO លោក Swagel៖ មិនទំនងថាកំណើនតែឯងអាចធ្វើឱ្យគន្លងបំណុលមានស្ថិរភាពទេ",
+      "category": "MACRO",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USD", "US500"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:59 ICT",
+      "url": "https://zoqira.pro/news/9797436-cbo-director-swagel-it-is-unlikely-that-growth-alone-can-stabilize-th",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26238,
+      "slug": "9797435-centcom-leaders-highlighted-building-momentum-for-freedom-of-navigati",
+      "title_en": "CENTCOM: Leaders highlighted building momentum for freedom of navigation as commercial traffic flow increases - Post on X",
+      "title_km": "CENTCOM៖ មេដឹកនាំបានសង្កត់ធ្ងន់លើការកសាងកម្លាំងជំរុញសម្រាប់សេរីភាពនៃការធ្វើដំណើរតាមសមុទ្រ ខណៈចរាចរណ៍ពាណិជ្ជកម្មកើនឡើង - បង្ហោះនៅលើ X",
+      "category": "GEOPOLITICS",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USOIL", "XAUUSD"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:54 ICT",
+      "url": "https://zoqira.pro/news/9797435-centcom-leaders-highlighted-building-momentum-for-freedom-of-navigati",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26239,
+      "slug": "9797434-the-ukmto-gets-a-time-late-report-of-an-incident-in-hormuz-on-october",
+      "title_en": "The UKMTO gets a time-late report of an incident in Hormuz on October 6th.",
+      "title_km": "UKMTO ទទួលបានរបាយការណ៍យឺតពេលអំពីឧបទ្ទវហេតុមួយនៅច្រកសមុទ្រ Hormuz នៅថ្ងៃទី 6 ខែតុលា។",
+      "category": "GEOPOLITICS",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USOIL", "XAUUSD"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:54 ICT",
+      "url": "https://zoqira.pro/news/9797434-the-ukmto-gets-a-time-late-report-of-an-incident-in-hormuz-on-october",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26240,
+      "slug": "9797433-us-centcom-briefed-international-shipping-partners-on-hormuz-today-p",
+      "title_en": "US CENTCOM briefed international shipping partners on Hormuz today - Post on X.",
+      "title_km": "US CENTCOM បានផ្តល់សេចក្តីសង្ខេបដល់ដៃគូដឹកជញ្ជូនអន្តរជាតិអំពីច្រកសមុទ្រ Hormuz នៅថ្ងៃនេះ - បង្ហោះនៅលើ X។",
+      "category": "GEOPOLITICS",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USOIL", "XAUUSD"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:54 ICT",
+      "url": "https://zoqira.pro/news/9797433-us-centcom-briefed-international-shipping-partners-on-hormuz-today-p",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26235,
+      "slug": "9797432-us-vp-vance-holds-press-conference-on-fighting-visa-fraud-watch-liv",
+      "title_en": "US VP Vance Holds Press Conference on Fighting Visa Fraud - WATCH LIVE",
+      "title_km": "អនុប្រធានាធិបតីអាមេរិក វ៉ាន់ស៍ ប្រារព្ធពិធីសន្និសីទសារព័ត៌មានស្តីពីការប្រយុទ្ធប្រឆាំងការក្លែងបន្លំទិដ្ឋាការ - ទស្សនាផ្ទាល់",
+      "category": "OTHER",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": [],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:53 ICT",
+      "url": "https://zoqira.pro/news/9797432-us-vp-vance-holds-press-conference-on-fighting-visa-fraud-watch-liv",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26236,
+      "slug": "9797431-us-vp-vance-to-adobe-and-other-tech-companies-stop-defrauding-us-work",
+      "title_en": "US VP Vance to Adobe and other tech companies: Stop defrauding US workers. $ADBE",
+      "title_km": "អនុប្រធានាធិបតីអាមេរិក វ៉ាន់ស៍ ទៅកាន់ Adobe និងក្រុមហ៊ុនបច្ចេកវិទ្យាផ្សេងទៀត៖ ឈប់បោកប្រាស់កម្មករអាមេរិក។ $ADBE",
+      "category": "EQUITIES",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["ADBE"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:53 ICT",
+      "url": "https://zoqira.pro/news/9797431-us-vp-vance-to-adobe-and-other-tech-companies-stop-defrauding-us-work",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26237,
+      "slug": "9797430-us-vp-vance-on-microsoft-perm-suspension-it-will-last-as-long-as-need",
+      "title_en": "US VP Vance on Microsoft PERM suspension: It will last as long as needed. $MSFT",
+      "title_km": "អនុប្រធានាធិបតីអាមេរិក វ៉ាន់ស៍ ស្តីពីការផ្អាក PERM របស់ Microsoft៖ វានឹងបន្តដរាបណាចាំបាច់។ $MSFT",
+      "category": "EQUITIES",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["MSFT"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:52 ICT",
+      "url": "https://zoqira.pro/news/9797430-us-vp-vance-on-microsoft-perm-suspension-it-will-last-as-long-as-need",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26233,
+      "slug": "9797429-the-pentagon-to-commit-200m-to-cloud-labs-in-fiscal-year-2028",
+      "title_en": "The Pentagon to commit $200m to cloud labs in fiscal year 2028.",
+      "title_km": "ក្រសួងការពារជាតិអាមេរិកនឹងចំណាយ ២០០ លានដុល្លារលើមន្ទីរពិសោធន៍ពពកក្នុងឆ្នាំសារពើពន្ធ ២០២៨។",
+      "category": "EQUITIES",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["US500", "NAS100"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:51 ICT",
+      "url": "https://zoqira.pro/news/9797429-the-pentagon-to-commit-200m-to-cloud-labs-in-fiscal-year-2028",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26234,
+      "slug": "9797428-the-pentagon-announces-350m-in-quantum-computing-initiatives",
+      "title_en": "The Pentagon announces $350m in quantum computing initiatives.",
+      "title_km": "ក្រសួងការពារជាតិអាមេរិកប្រកាសគំនិតផ្តួចផ្តើមកុំព្យូទ័រកង់ទូម ៣៥០ លានដុល្លារ។",
+      "category": "EQUITIES",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["NAS100", "US500"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:50 ICT",
+      "url": "https://zoqira.pro/news/9797428-the-pentagon-announces-350m-in-quantum-computing-initiatives",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26232,
+      "slug": "9797427-us-vp-vance-we-dont-want-to-harm-microsoft-but-they-must-employ-us",
+      "title_en": "US VP Vance: We don't want to harm Microsoft, but they must employ US workers. $MSFT",
+      "title_km": "អនុប្រធានាធិបតីអាមេរិក វ៉ាន់ស៍៖ យើងមិនចង់បំផ្លាញ Microsoft ទេ ប៉ុន្តែពួកគេត្រូវជួលកម្មករអាមេរិក",
+      "category": "EQUITIES",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["MSFT"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:49 ICT",
+      "url": "https://zoqira.pro/news/9797427-us-vp-vance-we-dont-want-to-harm-microsoft-but-they-must-employ-us",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26231,
+      "slug": "9797422-uk-police-two-men-arrested-for-trespass-offences-at-cambridgeshire-ra",
+      "title_en": "UK Police: Two men arrested for trespass offences at Cambridgeshire RAF base.",
+      "title_km": "ប៉ូលិសអង់គ្លេស៖ បុរសពីរនាក់ត្រូវបានចាប់ខ្លួនពីបទរំលោភចូលទឹកដីនៅមូលដ្ឋានទ័ពអាកាស RAF ក្នុងតំបន់ Cambridgeshire។",
+      "category": "GEOPOLITICS",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": [],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:46 ICT",
+      "url": "https://zoqira.pro/news/9797422-uk-police-two-men-arrested-for-trespass-offences-at-cambridgeshire-ra",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26230,
+      "slug": "9797403-feds-musalem-speaks-watch-live",
+      "title_en": "Fed's Musalem Speaks - WATCH LIVE",
+      "title_km": "សម្តីរបស់លោក Musalem នៃធនាគារកណ្តាលអាមេរិក - ទស្សនាផ្ទាល់",
+      "category": "CENTRAL_BANK",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USD"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:40 ICT",
+      "url": "https://zoqira.pro/news/9797403-feds-musalem-speaks-watch-live",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26229,
+      "slug": "9797402-openai-bans-russia-origin-chatgpt-accounts-linked-to-influence-operati",
+      "title_en": "OpenAI Bans Russia-Origin ChatGPT Accounts Linked to Influence Operations",
+      "title_km": "OpenAI បានផ្អាកគណនី ChatGPT ដែលមានប្រភពពីរុស្ស៊ី ពាក់ព័ន្ធនឹងប្រតិបត្តិការឥទ្ធិពល",
+      "category": "GEOPOLITICS",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["US500", "NAS100"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:39 ICT",
+      "url": "https://zoqira.pro/news/9797402-openai-bans-russia-origin-chatgpt-accounts-linked-to-influence-operati",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26228,
+      "slug": "9797401-us-vp-vance-microsoft-abused-a-visa-system-while-reducing-us-workers",
+      "title_en": "US VP Vance: Microsoft abused a visa system while reducing US workers. $MSFT",
+      "title_km": "អនុប្រធានាធិបតីអាមេរិក វ៉ាន់ស៍៖ ក្រុមហ៊ុន Microsoft បានប្រើប្រាស់ប្រព័ន្ធទិដ្ឋាការខុសច្បាប់ ខណៈកាត់បន្ថយកម្មករអាមេរិក",
+      "category": "EQUITIES",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["MSFT"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:35 ICT",
+      "url": "https://zoqira.pro/news/9797401-us-vp-vance-microsoft-abused-a-visa-system-while-reducing-us-workers",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26226,
+      "slug": "9797400-nyses-martin-500-bln-market-cap-added-this-year",
+      "title_en": "NYSE's Martin: $500 bln market cap added this year.",
+      "title_km": "លោក Martin នៃ NYSE៖ តម្លៃទីផ្សារកើនឡើង ៥០០ ពាន់លានដុល្លារនៅឆ្នាំនេះ។",
+      "category": "EQUITIES",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["US500", "NAS100", "US30"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:33 ICT",
+      "url": "https://zoqira.pro/news/9797400-nyses-martin-500-bln-market-cap-added-this-year",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26227,
+      "slug": "9797399-nvidia-commits-1b-to-advance-us-science-over-the-next-five-years-nv",
+      "title_en": "NVIDIA commits $1b to advance US science over the next five years. $NVDA",
+      "title_km": "ក្រុមហ៊ុន NVIDIA ប្តេជ្ញាចំណាយ ១ ពាន់លានដុល្លារដើម្បីជំរុញវិទ្យាសាស្ត្រអាមេរិកក្នុងរយៈពេល ៥ ឆ្នាំខាងមុខ។ $NVDA",
+      "category": "EQUITIES",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["NVDA", "NAS100"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:32 ICT",
+      "url": "https://zoqira.pro/news/9797399-nvidia-commits-1b-to-advance-us-science-over-the-next-five-years-nv",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26224,
+      "slug": "9797382-ukraine-has-hit-russias-omsk-oil-refinery-statement",
+      "title_en": "Ukraine has hit Russia's Omsk oil refinery - Statement.",
+      "title_km": "អ៊ុយក្រែនបានវាយប្រហាររោងចក្រចម្រាញ់ប្រេង Omsk របស់រុស្ស៊ី - សេចក្តីថ្លែងការណ៍",
+      "category": "GEOPOLITICS",
+      "impact": "HIGH",
+      "is_mover": true,
+      "affected": ["USOIL", "XAUUSD", "USD"],
+      "bias": { "USOIL": "BULLISH", "XAUUSD": "BULLISH", "USD": "BULLISH" },
+      "regime": "RISK_OFF",
+      "why": "Strike on a Russian refinery raises oil supply risk, lifting crude while haven demand boosts gold and the dollar.",
+      "published_at_ict": "08 Oct 2026 • 21:31 ICT",
+      "url": "https://zoqira.pro/news/9797382-ukraine-has-hit-russias-omsk-oil-refinery-statement",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26225,
+      "slug": "9797377-eia-natural-gas-change-bcf-actual-85b-forecast-82b-previous-64b",
+      "title_en": "EIA Natural Gas Change BCF Actual 85B (Forecast 82B, Previous 64B)",
+      "title_km": "ការផ្លាស់ប្តូរឧស្ម័នធម្មជាតិ EIA BCF ជាក់ស្តែង 85B (ព្យាករណ៍ 82B, មុន 64B)",
+      "category": "COMMODITY",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["NGAS"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:30 ICT",
+      "url": "https://zoqira.pro/news/9797377-eia-natural-gas-change-bcf-actual-85b-forecast-82b-previous-64b",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26222,
+      "slug": "9797375-us-vp-vance-the-us-is-reforming-h-1b-and-j-1-visa-programs",
+      "title_en": "US VP Vance: The US is reforming H-1B and J-1 Visa programs.",
+      "title_km": "អនុប្រធានាធិបតីអាមេរិក វ៉ាន់ស៍៖ អាមេរិកកំពុងកែទម្រង់កម្មវិធីទិដ្ឋាការ H-1B និង J-1។",
+      "category": "OTHER",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USD"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:23 ICT",
+      "url": "https://zoqira.pro/news/9797375-us-vp-vance-the-us-is-reforming-h-1b-and-j-1-visa-programs",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26223,
+      "slug": "9797374-us-vp-vance-the-us-is-suspending-the-perm-program-for-microsoft-the",
+      "title_en": "US VP Vance: The US is suspending the PERM program for Microsoft. The message to Microsoft is you've got to hire American workers. $MSFT",
+      "title_km": "អនុប្រធានាធិបតីអាមេរិក វ៉ាន់ស៍៖ អាមេរិកកំពុងផ្អាកកម្មវិធី PERM សម្រាប់ Microsoft។ សារទៅកាន់ Microsoft គឺអ្នកត្រូវជួលកម្មករអាមេរិក។ $MSFT",
+      "category": "EQUITIES",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["MSFT"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:22 ICT",
+      "url": "https://zoqira.pro/news/9797374-us-vp-vance-the-us-is-suspending-the-perm-program-for-microsoft-the",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26220,
+      "slug": "9797373-irans-head-of-the-atomic-energy-the-us-and-israel-have-put-pressure",
+      "title_en": "Iran's Head of the Atomic Energy: The US and Israel have put pressure on the IAEA to inspect sites that have been targeted by attacks and to provide them with reports and observations from the ground - IRIB News.",
+      "title_km": "ប្រធានអង្គការថាមពលបរមាណូអ៊ីរ៉ង់៖ អាមេរិក និងអ៊ីស្រាអែល បានដាក់សម្ពាធលើ IAEA ឱ្យត្រួតពិនិត្យទីតាំងដែលត្រូវបានវាយប្រហារ និងផ្តល់របាយការណ៍ និងការសង្កេតពីដីគោក - IRIB News។",
+      "category": "GEOPOLITICS",
+      "impact": "MEDIUM",
+      "is_mover": false,
+      "affected": ["XAUUSD", "USOIL", "USD"],
+      "bias": { "XAUUSD": "BULLISH", "USOIL": "BULLISH", "USD": "BULLISH" },
+      "regime": "RISK_OFF",
+      "why": "Iran-IAEA tension raises Middle East supply risk and safe-haven demand, lifting gold, oil and the dollar together.",
+      "published_at_ict": "08 Oct 2026 • 21:19 ICT",
+      "url": "https://zoqira.pro/news/9797373-irans-head-of-the-atomic-energy-the-us-and-israel-have-put-pressure",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26221,
+      "slug": "9797366-crypto-fear-and-greed-index-64100-greed",
+      "title_en": "Crypto Fear and Greed Index: 64/100 = Greed",
+      "title_km": "សន្ទស្សន៍ភាពភ័យខ្លាច និងលោភលន់លើគ្រីបតូ៖ 64/100 = លោភលន់",
+      "category": "CRYPTO",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["BTCUSDT"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:18 ICT",
+      "url": "https://zoqira.pro/news/9797366-crypto-fear-and-greed-index-64100-greed",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26218,
+      "slug": "9797364-fear-and-greed-index-41100-fear",
+      "title_en": "Fear and Greed Index: 41/100 = Fear",
+      "title_km": "សន្ទស្សន៍ភ័យខ្លាច និងលោភលន់៖ ៤១/១០០ = ភ័យខ្លាច",
+      "category": "OTHER",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["US500", "BTCUSDT"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:17 ICT",
+      "url": "https://zoqira.pro/news/9797364-fear-and-greed-index-41100-fear",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26219,
+      "slug": "9797363-irans-president-pezeshkian-arrives-in-turkmenistan-and-will-hold-bil",
+      "title_en": "Iran's President Pezeshkian arrives in Turkmenistan, and will hold bilateral meetings and discussions with Putin - Tasnim News.",
+      "title_km": "ប្រធានាធិបតីអ៊ីរ៉ង់ លោក Pezeshkian បានមកដល់តួកមេនីស្ថាន ហើយនឹងជួបប្រជុំទ្វេភាគី និងពិភាក្សាជាមួយលោក ពូទីន - ទីភ្នាក់ងារព័ត៌មាន Tasnim។",
+      "category": "GEOPOLITICS",
+      "impact": "MEDIUM",
+      "is_mover": false,
+      "affected": ["USOIL", "XAUUSD", "USD"],
+      "bias": { "USOIL": "BULLISH", "XAUUSD": "BULLISH", "USD": "BULLISH" },
+      "regime": "RISK_OFF",
+      "why": "Iran-Russia talks raise the odds of tighter sanctions and supply risk, lifting oil and driving safe-haven flows into gold and the dollar.",
+      "published_at_ict": "08 Oct 2026 • 21:16 ICT",
+      "url": "https://zoqira.pro/news/9797363-irans-president-pezeshkian-arrives-in-turkmenistan-and-will-hold-bil",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26215,
+      "slug": "9797360-att-launches-flagship-pact-with-openai-forming-an-in-house-legal-des",
+      "title_en": "AT&T launches flagship pact with OpenAI, forming an in-house legal design partnership. $T",
+      "title_km": "AT&T ចាប់ដៃជាមួយ OpenAI ក្នុងកិច្ចសហការរចនាផ្នែកច្បាប់ក្នុងផ្ទះ",
+      "category": "EQUITIES",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["T"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:02 ICT",
+      "url": "https://zoqira.pro/news/9797360-att-launches-flagship-pact-with-openai-forming-an-in-house-legal-des",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26217,
+      "slug": "9797338-us-wholesale-sales-mom-actual-18-forecast-previous-08",
+      "title_en": "US Wholesale Sales MoM Actual 1.8% (Forecast -, Previous 0.8%)",
+      "title_km": "ការលក់ដុំសហរដ្ឋអាមេរិកប្រចាំខែ ជាក់ស្តែង 1.8% (ព្យាករណ៍ -, លើកមុន 0.8%)",
+      "category": "MACRO",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USD"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:00 ICT",
+      "url": "https://zoqira.pro/news/9797338-us-wholesale-sales-mom-actual-18-forecast-previous-08",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26216,
+      "slug": "9797339-us-wholesale-inventories-mom-revised-actual-05-forecast-07-previ",
+      "title_en": "US Wholesale Inventories MoM Revised Actual 0.5% (Forecast 0.7%, Previous 0.7%)",
+      "title_km": "ស្តុកលក់ដុំសហរដ្ឋអាមេរិកប្រចាំខែ ត្រូវបានកែសម្រួលជា 0.5% (ព្យាករណ៍ 0.7%, លើកមុន 0.7%)",
+      "category": "MACRO",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["USD"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 21:00 ICT",
+      "url": "https://zoqira.pro/news/9797339-us-wholesale-inventories-mom-revised-actual-05-forecast-07-previ",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26214,
+      "slug": "9797337-pakistan-news-reports-of-pakistani-fighter-jets-participating-in-the",
+      "title_en": "Pakistan: News reports of Pakistani fighter jets participating in the attack on Yemen are false and fabricated - Fars News.",
+      "title_km": "ប៉ាគីស្ថាន៖ របាយការណ៍ព័ត៌មានអំពីយន្តហោះចម្បាំងប៉ាគីស្ថានចូលរួមវាយប្រហារលើយេម៉េន គឺជាការមិនពិត និងប្រឌិត - Fars News។",
+      "category": "GEOPOLITICS",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["XAUUSD", "USOIL"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 20:57 ICT",
+      "url": "https://zoqira.pro/news/9797337-pakistan-news-reports-of-pakistani-fighter-jets-participating-in-the",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26212,
+      "slug": "9797318-saudi-arabia-debris-from-the-houthi-rocket-fell-on-a-medical-complex",
+      "title_en": "Saudi Arabia: Debris from the Houthi rocket fell on a medical complex.",
+      "title_km": "អារ៉ាប៊ីសាអូឌីត៖ បំណែកនៃគ្រាប់រ៉ុក្កែតរបស់ហ៊ូធី បានធ្លាក់លើមណ្ឌលពេទ្យមួយ។",
+      "category": "GEOPOLITICS",
+      "impact": "MEDIUM",
+      "is_mover": false,
+      "affected": ["XAUUSD", "USOIL", "USD"],
+      "bias": { "XAUUSD": "BULLISH", "USOIL": "BULLISH", "USD": "BULLISH" },
+      "regime": "RISK_OFF",
+      "why": "Attack on Saudi infrastructure raises Middle East supply risk, lifting oil and driving safe-haven flows into gold and the dollar.",
+      "published_at_ict": "08 Oct 2026 • 20:35 ICT",
+      "url": "https://zoqira.pro/news/9797318-saudi-arabia-debris-from-the-houthi-rocket-fell-on-a-medical-complex",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26213,
+      "slug": "9797317-saudi-arabia-shrapnel-fell-after-interception-over-riyadh",
+      "title_en": "Saudi Arabia: Shrapnel fell after interception over Riyadh.",
+      "title_km": "អារ៉ាប៊ីសាអូឌីត៖ បំណែកគ្រាប់បានធ្លាក់បន្ទាប់ពីការស្ទាក់ចាប់ពីលើអាកាសនៅរីយ៉ាដ។",
+      "category": "GEOPOLITICS",
+      "impact": "MEDIUM",
+      "is_mover": false,
+      "affected": ["XAUUSD", "USOIL", "USD"],
+      "bias": { "XAUUSD": "BULLISH", "USOIL": "BULLISH", "USD": "BULLISH" },
+      "regime": "RISK_OFF",
+      "why": "Interception over Riyadh signals escalating regional conflict, adding oil supply-risk premium and safe-haven demand for gold and USD.",
+      "published_at_ict": "08 Oct 2026 • 20:34 ICT",
+      "url": "https://zoqira.pro/news/9797317-saudi-arabia-shrapnel-fell-after-interception-over-riyadh",
+      "source": "Zoqira"
+    },
+    {
+      "id": 26211,
+      "slug": "9797301-moo-imbalance",
+      "title_en": "MOO Imbalance",
+      "title_km": "អតុល្យភាព MOO",
+      "category": "EQUITIES",
+      "impact": "LOW",
+      "is_mover": false,
+      "affected": ["US500"],
+      "bias": [],
+      "regime": null,
+      "why": null,
+      "published_at_ict": "08 Oct 2026 • 20:30 ICT",
+      "url": "https://zoqira.pro/news/9797301-moo-imbalance",
+      "source": "Zoqira"
+    }
+  ]
+};
+
+// Rebrand zoqira.pro and Zoqira source to Por ICT
+const porIctNewsData = rawApiPayload.data.map((item) => {
+  const transformedUrl = item.url ? item.url.replace("zoqira.pro", "porict.com") : "#";
+  const transformedSource = (item.source === "Zoqira" || !item.source) ? "Por ICT Newswire" : item.source;
+  return {
+    ...item,
+    url: transformedUrl,
+    source: transformedSource,
+    impact: (item.impact || "LOW").toUpperCase()
+  };
+});
+
+// Helper: Check if an item is relevant to USD / US instruments
+function isUsdInstrument(item) {
+  if (!item.affected || !Array.isArray(item.affected)) return false;
+  return item.affected.some((sym) => 
+    sym === "USD" || 
+    sym === "XAUUSD" || 
+    sym.startsWith("US") || 
+    sym === "DXY" || 
+    sym === "NAS100" || 
+    sym === "US500" || 
+    sym === "US30" || 
+    sym === "US10Y" || 
+    sym === "USOIL"
+  );
+}
+
+// Generate actionable institutional ICT playbook advice based on bias & regime
+function generateIctGuidance(item) {
+  if (item.regime === "RISK_OFF") {
+    if (item.bias && item.bias.USD === "BULLISH" && item.bias.XAUUSD === "BULLISH") {
+      return "Bullish Safe-Haven Expansion: Accumulate Gold & USD dips into M15 Fair Value Gaps (FVG); fade European cross rallies.";
+    }
+    return "Institutional Risk-Off: Target Sell-Side Liquidity (SSL) under previous session lows on equity indices; long USD on retracements.";
+  }
+  if (item.impact === "HIGH") {
+    return "High Impact Volatility Event: Wait for 15-minute institutional displacement and Judas Swing completion before execution.";
+  }
+  if (item.impact === "MEDIUM") {
+    return "Medium Catalyst: Monitor London/NY session overlap order blocks and liquidity pools on XAUUSD and major USD pairs.";
+  }
+  return "Low Impact Macro Flow: Scalp session ranges; rely on technical order flow and daily highs/lows.";
+}
+
+// ==========================================
+// 3. BILINGUAL DICTIONARY (EN & KH)
 // ==========================================
 const translations = {
   EN: {
     nav_home: "Home",
+    nav_news: "Por ICT News",
     nav_live_chart: "Live Chart",
     nav_membership: "Membership",
     nav_contact: "Contact Us",
@@ -89,6 +951,7 @@ const translations = {
     pop_approved: "● Approved",
     pop_tier: "Tier",
     pop_member: "Member",
+    pop_admin: "Admin",
     pop_verified: "Email verified",
     pop_yes: "Yes",
     pop_btn: "View full profile",
@@ -110,6 +973,18 @@ const translations = {
     asset_gold: "Gold",
     asset_silver: "Silver",
     tf_1m: "1m (Live Ticks)",
+
+    ff_banner_title: "Economic Events & USD High-Impact Calendar",
+    ff_banner_desc: "Real-time releases filtered directly for institutional ICT traders. Track red, orange, and yellow folders on Forex Factory.",
+    news_kicker: "LIVE NEWSWIRE · ព័ត៌មានទីផ្សារ",
+    news_main_title: "Market news",
+    news_sub_desc: "Real-time market-moving headlines, translated to Khmer and scored for impact. Focused on USD currency pairs.",
+    filter_all: "All",
+    filter_usd_only: "💵 USD Only (Hot)",
+    filter_high: "High Impact",
+    filter_medium: "Medium",
+    filter_low: "Low",
+    title_usd_wire: "USD Economic Newswire Feed",
 
     contact_tag: "CONTACT US",
     contact_title: "Get in Touch with the Mentor",
@@ -189,7 +1064,7 @@ const translations = {
     btn_current_plan: "Current Plan",
     btn_upgrade_pro: "Upgrade to Pro →",
     btn_join_vip: "Join VIP Elite →",
-    
+
     plan_starter_title: "Starter Member",
     plan_starter_tagline: "Fundamental analytics & tracking",
     feat_starter_1: "Full Trading Calendar & PnL tracker",
@@ -230,6 +1105,7 @@ const translations = {
   },
   KH: {
     nav_home: "ទំព័រដើម",
+    nav_news: "ព័ត៌មាន Por ICT",
     nav_live_chart: "តារាង Live Chart",
     nav_membership: "សមាជិកភាព",
     nav_contact: "ទំនាក់ទំនង",
@@ -240,6 +1116,7 @@ const translations = {
     pop_approved: "● បានអនុម័ត",
     pop_tier: "ប្រភេទសមាជិក",
     pop_member: "សមាជិកទូទៅ",
+    pop_admin: "អ្នកគ្រប់គ្រង",
     pop_verified: "អ៊ីមែលបានផ្ទៀងផ្ទាត់",
     pop_yes: "បាទ/ចាស",
     pop_btn: "មើលប្រវត្តិរូបពេញលេញ",
@@ -261,6 +1138,18 @@ const translations = {
     asset_gold: "មាស (Gold)",
     asset_silver: "ប្រាក់ (Silver)",
     tf_1m: "១នាទី (Live Ticks)",
+
+    ff_banner_title: "ព្រឹត្តិការណ៍សេដ្ឋកិច្ច និងប្រតិទិនព័ត៌មាន USD សំខាន់ៗ",
+    ff_banner_desc: "ព័ត៌មានជាក់ស្តែងសម្រាប់ ICT Trader តាមដាន folder ក្រហម ទឹកក្រូច និងលឿងនៅលើ Forex Factory។",
+    news_kicker: "LIVE NEWSWIRE · ព័ត៌មានទីផ្សារ",
+    news_main_title: "ព័ត៌មានទីផ្សារ",
+    news_sub_desc: "ព័ត៌មានរំជើបរំជួលទីផ្សារ បកប្រែជាភាសាខ្មែរ និងវាស់ស្ទង់ឥទ្ធិពល ផ្តោតលើគូរូបិយប័ណ្ណ USD។",
+    filter_all: "ទាំងអស់",
+    filter_usd_only: "💵 USD តែប៉ុណ្ណោះ (ក្តៅៗ)",
+    filter_high: "ឥទ្ធិពលខ្លាំង (High)",
+    filter_medium: "មធ្យម (Medium)",
+    filter_low: "ទាប (Low)",
+    title_usd_wire: "ព័ត៌មានសេដ្ឋកិច្ច USD ផ្ទាល់",
 
     contact_tag: "ទំនាក់ទំនងយើង",
     contact_title: "ទាក់ទងផ្ទាល់ជាមួយគ្រូបង្រៀន",
@@ -370,7 +1259,7 @@ const translations = {
     modal_pnl_label: "ចំណេញ/ខាត ($)",
     modal_pair_label: "គូរូបិយប័ណ្ណ (ស្រេចចិត្ត)",
     modal_note_label: "កំណត់ចំណាំ (ស្រេចចិត្ត)",
-    modal_delete: "លប",
+    modal_delete: "លុប",
     modal_save: "រក្សាទុក",
     no_trade: "មិនបាន trade",
 
@@ -416,16 +1305,19 @@ function setLanguage(lang) {
 
   renderCalendar();
   updateTierButtons();
+  renderHotNewsSection();
+  renderWireNewsSection();
 }
 
 // ==========================================
-// 3. DOM ELEMENT REFERENCES
+// 4. DOM ELEMENT REFERENCES
 // ==========================================
 const loginView = document.getElementById("loginView");
 const signupView = document.getElementById("signupView");
 const verifyView = document.getElementById("verifyView");
 const resetPasswordView = document.getElementById("resetPasswordView");
 const dashboardView = document.getElementById("dashboardView");
+const newsView = document.getElementById("newsView");
 const liveChartView = document.getElementById("liveChartView");
 const membershipView = document.getElementById("membershipView");
 const contactView = document.getElementById("contactView");
@@ -435,6 +1327,7 @@ const navLogoutBtn = document.getElementById("navLogoutBtn");
 const navProfileWrapper = document.getElementById("navProfileWrapper");
 const navCenterLinks = document.getElementById("navCenterLinks");
 const navHomeLink = document.getElementById("navHomeLink");
+const navNewsLink = document.getElementById("navNewsLink");
 const navLiveChartLink = document.getElementById("navLiveChartLink");
 const navMembershipLink = document.getElementById("navMembershipLink");
 const navContactLink = document.getElementById("navContactLink");
@@ -445,6 +1338,7 @@ const mobileMenuBtn = document.getElementById("mobileMenuBtn");
 const mobileMenuDrawer = document.getElementById("mobileMenuDrawer");
 const mobileDrawerBackdrop = document.getElementById("mobileDrawerBackdrop");
 const mobileHomeLink = document.getElementById("mobileHomeLink");
+const mobileNewsLink = document.getElementById("mobileNewsLink");
 const mobileLiveChartLink = document.getElementById("mobileLiveChartLink");
 const mobileMembershipLink = document.getElementById("mobileMembershipLink");
 const mobileContactLink = document.getElementById("mobileContactLink");
@@ -455,11 +1349,23 @@ const mobileViewProfileBtn = document.getElementById("mobileViewProfileBtn");
 
 const mobileEzContactFab = document.getElementById("mobileEzContactFab");
 
+// Navigation buttons
+const newsBackBtn = document.getElementById("newsBackBtn");
+const openNewsFromDashBtn = document.getElementById("openNewsFromDashBtn");
 const membershipBackBtn = document.getElementById("membershipBackBtn");
 const liveChartBackBtn = document.getElementById("liveChartBackBtn");
 const contactBackBtn = document.getElementById("contactBackBtn");
 const openLiveChartBtn = document.getElementById("openLiveChartBtn");
 const bannerUpgradeBtn = document.getElementById("bannerUpgradeBtn");
+
+// Newsfeed DOM Elements
+const hotNewsItemsList = document.getElementById("hotNewsItemsList");
+const wireCardsGrid = document.getElementById("wireCardsGrid");
+const newsFeedCounter = document.getElementById("newsFeedCounter");
+const liveIctClock = document.getElementById("liveIctClock");
+const jsonApiBtn = document.getElementById("jsonApiBtn");
+const newsFiltersContainer = document.getElementById("newsFiltersContainer");
+const ffCalendarExternalBtn = document.getElementById("ffCalendarExternalBtn");
 
 const soundToggleBtn = document.getElementById("soundToggleBtn");
 const soundStatusText = document.getElementById("soundStatusText");
@@ -555,7 +1461,223 @@ const inputNote = document.getElementById("inputNote");
 let pendingSignupUser = null;
 
 // ==========================================
-// 4. AMBIENT YOUTUBE AUDIO ENGINE
+// 5. POR ICT NEWS & FOREX FACTORY CONTROLLER
+// ==========================================
+function openNewsView(e) {
+  if (e) e.preventDefault();
+  hideAllViews();
+  if (newsView) newsView.classList.remove("hidden");
+
+  updateNavActiveLink(navNewsLink, mobileNewsLink);
+  if (profilePopoverCard) profilePopoverCard.classList.remove("show");
+  closeMobileDrawer();
+
+  renderHotNewsSection();
+  renderWireNewsSection();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+if (openNewsFromDashBtn) openNewsFromDashBtn.addEventListener("click", openNewsView);
+if (navNewsLink) navNewsLink.addEventListener("click", openNewsView);
+if (mobileNewsLink) mobileNewsLink.addEventListener("click", openNewsView);
+if (newsBackBtn) newsBackBtn.addEventListener("click", openDashboardView);
+
+// Forex Factory direct visit tracker
+if (ffCalendarExternalBtn) {
+  ffCalendarExternalBtn.addEventListener("click", () => {
+    console.log("Forex Factory sync: https://www.forexfactory.com/");
+  });
+}
+
+// Live ICT Clock (Phnom Penh UTC+7)
+function updateIctClock() {
+  if (!liveIctClock) return;
+  const now = new Date();
+  const timeString = now.toLocaleTimeString("en-GB", {
+    timeZone: "Asia/Phnom_Penh",
+    hour12: false
+  });
+  liveIctClock.textContent = `${timeString} ICT`;
+}
+setInterval(updateIctClock, 1000);
+updateIctClock();
+
+// News Filter Toolbar Handlers
+if (newsFiltersContainer) {
+  const filterButtons = newsFiltersContainer.querySelectorAll(".filter-pill-btn");
+  filterButtons.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      filterButtons.forEach((b) => b.classList.remove("active"));
+      e.currentTarget.classList.add("active");
+      currentNewsFilter = e.currentTarget.getAttribute("data-filter") || "all";
+      renderHotNewsSection();
+      renderWireNewsSection();
+    });
+  });
+}
+
+// Render "Por ICT New Hot Reads" Section (Movers, High/Medium Impact, Why Catalyst, Regime)
+function renderHotNewsSection() {
+  if (!hotNewsItemsList) return;
+
+  const hotCandidates = porIctNewsData.filter((item) => {
+    const hasCatalyst = item.is_mover === true || item.impact === "HIGH" || (item.why && item.impact === "MEDIUM");
+    if (!hasCatalyst) return false;
+
+    if (currentNewsFilter === "all") return true;
+    if (currentNewsFilter === "usd") return isUsdInstrument(item);
+    if (currentNewsFilter === "high") return item.impact === "HIGH";
+    if (currentNewsFilter === "medium") return item.impact === "MEDIUM";
+    if (currentNewsFilter === "low") return item.impact === "LOW";
+    return true;
+  });
+
+  if (hotCandidates.length === 0) {
+    hotNewsItemsList.innerHTML = `
+      <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">
+        No Hot Reads match the active filter criteria.
+      </div>
+    `;
+    return;
+  }
+
+  hotNewsItemsList.innerHTML = hotCandidates.map((item) => {
+    const impactClass = item.impact.toLowerCase();
+    const impactLabel = item.impact;
+    const titleText = currentLang === "KH" ? (item.title_km || item.title_en) : item.title_en;
+
+    // Bias sentiment tags
+    let biasTagsHtml = "";
+    if (item.bias && typeof item.bias === "object" && !Array.isArray(item.bias)) {
+      biasTagsHtml = Object.keys(item.bias).map((sym) => {
+        const sentiment = item.bias[sym].toLowerCase();
+        const sentClass = sentiment === "bullish" ? "tag-bullish" : "tag-bearish";
+        return `<span class="market-sentiment-tag ${sentClass}">${sym} ${sentiment}</span>`;
+      }).join("");
+    } else if (item.affected && Array.isArray(item.affected)) {
+      biasTagsHtml = item.affected.map((sym) => {
+        return `<span class="market-sentiment-tag tag-neutral">${sym}</span>`;
+      }).join("");
+    }
+
+    const whyCatalyst = item.why ? `
+      <p class="hot-item-catalyst-summary">
+        <strong>${item.regime || item.category} ·</strong> ${item.why}
+      </p>
+    ` : "";
+
+    const ictAdvice = generateIctGuidance(item);
+
+    return `
+      <article class="hot-news-item-card" data-impact="${item.impact}">
+        <span class="impact-badge-pill ${impactClass}">${impactLabel}</span>
+        <div class="hot-item-content">
+          <h3 class="hot-item-title">${titleText}</h3>
+          
+          <div class="hot-meta-tags-row">
+            ${biasTagsHtml}
+            <span class="por-wire-source-tag">${item.source}</span>
+            <span class="por-wire-source-tag">${item.published_at_ict}</span>
+          </div>
+
+          ${whyCatalyst}
+
+          <div class="hot-ict-action-row">
+            <span class="ict-bolt">⚡</span>
+            <span>${ictAdvice}</span>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+// Render "USD Economic Newswire Feed" Grid Section
+function renderWireNewsSection() {
+  if (!wireCardsGrid) return;
+
+  const wireCandidates = porIctNewsData.filter((item) => {
+    if (currentNewsFilter === "all") return true;
+    if (currentNewsFilter === "usd") return isUsdInstrument(item);
+    if (currentNewsFilter === "high") return item.impact === "HIGH";
+    if (currentNewsFilter === "medium") return item.impact === "MEDIUM";
+    if (currentNewsFilter === "low") return item.impact === "LOW";
+    return true;
+  });
+
+  if (newsFeedCounter) {
+    newsFeedCounter.textContent = `Showing ${wireCandidates.length} headlines`;
+  }
+
+  if (wireCandidates.length === 0) {
+    wireCardsGrid.innerHTML = `
+      <div style="grid-column: 1 / -1; padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">
+        No headlines available for the selected filter.
+      </div>
+    `;
+    return;
+  }
+
+  wireCardsGrid.innerHTML = wireCandidates.map((item) => {
+    const impactClass = item.impact.toLowerCase();
+    const impactLabel = item.impact;
+
+    let affectedPillsHtml = "";
+    if (item.affected && Array.isArray(item.affected) && item.affected.length > 0) {
+      affectedPillsHtml = item.affected.map((sym) => {
+        let extraClass = "";
+        if (item.bias && item.bias[sym]) {
+          extraClass = item.bias[sym] === "BULLISH" ? "usd-positive" : "usd-negative";
+        }
+        return `<span class="wire-asset-pill ${extraClass}">${sym}</span>`;
+      }).join("");
+    } else {
+      affectedPillsHtml = `<span class="wire-asset-pill">${item.category}</span>`;
+    }
+
+    return `
+      <article class="wire-news-card" data-impact="${item.impact}">
+        <div class="wire-card-top-bar">
+          <span class="impact-badge-pill ${impactClass}">${impactLabel}</span>
+          <span class="wire-category-tag">${item.category}</span>
+          <span class="wire-time-ago">${item.published_at_ict}</span>
+        </div>
+
+        <h4 class="wire-english-title">${item.title_en}</h4>
+        <p class="wire-khmer-title">${item.title_km || item.title_en}</p>
+
+        <div class="wire-asset-tags-group">
+          ${affectedPillsHtml}
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+// JSON API Endpoint preview / Copy handler
+if (jsonApiBtn) {
+  jsonApiBtn.addEventListener("click", () => {
+    const apiExportPayload = {
+      provider: "Por ICT Newswire",
+      forexFactorySync: "https://www.forexfactory.com/",
+      timestamp: new Date().toISOString(),
+      count: porIctNewsData.length,
+      data: porIctNewsData
+    };
+
+    navigator.clipboard.writeText(JSON.stringify(apiExportPayload, null, 2))
+      .then(() => {
+        alert("Por ICT USD Newswire JSON payload copied to clipboard! 📋");
+      })
+      .catch(() => {
+        console.log("Por ICT API Payload:", apiExportPayload);
+        alert("Por ICT API Payload logged to browser developer console.");
+      });
+  });
+}
+
+// ==========================================
+// 6. AMBIENT YOUTUBE AUDIO ENGINE
 // ==========================================
 window.onYouTubeIframeAPIReady = function() {
   initYouTubeAudio();
@@ -613,7 +1735,7 @@ function setAudioUIState(isPlaying) {
   localStorage.setItem("por_music_playing", isPlaying ? "true" : "false");
 
   const dict = translations[currentLang] || translations.EN;
-  
+
   if (soundToggleBtn) {
     soundToggleBtn.classList.toggle("is-playing", isPlaying);
   }
@@ -677,7 +1799,6 @@ if (soundToggleBtn) soundToggleBtn.addEventListener("click", toggleAudioPlayback
 if (navMusicBtn) navMusicBtn.addEventListener("click", toggleAudioPlayback);
 if (mobileMusicBtn) mobileMusicBtn.addEventListener("click", toggleAudioPlayback);
 
-// Interaction audio bootstrap
 document.addEventListener("click", () => {
   if (localStorage.getItem("por_music_playing") === "true" && !isAudioPlaying && ytPlayerReady) {
     playAudioMusic();
@@ -689,7 +1810,7 @@ if (window.YT && window.YT.Player) {
 }
 
 // ==========================================
-// 5. THEME & LANGUAGE CONTROLLER
+// 7. THEME & LANGUAGE CONTROLLER
 // ==========================================
 function applyTheme(theme) {
   const isLight = theme === "light";
@@ -723,7 +1844,7 @@ applyTheme(localStorage.getItem("por_theme") || "dark");
 setLanguage(currentLang);
 
 // ==========================================
-// 6. ACCOUNT SWITCHER & STATE SYNC
+// 8. ACCOUNT SWITCHER & STATE SYNC
 // ==========================================
 function loadAccount(email) {
   activeUserEmail = email;
@@ -784,9 +1905,7 @@ if (avatarUploadTrigger && avatarFileInput) {
   });
 }
 
-// ==========================================
-// 7. LANGUAGE MENU & POPOVER HANDLERS
-// ==========================================
+// Language Menu & Popover Handlers
 if (langToggleBtn && langMenu) {
   langToggleBtn.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -849,7 +1968,7 @@ if (mobileViewProfileBtn && profileCardSection) {
 }
 
 // ==========================================
-// 8. LOGIN, SIGN UP & RESET PASSWORD
+// 9. AUTHENTICATION & PASSWORD FLOW
 // ==========================================
 if (goToSignupBtn) {
   goToSignupBtn.addEventListener("click", (e) => {
@@ -1029,9 +2148,7 @@ if (toastFillBtn) {
   });
 }
 
-// ==========================================
-// 9. 6-DIGIT OTP BOX HANDLING
-// ==========================================
+// 6-Digit OTP Box Handling
 if (otpBoxes.length > 0) {
   otpBoxes.forEach((input, index) => {
     input.addEventListener("input", (e) => {
@@ -1139,18 +2256,19 @@ function hideAllViews() {
   if (verifyView) verifyView.classList.add("hidden");
   if (resetPasswordView) resetPasswordView.classList.add("hidden");
   if (dashboardView) dashboardView.classList.add("hidden");
+  if (newsView) newsView.classList.add("hidden");
   if (liveChartView) liveChartView.classList.add("hidden");
   if (membershipView) membershipView.classList.add("hidden");
   if (contactView) contactView.classList.add("hidden");
 }
 
 function updateNavActiveLink(activeLinkEl, mobileActiveLinkEl) {
-  [navHomeLink, navLiveChartLink, navMembershipLink, navContactLink].forEach((link) => {
+  [navHomeLink, navNewsLink, navLiveChartLink, navMembershipLink, navContactLink].forEach((link) => {
     if (link) link.classList.remove("active");
   });
   if (activeLinkEl) activeLinkEl.classList.add("active");
 
-  [mobileHomeLink, mobileLiveChartLink, mobileMembershipLink, mobileContactLink].forEach((link) => {
+  [mobileHomeLink, mobileNewsLink, mobileLiveChartLink, mobileMembershipLink, mobileContactLink].forEach((link) => {
     if (link) link.classList.remove("active");
   });
   if (mobileActiveLinkEl) mobileActiveLinkEl.classList.add("active");
@@ -1229,7 +2347,6 @@ function initTradingViewChart() {
   if (!container || typeof TradingView === "undefined") return;
 
   const isLight = document.documentElement.getAttribute("data-theme") === "light";
-
   container.innerHTML = "";
 
   tradingViewWidget = new TradingView.widget({
@@ -1689,6 +2806,7 @@ document.querySelectorAll(".toggle-btn").forEach((btn) => {
   });
 });
 
+// Ambient video playback safeguard
 const bgVideo = document.querySelector(".bg-video");
 if (bgVideo) {
   bgVideo.muted = true;

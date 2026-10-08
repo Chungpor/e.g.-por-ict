@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Por ICT - Calendar & Analytics System</title>
+  <title>Por ICT - Calendar & Market Analytics System</title>
   
   <!-- Browser Tab Favicon -->
   <link rel="icon" type="image/jpeg" href="por.jpg" />
@@ -63,6 +63,7 @@
       <!-- Center Navigation Links (Desktop) -->
       <nav id="navCenterLinks" class="nav-center-links hidden">
         <a href="#" id="navHomeLink" class="nav-link active" data-i18n="nav_home">Home</a>
+        <a href="#" id="navNewsLink" class="nav-link" data-i18n="nav_news">Por ICT News</a>
         <a href="#" id="navLiveChartLink" class="nav-link" data-i18n="nav_live_chart">Live Chart</a>
         <a href="#" id="navMembershipLink" class="nav-link" data-i18n="nav_membership">Membership</a>
         <a href="#" id="navContactLink" class="nav-link" data-i18n="nav_contact">Contact Us</a>
@@ -82,7 +83,7 @@
       <!-- Right Action Controls -->
       <div class="nav-controls-group">
         
-        <!-- Sound Toggle Pill (Dynamic 4K Audio: Zen Music) -->
+        <!-- Sound Toggle Pill (Dynamic 4K Audio) -->
         <button type="button" id="soundToggleBtn" class="sound-toggle-pill" aria-label="Toggle Sound">
           <span class="sound-wave-track">
             <span class="sound-wave-bar"></span>
@@ -248,6 +249,7 @@
       <!-- Navigation Links -->
       <nav class="mobile-nav-links">
         <a href="#" id="mobileHomeLink" class="mobile-nav-link-item active" data-i18n="nav_home">Home</a>
+        <a href="#" id="mobileNewsLink" class="mobile-nav-link-item" data-i18n="nav_news">Por ICT News</a>
         <a href="#" id="mobileLiveChartLink" class="mobile-nav-link-item" data-i18n="nav_live_chart">Live Chart</a>
         <a href="#" id="mobileMembershipLink" class="mobile-nav-link-item" data-i18n="nav_membership">Membership</a>
         <a href="#" id="mobileContactLink" class="mobile-nav-link-item" data-i18n="nav_contact">Contact Us</a>
@@ -616,8 +618,24 @@
         </div>
       </header>
 
-      <!-- SECTION: NEW PRODUCT (LIVE CHART CARD) -->
-      <section class="products-grid-section">
+      <!-- SECTION: PRODUCTS GRID (POR ICT NEWS & LIVE CHART) -->
+      <section class="products-dual-grid">
+        <!-- Feature Card 1: Por ICT News (Hot News & Forex Factory) -->
+        <div class="product-feature-card por-news-promo-card">
+          <div class="product-card-badge news-badge-glow">
+            <span class="fire-icon-pulse">🔥</span>
+          </div>
+          <div>
+            <span class="promo-sub-label">USD FOCUS & FOREX FACTORY</span>
+            <h3 class="product-card-title">Por ICT News</h3>
+          </div>
+          <p class="promo-card-desc">High, Medium & Low impact USD newswire feeds with institutional ICT execution commentary.</p>
+          <button type="button" id="openNewsFromDashBtn" class="product-chart-btn btn-news-gradient">
+            READ POR ICT NEWS ➔
+          </button>
+        </div>
+
+        <!-- Feature Card 2: Live Market Chart -->
         <div class="product-feature-card">
           <div class="product-card-badge">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -628,9 +646,13 @@
               <path d="M17 19h4"/>
             </svg>
           </div>
-          <h3 class="product-card-title" data-i18n="prod_new_title">New Product</h3>
+          <div>
+            <span class="promo-sub-label" data-i18n="prod_new_title">New Product</span>
+            <h3 class="product-card-title" data-i18n="chart_title">Live Market Chart</h3>
+          </div>
+          <p class="promo-card-desc">Real-time institutional candlestick charts with customizable indicators.</p>
           <button type="button" id="openLiveChartBtn" class="product-chart-btn" data-i18n="prod_live_btn">
-            LIVE CHART
+            LIVE CHART ➔
           </button>
         </div>
       </section>
@@ -721,6 +743,154 @@
 
           <div id="calendarDaysGrid" class="days-grid"></div>
         </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ==========================================
+       VIEW 2B: POR ICT NEWS (MARKET NEWS & FOREX FACTORY)
+       ========================================== -->
+  <div id="newsView" class="dashboard-page-container hidden">
+    <div class="dashboard-inner">
+      
+      <!-- Breadcrumb Link -->
+      <div class="nav-breadcrumbs-row">
+        <a href="#" id="newsBackBtn" class="breadcrumb-link" data-i18n="breadcrumb_dashboard">← Back to Dashboard</a>
+      </div>
+
+      <!-- FOREX FACTORY OFFICIAL LIVE BANNER CARD -->
+      <section class="ff-official-banner-card">
+        <div class="ff-banner-glow-effect"></div>
+        <div class="ff-banner-inner">
+          <div class="ff-banner-left">
+            <div class="ff-logo-badge">
+              <span class="ff-logo-symbol">FF</span>
+            </div>
+            <div class="ff-banner-text-group">
+              <div class="ff-status-row">
+                <span class="ff-live-dot"></span>
+                <span class="ff-live-text">FOREX FACTORY LIVE CALENDAR SYNC</span>
+                <span class="ff-session-tag" id="currentSessionTag">NY SESSION ACTIVE</span>
+                <span class="ff-usd-focus-pill">USD FOCUSED</span>
+              </div>
+              <h2 class="ff-banner-heading" data-i18n="ff_banner_title">Economic Events & USD High-Impact Calendar</h2>
+              <p class="ff-banner-desc" data-i18n="ff_banner_desc">
+                Live releases synced from <a href="https://www.forexfactory.com/" target="_blank" rel="noopener noreferrer" class="ff-inline-link">ForexFactory.com</a>. Filtered for institutional ICT setups across Red, Orange, and Yellow folders.
+              </p>
+            </div>
+          </div>
+
+          <div class="ff-banner-right">
+            <!-- Impact Legend -->
+            <div class="ff-impact-legend-box">
+              <div class="legend-pill high-pill">
+                <span class="impact-indicator-dot red"></span>
+                <span>HIGH</span>
+              </div>
+              <div class="legend-pill medium-pill">
+                <span class="impact-indicator-dot orange"></span>
+                <span>MEDIUM</span>
+              </div>
+              <div class="legend-pill low-pill">
+                <span class="impact-indicator-dot yellow"></span>
+                <span>LOW</span>
+              </div>
+            </div>
+
+            <!-- Clickable Forex Factory External Anchor -->
+            <a 
+              href="https://www.forexfactory.com/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="ff-direct-cta-btn"
+              id="ffCalendarExternalBtn"
+            >
+              <span>Visit ForexFactory.com</span>
+              <span class="cta-arrow">↗</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- MARKET NEWS HEADER -->
+      <header class="news-main-header">
+        <div class="header-titles-wrap">
+          <span class="news-kicker-tag" data-i18n="news_kicker">LIVE NEWSWIRE · ព័ត៌មានទីផ្សារ</span>
+          <h1 class="news-headline-title">
+            <span class="headline-en" data-i18n="news_main_title">Market news</span>
+            <span class="headline-divider">/</span>
+            <span class="headline-kh">ព័ត៌មានទីផ្សារ</span>
+          </h1>
+          <p class="news-sub-description" data-i18n="news_sub_desc">
+            Real-time market-moving headlines, translated to Khmer and scored for impact. Focused on USD currency pairs.
+          </p>
+        </div>
+
+        <div class="news-header-actions">
+          <div class="news-view-switch-tabs">
+            <button type="button" class="view-switch-tab-btn active" id="tabHotNewsBtn">
+              <span>🔥 Hot news</span>
+            </button>
+            <button type="button" class="view-switch-tab-btn" id="tabNewswireBtn">
+              <span>📰 Live newswire</span>
+            </button>
+          </div>
+          <button type="button" class="json-api-pill-btn" id="jsonApiBtn">
+            <span class="code-brackets">&lt;&gt;</span>
+            <span>JSON API</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- NEWS FILTER TOOLBAR -->
+      <div class="news-filter-toolbar">
+        <div class="filter-pills-container" id="newsFiltersContainer">
+          <button type="button" class="filter-pill-btn active" data-filter="all" data-i18n="filter_all">All</button>
+          <button type="button" class="filter-pill-btn usd-focus-btn" data-filter="usd" data-i18n="filter_usd_only">
+            💵 USD Only (Hot)
+          </button>
+          <button type="button" class="filter-pill-btn" data-filter="high" data-i18n="filter_high">
+            <span class="impact-bullet red">●</span> High Impact
+          </button>
+          <button type="button" class="filter-pill-btn" data-filter="medium" data-i18n="filter_medium">
+            <span class="impact-bullet orange">●</span> Medium
+          </button>
+          <button type="button" class="filter-pill-btn" data-filter="low" data-i18n="filter_low">
+            <span class="impact-bullet yellow">●</span> Low
+          </button>
+        </div>
+
+        <div class="news-live-status-pill">
+          <span class="pulse-green-dot"></span>
+          <span class="live-clock-text" id="liveIctClock">20:29:52 ICT</span>
+        </div>
+      </div>
+
+      <!-- SECTION: POR ICT HOT READS -->
+      <section class="hot-reads-container-card" id="hotReadsSection">
+        <div class="hot-reads-card-header">
+          <div class="hot-reads-brand-left">
+            <span class="fire-icon-badge">🔥</span>
+            <h2 class="hot-reads-brand-title" id="hotReadsTitle">Por ICT Hot reads</h2>
+          </div>
+          <div class="hot-reads-badge-right">
+            <span class="live-pulsing-tag">● LIVE · JUST NOW</span>
+          </div>
+        </div>
+
+        <!-- Dynamic Hot News Item Stack -->
+        <div class="hot-news-stack-list" id="hotNewsItemsList"></div>
+      </section>
+
+      <!-- SECTION: LIVE USD MARKET NEWSWIRE GRID (WITH KHMER TRANSLATIONS) -->
+      <section class="market-wire-grid-section" id="newswireSection">
+        <div class="section-title-strip">
+          <h3 class="strip-heading" data-i18n="title_usd_wire">USD Economic Newswire Feed</h3>
+          <span class="strip-count" id="newsFeedCounter">Showing headlines</span>
+        </div>
+
+        <div class="wire-cards-grid" id="wireCardsGrid"></div>
       </section>
 
     </div>
