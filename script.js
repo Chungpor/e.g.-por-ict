@@ -1,6 +1,6 @@
 /**
  * Por ICT Analytics System
- * Multi-account support with clean slate initialization for new accounts
+ * Multi-account support, auto-save state, and persistent iPhone session
  */
 
 // ==========================================
@@ -16,10 +16,8 @@ const defaultChungporTrades = {
   "2026-10-07": { pnl: 50.0, symbol: "XAUUSD", note: "" }
 };
 
-// Generic placeholder avatar for brand new accounts
 const defaultGenericAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>";
 
-// Database of registered accounts
 let accountsDatabase = JSON.parse(localStorage.getItem("por_all_accounts")) || {
   "chungpor908@gmail.com": {
     name: "Chungpor",
@@ -34,7 +32,6 @@ function saveAccountsToStorage() {
   localStorage.setItem("por_all_accounts", JSON.stringify(accountsDatabase));
 }
 
-// Current active session
 let activeUserEmail = localStorage.getItem("por_active_user") || "chungpor908@gmail.com";
 let currentAccount = accountsDatabase[activeUserEmail] || accountsDatabase["chungpor908@gmail.com"];
 let tradeDatabase = currentAccount.trades || {};
@@ -422,7 +419,6 @@ const inputPnl = document.getElementById("inputPnl");
 const inputSymbol = document.getElementById("inputSymbol");
 const inputNote = document.getElementById("inputNote");
 
-// Temporary registration holder
 let pendingSignupUser = null;
 
 // ==========================================
@@ -463,15 +459,13 @@ function loadAccount(email) {
   activeUserEmail = email;
   localStorage.setItem("por_active_user", email);
 
-  // If new or existing
   if (!accountsDatabase[email]) {
-    // Create new empty account
     accountsDatabase[email] = {
       name: email.split("@")[0],
       email: email,
       tier: "Member",
       avatar: defaultGenericAvatar,
-      trades: {} // Empty trades
+      trades: {}
     };
     saveAccountsToStorage();
   }
@@ -480,7 +474,6 @@ function loadAccount(email) {
   tradeDatabase = currentAccount.trades || {};
   currentTier = currentAccount.tier || "Member";
 
-  // Update DOM UI elements
   if (profileNameEl) profileNameEl.textContent = currentAccount.name;
   if (profileEmailEl) profileEmailEl.textContent = currentAccount.email;
   if (popoverNameEl) popoverNameEl.textContent = currentAccount.name;
@@ -496,10 +489,6 @@ function loadAccount(email) {
   updateTierButtons();
 }
 
-// Initial account load
-loadAccount(activeUserEmail);
-
-// Avatar custom file upload
 if (avatarUploadTrigger && avatarFileInput) {
   avatarUploadTrigger.addEventListener("click", () => avatarFileInput.click());
 
@@ -604,7 +593,6 @@ if (toggleSignupConfirmBtn && signupConfirmInput) {
   });
 }
 
-// Handle Sign In submission
 if (loginForm) {
   loginForm.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -614,7 +602,6 @@ if (loginForm) {
   });
 }
 
-// Handle Sign Up: Creates completely clean account
 if (signupForm) {
   signupForm.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -644,13 +631,12 @@ if (signupForm) {
       return;
     }
 
-    // Save pending new clean account
     pendingSignupUser = {
       name: name,
       email: email,
       tier: "Member",
       avatar: defaultGenericAvatar,
-      trades: {} // Brand new empty trades
+      trades: {}
     };
 
     if (verifyEmailDisplay) verifyEmailDisplay.textContent = email;
@@ -749,7 +735,6 @@ function checkCompleteOTP() {
       }
       if (emailToast) emailToast.classList.add("hidden");
 
-      // Register and activate brand new account
       if (pendingSignupUser) {
         accountsDatabase[pendingSignupUser.email] = pendingSignupUser;
         saveAccountsToStorage();
@@ -798,7 +783,12 @@ if (verifyBackBtn) {
   });
 }
 
+// ==========================================
+// 9. PERSISTENT SESSION CONTROLLER
+// ==========================================
 function enterDashboard() {
+  localStorage.setItem("por_is_logged_in", "true");
+
   if (loginView) loginView.classList.add("hidden");
   if (signupView) signupView.classList.add("hidden");
   if (verifyView) verifyView.classList.add("hidden");
@@ -817,6 +807,8 @@ function enterDashboard() {
 }
 
 function handleLogout() {
+  localStorage.setItem("por_is_logged_in", "false");
+
   if (dashboardView) dashboardView.classList.add("hidden");
   if (membershipView) membershipView.classList.add("hidden");
   if (signupView) signupView.classList.add("hidden");
@@ -831,8 +823,16 @@ function handleLogout() {
 
 if (navLogoutBtn) navLogoutBtn.addEventListener("click", handleLogout);
 
+const savedLoginState = localStorage.getItem("por_is_logged_in");
+if (savedLoginState === "true") {
+  loadAccount(activeUserEmail);
+  enterDashboard();
+} else {
+  loadAccount(activeUserEmail);
+}
+
 // ==========================================
-// 9. MEMBERSHIP & BILLING ROUTING
+// 10. MEMBERSHIP & BILLING ROUTING
 // ==========================================
 function openMembershipView(e) {
   if (e) e.preventDefault();
@@ -926,7 +926,7 @@ document.querySelectorAll(".tier-select-btn").forEach((btn) => {
 });
 
 // ==========================================
-// 10. CALENDAR SYSTEM
+// 11. CALENDAR SYSTEM
 // ==========================================
 function renderCalendar() {
   if (!calendarGrid || !monthLabel) return;
@@ -999,7 +999,7 @@ function renderCalendar() {
 }
 
 // ==========================================
-// 11. TRADE MODAL (SAVE & DELETE)
+// 12. TRADE MODAL (SAVE & DELETE)
 // ==========================================
 function openTradeModal(dateKey, dayNumber) {
   if (!modal) return;
@@ -1074,7 +1074,7 @@ if (deleteTradeBtn) {
 }
 
 // ==========================================
-// 12. METRIC KPI SYNC (CLEAN SLATE SUPPORT)
+// 13. METRIC KPI SYNC (CLEAN SLATE SUPPORT)
 // ==========================================
 function syncTopStats() {
   let totalProfit = 0;
@@ -1097,12 +1097,10 @@ function syncTopStats() {
     }
   });
 
-  // Profit
   if (statProfitEl) {
     statProfitEl.textContent = `${totalProfit >= 0 ? "+" : ""}${totalProfit.toFixed(0)}`;
   }
 
-  // Best Pair
   let bestPair = "None";
   let maxProfit = -Infinity;
   Object.keys(symbolProfits).forEach((sym) => {
@@ -1117,12 +1115,10 @@ function syncTopStats() {
     statBestPairPnlEl.textContent = tradeCount > 0 && maxProfit !== -Infinity ? `${maxProfit >= 0 ? "+" : ""}${maxProfit.toFixed(0)}` : "+0";
   }
 
-  // Change
   if (statChangeEl) {
     statChangeEl.textContent = tradeCount > 0 ? "+100.0%" : "0.0%";
   }
 
-  // Sparklines
   const spProfit = document.getElementById("sparklineProfit");
   const spChange = document.getElementById("sparklineChange");
   const spBest = document.getElementById("sparklineBest");
@@ -1163,7 +1159,7 @@ if (nextBtn) {
 }
 
 // ==========================================
-// 13. PERFORMANCE CHART ENGINE
+// 14. PERFORMANCE CHART ENGINE
 // ==========================================
 function initOrUpdateChart(forceRecreate = false) {
   const canvas = document.getElementById("performanceChart");
@@ -1192,7 +1188,6 @@ function initOrUpdateChart(forceRecreate = false) {
     }
   });
 
-  // Clean empty baseline chart for new accounts
   const finalLabels = labels.length > 0 ? labels : ["Start", "Current"];
   const finalPoints = points.length > 0 ? points : [0, 0];
 
