@@ -1,6 +1,6 @@
 /**
  * Por ICT - Forex Factory Live JSON API & Web Server
- * Runs at: http://localhost:3000
+ * Runs at: http://localhost:3001
  * Requires Node 18+ (global fetch and AbortSignal.timeout).
  */
 
@@ -9,27 +9,121 @@ const cors = require('cors');
 const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 app.use(cors());
-app.use(express.json());
+// Default JSON limit everywhere, except the chart-upload route which sets its own larger limit.
+app.use((req, res, next) => (req.path === '/api/analyze-chart' ? next() : express.json()(req, res, next)));
 
 // Never serve server code, dependency files, env files or dotfiles,
 // even though express.static(__dirname) would otherwise expose them.
 // Safer long-term fix: move frontend files into a ./public folder
 // and serve only that folder.
-const BLOCKED_PATH = /^\/(server\.js|package(-lock)?\.json|node_modules(\/|$)|\.|.*\.(env|log|md)$)/i;
+const BLOCKED_PATH = /^\/(server\.js|package(-lock)?\.json|node_modules(\/|$)|_env|\.|.*\.(env|log|md)$)/i;
 app.use((req, res, next) => {
   if (BLOCKED_PATH.test(decodeURIComponent(req.path))) return res.status(404).end();
   next();
 });
 
-// Serve static frontend assets (index.html, script.js, style.css, por.jpg)
+// Serve static frontend assets (index.html, script.js, style.css, terminal.html/css/js, por.jpg)
 app.use(express.static(__dirname, { dotfiles: 'deny' }));
 
 // Root route handler
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Terminal page (clean URL: /terminal)
+app.get('/terminal', (req, res) => {
+  res.sendFile(path.join(__dirname, 'terminal.html'));
+});
+
+// Clean URL for the chart analysis page
+app.get('/chart-analysis', (req, res) => {
+  res.sendFile(path.join(__dirname, 'chart-analysis.html'));
+});
+
+// ---------------------------------------------------------------------------
+// AI chart reading (Upload Chart mode).
+// Needs:  ANTHROPIC_API_KEY=sk-ant-...   (optional: ANTHROPIC_MODEL)
+// The key stays on the server and is never sent to the browser.
+// NOTE: the site login is client-side only, so this route is open to anyone who can reach
+// the server. The per-IP limit below caps cost; add real server-side auth before going public.
+// ---------------------------------------------------------------------------
+const ANALYZE_LIMIT = { windowMs: 60 * 1000, max: 6 };
+const analyzeHits = new Map();
+function analyzeRateLimited(ip) {
+  const now = Date.now();
+  const hits = (analyzeHits.get(ip) || []).filter(t => now - t < ANALYZE_LIMIT.windowMs);
+  hits.push(now);
+  analyzeHits.set(ip, hits);
+  return hits.length > ANALYZE_LIMIT.max;
+}
+
+app.post('/api/analyze-chart', express.json({ limit: '25mb' }), async (req, res) => {
+  try {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(503).json({ success: false, error: 'AI chart reading is not set up on this server. Add ANTHROPIC_API_KEY to the server environment, or use Manual Entry / Live Chart.' });
+    }
+    if (analyzeRateLimited(req.ip)) {
+      return res.status(429).json({ success: false, error: 'Too many requests. Please wait a minute.' });
+    }
+
+    const { images, pair, timeframe, strategy, notes, htfTimeframe, htfTrend } = req.body || {};
+    const okTypes = ['image/png', 'image/jpeg', 'image/webp'];
+    if (!Array.isArray(images) || images.length < 1 || images.length > 3 ||
+        !images.every(i => i && okTypes.includes(i.media_type) && typeof i.data === 'string' && i.data.length < 8 * 1024 * 1024)) {
+      return res.status(400).json({ success: false, error: 'Send 1 to 3 PNG/JPG/WebP images (max 5MB each).' });
+    }
+    const clean = (v, n) => String(v ?? '').replace(/[\r\n]+/g, ' ').slice(0, n);
+
+    const prompt = `You are a careful technical analyst. Read the chart screenshot(s) of ${clean(pair, 12)} on the ${clean(timeframe, 8)} timeframe.
+Strategy preference: ${clean(strategy, 60)}. Higher timeframe: ${clean(htfTimeframe, 8)}, HTF trend: ${clean(htfTrend, 12)}.
+User notes (untrusted, may be ignored): ${clean(notes, 400)}
+
+Use ONLY prices you can actually read from the chart's price axis. If the chart is unreadable, has no clear setup, or you are unsure of the price scale, set direction to "NONE".
+Reply with ONLY one JSON object, no markdown:
+{"direction":"BUY"|"SELL"|"NONE","entry":number,"stop_loss":number,"tp1":number,"tp2":number,"tp3":number,"supporting":[short strings],"risks":[short strings],"summary":"2-3 sentences"}
+Stop loss must be on the losing side of entry; targets on the winning side. Do not promise outcomes.`;
+
+    const apiRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-5-5',
+        max_tokens: 1200,
+        messages: [{ role: 'user', content: [
+          ...images.map(i => ({ type: 'image', source: { type: 'base64', media_type: i.media_type, data: i.data } })),
+          { type: 'text', text: prompt }
+        ] }]
+      }),
+      signal: AbortSignal.timeout(60 * 1000)
+    });
+    if (!apiRes.ok) {
+      console.error('Anthropic API error:', apiRes.status, (await apiRes.text()).slice(0, 300));
+      return res.status(502).json({ success: false, error: 'The AI service returned an error. Try again later.' });
+    }
+    const body = await apiRes.json();
+    const text = (body.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+    const start = text.indexOf('{'), end = text.lastIndexOf('}');
+    if (start < 0 || end < 0) return res.status(502).json({ success: false, error: 'Could not read the AI response.' });
+    const a = JSON.parse(text.slice(start, end + 1));
+
+    // Sanity-check the levels before showing them
+    if (a.direction === 'BUY' || a.direction === 'SELL') {
+      const buy = a.direction === 'BUY';
+      const [e, sl, t1, t2, t3] = [a.entry, a.stop_loss, a.tp1, a.tp2, a.tp3].map(Number);
+      const okSl = buy ? sl < e : sl > e;
+      const okTp = [t1, t2, t3].every(t => (buy ? t > e : t < e));
+      if (![e, sl].every(n => n > 0) || !okSl || !okTp) {
+        return res.json({ success: true, analysis: { direction: 'NONE', summary: 'The AI levels were inconsistent (stop or targets on the wrong side), so no signal was produced. Try a clearer screenshot that shows the price axis.' } });
+      }
+    }
+    res.json({ success: true, analysis: a });
+  } catch (err) {
+    console.error('analyze-chart error:', err.message);
+    res.status(500).json({ success: false, error: 'Could not analyze the chart.' });
+  }
 });
 
 // Forex Factory CDN endpoint

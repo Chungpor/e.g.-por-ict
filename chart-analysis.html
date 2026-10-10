@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Chart Analysis | Por ICT</title>
+  <script>
+    // Same login as the rest of the site
+    if (localStorage.getItem("por_is_logged_in") !== "true") location.replace("index.html");
+  </script>
+  <link rel="icon" type="image/jpeg" href="por.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <link rel="stylesheet" href="chart-analysis.css" />
+</head>
+<body>
+  <!-- Dynamic 4K video background (same video as the main site; falls back to the hosted copy) -->
+  <video class="ca-bg-video" autoplay loop muted playsinline preload="auto" aria-hidden="true">
+    <source src="finance_data_tunnel_4k.mp4" type="video/mp4" />
+    <source src="https://github.com/ProTrader-cmyk/GenzWebsite/releases/download/videos/finance_data_tunnel_4k.mp4" type="video/mp4" />
+  </video>
+  <div class="ca-video-overlay" aria-hidden="true"></div>
+
+  <!-- Hidden YouTube audio player (same track as the main site) -->
+  <div class="ca-yt-audio" aria-hidden="true"><div id="caYtPlayer"></div></div>
+
+  <header class="ca-topbar">
+    <a href="index.html" class="ca-back" data-i18n="back">← Por ICT</a>
+    <div class="ca-top-right">
+      <button type="button" class="ca-music-btn" id="caMusicBtn" aria-pressed="false" aria-label="Toggle background music">
+        <span class="ca-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span id="caMusicText">Music: OFF</span>
+      </button>
+      <a href="terminal.html" class="ca-top-link">Terminal</a>
+    </div>
+  </header>
+
+  <main class="ca-wrap">
+    <!-- Banner carousel (built by chart-extras.js) -->
+    <section class="ca-banners" id="caBanners" aria-label="Featured banners">
+      <div class="ca-bn-track" id="caBnTrack"></div>
+      <button type="button" class="ca-bn-arrow prev" id="caBnPrev" aria-label="Previous banner">‹</button>
+      <button type="button" class="ca-bn-arrow next" id="caBnNext" aria-label="Next banner">›</button>
+      <div class="ca-bn-dots" id="caBnDots"></div>
+    </section>
+    <div class="ca-ticker" aria-hidden="true"><div class="ca-ticker-inner" id="caTicker"></div></div>
+    <div class="ca-chips" id="caChips"></div>
+
+    <div class="ca-title-row">
+      <div class="ca-title-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M8 17v-5M13 17V8M18 17v-8"/></svg>
+      </div>
+      <div>
+        <h1 data-i18n="title">Chart Analysis</h1>
+        <p data-i18n="subtitle">Technical Signal Generator</p>
+      </div>
+    </div>
+
+    <section class="ca-card">
+      <h2 class="ca-section-title"><span class="ca-ico">∿</span> <span data-i18n="market_setup">Market Setup</span></h2>
+
+      <div class="ca-tabs" id="modeTabs" role="tablist">
+        <button type="button" class="ca-tab" data-mode="manual" data-i18n="tab_manual">Manual Entry</button>
+        <button type="button" class="ca-tab" data-mode="upload" data-i18n="tab_upload">Upload Chart</button>
+        <button type="button" class="ca-tab active" data-mode="live" data-i18n="tab_live">Live Chart</button>
+      </div>
+
+      <div class="ca-grid-2">
+        <label class="ca-field"><span class="ca-label" data-i18n="pair">PAIR</span>
+          <select id="pairSelect" class="ca-input">
+            <option value="XAUUSD">XAUUSD</option>
+            <option value="BTCUSD">BTCUSD</option>
+            <option value="ETHUSD">ETHUSD</option>
+            <option value="EURUSD">EURUSD</option>
+            <option value="GBPUSD">GBPUSD</option>
+            <option value="USDJPY">USDJPY</option>
+          </select>
+        </label>
+        <label class="ca-field"><span class="ca-label" data-i18n="timeframe">TIMEFRAME</span>
+          <select id="tfSelect" class="ca-input">
+            <option value="1m">1m</option><option value="5m" selected>5m</option><option value="15m">15m</option>
+            <option value="30m">30m</option><option value="1h">1h</option><option value="4h">4h</option><option value="1d">1D</option>
+          </select>
+        </label>
+      </div>
+
+      <!-- LIVE -->
+      <div class="ca-panel" id="panelLive">
+        <div class="ca-info-bar">
+          <span class="ca-ico">∿</span>
+          <div><strong id="liveTitle">Live Chart — XAUUSD • 5m</strong>
+            <small id="liveHint">Signal from live market data (EMA trend, structure, RSI, ATR)</small></div>
+        </div>
+        <div class="ca-chart-box"><div id="tv_ca_chart"></div></div>
+      </div>
+
+      <!-- MANUAL -->
+      <div class="ca-panel hidden" id="panelManual">
+        <div class="ca-grid-2">
+          <label class="ca-field"><span class="ca-label" data-i18n="m_price">CURRENT PRICE</span>
+            <input id="mPrice" class="ca-input" type="number" step="any" inputmode="decimal" placeholder="e.g. 4165.00" /></label>
+          <label class="ca-field"><span class="ca-label" data-i18n="m_dir">DIRECTION</span>
+            <select id="mDir" class="ca-input"><option value="AUTO">Auto (discount = buy, premium = sell)</option><option value="BUY">Buy</option><option value="SELL">Sell</option></select></label>
+          <label class="ca-field"><span class="ca-label" data-i18n="m_low">SUPPORT / SWING LOW</span>
+            <input id="mLow" class="ca-input" type="number" step="any" inputmode="decimal" placeholder="nearest support" /></label>
+          <label class="ca-field"><span class="ca-label" data-i18n="m_high">RESISTANCE / SWING HIGH</span>
+            <input id="mHigh" class="ca-input" type="number" step="any" inputmode="decimal" placeholder="nearest resistance" /></label>
+        </div>
+      </div>
+
+      <!-- UPLOAD -->
+      <div class="ca-panel hidden" id="panelUpload">
+        <div class="ca-drop" id="dropZone" tabindex="0">
+          <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp" multiple hidden />
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+          <p data-i18n="u_tap">Tap to upload chart screenshots</p>
+          <small data-i18n="u_hint">PNG, JPG or WebP up to 5MB each, max 3 images</small>
+        </div>
+        <div class="ca-thumbs" id="thumbs"></div>
+      </div>
+
+      <label class="ca-check" id="mtfCheckRow"><input type="checkbox" id="mtfAuto" checked />
+        <span data-i18n="mtf_auto">Use higher-timeframe alignment (auto-detect HTF trend when available)</span></label>
+
+      <hr class="ca-hr" />
+      <h2 class="ca-section-title"><span class="ca-ico">≋</span> <span data-i18n="mtf">Multi-Timeframe Context</span></h2>
+      <div class="ca-grid-2">
+        <label class="ca-field"><span class="ca-label" data-i18n="htf">HIGHER TIMEFRAME</span>
+          <select id="htfSelect" class="ca-input"><option value="same">Same as entry</option><option value="15m">15m</option><option value="1h">1h</option><option value="4h">4h</option><option value="1d">1D</option></select></label>
+        <label class="ca-field"><span class="ca-label" data-i18n="htf_trend">HTF TREND</span>
+          <select id="htfTrend" class="ca-input"><option value="auto">Not sure</option><option value="BULLISH">Bullish</option><option value="BEARISH">Bearish</option><option value="RANGE">Ranging</option></select></label>
+      </div>
+
+      <hr class="ca-hr" />
+      <h2 class="ca-section-title"><span class="ca-ico">$</span> <span data-i18n="sizing">Position Sizing</span></h2>
+      <p class="ca-muted" data-i18n="sizing_hint">Helps calculate suggested lot size based on your risk</p>
+      <div class="ca-grid-2">
+        <label class="ca-field"><span class="ca-label" data-i18n="account">ACCOUNT SIZE ($)</span>
+          <input id="accountSize" class="ca-input" type="number" min="1" step="any" value="1000" inputmode="decimal" /></label>
+        <label class="ca-field"><span class="ca-label" data-i18n="risk">RISK PER TRADE (%)</span>
+          <input id="riskPct" class="ca-input" type="number" min="0.1" max="100" step="0.1" value="1" inputmode="decimal" /></label>
+      </div>
+
+      <div class="ca-field">
+        <span class="ca-label" data-i18n="strategy">ANALYSIS STRATEGY</span>
+        <div class="ca-strategy" id="strategyBox">
+          <button type="button" class="ca-strategy-btn" id="strategyBtn" aria-haspopup="listbox" aria-expanded="false">
+            <span class="ca-ico">▤</span><span id="strategyLabel">Market Structure + EMA Trend</span><span class="ca-chev">⌄</span>
+          </button>
+          <div class="ca-strategy-menu hidden" id="strategyMenu">
+            <input type="search" id="strategySearch" class="ca-input" placeholder="Search..." />
+            <div id="strategyList" class="ca-strategy-list"></div>
+            <button type="button" class="ca-clear" id="strategyClear">Clear selection</button>
+          </div>
+        </div>
+      </div>
+
+      <label class="ca-field"><span class="ca-label" data-i18n="notes">ADDITIONAL NOTES</span>
+        <textarea id="notes" class="ca-input" rows="3" placeholder="Anything you want the analysis to consider (optional)"></textarea></label>
+
+      <button type="button" class="ca-analyze" id="analyzeBtn"><span id="analyzeText" data-i18n="analyze_live">Analyze Live Chart & Generate Signal</span></button>
+      <div class="ca-error hidden" id="errorBox"></div>
+    </section>
+
+    <section class="ca-card hidden" id="resultCard" aria-live="polite"></section>
+
+    <p class="ca-disclaimer" data-i18n="disclaimer">Educational tool only, not financial advice. Signals come from simple rules or AI reading of a chart and are never guaranteed. Trading carries a high risk of loss.</p>
+  </main>
+
+  <script src="chart-analysis.js"></script>
+  <script src="chart-extras.js"></script>
+</body>
+</html>

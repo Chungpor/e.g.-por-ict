@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>POR SMC PRO | OANDA:XAUUSD Scalp &amp; Swing Terminal</title>
+
+  <!-- Browser Tab Favicon Configuration -->
+  <!-- Same login as the main site: send visitors back to sign in first -->
+  <script>
+    if (localStorage.getItem("por_is_logged_in") !== "true") location.replace("index.html");
+  </script>
+
+  <link rel="icon" type="image/jpeg" href="por.jpg?v=3" id="dynamicFavicon" />
+  <link rel="shortcut icon" type="image/jpeg" href="por.jpg?v=3" />
+  <link rel="apple-touch-icon" href="por.jpg?v=3" />
+
+  <!-- Google Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- TradingView Embed Library -->
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+
+  <link rel="stylesheet" href="terminal.css" />
+</head>
+<body class="terminal-body">
+
+  <!-- TOP PROTOCOL BAR -->
+  <header class="top-macro-strip">
+    <div class="macro-left">
+      <a href="index.html" class="terminal-brand-logo" id="logoBtn" title="Back to Por ICT">
+        <img src="por.jpg" alt="POR SMC PRO" class="brand-logo-img user-profile-target-img" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80';" />
+      </a>
+
+      <div class="tier-badge-pill">
+        <span class="pulse-dot"></span>
+        <span class="tier-title">POR SMC PRO · <span class="js-sym">OANDA:XAUUSD</span></span>
+      </div>
+
+      <div class="mcp-server-endpoint-badge" title="Live OANDA CFD Specifications">
+        <span class="endpoint-txt js-badge">GOLD SPOT CFD</span>
+        <span class="badge-mini-oauth js-tickinfo">Tick: 0.001 · Pip: 0.01</span>
+      </div>
+    </div>
+
+    <!-- SESSIONS & LIVE CLOCK -->
+    <div class="macro-tickers-scroll">
+      <div class="session-clock-pill">
+        <span class="pill-title">UTC:</span>
+        <span class="pill-value text-teal" id="utcLiveClock">00:00:00 UTC</span>
+      </div>
+
+      <div class="killzone-status-group">
+        <div class="kz-badge" id="kzAsiaBadge"><span class="kz-dot">●</span> Asia (00–06)</div>
+        <div class="kz-badge" id="kzLondonBadge"><span class="kz-dot">●</span> London (07–10)</div>
+        <div class="kz-badge" id="kzNyBadge"><span class="kz-dot">●</span> NY (12–15)</div>
+      </div>
+
+      <div class="macro-pill">
+        <span class="pill-title">MODE:</span>
+        <span class="pill-value text-gold" id="activeTradingModeBadge">⚡ SCALPING (M1–M15)</span>
+      </div>
+    </div>
+
+    <div class="macro-right-actions">
+      <a href="index.html" class="panel-toggle-btn back-to-site-btn" title="Back to Por ICT">← Por ICT</a>
+      <button type="button" class="panel-toggle-btn" id="toggleScannerBtn">☰ Scanner</button>
+      <button type="button" class="panel-toggle-btn" id="toggleMt5Btn">📊 MT5 Desk</button>
+
+      <div class="mt5-badge-indicator" id="mt5BridgePill">
+        <span class="dot-green">●</span>
+        <span>MT5 EA Armed</span>
+      </div>
+      <a href="https://t.me/KaingChungpor" target="_blank" rel="noopener noreferrer" class="quick-telegram-link" title="Contact Kaing Chungpor">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.37.74-.56 2.92-1.27 4.86-2.11 5.83-2.52 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06-.01.24-.03.45z"/></svg>
+        <span>@KaingChungpor</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- 3-PANE WORKSPACE -->
+  <main class="terminal-workspace-grid" id="workspaceGrid">
+
+    <!-- PANE 1: SMC SIGNAL SCANNER WITH SUPPORT OB & RESISTANCE WICK % METER -->
+    <section class="scanner-sidebar-panel" id="scannerPanel">
+      <div class="scanner-panel-header">
+        <div class="scanner-title-group">
+          <span class="badge-scanner-live js-sym" data-sym-format="space">OANDA XAUUSD</span>
+          <h2>SMC Signal Radar</h2>
+          <p id="scannerSubtitle">Support OB &amp; Resistance Wick Zone Analysis</p>
+        </div>
+
+        <button type="button" class="btn-scan-trigger" id="btnScanNewSetup" title="Scan OANDA Gold chart for fresh setup">
+          <span class="bolt-icon">⚡</span>
+          <span id="btnScanText">SCAN SETUP</span>
+        </button>
+      </div>
+
+      <!-- SCALP VS SWING PROFILE TOGGLE -->
+      <div class="profile-mode-selector">
+        <button type="button" class="mode-tab-btn active" id="btnModeScalp" data-mode="SCALP">
+          <span>⚡ SCALPING</span>
+          <small>1m · 3m · 5m · 15m (60p SL)</small>
+        </button>
+        <button type="button" class="mode-tab-btn" id="btnModeSwing" data-mode="SWING">
+          <span>🏛️ SWING</span>
+          <small>1h · 4h · 1D · 1W (HTF OB)</small>
+        </button>
+      </div>
+
+      <!-- SCANNER DIRECTION CONTROLS (AUTO / BUY / SELL) -->
+      <div class="scanner-direction-toolbar">
+        <span class="dir-title">SCAN BIAS:</span>
+        <div class="dir-btn-group" id="dirBtnGroup">
+          <button type="button" class="dir-chip active" data-dir="AUTO" title="Auto-detect based on Support OB vs Resistance Wick">⚡ AUTO</button>
+          <button type="button" class="dir-chip buy-chip" data-dir="BUY" title="Force scan for Support OB Buy Setups">▲ BUY ONLY</button>
+          <button type="button" class="dir-chip sell-chip" data-dir="SELL" title="Force scan for Resistance Wick Sell Setups">▼ SELL ONLY</button>
+        </div>
+      </div>
+
+      <!-- DEALING RANGE & BUY / SELL % ORDER FLOW METER -->
+      <div class="orderflow-gauge-card">
+        <div class="gauge-head">
+          <span>DEALING RANGE ORDER FLOW</span>
+          <span class="zone-tag-badge" id="zoneValuationTag">DISCOUNT DEMAND</span>
+        </div>
+
+        <!-- BUY VS SELL PERCENTAGE BAR -->
+        <div class="power-meter-bar-wrap">
+          <div class="power-bar-fill buy" id="buyPowerFill" style="width: 66%;">
+            <span class="meter-pct" id="buyPowerText">BUY 66%</span>
+          </div>
+          <div class="power-bar-fill sell" id="sellPowerFill" style="width: 34%;">
+            <span class="meter-pct" id="sellPowerText">34% SELL</span>
+          </div>
+        </div>
+
+        <!-- SUPPORT OB & RESISTANCE WICK COORDINATES -->
+        <div class="ob-wick-stats-grid">
+          <div class="ob-stat-cell support">
+            <span class="stat-tag">SUPPORT OB (DEMAND)</span>
+            <strong id="supportObPrice"> – </strong>
+          </div>
+          <div class="ob-stat-cell resistance">
+            <span class="stat-tag">RESISTANCE WICK (SWEEP)</span>
+            <strong id="resistanceWickPrice">4 – </strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- ENGINE CONTROL STATS -->
+      <div class="engine-control-card">
+        <div class="engine-stat-col">
+          <span class="stat-lbl">TIMEFRAME</span>
+          <span class="stat-val text-cyan" id="scannerTfLabel">1m</span>
+        </div>
+        <div class="engine-stat-col">
+          <span class="stat-lbl">STATUS</span>
+          <span class="stat-val text-green" id="engineTradeState">LOCKED &amp; ARMED</span>
+        </div>
+        <div class="engine-stat-col">
+          <span class="stat-lbl">AUDIO</span>
+          <label class="switch-mini">
+            <input type="checkbox" id="audioChimeToggle" checked />
+            <span class="slider-mini"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- SETUP QUALITY SCORE & CONFLUENCES -->
+      <div class="setup-quality-card" id="setupQualityCard">
+        <div class="quality-head">
+          <span>SETUP QUALITY</span>
+          <span class="quality-source-tag" id="qualitySourceTag">NO DATA</span>
+        </div>
+        <div class="quality-score-row">
+          <strong class="quality-score-val" id="qualityScoreVal">--</strong>
+          <div class="quality-bar"><div class="quality-bar-fill" id="qualityBarFill"></div></div>
+        </div>
+        <ul class="confluence-list" id="confluenceList"></ul>
+        <div class="quality-note" id="qualityNote">Run a scan to evaluate the setup.</div>
+      </div>
+
+      <!-- ACTIVE SIGNALS SCROLL -->
+      <div class="signals-scroll-list" id="signalsScrollList"></div>
+    </section>
+
+    <!-- PANE 2: LIVE CHART WITH ON-CHART SMC OVERLAY -->
+    <section class="chart-center-stage">
+      <div class="chart-top-toolbar">
+        <div class="active-instrument-identity">
+          <div class="asset-switch" id="assetSwitch" role="tablist" aria-label="Instrument">
+            <button type="button" class="asset-btn active" data-asset="XAU">🪙 XAUUSD</button>
+            <button type="button" class="asset-btn" data-asset="BTC">₿ BTCUSD</button>
+          </div>
+          <span class="inst-sym-title js-sym">OANDA:XAUUSD</span>
+          <span class="inst-feed-badge js-badge">GOLD SPOT CFD</span>
+          <div class="quote-price-wrap">
+            <span class="quote-val" id="chartMainPrice"></span>
+            <span class="quote-pct positive" id="chartMainPct">+1.14%</span>
+          </div>
+        </div>
+
+        <!-- RESOLUTION SELECTOR: SCALP (1m-15m) & SWING (1h-1W) -->
+        <div class="timeframe-buttons-group" id="tfSelectorGroup">
+          <button type="button" class="tf-btn active" data-tf="1">1m</button>
+          <button type="button" class="tf-btn" data-tf="3">3m</button>
+          <button type="button" class="tf-btn" data-tf="5">5m</button>
+          <button type="button" class="tf-btn" data-tf="15">15m</button>
+          <button type="button" class="tf-btn" data-tf="30">30m</button>
+          <button type="button" class="tf-btn" data-tf="60">1h</button>
+          <button type="button" class="tf-btn" data-tf="240">4h</button>
+          <button type="button" class="tf-btn" data-tf="D">1D</button>
+          <button type="button" class="tf-btn" data-tf="W">1W</button>
+        </div>
+
+        <div class="chart-action-pills">
+          <button type="button" class="pill-scan-chart-btn" id="btnChartScanAction">
+            <span>⚡ Scan Active Bar</span>
+          </button>
+          <button type="button" class="pill-gold-toggle active" id="btnToggleLayoutTemplate">
+            <span>★ Layout: EdVpzZBe</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- TRADINGVIEW ENGINE TARGET CONTAINER -->
+      <div class="tv-embed-viewport-wrapper" id="tvEmbedContainer">
+        <div id="tv_chart_target" class="tv-target-node"></div>
+
+        <!-- ON-CHART BIDIRECTIONAL SIGNAL OVERLAY -->
+        <div class="onchart-signal-overlay" id="onchartSignalOverlay">
+          <!-- FLOATING SIGNAL BANNER -->
+          <div class="floating-signal-banner" id="floatingSignalBanner">
+            <div class="banner-badge-row">
+              <span class="signal-direction-chip buy" id="hudSignalDirection">BUY SIGNAL ARMED</span>
+              <span class="signal-model-text" id="hudSignalModel">Support OB Mitigation</span>
+              <span class="live-trade-status-chip pending" id="hudLifecycleBadge">ENTRY LOCKED</span>
+            </div>
+            <div class="banner-metrics-row">
+              <span class="metric-item">ENTRY: <strong class="text-gold" id="hudEntryVal"></strong></span>
+              <span class="metric-item">SL: <strong class="text-red" id="hudSlVal"></strong></span>
+              <span class="metric-item">TP3: <strong class="text-green" id="hudTp3Val"></strong></span>
+              <span class="metric-item">R:R: <strong class="text-cyan" id="hudRrVal">1:3.0</strong></span>
+            </div>
+          </div>
+
+          <!-- LEVEL MARKERS (MOVED PROPORTIONALLY ON BUY VS SELL) -->
+          <div class="chart-level-marker tp3" id="markerTp3">
+            <div class="level-line"></div>
+            <div class="level-tag" id="tagTp3Val">TP3 (1:3 RR): </div>
+          </div>
+
+          <div class="chart-level-marker tp2" id="markerTp2">
+            <div class="level-line"></div>
+            <div class="level-tag" id="tagTp2Val">TP2 (1:2 RR): </div>
+          </div>
+
+          <div class="chart-level-marker tp1" id="markerTp1">
+            <div class="level-line"></div>
+            <div class="level-tag" id="tagTp1Val">TP1 (1:1 RR): </div>
+          </div>
+
+          <div class="chart-level-marker entry" id="markerEntry">
+            <div class="level-line"></div>
+            <div class="level-tag" id="tagEntryVal">ENTRY ZONE:</div>
+          </div>
+
+          <div class="chart-level-marker sl" id="markerSl">
+            <div class="level-line"></div>
+            <div class="level-tag" id="tagSlVal">STOP LOSS:  (60p)</div>
+          </div>
+        </div>
+
+        <!-- SCANNING RADAR HUD OVERLAY -->
+        <div class="scanning-hud-overlay hidden" id="scanningHudOverlay">
+          <div class="hud-box">
+            <div class="hud-radar-spinner"></div>
+            <div class="hud-text-group">
+              <span class="hud-title" id="hudTitleText">SCANNING OANDA:XAUUSD...</span>
+              <span class="hud-sub" id="hudSubText">Detecting Support OB, Resistance Wick &amp; Tiered TP Targets</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHART FOOTER TELEMETRY -->
+      <div class="chart-bottom-telemetry">
+        <div class="telemetry-bar-item">
+          <span class="t-label">STRUCTURE:</span>
+          <span class="t-val text-green" id="telemetryRegime">Support OB Accumulation (BOS)</span>
+        </div>
+        <div class="telemetry-bar-item">
+          <span class="t-label">CURRENT RANGE:</span>
+          <span class="t-val text-gold" id="telemetryTarget">Discount Zone 4,181.36 – </span>
+        </div>
+        <div class="telemetry-bar-item">
+          <span class="t-label">INVALIDATION:</span>
+          <span class="t-val text-red" id="telemetryInvalidation">▲ 4,181.36 (-60 Pips)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANE 3: MT5 ONE-CLICK ORDER DESK -->
+    <aside class="mt5-order-panel" id="mt5Panel">
+      <div class="mt5-panel-header">
+        <div class="mt5-header-title">
+          <h3>MetaTrader 5 Bridge</h3>
+          <p><span class="js-sym">OANDA:XAUUSD</span> Execution</p>
+        </div>
+        <button type="button" class="btn-clear-desk" id="btnClearSetupDesk" title="Reset all input fields">
+          <span>✕ Clear</span>
+        </button>
+      </div>
+
+      <div class="mt5-panel-body">
+        <!-- LOADED SIGNAL STATUS CARD -->
+        <div class="loaded-signal-card" id="loadedSignalCard">
+          <div class="loaded-sig-top">
+            <span class="loaded-sig-sym js-sym">OANDA:XAUUSD</span>
+            <span class="loaded-sig-badge buy" id="mt5OrderDirection">BUY LIMIT</span>
+          </div>
+          <div class="loaded-sig-model" id="mt5OrderModel">Support OB Mitigation [SL: 60p | TP: 1:3 RR]</div>
+          <div class="loaded-sig-footer">
+            <span class="fresh-status-pill text-teal" id="setupStatusBadge">● Entry Locked (Won't Drift)</span>
+            <span class="rr-calculated-pill" id="liveRrBadge">SL: 60p | R:R 1:3.0</span>
+          </div>
+        </div>
+
+        <!-- ONE-CLICK TRANSMISSION BUTTONS -->
+        <div class="mt5-trade-actions-grid">
+          <button type="button" class="btn-trade buy" id="btnMt5ExecuteBuy">
+            <span class="trade-dir">BUY MARKET</span>
+            <span class="trade-sub" id="mt5BuyPrice">@ </span>
+          </button>
+          <button type="button" class="btn-trade sell" id="btnMt5ExecuteSell">
+            <span class="trade-dir">SELL MARKET</span>
+            <span class="trade-sub" id="mt5SellPrice">@ .</span>
+          </button>
+        </div>
+
+        <!-- FULLY EDITABLE MT5 INPUT FIELDS WITH NUMERIC SANITIZING -->
+        <form class="mt5-inputs-form" id="mt5OrderForm" onsubmit="return false;">
+          <div class="mt5-input-row">
+            <label for="mt5LotInput">Volume (Lots):</label>
+            <div class="input-with-stepper">
+              <input type="number" id="mt5LotInput" name="lots" value="1.00" step="0.01" min="0.01" max="100.00" inputmode="decimal" />
+            </div>
+          </div>
+
+          <div class="mt5-input-row">
+            <label for="mt5EntryInput">Active Entry:</label>
+            <div class="input-with-stepper">
+              <input type="number" id="mt5EntryInput" name="entry" value="4187.36" step="0.01" inputmode="decimal" />
+            </div>
+          </div>
+
+          <div class="mt5-input-row">
+            <label for="mt5SlInput">Stop Loss (SL):</label>
+            <div class="input-with-stepper">
+              <input type="number" id="mt5SlInput" name="sl" value="4181.36" step="0.01" inputmode="decimal" class="input-red" />
+            </div>
+          </div>
+
+          <div class="mt5-input-row">
+            <label for="mt5Tp1Input">Take Profit 1:</label>
+            <div class="input-with-stepper">
+              <input type="number" id="mt5Tp1Input" name="tp1" value="4193.36" step="0.01" inputmode="decimal" class="input-green" />
+            </div>
+          </div>
+
+          <div class="mt5-input-row">
+            <label for="mt5Tp2Input">Take Profit 2:</label>
+            <div class="input-with-stepper">
+              <input type="number" id="mt5Tp2Input" name="tp2" value="4199.36" step="0.01" inputmode="decimal" class="input-green" />
+            </div>
+          </div>
+
+          <div class="mt5-input-row">
+            <label for="mt5Tp3Input">Take Profit 3:</label>
+            <div class="input-with-stepper">
+              <input type="number" id="mt5Tp3Input" name="tp3" value="4205.36" step="0.01" inputmode="decimal" class="input-green" />
+            </div>
+          </div>
+
+          <div class="mt5-input-row">
+            <label for="mt5MagicInput">Magic ID:</label>
+            <div class="input-with-stepper">
+              <input type="text" id="mt5MagicInput" value="por_oanda_884192" readonly />
+            </div>
+          </div>
+        </form>
+
+        <div class="desk-button-cluster">
+          <button type="button" class="btn-reset-inputs unlock-entry-btn" id="btnUnlockEntry" aria-pressed="false" title="Locked: entry stays fixed. Unlocked: entry, SL and TPs follow the live price.">
+            <span id="unlockEntryText">🔒 Entry Locked · Click to Unlock</span>
+          </button>
+          <button type="button" class="btn-transmit-full" id="btnTransmitConfiguredOrder">
+            <span>⚡ Transmit Order to MT5 EA</span>
+          </button>
+          <button type="button" class="btn-reset-inputs" id="btnOppositeEntry" title="Flip the current setup to the opposite direction">
+            <span>⇄ Opposite Entry</span>
+          </button>
+          <button type="button" class="btn-reset-inputs" id="btnRecalculateLiveInputs">
+            <span>🔄 Re-Anchor to Live Bar</span>
+          </button>
+        </div>
+
+        <!-- RECENT EXECUTIONS TAPE -->
+        <div class="mt5-executions-log">
+          <div class="exec-log-header">
+            <span>MT5 RECONCILED ORDERS</span>
+            <span class="badge-mini-green">SYNCED</span>
+          </div>
+          <div class="exec-log-items" id="mt5ExecutionsList">
+            <div class="exec-row buy">
+              <span>BUY 1.00 XAUUSD @ </span>
+              <span class="text-green">FILLED #81920</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+  </main>
+
+  <script src="terminal.js"></script>
+</body>
+</html>

@@ -56,9 +56,52 @@ const FALLBACK_DICT = {
 
 let currentLang = localStorage.getItem("por_lang") || "EN";
 
+// Strings added for the Terminal card. Kept here so they translate even if translations.js
+// has no entry for them; translations.js can still override any key.
+const EXTRA_DICT = {
+  EN: {
+    nav_terminal: "Terminal",
+    nav_analysis: "Analysis",
+    ca_sub: "SIGNAL GENERATOR", ca_title: "Chart Analysis",
+    ca_desc: "Generate entry, stop loss and targets from live data, your own levels, or an uploaded chart screenshot, with lot-size calculation.",
+    ca_btn: "OPEN CHART ANALYSIS ➔",
+    term_pill: "⚡ SMC PRO TERMINAL",
+    term_sub: "XAUUSD · BTCUSD · BIDIRECTIONAL RADAR",
+    term_title: "Por ICT Terminal",
+    term_desc: "Institutional SMC order block radar, Resistance Wick sweep detection, dynamic 1:3 RR calculating desk, and MetaTrader 5 bridge order executor.",
+    term_btn: "LAUNCH POR ICT TERMINAL ➔",
+    news_card_label: "USD FOCUS & FOREX FACTORY",
+    news_card_title: "Por ICT News",
+    news_card_desc: "High, Medium & Low impact USD newswire feeds with institutional ICT execution commentary.",
+    news_card_btn: "READ POR ICT NEWS ➔",
+    chart_card_desc: "Real-time institutional candlestick charts with customizable indicators."
+  },
+  KH: {
+    nav_terminal: "ទែមីណាល់",
+    nav_analysis: "វិភាគ",
+    ca_sub: "ឧបករណ៍បង្កើតសញ្ញា", ca_title: "វិភាគក្រាហ្វ",
+    ca_desc: "បង្កើត Entry, Stop Loss និងគោលដៅ ពីទិន្នន័យផ្ទាល់ កម្រិតរបស់អ្នក ឬរូបថតក្រាហ្វ ព្រមទាំងគណនាទំហំ Lot។",
+    ca_btn: "បើកការវិភាគក្រាហ្វ ➔",
+    term_pill: "⚡ SMC PRO ទែមីណាល់",
+    term_sub: "XAUUSD · BTCUSD · រ៉ាដារទិសដៅទាំងពីរ",
+    term_title: "Por ICT ទែមីណាល់",
+    term_desc: "រ៉ាដារ SMC Order Block កម្រិតស្ថាប័ន ការរកឃើញ Resistance Wick Sweep ទិសដៅ RR 1:3 ដោយស្វ័យប្រវត្តិ និងប៊ូតុងបញ្ជូនបញ្ជាទៅ MetaTrader 5។",
+    term_btn: "បើក POR ICT ទែមីណាល់ ➔",
+    news_card_label: "ផ្តោតលើ USD និង FOREX FACTORY",
+    news_card_title: "ព័ត៌មាន Por ICT",
+    news_card_desc: "ព័ត៌មាន USD ផលប៉ះពាល់ខ្ពស់ មធ្យម និងទាប ជាមួយការវិភាគ ICT កម្រិតស្ថាប័ន។",
+    news_card_btn: "អានព័ត៌មាន POR ICT ➔",
+    chart_card_desc: "ក្រាហ្វ Candlestick កម្រិតស្ថាប័នតាមពេលវេលាជាក់ស្តែង ជាមួយ Indicator ដែលអាចកែសម្រួលបាន។"
+  }
+};
+
 function getDict() {
   const all = typeof translations !== "undefined" ? translations : { EN: FALLBACK_DICT };
-  return { ...FALLBACK_DICT, ...(all.EN || {}), ...(all[currentLang] || {}) };
+  return {
+    ...FALLBACK_DICT,
+    ...EXTRA_DICT.EN, ...(EXTRA_DICT[currentLang] || {}),
+    ...(all.EN || {}), ...(all[currentLang] || {})
+  };
 }
 
 // ==========================================

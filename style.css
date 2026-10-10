@@ -3090,3 +3090,55 @@ body {
   pointer-events: none;
   z-index: -1;
 }
+
+
+/* ==========================================
+   POR ICT TERMINAL CARD (dashboard)
+   ========================================== */
+.por-terminal-promo-card {
+  border-color: rgba(56, 189, 248, 0.35);
+  background: linear-gradient(135deg, rgba(12, 22, 36, 0.95) 0%, rgba(10, 28, 38, 0.92) 100%);
+}
+.por-terminal-promo-card:hover { border-color: var(--sky-blue); }
+.terminal-badge-glow { box-shadow: 0 0 14px rgba(56, 189, 248, 0.35); }
+.terminal-pill {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  color: var(--emerald-soft);
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid var(--emerald-border);
+  border-radius: 6px;
+  padding: 3px 10px;
+}
+.por-terminal-promo-card .promo-sub-label { color: var(--text-main); }
+a.product-chart-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  text-decoration: none;
+}
+.btn-terminal-launch { border-radius: 24px; }
+
+/* keep the brand and the first nav link from touching */
+.nav-brand { margin-right: 18px; }
+
+.por-analysis-promo-card { border-color: rgba(0, 210, 106, 0.3); }
+.por-analysis-promo-card:hover { border-color: var(--emerald-green); }
+.por-analysis-promo-card .product-card-badge { color: var(--emerald-green); border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.12); }
+.por-analysis-promo-card .product-chart-btn { border-color: rgba(16, 185, 129, 0.5); color: var(--emerald-soft); }
+.por-analysis-promo-card .product-chart-btn:hover { background: var(--emerald-green); color: #04130b; }
+
+/* ---- Device fit (iOS Safari / Android Chrome) ---- */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { overflow-x: hidden; }
+@media (pointer: coarse) {
+  input, select, textarea { font-size: 16px; }   /* stops iOS from zooming on focus */
+  button, .product-chart-btn { touch-action: manipulation; }
+  a.product-chart-btn, .product-chart-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+}
+.global-top-bar { padding-top: env(safe-area-inset-top, 0px); }
+@media (max-width: 768px) {
+  .products-dual-grid { grid-template-columns: 1fr; }
+}

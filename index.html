@@ -65,6 +65,8 @@
         <a href="#" id="navHomeLink" class="nav-link active" data-i18n="nav_home">Home</a>
         <a href="#" id="navNewsLink" class="nav-link" data-i18n="nav_news">Por ICT News</a>
         <a href="#" id="navLiveChartLink" class="nav-link" data-i18n="nav_live_chart">Live Chart</a>
+        <a href="terminal.html" id="navTerminalLink" class="nav-link" data-i18n="nav_terminal">Terminal</a>
+        <a href="chart-analysis.html" id="navAnalysisLink" class="nav-link" data-i18n="nav_analysis">Analysis</a>
         <a href="#" id="navMembershipLink" class="nav-link" data-i18n="nav_membership">Membership</a>
         <a href="#" id="navContactLink" class="nav-link" data-i18n="nav_contact">Contact Us</a>
         
@@ -251,6 +253,8 @@
         <a href="#" id="mobileHomeLink" class="mobile-nav-link-item active" data-i18n="nav_home">Home</a>
         <a href="#" id="mobileNewsLink" class="mobile-nav-link-item" data-i18n="nav_news">Por ICT News</a>
         <a href="#" id="mobileLiveChartLink" class="mobile-nav-link-item" data-i18n="nav_live_chart">Live Chart</a>
+        <a href="terminal.html" id="mobileTerminalLink" class="mobile-nav-link-item" data-i18n="nav_terminal">Terminal</a>
+        <a href="chart-analysis.html" id="mobileAnalysisLink" class="mobile-nav-link-item" data-i18n="nav_analysis">Analysis</a>
         <a href="#" id="mobileMembershipLink" class="mobile-nav-link-item" data-i18n="nav_membership">Membership</a>
         <a href="#" id="mobileContactLink" class="mobile-nav-link-item" data-i18n="nav_contact">Contact Us</a>
         
@@ -626,13 +630,11 @@
             <span class="fire-icon-pulse">🔥</span>
           </div>
           <div>
-            <span class="promo-sub-label">USD FOCUS & FOREX FACTORY</span>
-            <h3 class="product-card-title">Por ICT News</h3>
+            <span class="promo-sub-label" data-i18n="news_card_label">USD FOCUS & FOREX FACTORY</span>
+            <h3 class="product-card-title" data-i18n="news_card_title">Por ICT News</h3>
           </div>
-          <p class="promo-card-desc">High, Medium & Low impact USD newswire feeds with institutional ICT execution commentary.</p>
-          <button type="button" id="openNewsFromDashBtn" class="product-chart-btn btn-news-gradient">
-            READ POR ICT NEWS ➔
-          </button>
+          <p class="promo-card-desc" data-i18n="news_card_desc">High, Medium & Low impact USD newswire feeds with institutional ICT execution commentary.</p>
+          <button type="button" id="openNewsFromDashBtn" class="product-chart-btn btn-news-gradient" data-i18n="news_card_btn">READ POR ICT NEWS ➔</button>
         </div>
 
         <!-- Feature Card 2: Live Market Chart -->
@@ -650,10 +652,40 @@
             <span class="promo-sub-label" data-i18n="prod_new_title">New Product</span>
             <h3 class="product-card-title" data-i18n="chart_title">Live Market Chart</h3>
           </div>
-          <p class="promo-card-desc">Real-time institutional candlestick charts with customizable indicators.</p>
+          <p class="promo-card-desc" data-i18n="chart_card_desc">Real-time institutional candlestick charts with customizable indicators.</p>
           <button type="button" id="openLiveChartBtn" class="product-chart-btn" data-i18n="prod_live_btn">
             LIVE CHART ➔
           </button>
+        </div>
+
+        <!-- Feature Card 3: Por ICT Terminal (SMC Pro) -->
+        <div class="product-feature-card por-terminal-promo-card">
+          <div class="product-card-badge terminal-badge-glow">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M7 4v3M7 17v3M12 3v4M12 15v6M17 6v3M17 18v3"/>
+              <rect x="5" y="7" width="4" height="10" rx="1"/><rect x="10" y="7" width="4" height="8" rx="1"/><rect x="15" y="9" width="4" height="9" rx="1"/>
+            </svg>
+          </div>
+          <span class="terminal-pill" data-i18n="term_pill">⚡ SMC PRO TERMINAL</span>
+          <div>
+            <span class="promo-sub-label" data-i18n="term_sub">XAUUSD · BTCUSD · BIDIRECTIONAL RADAR</span>
+            <h3 class="product-card-title" data-i18n="term_title">Por ICT Terminal</h3>
+          </div>
+          <p class="promo-card-desc" data-i18n="term_desc">Institutional SMC order block radar, Resistance Wick sweep detection, dynamic 1:3 RR calculating desk, and MetaTrader 5 bridge order executor.</p>
+          <a href="terminal.html" id="openTerminalBtn" class="product-chart-btn btn-terminal-launch" data-i18n="term_btn">LAUNCH POR ICT TERMINAL ➔</a>
+        </div>
+
+        <!-- Feature Card 4: Chart Analysis -->
+        <div class="product-feature-card por-analysis-promo-card">
+          <div class="product-card-badge">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M8 17v-5M13 17V8M18 17v-8"/></svg>
+          </div>
+          <div>
+            <span class="promo-sub-label" data-i18n="ca_sub">SIGNAL GENERATOR</span>
+            <h3 class="product-card-title" data-i18n="ca_title">Chart Analysis</h3>
+          </div>
+          <p class="promo-card-desc" data-i18n="ca_desc">Generate entry, stop loss and targets from live data, your own levels, or an uploaded chart screenshot, with lot-size calculation.</p>
+          <a href="chart-analysis.html" id="openAnalysisBtn" class="product-chart-btn" data-i18n="ca_btn">OPEN CHART ANALYSIS ➔</a>
         </div>
       </section>
 
