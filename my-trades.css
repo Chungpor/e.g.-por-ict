@@ -1,0 +1,102 @@
+/* My Trades - builds on chart-analysis.css tokens (--green, --red, --card, ...) */
+.mt-wrap { max-width: 900px; }
+.mt-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+.mt-head h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.4px; }
+.mt-head p { color: var(--sub); font-size: 13.5px; margin-top: 6px; max-width: 46ch; line-height: 1.5; }
+.mt-head-actions { display: flex; align-items: center; gap: 12px; }
+.mt-sync { font-size: 11.5px; color: var(--mut); }
+
+/* tabs */
+.mt-tabs { display: flex; gap: 4px; padding: 5px; background: rgba(18, 22, 28, 0.92); border: 1px solid var(--card-b); border-radius: 18px; margin-bottom: 18px; }
+.mt-tab { flex: 1; border: 1px solid transparent; background: transparent; color: var(--sub); font: 700 13.5px var(--sans); padding: 13px 8px; border-radius: 13px; cursor: pointer; touch-action: manipulation; }
+.mt-tab:hover { color: var(--text); }
+.mt-tab.active { background: #1a2029; border-color: var(--input-b); color: var(--text); }
+.mt-tab:focus-visible, .mt-filter:focus-visible, .mt-act:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+
+.mt-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+.mt-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.mt-filter { background: var(--input); border: 1px solid var(--card-b); color: var(--sub); font: 700 12.5px var(--sans); padding: 9px 14px; border-radius: 999px; cursor: pointer; }
+.mt-filter b { margin-left: 6px; font-weight: 700; color: var(--mut); font-variant-numeric: tabular-nums; }
+.mt-filter.active { border-color: var(--green); color: var(--green); background: var(--green-soft); }
+.mt-filter.active b { color: inherit; }
+.mt-win-set { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--mut); }
+.mt-win-set .ca-input { width: auto; padding: 9px 34px 9px 12px; font-size: 12.5px; border-radius: 12px; }
+
+.mt-list { display: grid; gap: 12px; }
+.mt-empty { text-align: center; padding: 48px 20px; color: var(--sub); background: var(--card); border: 1px dashed var(--input-b); border-radius: 20px; line-height: 1.6; font-size: 14px; }
+.mt-empty a { color: var(--green); font-weight: 700; text-decoration: none; }
+
+/* trade card */
+.mt-trade { background: var(--card); border: 1px solid var(--card-b); border-left-width: 4px; border-radius: 18px; padding: 16px 18px; backdrop-filter: blur(10px); }
+.mt-trade.s-win { border-left-color: var(--green); }
+.mt-trade.s-loss { border-left-color: var(--red); }
+.mt-trade.s-open { border-left-color: var(--cyan); }
+.mt-trade.s-be { border-left-color: var(--mut); }
+.mt-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.mt-id { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.mt-pair { font-weight: 800; font-size: 16px; }
+.mt-tf { font-size: 12px; color: var(--mut); }
+.mt-badge { font: 800 11.5px var(--sans); padding: 6px 12px; border-radius: 999px; white-space: nowrap; }
+.mt-badge.win { background: rgba(0, 210, 106, 0.15); color: var(--green); border: 1px solid rgba(0, 210, 106, 0.4); }
+.mt-badge.loss { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+.mt-badge.open { background: rgba(56, 189, 248, 0.12); color: var(--cyan); border: 1px solid rgba(56, 189, 248, 0.35); }
+.mt-badge.be { background: rgba(148, 163, 184, 0.12); color: var(--sub); border: 1px solid var(--input-b); }
+
+.mt-levels { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 14px 0 12px; }
+.mt-lv { background: var(--input); border: 1px solid var(--card-b); border-radius: 11px; padding: 8px 10px; min-width: 0; }
+.mt-lv span { display: block; font-size: 10px; letter-spacing: 0.6px; font-weight: 700; color: var(--mut); }
+.mt-lv strong { display: block; font-size: 13.5px; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
+.mt-lv.en strong { color: var(--gold); }
+.mt-lv.sl strong { color: #f87171; }
+.mt-lv.tp strong { color: var(--text); }
+.mt-lv.tp.hit { border-color: rgba(0, 210, 106, 0.55); background: var(--green-soft); }
+.mt-lv.tp.hit strong, .mt-lv.tp.hit span { color: var(--green); }
+.mt-lv.sl.hit { border-color: rgba(239, 68, 68, 0.6); background: rgba(239, 68, 68, 0.12); }
+
+.mt-meta { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--mut); line-height: 1.5; }
+.mt-meta .r-pos { color: var(--green); font-weight: 700; }
+.mt-meta .r-neg { color: #f87171; font-weight: 700; }
+.mt-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--card-b); }
+.mt-actions .lbl { font-size: 11.5px; color: var(--mut); margin-right: 4px; }
+.mt-act { background: var(--input); border: 1px solid var(--input-b); color: var(--sub); font: 700 11.5px var(--sans); padding: 8px 12px; border-radius: 10px; cursor: pointer; touch-action: manipulation; }
+.mt-act:hover { color: var(--text); border-color: var(--sub); }
+.mt-act.good:hover { color: var(--green); border-color: var(--green); }
+.mt-act.bad:hover { color: #f87171; border-color: var(--red); }
+.mt-act.push { margin-left: auto; }
+
+/* journal */
+.mt-j { background: var(--card); border: 1px solid var(--card-b); border-radius: 18px; padding: 16px 18px; }
+.mt-j textarea { margin-top: 12px; }
+.mt-j-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+.mt-follow { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; color: var(--mut); }
+.mt-saved { font-size: 11px; color: var(--green); opacity: 0; transition: opacity 0.2s; }
+.mt-saved.on { opacity: 1; }
+.mt-note { margin: 0 0 12px; }
+
+/* performance */
+.mt-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.mt-stat { background: var(--card); border: 1px solid var(--card-b); border-radius: 16px; padding: 14px 16px; }
+.mt-stat span { display: block; font-size: 11px; color: var(--mut); font-weight: 600; }
+.mt-stat strong { display: block; font-size: 24px; font-weight: 800; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.mt-stat small { display: block; font-size: 11px; color: var(--mut); margin-top: 2px; }
+.mt-stat.main strong { font-size: 30px; }
+.pos { color: var(--green); } .neg { color: #f87171; }
+.mt-box { background: var(--card); border: 1px solid var(--card-b); border-radius: 18px; padding: 16px 18px; margin-bottom: 14px; }
+.mt-box h3 { font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+.mt-curve { width: 100%; height: 160px; display: block; }
+.mt-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.mt-table th { text-align: left; font-size: 11px; color: var(--mut); font-weight: 600; padding: 0 0 8px; }
+.mt-table td { padding: 9px 0; border-top: 1px solid var(--card-b); font-variant-numeric: tabular-nums; }
+.mt-table th:not(:first-child), .mt-table td:not(:first-child) { text-align: right; }
+.mt-danger { background: transparent; border: 0; color: var(--mut); font: 600 12px var(--sans); cursor: pointer; text-decoration: underline; padding: 6px 0; }
+.mt-danger:hover { color: #f87171; }
+
+@media (max-width: 640px) {
+  .mt-head h1 { font-size: 26px; }
+  .mt-levels { grid-template-columns: repeat(3, 1fr); }
+  .mt-trade { padding: 14px; }
+  .mt-act { min-height: 40px; }
+  .mt-act.push { margin-left: 0; }
+  .mt-win-set { width: 100%; justify-content: space-between; }
+}
+@media (pointer: coarse) { .mt-tab, .mt-filter { min-height: 46px; } }

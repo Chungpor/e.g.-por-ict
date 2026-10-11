@@ -18,8 +18,7 @@ app.use(cors());
 // Default JSON limit everywhere, except the chart-upload route which sets its own larger limit.
 app.use((req, res, next) => (req.path === '/api/analyze-chart' ? next() : express.json()(req, res, next)));
 
-// Never serve server code, dependency files, env files or dotfiles,
-// even though express.static(__dirname) would otherwise expose them.
+// Never serve server code, dependency files, env files or dotfiles.
 const BLOCKED_PATH = /^\/(server\.js|package(-lock)?\.json|node_modules(\/.*)?|\.[^/]*|.*\.(env|log|md))$/i;
 app.use((req, res, next) => {
   let p;
@@ -40,19 +39,24 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Terminal page (clean URL: /terminal)
-app.get('/terminal', (req, res) => {
+// Terminal page (supports /terminal and /terminal.html)
+app.get(['/terminal', '/terminal.html'], (req, res) => {
   res.sendFile(path.join(__dirname, 'terminal.html'));
 });
 
-// Clean URL for the chart analysis page
-app.get('/chart-analysis', (req, res) => {
+// My Trades page (supports /my-trades and /my-trades.html)
+app.get(['/my-trades', '/my-trades.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'my-trades.html'));
+});
+
+// Chart analysis page (supports /chart-analysis and /chart-analysis.html)
+app.get(['/chart-analysis', '/chart-analysis.html'], (req, res) => {
   res.sendFile(path.join(__dirname, 'chart-analysis.html'));
 });
 
 // ---------------------------------------------------------------------------
 // AI chart reading (Upload Chart mode).
-// Needs:   ANTHROPIC_API_KEY=sk-ant-...   (optional: ANTHROPIC_MODEL)
+// Needs: GEMINI_API_KEY=... or ANTHROPIC_API_KEY=sk-ant-...
 // ---------------------------------------------------------------------------
 const ANALYZE_LIMIT = { windowMs: 60 * 1000, max: 6 };
 const analyzeHits = new Map();
@@ -65,7 +69,7 @@ function analyzeRateLimited(ip) {
   return hits.length > ANALYZE_LIMIT.max;
 }
 
-// Clean up expired rate-limit IP records every 5 minutes to prevent memory leaks
+// Clean up expired rate-limit IP records every 5 minutes
 setInterval(() => {
   const now = Date.now();
   for (const [ip, timestamps] of analyzeHits.entries()) {
@@ -80,7 +84,6 @@ setInterval(() => {
 
 app.post('/api/analyze-chart', express.json({ limit: '25mb' }), async (req, res) => {
   try {
-    // Gemini is used when GEMINI_API_KEY is set; otherwise falls back to Anthropic.
     const useGemini = Boolean(process.env.GEMINI_API_KEY);
     if (!useGemini && !process.env.ANTHROPIC_API_KEY) {
       return res.status(503).json({
@@ -113,12 +116,11 @@ Reply with ONLY one JSON object, no markdown:
 {"direction":"BUY"|"SELL"|"NONE","entry":number,"stop_loss":number,"tp1":number,"tp2":number,"tp3":number,"supporting":[short strings],"risks":[short strings],"summary":"2-3 sentences"}
 Stop loss must be on the losing side of entry; targets on the winning side. Do not promise outcomes.`;
 
-    // Strip a "data:image/png;base64," prefix if the frontend sent one.
     const imgData = i => i.data.replace(/^data:[^;]+;base64,/, '');
 
     let apiRes;
     if (useGemini) {
-      const model = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
+      const model = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
       apiRes = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
         {
@@ -137,13 +139,13 @@ Stop loss must be on the losing side of entry; targets on the winning side. Do n
                 ]
               }
             ],
-            // Generous limit: Gemini 3.8 "thinking" tokens count toward this cap.
             generationConfig: { maxOutputTokens: 4096, responseMimeType: 'application/json' }
           }),
           signal: AbortSignal.timeout(60 * 1000)
         }
       );
     } else {
+      const model = process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20241022';
       apiRes = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
@@ -152,7 +154,7 @@ Stop loss must be on the losing side of entry; targets on the winning side. Do n
           'anthropic-version': '2023-06-01'
         },
         body: JSON.stringify({
-          model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-5-5',
+          model: model,
           max_tokens: 1200,
           messages: [
             {
@@ -186,7 +188,6 @@ Stop loss must be on the losing side of entry; targets on the winning side. Do n
     if (start < 0 || end < 0) return res.status(502).json({ success: false, error: 'Could not read the AI response.' });
     const a = JSON.parse(text.slice(start, end + 1));
 
-    // Sanity-check the levels before showing them
     if (a.direction === 'BUY' || a.direction === 'SELL') {
       const buy = a.direction === 'BUY';
       const [e, sl, t1, t2, t3] = [a.entry, a.stop_loss, a.tp1, a.tp2, a.tp3].map(Number);
@@ -212,14 +213,14 @@ Stop loss must be on the losing side of entry; targets on the winning side. Do n
 // Forex Factory CDN endpoint
 const FF_FEED_URL = 'https://nfs.faireconomy.media/ff_calendar_thisweek.json';
 
-const CACHE_TTL_MS = 5 * 60 * 1000;     // fresh for 5 minutes
-const RETRY_BACKOFF_MS = 60 * 1000;     // after a failure, wait 1 minute before retrying
-const FETCH_TIMEOUT_MS = 10 * 1000;     // never hang on the upstream feed
+const CACHE_TTL_MS = 5 * 60 * 1000;
+const RETRY_BACKOFF_MS = 60 * 1000;
+const FETCH_TIMEOUT_MS = 10 * 1000;
 
 let cachedCalendar = null;
 let lastFetchTimestamp = 0;
 let lastFailureTimestamp = 0;
-let inflightFetch = null;               // shares one upstream request between concurrent callers
+let inflightFetch = null;
 
 async function fetchFeed() {
   const response = await fetch(FF_FEED_URL, {
@@ -234,11 +235,6 @@ async function fetchFeed() {
   return rawEvents;
 }
 
-/**
- * Returns { events, source }.
- * source: 'live' (fresh feed), 'stale_cache' (feed failed, older real data),
- *         'synthetic' (feed failed and nothing cached: sample data, NOT real).
- */
 async function getEnrichedForexFactoryData() {
   const now = Date.now();
 
@@ -246,7 +242,6 @@ async function getEnrichedForexFactoryData() {
     return { events: enrichLiveCountdowns(cachedCalendar), source: 'live' };
   }
 
-  // Recently failed: don't hammer the upstream, use what we have.
   if (now - lastFailureTimestamp < RETRY_BACKOFF_MS) {
     return fallbackData();
   }
@@ -279,8 +274,6 @@ function enrichLiveCountdowns(events) {
     .map((event, index) => {
       const releaseDate = new Date(event.date);
       const diffMs = releaseDate.getTime() - now;
-
-      // Whole minutes: rounded up before release, rounded down after
       const diffMinutes = diffMs > 0 ? Math.ceil(diffMs / 60000) : (-Math.floor(-diffMs / 60000) || 0);
 
       let status = 'UPCOMING';
@@ -351,7 +344,6 @@ function getIctStrategyGuidance(impact, currency, diffMinutes) {
   return 'Standard Session Range: Respect session Highs/Lows and internal market structure.';
 }
 
-// SAMPLE DATA ONLY: shown when the live feed is down and nothing is cached.
 function getSyntheticUpcomingEvents() {
   const base = new Date();
   const makeDate = (offsetMins) => new Date(base.getTime() + offsetMins * 60000).toISOString();
@@ -365,10 +357,12 @@ function getSyntheticUpcomingEvents() {
   ];
   return enrichLiveCountdowns(raw);
 }
-const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" }); // or gemini-3...
+
 console.log('--- Environment Check ---');
 console.log('GEMINI_API_KEY:', process.env.GEMINI_API_KEY ? 'Loaded (starts with ' + process.env.GEMINI_API_KEY.slice(0, 6) + '...)' : 'MISSING / UNDEFINED');
+console.log('ANTHROPIC_API_KEY:', process.env.ANTHROPIC_API_KEY ? 'Loaded (starts with ' + process.env.ANTHROPIC_API_KEY.slice(0, 7) + '...)' : 'MISSING / UNDEFINED');
 console.log('-------------------------');
+
 // API Routes
 app.get('/api/forexfactory/live', async (req, res) => {
   try {
@@ -397,6 +391,11 @@ app.get('/api/forexfactory/live', async (req, res) => {
     console.error('API error:', err);
     res.status(500).json({ success: false, error: 'Internal server error' });
   }
+});
+
+// Fallback 404 handler for missing routes
+app.use((req, res) => {
+  res.status(404).send(`Cannot GET ${req.path}. Ensure the file exists in your project directory.`);
 });
 
 app.listen(PORT, () => {

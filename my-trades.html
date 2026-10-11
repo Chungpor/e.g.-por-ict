@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>My Trades | Por ICT</title>
+  <script>
+    if (localStorage.getItem("por_is_logged_in") !== "true") location.replace("index.html");
+  </script>
+  <link rel="icon" type="image/jpeg" href="por.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="chart-analysis.css" />
+  <link rel="stylesheet" href="my-trades.css" />
+</head>
+<body class="mt-page">
+  <header class="ca-topbar">
+    <a href="chart-analysis.html" class="ca-back">← Chart Analysis</a>
+    <div class="ca-top-right">
+      <a href="index.html" class="ca-top-link">Por ICT</a>
+      <a href="terminal.html" class="ca-top-link">Terminal</a>
+    </div>
+  </header>
+
+  <main class="ca-wrap mt-wrap">
+    <div class="mt-head">
+      <div>
+        <h1>My Trades</h1>
+        <p>Every signal from Chart Analysis is saved here and checked for TP or SL.</p>
+      </div>
+      <div class="mt-head-actions">
+        <span class="mt-sync" id="syncText" aria-live="polite"></span>
+        <button type="button" class="ca-btn2" id="refreshBtn">Check now</button>
+      </div>
+    </div>
+
+    <nav class="mt-tabs" id="mtTabs" role="tablist" aria-label="My Trades sections">
+      <button type="button" role="tab" class="mt-tab active" data-tab="history" aria-selected="true">History</button>
+      <button type="button" role="tab" class="mt-tab" data-tab="journal" aria-selected="false">Journal</button>
+      <button type="button" role="tab" class="mt-tab" data-tab="performance" aria-selected="false">Performance</button>
+    </nav>
+
+    <!-- HISTORY -->
+    <section id="tabHistory" class="mt-panel">
+      <div class="mt-toolbar">
+        <div class="mt-filters" id="filters" role="group" aria-label="Filter trades">
+          <button type="button" class="mt-filter active" data-f="all">All <b id="cAll">0</b></button>
+          <button type="button" class="mt-filter" data-f="open">Open <b id="cOpen">0</b></button>
+          <button type="button" class="mt-filter" data-f="win">Hit TP <b id="cWin">0</b></button>
+          <button type="button" class="mt-filter" data-f="loss">Hit SL <b id="cLoss">0</b></button>
+        </div>
+        <label class="mt-win-set">
+          <span>Count as TP when price reaches</span>
+          <select id="winTp" class="ca-input">
+            <option value="1">TP1 (1R)</option>
+            <option value="2">TP2 (2R)</option>
+            <option value="3">TP3 (3R)</option>
+          </select>
+        </label>
+      </div>
+      <div id="historyList" class="mt-list"></div>
+    </section>
+
+    <!-- JOURNAL -->
+    <section id="tabJournal" class="mt-panel hidden">
+      <p class="ca-muted mt-note">Write what you saw and whether you followed your plan. Notes save automatically.</p>
+      <div id="journalList" class="mt-list"></div>
+    </section>
+
+    <!-- PERFORMANCE -->
+    <section id="tabPerformance" class="mt-panel hidden">
+      <div id="perfBody"></div>
+    </section>
+
+    <p class="ca-disclaimer">Results are measured on exchange candles (BTC, ETH and gold via PAXG), not on your broker's feed. A signal that touched TP or SL here can differ slightly on your account. Educational tool only, not financial advice.</p>
+  </main>
+
+  <script src="trades-store.js"></script>
+  <script src="my-trades.js"></script>
+</body>
+</html>
