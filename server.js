@@ -4,6 +4,8 @@
  * Requires Node 18+ (global fetch and AbortSignal.timeout).
  */
 
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -12,16 +14,21 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
+
 // Default JSON limit everywhere, except the chart-upload route which sets its own larger limit.
 app.use((req, res, next) => (req.path === '/api/analyze-chart' ? next() : express.json()(req, res, next)));
 
 // Never serve server code, dependency files, env files or dotfiles,
 // even though express.static(__dirname) would otherwise expose them.
-// Safer long-term fix: move frontend files into a ./public folder
-// and serve only that folder.
-const BLOCKED_PATH = /^\/(server\.js|package(-lock)?\.json|node_modules(\/|$)|_env|\.|.*\.(env|log|md)$)/i;
+const BLOCKED_PATH = /^\/(server\.js|package(-lock)?\.json|node_modules(\/.*)?|\.[^/]*|.*\.(env|log|md))$/i;
 app.use((req, res, next) => {
-  if (BLOCKED_PATH.test(decodeURIComponent(req.path))) return res.status(404).end();
+  let p;
+  try {
+    p = decodeURIComponent(req.path);
+  } catch {
+    return res.status(400).end();
+  }
+  if (BLOCKED_PATH.test(p)) return res.status(404).end();
   next();
 });
 
@@ -45,13 +52,11 @@ app.get('/chart-analysis', (req, res) => {
 
 // ---------------------------------------------------------------------------
 // AI chart reading (Upload Chart mode).
-// Needs:  ANTHROPIC_API_KEY=sk-ant-...   (optional: ANTHROPIC_MODEL)
-// The key stays on the server and is never sent to the browser.
-// NOTE: the site login is client-side only, so this route is open to anyone who can reach
-// the server. The per-IP limit below caps cost; add real server-side auth before going public.
+// Needs:   ANTHROPIC_API_KEY=sk-ant-...   (optional: ANTHROPIC_MODEL)
 // ---------------------------------------------------------------------------
 const ANALYZE_LIMIT = { windowMs: 60 * 1000, max: 6 };
 const analyzeHits = new Map();
+
 function analyzeRateLimited(ip) {
   const now = Date.now();
   const hits = (analyzeHits.get(ip) || []).filter(t => now - t < ANALYZE_LIMIT.windowMs);
@@ -60,10 +65,28 @@ function analyzeRateLimited(ip) {
   return hits.length > ANALYZE_LIMIT.max;
 }
 
+// Clean up expired rate-limit IP records every 5 minutes to prevent memory leaks
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, timestamps] of analyzeHits.entries()) {
+    const active = timestamps.filter(t => now - t < ANALYZE_LIMIT.windowMs);
+    if (active.length === 0) {
+      analyzeHits.delete(ip);
+    } else {
+      analyzeHits.set(ip, active);
+    }
+  }
+}, 5 * 60 * 1000).unref();
+
 app.post('/api/analyze-chart', express.json({ limit: '25mb' }), async (req, res) => {
   try {
-    if (!process.env.ANTHROPIC_API_KEY) {
-      return res.status(503).json({ success: false, error: 'AI chart reading is not set up on this server. Add ANTHROPIC_API_KEY to the server environment, or use Manual Entry / Live Chart.' });
+    // Gemini is used when GEMINI_API_KEY is set; otherwise falls back to Anthropic.
+    const useGemini = Boolean(process.env.GEMINI_API_KEY);
+    if (!useGemini && !process.env.ANTHROPIC_API_KEY) {
+      return res.status(503).json({
+        success: false,
+        error: 'AI chart reading is not set up on this server. Add GEMINI_API_KEY (or ANTHROPIC_API_KEY) to the server environment, or use Manual Entry / Live Chart.'
+      });
     }
     if (analyzeRateLimited(req.ip)) {
       return res.status(429).json({ success: false, error: 'Too many requests. Please wait a minute.' });
@@ -71,8 +94,12 @@ app.post('/api/analyze-chart', express.json({ limit: '25mb' }), async (req, res)
 
     const { images, pair, timeframe, strategy, notes, htfTimeframe, htfTrend } = req.body || {};
     const okTypes = ['image/png', 'image/jpeg', 'image/webp'];
-    if (!Array.isArray(images) || images.length < 1 || images.length > 3 ||
-        !images.every(i => i && okTypes.includes(i.media_type) && typeof i.data === 'string' && i.data.length < 8 * 1024 * 1024)) {
+    if (
+      !Array.isArray(images) ||
+      images.length < 1 ||
+      images.length > 3 ||
+      !images.every(i => i && okTypes.includes(i.media_type) && typeof i.data === 'string' && i.data.length < 8 * 1024 * 1024)
+    ) {
       return res.status(400).json({ success: false, error: 'Send 1 to 3 PNG/JPG/WebP images (max 5MB each).' });
     }
     const clean = (v, n) => String(v ?? '').replace(/[\r\n]+/g, ' ').slice(0, n);
@@ -86,26 +113,76 @@ Reply with ONLY one JSON object, no markdown:
 {"direction":"BUY"|"SELL"|"NONE","entry":number,"stop_loss":number,"tp1":number,"tp2":number,"tp3":number,"supporting":[short strings],"risks":[short strings],"summary":"2-3 sentences"}
 Stop loss must be on the losing side of entry; targets on the winning side. Do not promise outcomes.`;
 
-    const apiRes = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({
-        model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-5-5',
-        max_tokens: 1200,
-        messages: [{ role: 'user', content: [
-          ...images.map(i => ({ type: 'image', source: { type: 'base64', media_type: i.media_type, data: i.data } })),
-          { type: 'text', text: prompt }
-        ] }]
-      }),
-      signal: AbortSignal.timeout(60 * 1000)
-    });
-    if (!apiRes.ok) {
-      console.error('Anthropic API error:', apiRes.status, (await apiRes.text()).slice(0, 300));
-      return res.status(502).json({ success: false, error: 'The AI service returned an error. Try again later.' });
+    // Strip a "data:image/png;base64," prefix if the frontend sent one.
+    const imgData = i => i.data.replace(/^data:[^;]+;base64,/, '');
+
+    let apiRes;
+    if (useGemini) {
+      const model = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
+      apiRes = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+        {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'x-goog-api-key': process.env.GEMINI_API_KEY
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: 'user',
+                parts: [
+                  ...images.map(i => ({ inline_data: { mime_type: i.media_type, data: imgData(i) } })),
+                  { text: prompt }
+                ]
+              }
+            ],
+            // Generous limit: Gemini 3.8 "thinking" tokens count toward this cap.
+            generationConfig: { maxOutputTokens: 4096, responseMimeType: 'application/json' }
+          }),
+          signal: AbortSignal.timeout(60 * 1000)
+        }
+      );
+    } else {
+      apiRes = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': process.env.ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-5-5',
+          max_tokens: 1200,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                ...images.map(i => ({ type: 'image', source: { type: 'base64', media_type: i.media_type, data: imgData(i) } })),
+                { type: 'text', text: prompt }
+              ]
+            }
+          ]
+        }),
+        signal: AbortSignal.timeout(60 * 1000)
+      });
     }
+
+    if (!apiRes.ok) {
+      const detail = (await apiRes.text()).slice(0, 300);
+      console.error(`${useGemini ? 'Gemini' : 'Anthropic'} API error:`, apiRes.status, detail);
+      return res.status(502).json({
+        success: false,
+        error: `The AI service returned an error (${apiRes.status}). Try again later.`
+      });
+    }
+
     const body = await apiRes.json();
-    const text = (body.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
-    const start = text.indexOf('{'), end = text.lastIndexOf('}');
+    const text = useGemini
+      ? (body.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('')
+      : (body.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
     if (start < 0 || end < 0) return res.status(502).json({ success: false, error: 'Could not read the AI response.' });
     const a = JSON.parse(text.slice(start, end + 1));
 
@@ -116,7 +193,13 @@ Stop loss must be on the losing side of entry; targets on the winning side. Do n
       const okSl = buy ? sl < e : sl > e;
       const okTp = [t1, t2, t3].every(t => (buy ? t > e : t < e));
       if (![e, sl].every(n => n > 0) || !okSl || !okTp) {
-        return res.json({ success: true, analysis: { direction: 'NONE', summary: 'The AI levels were inconsistent (stop or targets on the wrong side), so no signal was produced. Try a clearer screenshot that shows the price axis.' } });
+        return res.json({
+          success: true,
+          analysis: {
+            direction: 'NONE',
+            summary: 'The AI levels were inconsistent (stop or targets on the wrong side), so no signal was produced. Try a clearer screenshot that shows the price axis.'
+          }
+        });
       }
     }
     res.json({ success: true, analysis: a });
@@ -197,8 +280,7 @@ function enrichLiveCountdowns(events) {
       const releaseDate = new Date(event.date);
       const diffMs = releaseDate.getTime() - now;
 
-      // Whole minutes: rounded up before release, rounded down after,
-      // so a release 20 seconds away shows "in 1m", not "Released 0m ago".
+      // Whole minutes: rounded up before release, rounded down after
       const diffMinutes = diffMs > 0 ? Math.ceil(diffMs / 60000) : (-Math.floor(-diffMs / 60000) || 0);
 
       let status = 'UPCOMING';
@@ -270,7 +352,6 @@ function getIctStrategyGuidance(impact, currency, diffMinutes) {
 }
 
 // SAMPLE DATA ONLY: shown when the live feed is down and nothing is cached.
-// The API response is marked source: 'synthetic' so the UI can warn users.
 function getSyntheticUpcomingEvents() {
   const base = new Date();
   const makeDate = (offsetMins) => new Date(base.getTime() + offsetMins * 60000).toISOString();
@@ -284,7 +365,10 @@ function getSyntheticUpcomingEvents() {
   ];
   return enrichLiveCountdowns(raw);
 }
-
+const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" }); // or gemini-3...
+console.log('--- Environment Check ---');
+console.log('GEMINI_API_KEY:', process.env.GEMINI_API_KEY ? 'Loaded (starts with ' + process.env.GEMINI_API_KEY.slice(0, 6) + '...)' : 'MISSING / UNDEFINED');
+console.log('-------------------------');
 // API Routes
 app.get('/api/forexfactory/live', async (req, res) => {
   try {
