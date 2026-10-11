@@ -312,6 +312,18 @@ function renderResult(pairKey, tf, res, extra = {}) {
   const sz = sizeLots(pairKey, res.entry, res.sl, +$("accountSize").value || 0, +$("riskPct").value || 0);
   const list = (arr) => (arr && arr.length ? arr.map((x) => `<li>${esc(x)}</li>`).join("") : "");
   const signalText = `${pairKey} ${res.dir} @ ${f(res.entry)} | SL ${f(res.sl)} | TP1 ${f(tp[0])} | TP2 ${f(tp[1])} | TP3 ${f(tp[2])} | R:R 1:${rr}`;
+
+  // Save to My Trades so the result (TP or SL) can be tracked. Only live-data signals are auto-tracked.
+  let savedLine = "";
+  if (window.PorTrades) {
+    const saved = window.PorTrades.add({
+      pair: pairKey, tf, dir: res.dir, entry: res.entry, sl: res.sl, tps: tp, dec, strategy, source: extra.source || "",
+      lots: sz && !sz.minWarn ? sz.lots : (sz ? 0 : null), riskUsd: sz ? sz.riskUsd : null,
+      auto: extra.source === "Live data", bn: PAIRS[pairKey].bn
+    });
+    const how = saved.trade.auto ? "TP / SL is checked automatically." : "Mark TP or SL yourself when it closes.";
+    savedLine = `<div class="ca-res-block"><p>${saved.duplicate ? "This setup is already in My Trades." : "Saved to My Trades."} ${how}</p></div>`;
+  }
   card.innerHTML = `
     <div class="ca-res-head"><span class="ca-dir ${buy ? "buy" : "sell"}">${buy ? "▲ BUY" : "▼ SELL"} ${esc(pairKey)}</span>
       <span class="ca-res-meta">${esc(tf)} • ${esc(strategy)}${res.score ? ` • Confluence ${esc(res.score)}` : ""}${extra.source ? ` • ${esc(extra.source)}` : ""}</span></div>
@@ -330,7 +342,8 @@ function renderResult(pairKey, tf, res, extra = {}) {
     ${res.missing?.length ? `<div class="ca-res-block"><h3>WHAT IS MISSING / RISKS</h3><ul>${list(res.missing)}</ul></div>` : ""}
     ${extra.summary ? `<div class="ca-res-block"><h3>ANALYSIS</h3><p>${esc(extra.summary)}</p></div>` : ""}
     ${res.notes?.length ? `<div class="ca-res-block"><h3>NOTES</h3><ul>${list(res.notes)}</ul></div>` : ""}
-    <div class="ca-res-actions"><button type="button" class="ca-btn2" id="copySignalBtn">Copy signal</button><a class="ca-btn2" href="terminal.html">Open Terminal</a></div>`;
+    ${savedLine}
+    <div class="ca-res-actions"><button type="button" class="ca-btn2" id="copySignalBtn">Copy signal</button><a class="ca-btn2" href="my-trades.html">My Trades</a><a class="ca-btn2" href="terminal.html">Open Terminal</a></div>`;
   $("copySignalBtn").addEventListener("click", (e) => { navigator.clipboard?.writeText(signalText).then(() => { e.target.textContent = "Copied ✓"; setTimeout(() => (e.target.textContent = "Copy signal"), 1500); }); });
   card.scrollIntoView({ behavior: "smooth", block: "start" });
 }
