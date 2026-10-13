@@ -64,10 +64,19 @@
       <nav id="navCenterLinks" class="nav-center-links hidden">
         <a href="#" id="navHomeLink" class="nav-link active" data-i18n="nav_home">Home</a>
         <a href="#" id="navNewsLink" class="nav-link" data-i18n="nav_news">Por ICT News</a>
-        <a href="#" id="navLiveChartLink" class="nav-link" data-i18n="nav_live_chart">Live Chart</a>
+        
+        <!-- Live Market Chart (Golden Chestnut) -->
+        <a href="#" id="navLiveChartLink" class="nav-link nav-link-golden-chestnut" data-i18n="nav_live_chart">Live Chart</a>
+        
         <a href="terminal.html" id="navTerminalLink" class="nav-link nav-terminal-accent" data-i18n="nav_terminal">Terminal</a>
         <a href="chart-analysis.html" id="navAnalysisLink" class="nav-link" data-i18n="nav_analysis">Analysis</a>
-        <a href="my-trades.html" id="navTradesLink" class="nav-link">My Trades</a>
+
+        <!-- My Trades (Yellow) -->
+        <a href="goal.html" id="navTradesLink" class="nav-link nav-link-yellow">Goal Future</a>
+
+        <!-- Preview - recent signals (Red) -->
+        <a href="Preview%20-recent%20signals.html" id="navPreviewLink" class="nav-link nav-link-red">Preview - recent signals</a>
+
         <a href="#" id="navMembershipLink" class="nav-link" data-i18n="nav_membership">Membership</a>
         <a href="#" id="navContactLink" class="nav-link" data-i18n="nav_contact">Contact Us</a>
 
@@ -253,10 +262,19 @@
       <nav class="mobile-nav-links">
         <a href="#" id="mobileHomeLink" class="mobile-nav-link-item active" data-i18n="nav_home">Home</a>
         <a href="#" id="mobileNewsLink" class="mobile-nav-link-item" data-i18n="nav_news">Por ICT News</a>
-        <a href="#" id="mobileLiveChartLink" class="mobile-nav-link-item" data-i18n="nav_live_chart">Live Chart</a>
+        
+        <!-- Live Market Chart (Golden Chestnut) -->
+        <a href="#" id="mobileLiveChartLink" class="mobile-nav-link-item nav-link-golden-chestnut" data-i18n="nav_live_chart">Live Chart</a>
+        
         <a href="terminal.html" id="mobileTerminalLink" class="mobile-nav-link-item nav-terminal-accent" data-i18n="nav_terminal">Terminal</a>
         <a href="chart-analysis.html" id="mobileAnalysisLink" class="mobile-nav-link-item" data-i18n="nav_analysis">Analysis</a>
-        <a href="my-trades.html" id="mobileTradesLink" class="mobile-nav-link-item">My Trades</a>
+
+        <!-- My Trades (Yellow) -->
+        <a href="goal.html" id="mobileTradesLink" class="mobile-nav-link-item nav-link-yellow">Goal Future</a>
+
+        <!-- Preview - recent signals (Red) -->
+        <a href="Preview%20-recent%20signals.html" id="mobilePreviewLink" class="mobile-nav-link-item nav-link-red">Preview - recent signals</a>
+
         <a href="#" id="mobileMembershipLink" class="mobile-nav-link-item" data-i18n="nav_membership">Membership</a>
         <a href="#" id="mobileContactLink" class="mobile-nav-link-item" data-i18n="nav_contact">Contact Us</a>
 
@@ -622,7 +640,7 @@
         </div>
       </header>
 
-      <!-- SECTION: PRODUCTS GRID (WITH TERMINAL SQUIRCLE BADGE) -->
+      <!-- SECTION: PRODUCTS GRID -->
       <section class="products-dual-grid products-tri-grid">
 
         <!-- Feature Card 1: Por ICT Terminal (SMC Pro) -->
@@ -658,9 +676,9 @@
           <button type="button" id="openNewsFromDashBtn" class="product-chart-btn btn-news-gradient" data-i18n="news_card_btn">READ POR ICT NEWS ➔</button>
         </div>
 
-        <!-- Feature Card 3: Live Market Chart -->
-        <div class="product-feature-card">
-          <div class="product-card-badge">
+        <!-- Feature Card 3: Live Market Chart (Golden Chestnut) -->
+        <div class="product-feature-card por-livechart-promo-card">
+          <div class="product-card-badge badge-golden-chestnut">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
               <path d="M5 3v4"/>
@@ -670,11 +688,11 @@
             </svg>
           </div>
           <div>
-            <span class="promo-sub-label" data-i18n="prod_new_title">New Product</span>
-            <h3 class="product-card-title" data-i18n="chart_title">Live Market Chart</h3>
+            <span class="promo-sub-label" style="color:var(--golden-chestnut)">REAL-TIME CANDLESTICKS</span>
+            <h3 class="product-card-title" style="color:var(--golden-chestnut)">Live Market Chart</h3>
           </div>
-          <p class="promo-card-desc" data-i18n="chart_card_desc">Real-time institutional candlestick charts with customizable indicators.</p>
-          <button type="button" id="openLiveChartBtn" class="product-chart-btn" data-i18n="prod_live_btn">
+          <p class="promo-card-desc">Real-time institutional candlestick charts with customizable indicators.</p>
+          <button type="button" id="openLiveChartBtn" class="product-chart-btn btn-golden-chestnut" data-i18n="prod_live_btn">
             LIVE CHART ➔
           </button>
         </div>
@@ -690,6 +708,42 @@
           </div>
           <p class="promo-card-desc" data-i18n="ca_desc">Generate entry, stop loss, and targets from live data, your own levels, or an uploaded chart screenshot, with lot-size calculation.</p>
           <a href="chart-analysis.html" id="openAnalysisBtn" class="product-chart-btn" data-i18n="ca_btn">OPEN CHART ANALYSIS ➔</a>
+        </div>
+
+        <!-- Feature Card 5: Preview - recent signals (Red Theme & Button) -->
+        <div class="product-feature-card por-preview-promo-card" onclick="location.href='Preview%20-recent%20signals.html'" style="cursor:pointer;">
+          <div class="product-card-badge badge-red">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+          </div>
+          <div>
+            <span class="promo-sub-label" style="color:#ef4444;">LIVE SIGNALS DESK</span>
+            <h3 class="product-card-title" style="color:#ef4444;">Preview - recent signals</h3>
+          </div>
+          <p class="promo-card-desc">Review recent signals generated by Chart Analysis, auto-tracked and synchronized directly with your My Trades history.</p>
+          <a href="Preview%20-recent%20signals.html" class="product-chart-btn btn-red-action">VIEW RECENT SIGNALS ➔</a>
+        </div>
+
+        <!-- Feature Card 6: My Trades (Yellow Theme & Button) -->
+        <div class="product-feature-card por-trades-promo-card" onclick="location.href='goal.html'" style="cursor:pointer;">
+          <div class="product-card-badge badge-yellow">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </div>
+          <div>
+            <span class="promo-sub-label" style="color:#eab308;">JOURNAL & TRACKER</span>
+            <h3 class="product-card-title" style="color:#eab308;">Goal Future</h3>
+          </div>
+          <p class="promo-card-desc">Inspect all your active trades, performance history, automatic TP/SL tracking, and win rates.</p>
+          <a href="goal.html" class="product-chart-btn btn-yellow-action">OPEN GOAL FUTURE ➔</a>
         </div>
 
       </section>
@@ -944,7 +998,7 @@
 
       <!-- Live Chart Header -->
       <header class="live-chart-header">
-        <span class="live-chart-subtitle-tag" data-i18n="chart_category">NEW PRODUCT</span>
+        <span class="live-chart-subtitle-tag" data-i18n="chart_category">REAL-TIME CANDLESTICKS</span>
         <h1 class="live-chart-main-title" data-i18n="chart_title">Live Market Chart</h1>
         <p class="live-chart-description" data-i18n="chart_subtitle">
           Track gold, Bitcoin, and more in real time — add indicators as you like

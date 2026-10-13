@@ -14,6 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://www.youtube.com/iframe_api"></script>
   <link rel="stylesheet" href="chart-analysis.css" />
+  <link rel="stylesheet" href="recent-signals.css" />
 </head>
 <body>
   <!-- Dynamic 4K video background (same video as the main site; falls back to the hosted copy) -->
@@ -33,7 +34,6 @@
         <span class="ca-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
         <span id="caMusicText">Music: OFF</span>
       </button>
-      <a href="my-trades.html" class="ca-top-link">My Trades</a>
       <a href="terminal.html" class="ca-top-link">Terminal</a>
     </div>
   </header>
@@ -48,6 +48,9 @@
     </section>
     <div class="ca-ticker" aria-hidden="true"><div class="ca-ticker-inner" id="caTicker"></div></div>
     <div class="ca-chips" id="caChips"></div>
+
+    <!-- Recent signals history (built by recent-signals.js, reads the same store as My Trades) -->
+    <section class="rs-section" id="caRecent" aria-label="Recent signals"></section>
 
     <div class="ca-title-row">
       <div class="ca-title-icon">
@@ -172,6 +175,7 @@
 
   <script src="trades-store.js"></script>
   <script src="chart-analysis.js"></script>
+  <script src="recent-signals.js"></script>
   <script src="chart-extras.js"></script>
 </body>
 </html>

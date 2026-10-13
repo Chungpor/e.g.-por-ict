@@ -234,6 +234,15 @@ async function fetchCandles(binanceSymbol, interval, limit = 300) {
       return rows.map((k) => ({ t: k[0], o: +k[1], h: +k[2], l: +k[3], c: +k[4] }));
     } catch (e) { lastErr = e; }
   }
+  // Binance unreachable: try Bybit (same pair names, newest candle first).
+  try {
+    const iv = { "1m": "1", "5m": "5", "15m": "15", "30m": "30", "1h": "60", "4h": "240", "1d": "D" }[interval];
+    const r = await fetch(`https://api.bybit.com/v5/market/kline?category=spot&symbol=${binanceSymbol}&interval=${iv}&limit=${limit}`, { signal: AbortSignal.timeout(6000) });
+    const j = await r.json();
+    if (r.ok && j.retCode === 0 && j.result && j.result.list && j.result.list.length) {
+      return j.result.list.slice().reverse().map((k) => ({ t: +k[0], o: +k[1], h: +k[2], l: +k[3], c: +k[4] }));
+    }
+  } catch (e) { lastErr = lastErr || e; }
   throw new Error("Could not load live market data (Binance may be blocked on this network or VPN). Try Manual Entry, or a different connection. " + (lastErr && lastErr.message ? "(" + lastErr.message + ")" : ""));
 }
 
@@ -315,12 +324,20 @@ function renderResult(pairKey, tf, res, extra = {}) {
 
   // Save to My Trades so the result (TP or SL) can be tracked. Only live-data signals are auto-tracked.
   let savedLine = "";
+  if (!window.PorTrades) savedLine = `<div class="ca-res-block"><p>⚠ Not saved to My Trades: trades-store.js did not load. Check that the file is uploaded next to chart-analysis.html.</p></div>`;
   if (window.PorTrades) {
     const saved = window.PorTrades.add({
       pair: pairKey, tf, dir: res.dir, entry: res.entry, sl: res.sl, tps: tp, dec, strategy, source: extra.source || "",
       lots: sz && !sz.minWarn ? sz.lots : (sz ? 0 : null), riskUsd: sz ? sz.riskUsd : null,
       auto: extra.source === "Live data", bn: PAIRS[pairKey].bn
     });
+    if (window.PorSignals && saved && saved.trade) {
+      const m = String(res.score || "").match(/^(\d+)\/(\d+)$/);
+      let conf = m && +m[2] ? Math.round((+m[1] / +m[2]) * 100) : null;
+      if (extra.confidence != null && isFinite(+extra.confidence)) { const c = +extra.confidence; conf = Math.round(c <= 1 ? c * 100 : c); }
+      const tags = [...(res.missing || []).map((t) => ({ t, k: "warn" })), ...(res.confluences || []).map((t) => ({ t, k: "ok" }))].slice(0, 12);
+      window.PorSignals.remember(saved.trade.id, { conf, tags });
+    }
     const how = saved.trade.auto ? "TP / SL is checked automatically." : "Mark TP or SL yourself when it closes.";
     savedLine = `<div class="ca-res-block"><p>${saved.duplicate ? "This setup is already in My Trades." : "Saved to My Trades."} ${how}</p></div>`;
   }
@@ -383,7 +400,7 @@ async function analyze() {
       const a = json.analysis;
       const dir = a.direction === "BUY" || a.direction === "SELL" ? a.direction : null;
       renderResult(pairKey, TFS[tfKey].label, dir ? { dir, entry: +a.entry, sl: +a.stop_loss, tps: [a.tp1, a.tp2, a.tp3].map(Number).filter((x) => x > 0).length === 3 ? [a.tp1, a.tp2, a.tp3].map(Number) : null,
-        confluences: a.supporting || [], missing: a.risks || [], notes: [] } : { dir: null, reason: a.summary || "No clear setup in the image." }, { source: "AI chart reading", summary: a.summary });
+        confluences: a.supporting || [], missing: a.risks || [], notes: [] } : { dir: null, reason: a.summary || "No clear setup in the image." }, { source: "AI chart reading", summary: a.summary, confidence: a.confidence });
     }
   } catch (err) {
     showError(err.name === "TimeoutError" ? "Market data timed out. Check your connection and try again." : err.message || "Something went wrong.");

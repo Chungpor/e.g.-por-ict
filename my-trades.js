@@ -5,6 +5,7 @@
   const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const S = window.PorTrades;
   let filter = "all", tab = "history", tracking = false;
+  let focusId = decodeURIComponent((location.hash || "").slice(1)).replace(/^trade-/, ""), focusScrolled = false; // from Chart Analysis "Open in My Trades"
 
   const fmtDate = (ts) => new Date(ts).toLocaleString([], { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
   const fmtR = (r) => (r > 0 ? "+" : "") + r.toFixed(2) + "R";
@@ -90,6 +91,15 @@
     const shown = withR.filter((x) => filter === "all" || x.r.state === filter).map((x) => x.t);
     $("historyList").innerHTML = shown.length ? shown.map(tradeCard).join("")
       : emptyState(all.length ? "No trades match this filter." : `Nothing here yet.<br />Run an analysis in <a href="chart-analysis.html">Chart Analysis</a> and the signal is saved here automatically.`);
+    focusTrade();
+  }
+
+  function focusTrade() {
+    if (!focusId) return;
+    const el = $("historyList").querySelector('[data-id="' + (window.CSS && CSS.escape ? CSS.escape(focusId) : focusId) + '"]');
+    if (!el) return;
+    el.classList.add("mt-focus");
+    if (!focusScrolled) { focusScrolled = true; el.scrollIntoView({ behavior: "smooth", block: "center" }); setTimeout(() => { focusId = ""; }, 4000); }
   }
 
   // ---------- journal ----------

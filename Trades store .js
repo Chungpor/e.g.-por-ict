@@ -175,8 +175,12 @@
     return { state: "open", r: 0 };
   }
 
-  // ---- auto tracking against Binance candles ----
-  async function fetchRange(symbol, interval, startTime) {
+  // ---- auto tracking: Binance first, Bybit as backup when Binance is blocked on the user's network ----
+  const BYBIT = "https://api.bybit.com";
+  const BYBIT_IV = { "1m": "1", "5m": "5", "15m": "15", "30m": "30", "1h": "60", "4h": "240", "1d": "D" };
+  let bnDownUntil = 0; // when every Binance address failed, skip Binance for a few minutes so checks stay fast
+
+  async function binanceRange(symbol, interval, startTime) {
     const out = [];
     let from = startTime;
     for (let page = 0; page < 15; page++) {
@@ -187,7 +191,7 @@
         try {
           const r = await fetch(
             `${host}/api/v3/klines?symbol=${symbol}&interval=${interval}&startTime=${from}&limit=1000`,
-            { signal: AbortSignal.timeout(6000) }
+            { signal: AbortSignal.timeout(4000) }
           );
           if (!r.ok) throw new Error("Market data error " + r.status);
           rows = await r.json();
@@ -203,6 +207,44 @@
       from = rows[rows.length - 1][0] + 1;
     }
     return out;
+  }
+
+  // Bybit returns newest first, so page backwards from "now" until we reach startTime.
+  async function bybitRange(symbol, interval, startTime) {
+    const iv = BYBIT_IV[interval];
+    if (!iv) throw new Error("Unsupported interval");
+    const out = [];
+    let end = Date.now();
+    for (let page = 0; page < 15; page++) {
+      const r = await fetch(
+        `${BYBIT}/v5/market/kline?category=spot&symbol=${symbol}&interval=${iv}&start=${startTime}&end=${end}&limit=1000`,
+        { signal: AbortSignal.timeout(6000) }
+      );
+      if (!r.ok) throw new Error("Backup market data error " + r.status);
+      const j = await r.json();
+      if (j.retCode !== 0 || !j.result || !Array.isArray(j.result.list)) throw new Error("Backup market data unavailable");
+      const rows = j.result.list;
+      rows.forEach((k) => out.push({ t: +k[0], h: +k[2], l: +k[3] }));
+      if (rows.length < 1000) break;
+      end = +rows[rows.length - 1][0] - 1;
+    }
+    return out.sort((a, b) => a.t - b.t);
+  }
+
+  async function fetchRange(symbol, interval, startTime) {
+    const order = Date.now() < bnDownUntil ? ["bybit", "binance"] : ["binance", "bybit"];
+    let lastErr;
+    for (const src of order) {
+      try {
+        const rows = src === "binance" ? await binanceRange(symbol, interval, startTime) : await bybitRange(symbol, interval, startTime);
+        if (src === "binance") bnDownUntil = 0;
+        return rows;
+      } catch (e) {
+        lastErr = e;
+        if (src === "binance") bnDownUntil = Date.now() + 5 * 60 * 1000;
+      }
+    }
+    throw lastErr || new Error("Market data unavailable");
   }
 
   function scan(t, candles) {

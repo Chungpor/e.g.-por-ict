@@ -100,3 +100,4 @@
   .mt-win-set { width: 100%; justify-content: space-between; }
 }
 @media (pointer: coarse) { .mt-tab, .mt-filter { min-height: 46px; } }
+.mt-trade.mt-focus { box-shadow: 0 0 0 2px var(--green), 0 0 30px rgba(0, 210, 106, 0.25); }

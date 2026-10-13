@@ -22,6 +22,12 @@
   --low-yellow: #eab308;
   --danger-soft: #f87171;
   --emerald-soft: #34d399;
+
+  /* Lavender Purple Accent (Live Market Chart) */
+  --lavender-purple: #9d72ff;
+  --lavender-purple-glow: rgba(157, 114, 255, 0.35);
+  --golden-chestnut: var(--lavender-purple);
+  --golden-chestnut-glow: var(--lavender-purple-glow);
   
   --text-main: #f8fafc;
   --text-sub: #94a3b8;
@@ -64,6 +70,11 @@
   --low-yellow: #ca8a04;
   --danger-soft: #dc2626;
   --emerald-soft: #047857;
+
+  --lavender-purple: #7c3aed;
+  --lavender-purple-glow: rgba(124, 58, 237, 0.3);
+  --golden-chestnut: var(--lavender-purple);
+  --golden-chestnut-glow: var(--lavender-purple-glow);
   
   --text-main: #0f172a;
   --text-sub: #475569;
@@ -169,6 +180,7 @@ body {
   gap: 10px;
   user-select: none;
   flex-shrink: 0;
+  margin-right: 18px;
 }
 
 .brand-badge-circle {
@@ -215,7 +227,7 @@ body {
   font-weight: 600;
   color: var(--text-sub);
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: all 0.18s ease;
   white-space: nowrap;
 }
 
@@ -223,6 +235,89 @@ body {
 .nav-link.active {
   color: var(--teal-accent);
   font-weight: 700;
+}
+
+/* ========================================================
+   MENU SPECIFIC ACCENTS (RED, YELLOW, LAVENDER PURPLE)
+   ======================================================== */
+/* 1. Preview - recent signals (RED MENU & BUTTONS) */
+.nav-link-red {
+  color: #ef4444 !important;
+  font-weight: 700 !important;
+}
+.nav-link-red:hover,
+.nav-link-red.active {
+  color: #f87171 !important;
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+.btn-red-action {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  border: 1px solid #ef4444 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35) !important;
+}
+.btn-red-action:hover {
+  background: #dc2626 !important;
+  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.5) !important;
+}
+
+/* 2. My Trades (YELLOW MENU & BUTTONS) */
+.nav-link-yellow {
+  color: #eab308 !important;
+  font-weight: 700 !important;
+}
+.nav-link-yellow:hover,
+.nav-link-yellow.active {
+  color: #fde047 !important;
+  text-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
+}
+
+.btn-yellow-action {
+  background: linear-gradient(135deg, #facc15 0%, #eab308 100%) !important;
+  border: 1px solid #eab308 !important;
+  color: #000000 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 4px 14px rgba(234, 179, 8, 0.35) !important;
+}
+.btn-yellow-action:hover {
+  background: #eab308 !important;
+  box-shadow: 0 6px 18px rgba(234, 179, 8, 0.5) !important;
+}
+
+/* 3. Live Market Chart (LAVENDER PURPLE MENU & BUTTONS) */
+.nav-link-golden-chestnut,
+.nav-link-lavender-purple {
+  color: var(--lavender-purple) !important;
+  font-weight: 700 !important;
+}
+.nav-link-golden-chestnut:hover,
+.nav-link-golden-chestnut.active,
+.nav-link-lavender-purple:hover,
+.nav-link-lavender-purple.active {
+  color: #c4b5fd !important;
+  text-shadow: 0 0 10px var(--lavender-purple-glow);
+}
+
+.btn-golden-chestnut,
+.btn-lavender-purple {
+  background: linear-gradient(135deg, #a78bfa 0%, var(--lavender-purple) 100%) !important;
+  border: 1px solid var(--lavender-purple) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  box-shadow: 0 4px 14px var(--lavender-purple-glow) !important;
+}
+.btn-golden-chestnut:hover,
+.btn-lavender-purple:hover {
+  background: #7c3aed !important;
+  box-shadow: 0 6px 18px rgba(157, 114, 255, 0.5) !important;
+}
+
+.badge-golden-chestnut,
+.badge-lavender-purple {
+  background: rgba(157, 114, 255, 0.15) !important;
+  border-color: rgba(157, 114, 255, 0.45) !important;
+  color: var(--lavender-purple) !important;
 }
 
 .nav-music-link-btn {
@@ -1211,6 +1306,8 @@ body {
 .text-green { color: var(--emerald-green); }
 .text-cyan { color: var(--sky-blue); }
 .text-purple { color: var(--purple); }
+.text-red { color: #ef4444; }
+.text-yellow { color: #eab308; }
 .text-best-pair { color: var(--text-main); }
 .mb-16 { margin-bottom: 16px; }
 
@@ -1341,6 +1438,45 @@ body {
   border-color: rgba(56, 189, 248, 0.4);
 }
 
+/* CARDS ACCENTS: RED FOR PREVIEW SIGNALS, YELLOW FOR MY TRADES, LAVENDER PURPLE FOR LIVE CHART */
+.por-preview-promo-card {
+  border-color: rgba(239, 68, 68, 0.38) !important;
+  background: linear-gradient(135deg, rgba(20, 24, 38, 0.95) 0%, rgba(38, 18, 22, 0.92) 100%) !important;
+}
+.por-preview-promo-card:hover {
+  border-color: #ef4444 !important;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.25) !important;
+}
+
+.por-trades-promo-card {
+  border-color: rgba(234, 179, 8, 0.38) !important;
+  background: linear-gradient(135deg, rgba(20, 24, 38, 0.95) 0%, rgba(38, 34, 18, 0.92) 100%) !important;
+}
+.por-trades-promo-card:hover {
+  border-color: #eab308 !important;
+  box-shadow: 0 8px 24px rgba(234, 179, 8, 0.25) !important;
+}
+
+.por-livechart-promo-card {
+  border-color: rgba(157, 114, 255, 0.38) !important;
+  background: linear-gradient(135deg, rgba(20, 24, 38, 0.95) 0%, rgba(32, 22, 45, 0.92) 100%) !important;
+}
+.por-livechart-promo-card:hover {
+  border-color: var(--lavender-purple) !important;
+  box-shadow: 0 8px 24px var(--lavender-purple-glow) !important;
+}
+
+.badge-red {
+  background: rgba(239, 68, 68, 0.16) !important;
+  border-color: rgba(239, 68, 68, 0.45) !important;
+  color: #f87171 !important;
+}
+.badge-yellow {
+  background: rgba(234, 179, 8, 0.16) !important;
+  border-color: rgba(234, 179, 8, 0.45) !important;
+  color: #facc15 !important;
+}
+
 .por-news-promo-card {
   border-color: rgba(245, 158, 11, 0.3);
   background: linear-gradient(135deg, rgba(20, 24, 38, 0.95) 0%, rgba(35, 25, 20, 0.92) 100%);
@@ -1406,6 +1542,10 @@ body {
   color: var(--sky-blue);
   cursor: pointer;
   align-self: flex-start;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .product-chart-btn:hover {
@@ -1424,9 +1564,7 @@ body {
   color: #000;
 }
 
-/* ========================================================
-   FOREX FACTORY OFFICIAL LIVE BANNER (UPDATED WITH LINK)
-   ======================================================== */
+/* FOREX FACTORY OFFICIAL LIVE BANNER */
 .ff-official-banner-card {
   background: linear-gradient(135deg, rgba(20, 24, 38, 0.98) 0%, rgba(13, 20, 32, 0.98) 100%);
   border: 1.5px solid rgba(56, 189, 248, 0.35);
@@ -1798,9 +1936,7 @@ body {
   color: var(--text-sub);
 }
 
-/* ========================================================
-   POR ICT HOT READS (REPLACES ZOQIRA)
-   ======================================================== */
+/* POR ICT HOT READS */
 .hot-reads-container-card {
   background: var(--bg-card);
   border: 1px solid var(--card-border);
@@ -2026,12 +2162,6 @@ body {
   gap: 10px;
 }
 
-.wire-category-badge-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .wire-category-tag {
   font-size: 10.5px;
   font-weight: 800;
@@ -2099,7 +2229,7 @@ body {
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 1px;
-  color: var(--sky-blue);
+  color: var(--lavender-purple);
   text-transform: uppercase;
 }
 
@@ -2168,10 +2298,10 @@ body {
 }
 
 .chart-pill-btn.active {
-  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-  border-color: var(--sky-blue);
+  background: linear-gradient(135deg, #a78bfa 0%, var(--lavender-purple) 100%);
+  border-color: var(--lavender-purple);
   color: #ffffff;
-  box-shadow: 0 2px 10px rgba(2, 132, 199, 0.35);
+  box-shadow: 0 2px 10px var(--lavender-purple-glow);
 }
 
 .chart-pill-btn.icon-bolt {
@@ -2874,13 +3004,7 @@ body {
 
 /* RESPONSIVE DESIGN */
 @media (max-width: 768px) {
-  input,
-  textarea,
-  select,
-  .login-input,
-  .form-input,
-  .form-textarea,
-  .otp-box {
+  input, textarea, select, .login-input, .form-input, .form-textarea, .otp-box {
     font-size: 16px !important;
   }
 
@@ -2889,10 +3013,7 @@ body {
     padding-top: calc(10px + env(safe-area-inset-top, 0px));
   }
 
-  .nav-center-links {
-    display: none !important;
-  }
-
+  .nav-center-links { display: none !important; }
   .brand-title { font-size: 15px; }
   .brand-badge-circle { width: 32px; height: 32px; }
   .nav-controls-group { gap: 7px; }
@@ -2925,14 +3046,8 @@ body {
     padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px));
   }
 
-  .login-page-container {
-    padding: 74px 12px 30px;
-  }
-
-  .login-card,
-  .signup-card,
-  .verify-card,
-  .reset-card {
+  .login-page-container { padding: 74px 12px 30px; }
+  .login-card, .signup-card, .verify-card, .reset-card {
     padding: 26px 18px;
     border-radius: 20px;
   }
@@ -2965,15 +3080,8 @@ body {
     justify-content: center;
   }
 
-  .wire-cards-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .live-chart-viewport-box {
-    height: 480px;
-    min-height: 420px;
-  }
-
+  .wire-cards-grid { grid-template-columns: 1fr; }
+  .live-chart-viewport-box { height: 480px; min-height: 420px; }
   .stats-row { grid-template-columns: 1fr; }
   .calendar-board { padding: 14px 8px; }
   .day-cell { min-height: 60px; padding: 5px 3px; }
@@ -2982,24 +3090,11 @@ body {
 }
 
 @media (max-width: 480px) {
-  .news-headline-title {
-    font-size: 24px;
-  }
-
-  .headline-kh {
-    font-size: 20px;
-  }
-
-  .hot-news-item-card {
-    flex-direction: column;
-    gap: 10px;
-  }
+  .news-headline-title { font-size: 24px; }
+  .headline-kh { font-size: 20px; }
+  .hot-news-item-card { flex-direction: column; gap: 10px; }
 }
 
-/* ========================================================
-   LIVE FOREX FACTORY RELEASE COUNTDOWNS & HOT PULSES
-   (consolidated: previously defined 3 times)
-   ======================================================== */
 .hot-headline-row {
   display: flex;
   align-items: center;
@@ -3068,9 +3163,7 @@ body {
   color: var(--text-sub);
 }
 
-.macro-pill strong {
-  color: var(--text-main);
-}
+.macro-pill strong { color: var(--text-main); }
 
 @keyframes pulseHotBadge {
   0% { transform: scale(1); }
@@ -3078,8 +3171,6 @@ body {
   100% { transform: scale(1); }
 }
 
-/* Keeps the hidden YouTube audio player inside the viewport so Chrome
-   does not suspend background media */
 .hidden-yt-audio-container {
   position: fixed;
   bottom: 0;
@@ -3091,10 +3182,6 @@ body {
   z-index: -1;
 }
 
-
-/* ==========================================
-   POR ICT TERMINAL CARD (dashboard)
-   ========================================== */
 .por-terminal-promo-card {
   border-color: rgba(56, 189, 248, 0.35);
   background: linear-gradient(135deg, rgba(12, 22, 36, 0.95) 0%, rgba(10, 28, 38, 0.92) 100%);
@@ -3121,20 +3208,14 @@ a.product-chart-btn {
 }
 .btn-terminal-launch { border-radius: 24px; }
 
-/* keep the brand and the first nav link from touching */
-.nav-brand { margin-right: 18px; }
-
 .por-analysis-promo-card { border-color: rgba(0, 210, 106, 0.3); }
 .por-analysis-promo-card:hover { border-color: var(--emerald-green); }
 .por-analysis-promo-card .product-card-badge { color: var(--emerald-green); border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.12); }
 .por-analysis-promo-card .product-chart-btn { border-color: rgba(16, 185, 129, 0.5); color: var(--emerald-soft); }
 .por-analysis-promo-card .product-chart-btn:hover { background: var(--emerald-green); color: #04130b; }
 
-/* ---- Device fit (iOS Safari / Android Chrome) ---- */
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-body { overflow-x: hidden; }
 @media (pointer: coarse) {
-  input, select, textarea { font-size: 16px; }   /* stops iOS from zooming on focus */
+  input, select, textarea { font-size: 16px; }
   button, .product-chart-btn { touch-action: manipulation; }
   a.product-chart-btn, .product-chart-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
 }
