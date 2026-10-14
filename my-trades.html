@@ -11,13 +11,88 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://www.youtube.com/iframe_api"></script>
   <link rel="stylesheet" href="chart-analysis.css" />
   <link rel="stylesheet" href="my-trades.css" />
+  <style>
+    /* Ensure the 4K video and canvas layers remain visible behind My Trades */
+    body.mt-page { background: transparent !important; }
+    .ca-bg-video {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      object-fit: cover;
+      z-index: 0;
+      pointer-events: none;
+      transition: opacity .6s ease;
+    }
+    .ca-bg-video2 { opacity: 0; }
+    .ca-video-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .ca-bg-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .6s ease;
+    }
+    body.bg-waves .ca-bg-video2 { opacity: 1; }
+    body.bg-waves .ca-bg-video:not(.ca-bg-video2) { opacity: 0; }
+    body.bg-flow .ca-bg-canvas { opacity: 1; }
+    body.bg-flow .ca-bg-video { opacity: 0; }
+    .ca-topbar, .mt-wrap { position: relative; z-index: 1; }
+    #caBgBtn, #caMusicBtn { font-variant-numeric: tabular-nums; }
+    .ca-yt-audio {
+      position: fixed;
+      width: 1px;
+      height: 1px;
+      left: -9999px;
+      top: -9999px;
+      opacity: 0;
+      pointer-events: none;
+    }
+    @media (max-width: 640px) {
+      #caBgText { display: none; }
+      #caBgBtn { padding: 8px 12px; }
+    }
+  </style>
 </head>
 <body class="mt-page">
+  <!-- Dynamic 4K video background (same video as the main site; falls back to the hosted copy) -->
+  <video class="ca-bg-video" autoplay loop muted playsinline preload="auto" aria-hidden="true">
+    <source src="finance_data_tunnel_4k.mp4" type="video/mp4" />
+    <source src="https://github.com/ProTrader-cmyk/GenzWebsite/releases/download/videos/finance_data_tunnel_4k.mp4" type="video/mp4" />
+  </video>
+  <!-- Second 4K video background (loaded only when you switch to it) -->
+  <video class="ca-bg-video ca-bg-video2" id="caBgVideo2" loop muted playsinline preload="none" aria-hidden="true"></video>
+  <div class="ca-video-overlay" aria-hidden="true"></div>
+  <!-- Second dynamic background: animated market candles (drawn live, no extra files) -->
+  <canvas class="ca-bg-canvas" id="caBgCanvas" aria-hidden="true"></canvas>
+
+  <!-- Hidden YouTube audio player (same track as the main site) -->
+  <div class="ca-yt-audio" aria-hidden="true"><div id="caYtPlayer"></div></div>
+
   <header class="ca-topbar">
     <a href="chart-analysis.html" class="ca-back">← Chart Analysis</a>
     <div class="ca-top-right">
+      <button type="button" class="ca-music-btn" id="caBgBtn" aria-label="Switch background" title="Switch background">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>
+        <span id="caBgText">Background: Video</span>
+      </button>
+      <button type="button" class="ca-music-btn" id="caMusicBtn" aria-pressed="false" aria-label="Toggle background music">
+        <span class="ca-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span id="caMusicText">Music: OFF</span>
+      </button>
       <a href="index.html" class="ca-top-link">Por ICT</a>
       <a href="terminal.html" class="ca-top-link">Terminal</a>
     </div>
@@ -76,7 +151,590 @@
     <p class="ca-disclaimer">Results are measured on exchange candles (BTC, ETH and gold via PAXG), not on your broker's feed. A signal that touched TP or SL here can differ slightly on your account. Educational tool only, not financial advice.</p>
   </main>
 
+  <!-- Primary external load + legacy filename fallback -->
   <script src="trades-store.js"></script>
+  <script src="Trades%20store%20.js"></script>
+  <!-- Inline fallback so PorTrades is guaranteed to exist even if external file fails -->
+  <script>
+    if (!window.PorTrades) {
+      (function () {
+        const BN_HOSTS = [
+          "https://api.binance.com",
+          "https://data-api.binance.vision",
+          "https://api1.binance.com",
+          "https://api2.binance.com",
+          "https://api3.binance.com",
+        ];
+        const SETTINGS_KEY = "por_trades_settings";
+        const MAX_TRADES = 500;
+        let hostIdx = 0;
+
+        function timeoutSignal(ms) {
+          if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
+            return AbortSignal.timeout(ms);
+          }
+          const ctrl = new AbortController();
+          setTimeout(() => ctrl.abort(), ms);
+          return ctrl.signal;
+        }
+
+        function resolveBnSymbol(pair) {
+          if (!pair) return null;
+          const clean = String(pair).toUpperCase().replace(/[^A-Z]/g, "");
+          const map = {
+            BTC: "BTCUSDT",
+            BTCUSD: "BTCUSDT",
+            BTCUSDT: "BTCUSDT",
+            ETH: "ETHUSDT",
+            ETHUSD: "ETHUSDT",
+            ETHUSDT: "ETHUSDT",
+            XAU: "PAXGUSDT",
+            XAUUSD: "PAXGUSDT",
+            GOLD: "PAXGUSDT",
+            PAXG: "PAXGUSDT",
+            PAXGUSD: "PAXGUSDT",
+            PAXGUSDT: "PAXGUSDT",
+            SOL: "SOLUSDT",
+            SOLUSD: "SOLUSDT",
+            SOLUSDT: "SOLUSDT",
+            BNB: "BNBUSDT",
+            BNBUSD: "BNBUSDT",
+            BNBUSDT: "BNBUSDT",
+          };
+          return map[clean] || (clean.endsWith("USDT") ? clean : null);
+        }
+
+        function userKey() {
+          let email = "guest";
+          try {
+            email = localStorage.getItem("por_active_user") || "guest";
+          } catch (e) {}
+          return "por_trades_v1_" + email;
+        }
+
+        function load() {
+          try {
+            const v = JSON.parse(localStorage.getItem(userKey()) || "[]");
+            return Array.isArray(v) ? v : [];
+          } catch (e) {
+            return [];
+          }
+        }
+
+        function save(list) {
+          try {
+            localStorage.setItem(userKey(), JSON.stringify(list.slice(0, MAX_TRADES)));
+            return true;
+          } catch (e) {
+            return false;
+          }
+        }
+
+        function settings() {
+          let s = {};
+          try {
+            s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+          } catch (e) {}
+          return { winTp: [1, 2, 3].includes(s.winTp) ? s.winTp : 1 };
+        }
+
+        function setSettings(patch) {
+          try {
+            localStorage.setItem(SETTINGS_KEY, JSON.stringify({ ...settings(), ...patch }));
+          } catch (e) {}
+        }
+
+        function add(sig) {
+          const list = load();
+          const dup = list.find(
+            (t) =>
+              !t.manual &&
+              t.pair === sig.pair &&
+              t.tf === sig.tf &&
+              t.dir === sig.dir &&
+              Math.abs(t.sl - sig.sl) < Math.abs(sig.entry - sig.sl) * 0.02 &&
+              resultOf(t).state === "open"
+          );
+          if (dup) return { trade: dup, duplicate: true };
+
+          const bnSymbol = sig.bn || resolveBnSymbol(sig.pair);
+          const parsedTps = Array.isArray(sig.tps)
+            ? sig.tps.map(Number)
+            : [sig.tp1, sig.tp2, sig.tp3].filter((v) => v != null).map(Number);
+
+          const trade = {
+            id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+            createdAt: Date.now(),
+            pair: sig.pair,
+            tf: sig.tf,
+            dir: sig.dir,
+            entry: +sig.entry,
+            sl: +sig.sl,
+            tps: parsedTps,
+            dec: sig.dec != null ? Number(sig.dec) : (String(sig.entry).split(".")[1] || "").length || 2,
+            strategy: sig.strategy || "",
+            source: sig.source || "",
+            lots: sig.lots ?? null,
+            riskUsd: sig.riskUsd ?? null,
+            auto: sig.auto !== undefined ? Boolean(sig.auto && bnSymbol) : Boolean(bnSymbol),
+            bn: bnSymbol || null,
+            hits: { tp: [null, null, null], sl: null },
+            checkedFrom: Date.now(),
+            lastCheck: null,
+            manual: null,
+            note: "",
+            followed: null,
+          };
+
+          list.unshift(trade);
+          save(list);
+          return { trade, duplicate: false };
+        }
+
+        function update(id, patch) {
+          const list = load(),
+            i = list.findIndex((t) => t.id === id);
+          if (i < 0) return null;
+          list[i] = { ...list[i], ...patch };
+          save(list);
+          return list[i];
+        }
+
+        function remove(id) {
+          save(load().filter((t) => t.id !== id));
+        }
+
+        function clearAll() {
+          save([]);
+        }
+
+        function resultOf(t, winTp = settings().winTp) {
+          const risk = Math.abs(t.entry - t.sl) || 1;
+          const rOf = (n) => {
+            const target = t.tps && t.tps[n - 1] != null ? t.tps[n - 1] : t.entry;
+            return Math.abs(target - t.entry) / risk || n;
+          };
+
+          if (t.manual) {
+            const m = t.manual;
+            if (m.result === "win") return { state: "win", level: m.level, r: rOf(m.level), at: m.at, by: "manual" };
+            if (m.result === "loss") return { state: "loss", r: -1, at: m.at, by: "manual" };
+            return { state: "be", r: 0, at: m.at, by: "manual" };
+          }
+
+          const tpAt = t.hits && t.hits.tp ? t.hits.tp[winTp - 1] : null;
+          const slAt = t.hits ? t.hits.sl : null;
+
+          if (tpAt && (!slAt || tpAt < slAt)) return { state: "win", level: winTp, r: rOf(winTp), at: tpAt, by: "auto" };
+          if (slAt) return { state: "loss", r: -1, at: slAt, by: "auto" };
+          return { state: "open", r: 0 };
+        }
+
+        const BYBIT = "https://api.bybit.com";
+        const BYBIT_IV = { "1m": "1", "5m": "5", "15m": "15", "30m": "30", "1h": "60", "4h": "240", "1d": "D" };
+        let bnDownUntil = 0;
+
+        async function binanceRange(symbol, interval, startTime) {
+          const out = [];
+          let from = startTime;
+          for (let page = 0; page < 15; page++) {
+            let rows = null,
+              lastErr;
+            for (let n = 0; n < BN_HOSTS.length; n++) {
+              const host = BN_HOSTS[(hostIdx + n) % BN_HOSTS.length];
+              try {
+                const r = await fetch(
+                  `${host}/api/v3/klines?symbol=${symbol}&interval=${interval}&startTime=${from}&limit=1000`,
+                  { signal: timeoutSignal(4000) }
+                );
+                if (!r.ok) throw new Error("Market data error " + r.status);
+                rows = await r.json();
+                hostIdx = (hostIdx + n) % BN_HOSTS.length;
+                break;
+              } catch (e) {
+                lastErr = e;
+              }
+            }
+            if (!rows) throw lastErr || new Error("Market data unavailable");
+            rows.forEach((k) => out.push({ t: k[0], h: +k[2], l: +k[3] }));
+            if (rows.length < 1000) break;
+            from = rows[rows.length - 1][0] + 1;
+          }
+          return out;
+        }
+
+        async function bybitRange(symbol, interval, startTime) {
+          const iv = BYBIT_IV[interval];
+          if (!iv) throw new Error("Unsupported interval");
+          const out = [];
+          let end = Date.now();
+          for (let page = 0; page < 15; page++) {
+            const r = await fetch(
+              `${BYBIT}/v5/market/kline?category=spot&symbol=${symbol}&interval=${iv}&start=${startTime}&end=${end}&limit=1000`,
+              { signal: timeoutSignal(6000) }
+            );
+            if (!r.ok) throw new Error("Backup market data error " + r.status);
+            const j = await r.json();
+            if (j.retCode !== 0 || !j.result || !Array.isArray(j.result.list)) throw new Error("Backup market data unavailable");
+            const rows = j.result.list;
+            rows.forEach((k) => out.push({ t: +k[0], h: +k[2], l: +k[3] }));
+            if (rows.length < 1000) break;
+            end = +rows[rows.length - 1][0] - 1;
+          }
+          return out.sort((a, b) => a.t - b.t);
+        }
+
+        async function fetchRange(symbol, interval, startTime) {
+          const order = Date.now() < bnDownUntil ? ["bybit", "binance"] : ["binance", "bybit"];
+          let lastErr;
+          for (const src of order) {
+            try {
+              const rows = src === "binance" ? await binanceRange(symbol, interval, startTime) : await bybitRange(symbol, interval, startTime);
+              if (src === "binance") bnDownUntil = 0;
+              return rows;
+            } catch (e) {
+              lastErr = e;
+              if (src === "binance") bnDownUntil = Date.now() + 5 * 60 * 1000;
+            }
+          }
+          throw lastErr || new Error("Market data unavailable");
+        }
+
+        function scan(t, candles) {
+          const buy = t.dir === "BUY";
+          for (const c of candles) {
+            if (c.t < t.checkedFrom - 60000) continue;
+            if (t.hits.sl) break;
+            if (t.tps.length && t.tps.every((_, i) => t.hits.tp[i])) break;
+
+            const slHit = buy ? c.l <= t.sl : c.h >= t.sl;
+            const tpHitsNow = [];
+            t.tps.forEach((p, i) => {
+              if (!t.hits.tp[i] && (buy ? c.h >= p : c.l <= p)) {
+                tpHitsNow.push(i);
+              }
+            });
+
+            if (slHit && tpHitsNow.length) {
+              t.hits.sl = c.t;
+              break;
+            }
+            if (slHit) {
+              t.hits.sl = c.t;
+              break;
+            }
+            tpHitsNow.forEach((i) => {
+              t.hits.tp[i] = c.t;
+            });
+          }
+          if (candles.length) t.checkedFrom = candles[candles.length - 1].t;
+          t.lastCheck = Date.now();
+        }
+
+        async function trackAll() {
+          const list = load();
+          let checked = 0,
+            resolved = 0,
+            failed = 0;
+          for (const t of list) {
+            if (!t.auto || !t.bn || t.manual || resultOf(t).state !== "open") continue;
+            try {
+              const age = Date.now() - t.createdAt;
+              const candles = await fetchRange(t.bn, age > 3 * 864e5 ? "5m" : "1m", t.checkedFrom);
+              scan(t, candles);
+              checked++;
+              if (resultOf(t).state !== "open") resolved++;
+            } catch (e) {
+              failed++;
+            }
+          }
+          if (checked) save(list);
+          return { checked, resolved, failed };
+        }
+
+        function stats(list) {
+          const rows = list.map((t) => ({ t, r: resultOf(t) }));
+          const done = rows
+            .filter((x) => x.r.state !== "open")
+            .sort((a, b) => (a.r.at || a.t.createdAt || 0) - (b.r.at || b.t.createdAt || 0));
+          const wins = done.filter((x) => x.r.state === "win"),
+            losses = done.filter((x) => x.r.state === "loss"),
+            be = done.filter((x) => x.r.state === "be");
+          const totalR = done.reduce((s, x) => s + x.r.r, 0);
+          const gp = wins.reduce((s, x) => s + x.r.r, 0),
+            gl = Math.abs(losses.reduce((s, x) => s + x.r.r, 0));
+          const decided = wins.length + losses.length;
+          let run = 0,
+            peak = 0,
+            maxDd = 0;
+          const curve = done.map((x) => {
+            run += x.r.r;
+            peak = Math.max(peak, run);
+            maxDd = Math.max(maxDd, peak - run);
+            return run;
+          });
+          let bestStreak = 0,
+            cur = 0;
+          done.forEach((x) => {
+            if (x.r.state === "win") {
+              cur++;
+              bestStreak = Math.max(bestStreak, cur);
+            } else if (x.r.state === "loss") {
+              cur = 0;
+            }
+          });
+          const byPair = {};
+          done.forEach((x) => {
+            const p = (byPair[x.t.pair] ||= { pair: x.t.pair, wins: 0, losses: 0, r: 0 });
+            if (x.r.state === "win") p.wins++;
+            else if (x.r.state === "loss") p.losses++;
+            p.r += x.r.r;
+          });
+
+          return {
+            total: list.length,
+            open: rows.length - done.length,
+            closed: done.length,
+            wins: wins.length,
+            losses: losses.length,
+            be: be.length,
+            winRate: decided ? (wins.length / decided) * 100 : null,
+            totalR,
+            avgR: done.length ? totalR / done.length : null,
+            profitFactor: gl > 0 ? gp / gl : gp > 0 ? Infinity : null,
+            maxDd,
+            bestStreak,
+            curve,
+            byPair: Object.values(byPair).sort((a, b) => b.r - a.r),
+          };
+        }
+
+        window.PorTrades = {
+          load,
+          save,
+          add,
+          update,
+          remove,
+          clearAll,
+          resultOf,
+          trackAll,
+          stats,
+          settings,
+          setSettings,
+        };
+        window.TradesStore = window.PorTrades;
+      })();
+    }
+  </script>
   <script src="my-trades.js"></script>
+  <script>
+    // Background music toggle (YouTube IFrame player on #caYtPlayer)
+    (function () {
+      var btn = document.getElementById("caMusicBtn");
+      var txt = document.getElementById("caMusicText");
+      if (!btn || !txt) return;
+
+      var MUSIC_KEY = "por_music_on";
+      var VIDEO_ID = localStorage.getItem("por_yt_music_id") || "jfKfPfyJRdk"; // lofi / ambient default stream
+      var player = null;
+      var ready = false;
+      var playing = false;
+      var wantPlay = false;
+
+      try {
+        wantPlay = localStorage.getItem(MUSIC_KEY) === "true";
+      } catch (e) {}
+
+      function updateUI(on) {
+        playing = Boolean(on);
+        btn.setAttribute("aria-pressed", String(playing));
+        btn.classList.toggle("playing", playing);
+        btn.classList.toggle("on", playing);
+        txt.textContent = playing ? "Music: ON" : "Music: OFF";
+      }
+
+      function initPlayer() {
+        if (player || !window.YT || !window.YT.Player) return;
+        player = new window.YT.Player("caYtPlayer", {
+          height: "1",
+          width: "1",
+          videoId: VIDEO_ID,
+          playerVars: {
+            autoplay: wantPlay ? 1 : 0,
+            loop: 1,
+            playlist: VIDEO_ID,
+            controls: 0,
+            disablekb: 1,
+            fs: 0,
+            modestbranding: 1,
+            playsinline: 1
+          },
+          events: {
+            onReady: function (e) {
+              ready = true;
+              try { e.target.setVolume(50); } catch (err) {}
+              if (wantPlay) {
+                try { e.target.playVideo(); } catch (err) {}
+              }
+            },
+            onStateChange: function (e) {
+              if (e.data === window.YT.PlayerState.PLAYING) {
+                updateUI(true);
+              } else if (
+                e.data === window.YT.PlayerState.PAUSED ||
+                e.data === window.YT.PlayerState.ENDED
+              ) {
+                if (e.data === window.YT.PlayerState.ENDED && wantPlay) {
+                  try { player.playVideo(); } catch (err) {}
+                } else {
+                  updateUI(false);
+                }
+              }
+            }
+          }
+        });
+      }
+
+      var prevReady = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = function () {
+        if (typeof prevReady === "function") prevReady();
+        initPlayer();
+      };
+      if (window.YT && window.YT.Player) {
+        initPlayer();
+      }
+
+      btn.addEventListener("click", function () {
+        wantPlay = !playing;
+        try { localStorage.setItem(MUSIC_KEY, String(wantPlay)); } catch (e) {}
+        if (!ready || !player) {
+          initPlayer();
+          updateUI(wantPlay);
+          return;
+        }
+        try {
+          if (wantPlay) {
+            player.playVideo();
+            updateUI(true);
+          } else {
+            player.pauseVideo();
+            updateUI(false);
+          }
+        } catch (e) {
+          updateUI(false);
+        }
+      });
+    })();
+  </script>
+  <script>
+    // Background switcher: "video" (4K tunnel) <-> "waves" (Waves 4K) <-> "flow" (animated candlesticks). Saved under por_ca_bg.
+    (function () {
+      var MODES = [
+        { id: "video", label: "Background: Video" },
+        { id: "waves", label: "Background: Waves 4K" },
+        { id: "flow", label: "Background: Market Flow" }
+      ];
+      var KEY = "por_ca_bg";
+      var btn = document.getElementById("caBgBtn"), txt = document.getElementById("caBgText");
+      var cv = document.getElementById("caBgCanvas"), ctx = cv.getContext("2d");
+      var video = document.querySelector(".ca-bg-video"), video2 = document.getElementById("caBgVideo2");
+      var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var W = 0, H = 0, dpr = 1, raf = 0, running = false;
+      var CW = 11, GAP = 7, SLOT = CW + GAP, candles = [], offset = 0, parts = [], last = 0;
+
+      function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = window.innerWidth; H = window.innerHeight;
+        cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        seed();
+      }
+      function next(prev) {
+        var o = prev ? prev.c : H * 0.55, drift = Math.sin(candles.length / 23) * 2;
+        var c = o + (Math.random() - 0.5) * 34 + drift;
+        c = Math.max(H * 0.28, Math.min(H * 0.82, c));
+        return { o: o, c: c, h: Math.max(o, c) + Math.random() * 16, l: Math.min(o, c) - Math.random() * 16 };
+      }
+      function seed() {
+        candles = []; var n = Math.ceil(W / SLOT) + 3;
+        for (var i = 0; i < n; i++) candles.push(next(candles[candles.length - 1]));
+        parts = [];
+        for (var k = 0; k < 46; k++) parts.push({ x: Math.random() * W, y: Math.random() * H, r: 0.6 + Math.random() * 1.8, v: 6 + Math.random() * 16, a: 0.15 + Math.random() * 0.4 });
+      }
+      function draw(dt) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.strokeStyle = "rgba(120,160,190,0.06)"; ctx.lineWidth = 1; ctx.beginPath();
+        for (var gy = 0; gy < H; gy += 80) { ctx.moveTo(0, gy + 0.5); ctx.lineTo(W, gy + 0.5); }
+        for (var gx = (-offset % 160); gx < W; gx += 160) { ctx.moveTo(gx + 0.5, 0); ctx.lineTo(gx + 0.5, H); }
+        ctx.stroke();
+        for (var i = 0; i < parts.length; i++) {
+          var p = parts[i]; p.y -= p.v * dt; if (p.y < -4) { p.y = H + 4; p.x = Math.random() * W; }
+          ctx.fillStyle = "rgba(56,189,248," + p.a + ")"; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill();
+        }
+        for (var j = 0; j < candles.length; j++) {
+          var c = candles[j], x = j * SLOT - offset, up = c.c <= c.o, col = up ? "0,210,106" : "239,68,68";
+          ctx.strokeStyle = "rgba(" + col + ",0.55)"; ctx.lineWidth = 1.5;
+          ctx.beginPath(); ctx.moveTo(x + CW / 2, c.h); ctx.lineTo(x + CW / 2, c.l); ctx.stroke();
+          ctx.fillStyle = "rgba(" + col + ",0.38)";
+          ctx.fillRect(x, Math.min(c.o, c.c), CW, Math.max(2, Math.abs(c.c - c.o)));
+        }
+        ctx.save(); ctx.shadowColor = "rgba(56,189,248,0.9)"; ctx.shadowBlur = 14;
+        ctx.strokeStyle = "rgba(56,189,248,0.85)"; ctx.lineWidth = 2; ctx.beginPath();
+        for (var m = 0; m < candles.length; m++) { var lx = m * SLOT - offset + CW / 2; m ? ctx.lineTo(lx, candles[m].c) : ctx.moveTo(lx, candles[m].c); }
+        ctx.stroke(); ctx.restore();
+      }
+      function frame(t) {
+        if (!running) return;
+        var dt = Math.min((t - last) / 1000 || 0.016, 0.05); last = t;
+        offset += 28 * dt;
+        while (offset >= SLOT) { offset -= SLOT; candles.shift(); candles.push(next(candles[candles.length - 1])); }
+        draw(dt);
+        raf = requestAnimationFrame(frame);
+      }
+      function start() {
+        if (running) return; resize();
+        if (reduce) { draw(0); return; }
+        running = true; last = performance.now(); raf = requestAnimationFrame(frame);
+      }
+      function stop() { running = false; cancelAnimationFrame(raf); }
+
+      function playV(v) { if (v && v.play) { var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); } }
+      function pauseV(v) { if (v && v.pause) v.pause(); }
+      function loadWaves() {
+        if (video2.querySelector("source")) return;
+        var fail = function () { if (cur === "waves") { cur = "flow"; apply("flow", false); } };
+        [["finance_waves_4k.mp4", "video/mp4"], ["finance_waves_1080.webm", "video/webm"]].forEach(function (f, i, a) {
+          var src = document.createElement("source"); src.src = f[0]; src.type = f[1];
+          if (i === a.length - 1) src.addEventListener("error", fail);
+          video2.appendChild(src);
+        });
+        video2.addEventListener("error", fail);
+        video2.load();
+      }
+      function apply(id, save) {
+        var flow = id === "flow", waves = id === "waves";
+        document.body.classList.toggle("bg-flow", flow);
+        document.body.classList.toggle("bg-waves", waves);
+        txt.textContent = (MODES.filter(function (m) { return m.id === id; })[0] || MODES[0]).label;
+        btn.setAttribute("aria-pressed", String(id !== "video"));
+        if (flow) { start(); pauseV(video); pauseV(video2); }
+        else {
+          stop();
+          if (waves) { loadWaves(); playV(video2); pauseV(video); }
+          else { playV(video); pauseV(video2); }
+        }
+        if (save) { try { localStorage.setItem(KEY, id); } catch (e) {} }
+      }
+      var cur = "video";
+      try { var sv = localStorage.getItem(KEY); if (sv === "flow" || sv === "waves") cur = sv; } catch (e) {}
+      btn.addEventListener("click", function () {
+        var i = MODES.map(function (m) { return m.id; }).indexOf(cur);
+        cur = MODES[(i + 1) % MODES.length].id; apply(cur, true);
+      });
+      window.addEventListener("resize", function () { if (cur === "flow") resize(); });
+      document.addEventListener("visibilitychange", function () { if (cur !== "flow") return; document.hidden ? stop() : start(); });
+      apply(cur, false);
+    })();
+  </script>
 </body>
 </html>

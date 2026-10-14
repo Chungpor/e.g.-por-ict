@@ -77,7 +77,19 @@
         <span>Home</span>
       </a>
 
-      <!-- Audio Toggle -->
+      <!-- Background Music Button (same track as the main site) -->
+      <button
+        id="musicToggleBtn"
+        type="button"
+        title="Toggle Background Music"
+        aria-pressed="false"
+        class="music-btn px-3.5 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center gap-2 text-xs font-medium text-neutral-300 hover:text-white hover:border-emerald-500/50 hover:bg-emerald-500/10 transition-all duration-200"
+      >
+        <span class="music-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span id="musicToggleText" class="hidden sm:inline">Music: OFF</span>
+      </button>
+
+      <!-- Sound Effects Toggle (click sounds) -->
       <button 
         id="soundToggleBtn"
         title="Toggle Sound Effects"
@@ -317,6 +329,81 @@
       </div>
     </div>
   </div>
+
+  <!-- Hidden YouTube audio player (same track as the main site) -->
+  <div id="goalYtWrap" aria-hidden="true" style="position:fixed;bottom:0;right:0;width:200px;height:200px;opacity:.01;pointer-events:none;z-index:-1;">
+    <div id="goalYtPlayer"></div>
+  </div>
+
+  <style>
+    .music-eq { display:inline-flex; align-items:flex-end; gap:2px; height:14px; }
+    .music-eq i { width:3px; height:4px; border-radius:2px; background:currentColor; }
+    .music-btn.is-playing { color:#00e676; border-color:rgba(0,230,118,.55); background:rgba(0,230,118,.12); box-shadow:0 0 18px rgba(0,230,118,.3); }
+    .music-btn.is-playing .music-eq i { animation: musicEq .9s ease-in-out infinite; }
+    .music-btn.is-playing .music-eq i:nth-child(2) { animation-delay:.15s; }
+    .music-btn.is-playing .music-eq i:nth-child(3) { animation-delay:.3s; }
+    .music-btn.is-playing .music-eq i:nth-child(4) { animation-delay:.45s; }
+    @keyframes musicEq { 0%,100% { height:4px; } 50% { height:14px; } }
+    @media (prefers-reduced-motion: reduce) { .music-btn.is-playing .music-eq i { animation:none; height:10px; } }
+  </style>
+
+  <script>
+    // Background music: same YouTube track and same "por_music_playing" setting as the main site.
+    (function () {
+      const VIDEO_ID = "yGbaHLXUZWY";
+      const btn = document.getElementById("musicToggleBtn");
+      const label = document.getElementById("musicToggleText");
+      let player = null, ready = false, playing = false, pendingPlay = false;
+
+      function setUI(on) {
+        playing = on;
+        try { localStorage.setItem("por_music_playing", on ? "true" : "false"); } catch (e) {}
+        btn.classList.toggle("is-playing", on);
+        btn.setAttribute("aria-pressed", String(on));
+        label.textContent = on ? "Music: ON" : "Music: OFF";
+      }
+      function play() {
+        if (!player || typeof player.playVideo !== "function") return;
+        try { player.unMute(); player.setVolume(75); player.playVideo(); setUI(true); } catch (e) {}
+      }
+      function pause() {
+        if (!player || typeof player.pauseVideo !== "function") return;
+        try { player.pauseVideo(); setUI(false); } catch (e) {}
+      }
+      function init() {
+        if (player || typeof YT === "undefined" || !YT.Player) return;
+        player = new YT.Player("goalYtPlayer", {
+          height: "1", width: "1", videoId: VIDEO_ID,
+          playerVars: { autoplay: 0, controls: 0, disablekb: 1, fs: 0, loop: 1, playlist: VIDEO_ID, modestbranding: 1, playsinline: 1, rel: 0 },
+          events: {
+            onReady: function () { ready = true; player.setVolume(75); if (pendingPlay) { pendingPlay = false; play(); } },
+            onStateChange: function (e) {
+              if (e.data === YT.PlayerState.PLAYING) setUI(true);
+              else if (e.data === YT.PlayerState.PAUSED) setUI(false);
+              else if (e.data === YT.PlayerState.ENDED) player.playVideo();
+            }
+          }
+        });
+      }
+      window.onYouTubeIframeAPIReady = init;
+
+      btn.addEventListener("click", function () {
+        if (!ready) { pendingPlay = true; init(); return; }
+        playing ? pause() : play();
+      });
+
+      // Browsers block autoplay: if music was ON on another page, resume it on the first click here.
+      document.addEventListener("click", function (e) {
+        if (btn.contains(e.target)) return;
+        let saved = false; try { saved = localStorage.getItem("por_music_playing") === "true"; } catch (err) {}
+        if (saved && !playing) { if (ready) play(); else { pendingPlay = true; init(); } }
+      }, { once: true });
+
+      // Show the saved state on load (button looks ON until the browser allows playback)
+      try { if (localStorage.getItem("por_music_playing") === "true") label.textContent = "Music: tap"; } catch (e) {}
+    })();
+  </script>
+  <script src="https://www.youtube.com/iframe_api"></script>
 
   <script src="goal.js"></script>
 </body>
