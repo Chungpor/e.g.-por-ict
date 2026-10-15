@@ -28,6 +28,12 @@
   --lavender-purple-glow: rgba(157, 114, 255, 0.35);
   --golden-chestnut: var(--lavender-purple);
   --golden-chestnut-glow: var(--lavender-purple-glow);
+
+  /* Electric Flamingo Accent (Dashboard / Indicators) */
+  --electric-flamingo: #fc46aa;
+  --electric-flamingo-hover: #f42595;
+  --electric-flamingo-soft: #ff77c2;
+  --electric-flamingo-glow: rgba(252, 70, 170, 0.38);
   
   --text-main: #f8fafc;
   --text-sub: #94a3b8;
@@ -75,6 +81,11 @@
   --lavender-purple-glow: rgba(124, 58, 237, 0.3);
   --golden-chestnut: var(--lavender-purple);
   --golden-chestnut-glow: var(--lavender-purple-glow);
+
+  --electric-flamingo: #db2777;
+  --electric-flamingo-hover: #be185d;
+  --electric-flamingo-soft: #ec4899;
+  --electric-flamingo-glow: rgba(219, 39, 119, 0.28);
   
   --text-main: #0f172a;
   --text-sub: #475569;
@@ -228,7 +239,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 18px;
+  gap: 16px;
   flex-wrap: nowrap;
   flex: 1;
   min-width: 0;
@@ -252,7 +263,7 @@ body {
 }
 
 /* ========================================================
-   MENU SPECIFIC ACCENTS (CYAN/GREEN, RED, YELLOW, PURPLE)
+   MENU SPECIFIC ACCENTS (CYAN/GREEN, RED, YELLOW, PURPLE, ELECTRIC FLAMINGO)
    ======================================================== */
 /* 0. Triumm Delta Navigation Accent */
 .nav-terminal-accent {
@@ -343,6 +354,47 @@ body {
   background: rgba(157, 114, 255, 0.15) !important;
   border-color: rgba(157, 114, 255, 0.45) !important;
   color: var(--lavender-purple) !important;
+}
+
+/* 4. Dashboard / Indicators (ELECTRIC FLAMINGO MENU & BUTTONS) */
+.nav-link-flamingo {
+  color: var(--electric-flamingo) !important;
+  font-weight: 700 !important;
+}
+.nav-link-flamingo:hover,
+.nav-link-flamingo.active {
+  color: var(--electric-flamingo-soft) !important;
+  text-shadow: 0 0 12px var(--electric-flamingo-glow);
+}
+
+.por-indicators-promo-card {
+  border-color: rgba(252, 70, 170, 0.42) !important;
+  background: linear-gradient(135deg, rgba(20, 24, 38, 0.95) 0%, rgba(44, 16, 34, 0.92) 100%) !important;
+}
+.por-indicators-promo-card:hover {
+  border-color: var(--electric-flamingo) !important;
+  box-shadow: 0 10px 28px var(--electric-flamingo-glow) !important;
+  transform: translateY(-2px);
+}
+
+.badge-flamingo {
+  background: rgba(252, 70, 170, 0.16) !important;
+  border-color: rgba(252, 70, 170, 0.48) !important;
+  color: var(--electric-flamingo) !important;
+  box-shadow: 0 0 14px rgba(252, 70, 170, 0.25);
+}
+
+.btn-flamingo-action {
+  background: linear-gradient(135deg, #ff5db6 0%, #fc46aa 55%, #db2777 100%) !important;
+  border: 1px solid var(--electric-flamingo) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  box-shadow: 0 4px 16px var(--electric-flamingo-glow) !important;
+}
+.btn-flamingo-action:hover {
+  background: linear-gradient(135deg, #ff77c2 0%, #f42595 100%) !important;
+  box-shadow: 0 6px 22px rgba(252, 70, 170, 0.58) !important;
+  color: #ffffff !important;
 }
 
 /* Hide duplicate center-nav music button on desktop (keep right pill) */
@@ -728,14 +780,14 @@ body {
 }
 
 /* Hide mobile menu button on desktop screens */
-@media (min-width: 1121px) {
+@media (min-width: 1181px) {
   #mobileMenuBtn {
     display: none !important;
   }
 }
 
-/* Switch cleanly to mobile hamburger menu below 1120px */
-@media (max-width: 1120px) {
+/* Switch cleanly to mobile hamburger menu below 1180px */
+@media (max-width: 1180px) {
   .nav-center-links,
   #navLogoutBtn {
     display: none !important;

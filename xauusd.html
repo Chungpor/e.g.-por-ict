@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>XAUUSD · OANDA Spot Live</title>
+  <link rel="stylesheet" href="indicators.css" />
+  <style>#tv{height:calc(100vh - 150px);min-height:460px;border:1px solid var(--line);border-radius:16px;overflow:hidden}</style>
+  <script src="https://s3.tradingview.com/tv.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div>
+        <h1>XAUUSD · OANDA Spot (Live)</h1>
+        <p>Live OANDA:XAUUSD chart. Timeframe follows <span class="mono">?tf=</span> and syncs directly with the Indicators page.</p>
+      </div>
+      <a class="btn on" href="indicators.html" id="back" style="text-decoration:none;height:fit-content">← Indicators</a>
+    </section>
+    <section class="bar"><div class="grp" id="tfs"></div></section>
+    <div id="tv"></div>
+  </div>
+  <script>
+    const MAP = { "1m": "1", "5m": "5", "15m": "15", "30m": "30", "1h": "60", "4h": "240", "1d": "D" };
+    const ALIAS = {
+      "1": "1m", "1m": "1m", "5": "5m", "5m": "5m", "15": "15m", "15m": "15m",
+      "30": "30m", "30m": "30m", "60": "1h", "1h": "1h", "240": "4h", "4h": "4h", "d": "1d", "1d": "1d"
+    };
+
+    function getActiveTf() {
+      const raw = (new URLSearchParams(location.search).get("tf") || localStorage.getItem("por_ind_tf") || "15m").toLowerCase();
+      return ALIAS[raw] || "15m";
+    }
+
+    let tf = getActiveTf();
+
+    function draw(pushHistory = false) {
+      localStorage.setItem("por_ind_tf", tf);
+      try {
+        const u = new URL(location.href);
+        u.searchParams.set("tf", tf);
+        if (pushHistory) history.pushState({ tf }, "", u);
+        else history.replaceState({ tf }, "", u);
+      } catch (_) {}
+
+      document.getElementById("back").href = "indicators.html?tf=" + tf;
+      document.getElementById("back").textContent = "← Indicators (" + tf.toUpperCase() + ")";
+      document.getElementById("tfs").innerHTML = Object.keys(MAP)
+        .map(k => `<button type="button" class="btn${k === tf ? " on" : ""}" data-tf="${k}">${k.toUpperCase()}</button>`)
+        .join("");
+
+      document.getElementById("tv").innerHTML = "";
+      new TradingView.widget({
+        container_id: "tv",
+        symbol: "OANDA:XAUUSD",
+        interval: MAP[tf],
+        theme: "dark",
+        style: "1",
+        autosize: true,
+        timezone: "Asia/Phnom_Penh",
+        locale: "en",
+        toolbar_bg: "#12151f",
+        hide_side_toolbar: false,
+        allow_symbol_change: false,
+        studies: ["MAExp@tv-basicstudies", "RSI@tv-basicstudies"]
+      });
+    }
+
+    document.getElementById("tfs").onclick = e => {
+      const btn = e.target.closest("[data-tf]");
+      if (!btn) return;
+      const k = btn.dataset.tf;
+      if (k && k !== tf) {
+        tf = k;
+        draw(true);
+      }
+    };
+
+    window.addEventListener("popstate", () => {
+      tf = getActiveTf();
+      draw(false);
+    });
+
+    draw(false);
+  </script>
+</body>
+</html>

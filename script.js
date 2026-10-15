@@ -1,5 +1,5 @@
 /**
- * Por ICT - Calendar & Market Analytics System (UNIFIED)
+ * Por ICT - Calendar, Market Analytics & Indicators System (UNIFIED)
  *
  * LOAD ORDER in index.html (all at the end of <body>, or with `defer`):
  *   <script src="translations.js"></script>   // contains: const translations = {...}
@@ -56,14 +56,20 @@ const FALLBACK_DICT = {
 
 let currentLang = localStorage.getItem("por_lang") || "EN";
 
-// Updated strings for Triumm Delta card & navigation
+// Updated strings for Triumm Delta, Chart Analysis, and Electric Flamingo Indicators
 const EXTRA_DICT = {
   EN: {
     nav_terminal: "Triumm Delta",
     nav_analysis: "Analysis",
-    ca_sub: "SIGNAL GENERATOR", ca_title: "Chart Analysis",
+    nav_indicators: "Indicators",
+    ca_sub: "SIGNAL GENERATOR",
+    ca_title: "Chart Analysis",
     ca_desc: "Generate entry, stop loss and targets from live data, your own levels, or an uploaded chart screenshot, with lot-size calculation.",
     ca_btn: "OPEN CHART ANALYSIS ➔",
+    ind_sub: "TECHNICAL CONFLUENCE & REGIME",
+    ind_title: "Dashboard / Indicators",
+    ind_desc: "Live multi-asset technical indicators (EMA 20/50/200 stack, RSI, ADX, DI Edge, ATR & CHOP) with AI regime & 5-indicator confluence scoring.",
+    ind_btn: "OPEN INDICATORS ➔",
     term_pill: "⚡ TRIUMM DELTA AI",
     term_sub: "AUTO SIGNALS · SUPER LLM · DEEP ANALYSIS",
     term_title: "Triumm Delta",
@@ -78,9 +84,15 @@ const EXTRA_DICT = {
   KH: {
     nav_terminal: "Triumm Delta",
     nav_analysis: "វិភាគ",
-    ca_sub: "ឧបករណ៍បង្កើតសញ្ញា", ca_title: "វិភាគក្រាហ្វ",
+    nav_indicators: "សូចនាករ (Indicators)",
+    ca_sub: "ឧបករណ៍បង្កើតសញ្ញា",
+    ca_title: "វិភាគក្រាហ្វ",
     ca_desc: "បង្កើត Entry, Stop Loss និងគោលដៅ ពីទិន្នន័យផ្ទាល់ កម្រិតរបស់អ្នក ឬរូបថតក្រាហ្វ ព្រមទាំងគណនាទំហំ Lot។",
     ca_btn: "បើកការវិភាគក្រាហ្វ ➔",
+    ind_sub: "សូចនាករបច្ចេកទេស និងទិសដៅទីផ្សារ",
+    ind_title: "ផ្ទាំងគ្រប់គ្រង / Indicators",
+    ind_desc: "សូចនាករបច្ចេកទេសផ្ទាល់ (EMA 20/50/200, RSI, ADX, DI Edge, ATR & CHOP) ជាមួយការវាយតម្លៃទិសដៅទីផ្សារដោយ AI។",
+    ind_btn: "បើក INDICATORS ➔",
     term_pill: "⚡ TRIUMM DELTA AI",
     term_sub: "សញ្ញាស្វ័យប្រវត្តិ · SUPER LLM · ការវិភាគស៊ីជម្រៅ",
     term_title: "Triumm Delta",
@@ -205,6 +217,7 @@ const navCenterLinks = $("navCenterLinks");
 const navHomeLink = $("navHomeLink");
 const navNewsLink = $("navNewsLink");
 const navLiveChartLink = $("navLiveChartLink");
+const navIndicatorsLink = $("navIndicatorsLink");
 const navMembershipLink = $("navMembershipLink");
 const navContactLink = $("navContactLink");
 const navMusicBtn = $("navMusicBtn");
@@ -215,6 +228,7 @@ const mobileDrawerBackdrop = $("mobileDrawerBackdrop");
 const mobileHomeLink = $("mobileHomeLink");
 const mobileNewsLink = $("mobileNewsLink");
 const mobileLiveChartLink = $("mobileLiveChartLink");
+const mobileIndicatorsLink = $("mobileIndicatorsLink");
 const mobileMembershipLink = $("mobileMembershipLink");
 const mobileContactLink = $("mobileContactLink");
 const mobileMusicBtn = $("mobileMusicBtn");
@@ -1242,9 +1256,11 @@ on(mobileMenuBtn, "click", () => { if (mobileMenuDrawer) mobileMenuDrawer.classL
 on(mobileDrawerBackdrop, "click", closeMobileDrawer);
 
 function updateNavActiveLink(activeEl, mobileActiveEl) {
-  [navHomeLink, navNewsLink, navLiveChartLink, navMembershipLink, navContactLink].forEach((l) => l && l.classList.remove("active"));
+  [navHomeLink, navNewsLink, navLiveChartLink, navIndicatorsLink, navMembershipLink, navContactLink]
+    .forEach((l) => l && l.classList.remove("active"));
   if (activeEl) activeEl.classList.add("active");
-  [mobileHomeLink, mobileNewsLink, mobileLiveChartLink, mobileMembershipLink, mobileContactLink].forEach((l) => l && l.classList.remove("active"));
+  [mobileHomeLink, mobileNewsLink, mobileLiveChartLink, mobileIndicatorsLink, mobileMembershipLink, mobileContactLink]
+    .forEach((l) => l && l.classList.remove("active"));
   if (mobileActiveEl) mobileActiveEl.classList.add("active");
 }
 

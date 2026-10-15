@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Por ICT | Dashboard / Indicators</title>
+
+  <!-- Browser Tab Favicon -->
+  <link rel="icon" type="image/jpeg" href="por.jpg" />
+  <link rel="apple-touch-icon" href="por.jpg" />
+
+  <!-- Google Fonts (JetBrains Mono & Plus Jakarta Sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Kantumruy+Pro:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Indicators Stylesheet -->
+  <link rel="stylesheet" href="indicators.css" />
+
+  <!-- React 18 UMD -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+</head>
+<body>
+
+  <!-- ==========================================
+       DYNAMIC 4K VIDEO BACKGROUND
+       ========================================== -->
+  <video class="bg-video" autoplay loop muted playsinline preload="auto">
+    <source src="finance_data_tunnel_4k.mp4" type="video/mp4" />
+    <source src="https://github.com/ProTrader-cmyk/GenzWebsite/releases/download/videos/finance_data_tunnel_4k.mp4" type="video/mp4" />
+  </video>
+  <div class="video-overlay"></div>
+
+  <!-- React Mount Container -->
+  <div id="root"></div>
+
+  <!-- Timeframe-Synced Indicators Engine -->
+  <script src="indicators.js"></script>
+
+  <!-- Ensure 4K Background Video Auto-Plays on Mobile & Desktop -->
+  <script>
+    const bgVideo = document.querySelector(".bg-video");
+    if (bgVideo) {
+      bgVideo.muted = true;
+      const p = bgVideo.play();
+      if (p !== undefined) {
+        p.catch(() => document.addEventListener("click", () => bgVideo.play(), { once: true }));
+      }
+    }
+  </script>
+</body>
+</html>
