@@ -4,7 +4,7 @@
  * LOAD ORDER in index.html (all at the end of <body>, or with `defer`):
  *   <script src="translations.js"></script>   // contains: const translations = {...}
  *   <script src="news-data.js"></script>      // contains: const rawApiPayload = {...}
- *   <script src="app.js"></script>            // this file (do NOT paste a second copy anywhere)
+ *   <script src="script.js"></script>         // this file
  *
  * translations.js and news-data.js are optional: if missing, this file falls back safely.
  */
@@ -56,20 +56,19 @@ const FALLBACK_DICT = {
 
 let currentLang = localStorage.getItem("por_lang") || "EN";
 
-// Strings added for the Terminal card. Kept here so they translate even if translations.js
-// has no entry for them; translations.js can still override any key.
+// Updated strings for Triumm Delta card & navigation
 const EXTRA_DICT = {
   EN: {
-    nav_terminal: "Terminal",
+    nav_terminal: "Triumm Delta",
     nav_analysis: "Analysis",
     ca_sub: "SIGNAL GENERATOR", ca_title: "Chart Analysis",
     ca_desc: "Generate entry, stop loss and targets from live data, your own levels, or an uploaded chart screenshot, with lot-size calculation.",
     ca_btn: "OPEN CHART ANALYSIS ➔",
-    term_pill: "⚡ SMC PRO TERMINAL",
-    term_sub: "XAUUSD · BTCUSD · BIDIRECTIONAL RADAR",
-    term_title: "Por ICT Terminal",
-    term_desc: "Institutional SMC order block radar, Resistance Wick sweep detection, dynamic 1:3 RR calculating desk, and MetaTrader 5 bridge order executor.",
-    term_btn: "LAUNCH POR ICT TERMINAL ➔",
+    term_pill: "⚡ TRIUMM DELTA AI",
+    term_sub: "AUTO SIGNALS · SUPER LLM · DEEP ANALYSIS",
+    term_title: "Triumm Delta",
+    term_desc: "AI Market Intelligence Feed, real-time forex, crypto & macro news, AI price impact analysis, and live technical Delta Signals.",
+    term_btn: "LAUNCH TRIUMM DELTA ➔",
     news_card_label: "USD FOCUS & FOREX FACTORY",
     news_card_title: "Por ICT News",
     news_card_desc: "High, Medium & Low impact USD newswire feeds with institutional ICT execution commentary.",
@@ -77,16 +76,16 @@ const EXTRA_DICT = {
     chart_card_desc: "Real-time institutional candlestick charts with customizable indicators."
   },
   KH: {
-    nav_terminal: "ទែមីណាល់",
+    nav_terminal: "Triumm Delta",
     nav_analysis: "វិភាគ",
     ca_sub: "ឧបករណ៍បង្កើតសញ្ញា", ca_title: "វិភាគក្រាហ្វ",
     ca_desc: "បង្កើត Entry, Stop Loss និងគោលដៅ ពីទិន្នន័យផ្ទាល់ កម្រិតរបស់អ្នក ឬរូបថតក្រាហ្វ ព្រមទាំងគណនាទំហំ Lot។",
     ca_btn: "បើកការវិភាគក្រាហ្វ ➔",
-    term_pill: "⚡ SMC PRO ទែមីណាល់",
-    term_sub: "XAUUSD · BTCUSD · រ៉ាដារទិសដៅទាំងពីរ",
-    term_title: "Por ICT ទែមីណាល់",
-    term_desc: "រ៉ាដារ SMC Order Block កម្រិតស្ថាប័ន ការរកឃើញ Resistance Wick Sweep ទិសដៅ RR 1:3 ដោយស្វ័យប្រវត្តិ និងប៊ូតុងបញ្ជូនបញ្ជាទៅ MetaTrader 5។",
-    term_btn: "បើក POR ICT ទែមីណាល់ ➔",
+    term_pill: "⚡ TRIUMM DELTA AI",
+    term_sub: "សញ្ញាស្វ័យប្រវត្តិ · SUPER LLM · ការវិភាគស៊ីជម្រៅ",
+    term_title: "Triumm Delta",
+    term_desc: "ប្រព័ន្ធព័ត៌មានទីផ្សារ AI ព័ត៌មាន Forex, Crypto និង Macro ផ្ទាល់ ការវិភាគផលប៉ះពាល់តម្លៃដោយ AI និងសញ្ញាបច្ចេកទេស Delta Signals។",
+    term_btn: "បើក TRIUMM DELTA ➔",
     news_card_label: "ផ្តោតលើ USD និង FOREX FACTORY",
     news_card_title: "ព័ត៌មាន Por ICT",
     news_card_desc: "ព័ត៌មាន USD ផលប៉ះពាល់ខ្ពស់ មធ្យម និងទាប ជាមួយការវិភាគ ICT កម្រិតស្ថាប័ន។",
@@ -99,8 +98,10 @@ function getDict() {
   const all = typeof translations !== "undefined" ? translations : { EN: FALLBACK_DICT };
   return {
     ...FALLBACK_DICT,
-    ...EXTRA_DICT.EN, ...(EXTRA_DICT[currentLang] || {}),
-    ...(all.EN || {}), ...(all[currentLang] || {})
+    ...(all.EN || {}),
+    ...(all[currentLang] || {}),
+    ...EXTRA_DICT.EN,
+    ...(EXTRA_DICT[currentLang] || {})
   };
 }
 
@@ -347,7 +348,6 @@ const porIctNewsData = rawHeadlines.map((item) => ({
   impact: (item.impact || "LOW").toUpperCase()
 }));
 
-// Explicit list: the old startsWith("US") check also matched USOIL, so oil-only news showed under "USD".
 const USD_SYMBOLS = new Set(["USD", "XAUUSD", "DXY", "US500", "US30", "NAS100", "US10Y"]);
 
 function isUsdInstrument(item) {
@@ -490,7 +490,6 @@ async function loadCalendarEvents() {
   const FEED = "https://nfs.faireconomy.media/ff_calendar_thisweek.json";
   const proxied = "https://api.allorigins.win/raw?url=" + encodeURIComponent(FEED);
   const isGithub = window.location.hostname.includes("github.io");
-  // Better long-term: your own Cloudflare Worker / serverless proxy instead of a public proxy.
   const sources = isGithub ? [proxied] : ["/api/forexfactory/live", proxied];
 
   let rawEvents = null;
@@ -498,14 +497,11 @@ async function loadCalendarEvents() {
   for (const url of sources) {
     try {
       const data = await fetchWithTimeout(url);
-      // Our own server labels its data. Its sample data must never be shown as real.
       if (data && data.source === "synthetic") {
         console.warn("Server returned sample data; trying next source");
         continue;
       }
       const list = (Array.isArray(data) ? data : data && data.data) || [];
-      // The raw feed uses (date, country); our server uses (release_date_iso, currency).
-      // Accept both, and only keep events with a valid date.
       const usable = list
         .map((ev) => ev && { ...ev, date: ev.date || ev.release_date_iso, country: ev.country || ev.currency })
         .filter((ev) => ev && ev.date && !isNaN(new Date(ev.date).getTime()));
@@ -585,7 +581,6 @@ function isHotEvent(ev) {
   return ev.is_hot || ev.status === "JUST_RELEASED" || (ev.impact === "HIGH" && ev.status !== "PASSED");
 }
 
-// Events shown in lists: from 12h ago to 3 days ahead (the feed covers a whole week).
 function inEventWindow(ev) {
   return ev.diff_minutes >= -720 && ev.diff_minutes <= 4320;
 }
@@ -842,7 +837,6 @@ if (langToggleBtn && langMenu) {
   });
   langOptions.forEach((opt) => {
     opt.addEventListener("click", (e) => {
-      // currentTarget (not target): target can be an inner <span>/icon without data-lang
       setLanguage(e.currentTarget.getAttribute("data-lang") || "EN");
       langMenu.classList.remove("show");
     });
@@ -895,7 +889,6 @@ function toggleTheme() {
   applyTheme(document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light");
 }
 on(themeToggleSwitch, "click", toggleTheme);
-// Keyboard access for the theme switch and language options
 on(themeToggleSwitch, "keydown", (e) => {
   if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleTheme(); }
 });
@@ -996,7 +989,6 @@ on(soundToggleBtn, "click", toggleAudioPlayback);
 on(navMusicBtn, "click", toggleAudioPlayback);
 on(mobileMusicBtn, "click", toggleAudioPlayback);
 
-// Browsers block autoplay: resume the saved state on the first user click.
 document.addEventListener("click", () => {
   if (localStorage.getItem("por_music_playing") === "true" && !isAudioPlaying) {
     if (ytPlayerReady) playAudioMusic();
@@ -1122,8 +1114,6 @@ on(loginForm, "submit", (e) => {
   e.preventDefault();
   const email = loginEmailInput.value.trim().toLowerCase();
   if (!email) return;
-  // NOTE: no password check. Anyone can open any account stored in this browser.
-  // A real login needs a backend (Firebase Auth, Supabase, etc.).
   loadAccount(email);
   enterDashboard();
 });
@@ -1155,7 +1145,6 @@ on(signupForm, "submit", (e) => {
 });
 
 function generateAndSendCode() {
-  // Demo: the code is shown on screen. It is not emailed, so it is not real verification.
   currentVerificationCode = String(Math.floor(100000 + Math.random() * 900000));
   if (toastTitle) toastTitle.textContent = "New Email from Por ICT";
   if (toastDesc) toastDesc.innerHTML = `Your 6-digit verification code is: <strong id="toastCodeValue">${currentVerificationCode}</strong>`;
@@ -1422,7 +1411,6 @@ document.querySelectorAll(".tier-select-btn").forEach((btn) => {
   btn.addEventListener("click", (e) => {
     const target = e.currentTarget.getAttribute("data-target-tier");
     if (target === currentTier) return;
-    // Demo: no payment is processed. Anyone can switch tier here.
     applyUserTier(target);
     alert(`${getDict().tier_updated_msg}${target}! 🎉`);
   });
@@ -1589,7 +1577,6 @@ function syncTopStats() {
   if (statBestPairEl) statBestPairEl.textContent = hasBest ? bestPair : "None";
   if (statBestPairPnlEl) statBestPairPnlEl.textContent = hasBest ? `${maxProfit >= 0 ? "+" : ""}${maxProfit.toFixed(0)}` : "+0";
 
-  // Real month-over-month change (was hardcoded "+100.0%")
   if (statChangeEl) {
     const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
     const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
@@ -1627,7 +1614,7 @@ function initOrUpdateChart() {
 
   Object.keys(tradeDatabase).sort().forEach((key) => {
     const [y, m, d] = key.split("-").map((n) => parseInt(n, 10));
-    if (y !== currentYear || m - 1 !== currentMonth) return; // year check added
+    if (y !== currentYear || m - 1 !== currentMonth) return;
     cumulative += Number(tradeDatabase[key].pnl) || 0;
     labels.push(`${MONTH_ABBR[m - 1]} ${d}`);
     points.push(cumulative);
@@ -1675,7 +1662,7 @@ function initOrUpdateChart() {
 document.querySelectorAll(".toggle-btn").forEach((btn) => {
   btn.addEventListener("click", (e) => {
     document.querySelectorAll(".toggle-btn").forEach((b) => b.classList.remove("active"));
-    e.currentTarget.classList.add("active"); // currentTarget, not target
+    e.currentTarget.classList.add("active");
   });
 });
 

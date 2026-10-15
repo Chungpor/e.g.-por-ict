@@ -51,15 +51,42 @@
     body.bg-flow .ca-bg-canvas { opacity: 1; }
     body.bg-flow .ca-bg-video { opacity: 0; }
     .ca-topbar, .mt-wrap { position: relative; z-index: 1; }
-    #caBgBtn, #caMusicBtn { font-variant-numeric: tabular-nums; }
+    #caBgBtn, #caMusicBtn { font-variant-numeric: tabular-nums; cursor: pointer; }
     .ca-yt-audio {
       position: fixed;
-      width: 1px;
-      height: 1px;
+      width: 200px;
+      height: 200px;
       left: -9999px;
       top: -9999px;
       opacity: 0;
       pointer-events: none;
+    }
+    /* Animated equalizer bars when music is ON */
+    .ca-eq {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 12px;
+    }
+    .ca-eq i {
+      display: block;
+      width: 2.5px;
+      height: 4px;
+      background: currentColor;
+      border-radius: 1px;
+      transition: height 0.2s ease;
+    }
+    .ca-music-btn.playing {
+      border-color: #00d26a;
+      color: #00d26a;
+    }
+    .ca-music-btn.playing .ca-eq i:nth-child(1) { animation: caEqBar 0.7s ease-in-out infinite 0.0s; }
+    .ca-music-btn.playing .ca-eq i:nth-child(2) { animation: caEqBar 0.7s ease-in-out infinite 0.2s; }
+    .ca-music-btn.playing .ca-eq i:nth-child(3) { animation: caEqBar 0.7s ease-in-out infinite 0.4s; }
+    .ca-music-btn.playing .ca-eq i:nth-child(4) { animation: caEqBar 0.7s ease-in-out infinite 0.1s; }
+    @keyframes caEqBar {
+      0%, 100% { height: 3px; }
+      50% { height: 12px; }
     }
     @media (max-width: 640px) {
       #caBgText { display: none; }
@@ -79,8 +106,9 @@
   <!-- Second dynamic background: animated market candles (drawn live, no extra files) -->
   <canvas class="ca-bg-canvas" id="caBgCanvas" aria-hidden="true"></canvas>
 
-  <!-- Hidden YouTube audio player (same track as the main site) -->
+  <!-- Hidden audio players -->
   <div class="ca-yt-audio" aria-hidden="true"><div id="caYtPlayer"></div></div>
+  <audio id="caAudioPlayer" preload="none" crossorigin="anonymous" hidden></audio>
 
   <header class="ca-topbar">
     <a href="chart-analysis.html" class="ca-back">← Chart Analysis</a>
@@ -528,22 +556,95 @@
   </script>
   <script src="my-trades.js"></script>
   <script>
-    // Background music toggle (YouTube IFrame player on #caYtPlayer)
+    // Guaranteed Background Music Engine (HTML5 Audio Stream + Web Audio Ambient Synth fallback)
     (function () {
       var btn = document.getElementById("caMusicBtn");
       var txt = document.getElementById("caMusicText");
+      var audio = document.getElementById("caAudioPlayer");
       if (!btn || !txt) return;
 
+      if (!audio) {
+        audio = document.createElement("audio");
+        audio.id = "caAudioPlayer";
+        audio.preload = "none";
+        audio.crossOrigin = "anonymous";
+        audio.hidden = true;
+        document.body.appendChild(audio);
+      }
+
       var MUSIC_KEY = "por_music_on";
-      var VIDEO_ID = localStorage.getItem("por_yt_music_id") || "jfKfPfyJRdk"; // lofi / ambient default stream
-      var player = null;
-      var ready = false;
+      var STREAMS = [
+        "https://ice1.somafm.com/groovesalad-128-mp3",
+        "https://stream.nightride.fm/chillsynth.mp3",
+        "https://ice2.somafm.com/beatblender-128-mp3"
+      ];
+      var streamIdx = 0;
       var playing = false;
       var wantPlay = false;
 
-      try {
-        wantPlay = localStorage.getItem(MUSIC_KEY) === "true";
-      } catch (e) {}
+      // Web Audio Ambient Synth fallback (if user is offline or streams are blocked)
+      var actx = null;
+      var synthGain = null;
+      var synthTimer = null;
+
+      function startSynth() {
+        try {
+          var Ctx = window.AudioContext || window.webkitAudioContext;
+          if (!Ctx) return;
+          if (!actx) actx = new Ctx();
+          if (actx.state === "suspended") actx.resume();
+          stopSynth();
+
+          synthGain = actx.createGain();
+          synthGain.gain.setValueAtTime(0.08, actx.currentTime);
+          synthGain.connect(actx.destination);
+
+          var chords = [
+            [220.0, 261.63, 329.63, 392.0],
+            [174.61, 220.0, 261.63, 349.23],
+            [196.0, 246.94, 293.66, 392.0],
+            [164.81, 196.0, 246.94, 329.63]
+          ];
+          var step = 0;
+
+          function playChord() {
+            if (!wantPlay || !actx || !synthGain) return;
+            var now = actx.currentTime;
+            var notes = chords[step % chords.length];
+            step++;
+            notes.forEach(function (freq) {
+              var osc = actx.createOscillator();
+              var g = actx.createGain();
+              osc.type = "sine";
+              osc.frequency.setValueAtTime(freq, now);
+              g.gain.setValueAtTime(0.001, now);
+              g.gain.linearRampToValueAtTime(0.12, now + 1.2);
+              g.gain.exponentialRampToValueAtTime(0.001, now + 3.8);
+              osc.connect(g);
+              g.connect(synthGain);
+              osc.start(now);
+              osc.stop(now + 3.9);
+            });
+          }
+
+          playChord();
+          synthTimer = setInterval(playChord, 3800);
+        } catch (e) {}
+      }
+
+      function stopSynth() {
+        if (synthTimer) {
+          clearInterval(synthTimer);
+          synthTimer = null;
+        }
+        if (synthGain && actx) {
+          try {
+            synthGain.gain.setValueAtTime(0.0001, actx.currentTime);
+            synthGain.disconnect();
+          } catch (e) {}
+          synthGain = null;
+        }
+      }
 
       function updateUI(on) {
         playing = Boolean(on);
@@ -553,77 +654,70 @@
         txt.textContent = playing ? "Music: ON" : "Music: OFF";
       }
 
-      function initPlayer() {
-        if (player || !window.YT || !window.YT.Player) return;
-        player = new window.YT.Player("caYtPlayer", {
-          height: "1",
-          width: "1",
-          videoId: VIDEO_ID,
-          playerVars: {
-            autoplay: wantPlay ? 1 : 0,
-            loop: 1,
-            playlist: VIDEO_ID,
-            controls: 0,
-            disablekb: 1,
-            fs: 0,
-            modestbranding: 1,
-            playsinline: 1
-          },
-          events: {
-            onReady: function (e) {
-              ready = true;
-              try { e.target.setVolume(50); } catch (err) {}
-              if (wantPlay) {
-                try { e.target.playVideo(); } catch (err) {}
-              }
-            },
-            onStateChange: function (e) {
-              if (e.data === window.YT.PlayerState.PLAYING) {
-                updateUI(true);
-              } else if (
-                e.data === window.YT.PlayerState.PAUSED ||
-                e.data === window.YT.PlayerState.ENDED
-              ) {
-                if (e.data === window.YT.PlayerState.ENDED && wantPlay) {
-                  try { player.playVideo(); } catch (err) {}
-                } else {
-                  updateUI(false);
-                }
-              }
-            }
-          }
-        });
-      }
-
-      var prevReady = window.onYouTubeIframeAPIReady;
-      window.onYouTubeIframeAPIReady = function () {
-        if (typeof prevReady === "function") prevReady();
-        initPlayer();
-      };
-      if (window.YT && window.YT.Player) {
-        initPlayer();
-      }
-
-      btn.addEventListener("click", function () {
-        wantPlay = !playing;
-        try { localStorage.setItem(MUSIC_KEY, String(wantPlay)); } catch (e) {}
-        if (!ready || !player) {
-          initPlayer();
-          updateUI(wantPlay);
+      function tryPlayStream(idx) {
+        if (!wantPlay) return;
+        if (idx >= STREAMS.length) {
+          // All external streams failed -> play built-in ambient synth
+          startSynth();
+          updateUI(true);
           return;
         }
-        try {
-          if (wantPlay) {
-            player.playVideo();
+        streamIdx = idx;
+        stopSynth();
+        audio.src = STREAMS[streamIdx];
+        audio.volume = 0.65;
+        var p = audio.play();
+        if (p && typeof p.then === "function") {
+          p.then(function () {
             updateUI(true);
-          } else {
-            player.pauseVideo();
-            updateUI(false);
-          }
-        } catch (e) {
-          updateUI(false);
+          }).catch(function () {
+            tryPlayStream(idx + 1);
+          });
+        } else {
+          updateUI(true);
         }
+      }
+
+      audio.addEventListener("error", function () {
+        if (wantPlay) tryPlayStream(streamIdx + 1);
       });
+
+      function startMusic() {
+        wantPlay = true;
+        try { localStorage.setItem(MUSIC_KEY, "true"); } catch (e) {}
+        updateUI(true);
+        tryPlayStream(streamIdx);
+      }
+
+      function stopMusic() {
+        wantPlay = false;
+        try { localStorage.setItem(MUSIC_KEY, "false"); } catch (e) {}
+        try {
+          audio.pause();
+          audio.removeAttribute("src");
+          audio.load();
+        } catch (e) {}
+        stopSynth();
+        updateUI(false);
+      }
+
+      // Use capture phase so no external script can swallow or break the click
+      btn.addEventListener("click", function (e) {
+        e.stopImmediatePropagation();
+        if (playing || wantPlay) {
+          stopMusic();
+        } else {
+          startMusic();
+        }
+      }, true);
+
+      // Restore previous music preference
+      try {
+        if (localStorage.getItem(MUSIC_KEY) === "true") {
+          wantPlay = true;
+          tryPlayStream(0);
+        }
+      } catch (e) {}
     })();
   </script>
   <script>

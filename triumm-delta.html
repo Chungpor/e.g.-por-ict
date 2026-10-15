@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Triumm Delta | Por ICT AI Market Intelligence Feed</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="por.jpg" />
+  <link rel="apple-touch-icon" href="por.jpg" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Kantumruy+Pro:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- YouTube IFrame Player API for Ambient Audio -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+
+  <!-- Triumm Delta Stylesheet -->
+  <link rel="stylesheet" href="triumm-delta.css" />
+</head>
+<body>
+
+  <!-- ==========================================
+       DYNAMIC 4K VIDEO BACKGROUND
+       ========================================== -->
+  <video class="td-bg-video" autoplay loop muted playsinline preload="auto">
+    <source src="finance_data_tunnel_4k.mp4" type="video/mp4" />
+    <source src="https://github.com/ProTrader-cmyk/GenzWebsite/releases/download/videos/finance_data_tunnel_4k.mp4" type="video/mp4" />
+  </video>
+  <div class="td-video-overlay"></div>
+
+  <!-- Hidden YouTube Background Audio Player Container -->
+  <div id="youtubeAudioPlayerContainer" class="td-hidden-yt-audio">
+    <div id="youtubeAudioPlayer"></div>
+  </div>
+
+  <!-- ==========================================
+       UNIFIED CLEAN POR ICT TOP GLOBAL HEADER BAR
+       ========================================== -->
+  <header class="global-top-bar">
+    <div class="top-bar-inner">
+
+      <!-- Brand Logo & Title -->
+      <a href="index.html" class="nav-brand" style="text-decoration:none;">
+        <div class="brand-badge-circle">
+          <img
+            src="por.jpg"
+            alt="Por ICT Logo"
+            class="brand-nav-logo"
+            onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80';"
+          />
+        </div>
+        <span class="brand-title"><strong>Por</strong> ICT</span>
+      </a>
+
+      <!-- Center Navigation Links (Desktop) -->
+      <nav class="nav-center-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="index.html#news" class="nav-link">Por ICT News</a>
+        <a href="index.html#livechart" class="nav-link nav-link-lavender">Live Chart</a>
+        <a href="triumm-delta.html" class="nav-link nav-terminal-accent active">Triumm Delta</a>
+        <a href="chart-analysis.html" class="nav-link">Analysis</a>
+        <a href="goal.html" class="nav-link nav-link-yellow">Goal Future</a>
+        <a href="Preview%20-recent%20signals.html" class="nav-link nav-link-red">Preview - recent signals</a>
+        <a href="index.html#membership" class="nav-link">Membership</a>
+        <a href="index.html#contact" class="nav-link">Contact Us</a>
+
+        <!-- 4K Zen Music Button -->
+        <button type="button" id="tdNavMusicBtn" class="nav-music-link-btn" aria-label="Toggle Background Music">
+          <span class="music-icon-pulse">🎵</span>
+          <span class="music-nav-title">4K Zen Music</span>
+          <span class="sound-wave-mini">
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+          </span>
+        </button>
+      </nav>
+
+      <!-- Right Action Controls -->
+      <div class="nav-controls-group">
+
+        <!-- Sound Toggle Pill -->
+        <button type="button" id="tdSoundToggleBtn" class="sound-toggle-pill" aria-label="Toggle Sound">
+          <span class="sound-wave-track">
+            <span class="sound-wave-bar"></span>
+            <span class="sound-wave-bar"></span>
+            <span class="sound-wave-bar"></span>
+          </span>
+          <span class="sound-label-text" id="tdSoundStatusText">Music: OFF</span>
+        </button>
+
+        <!-- Theme Toggle Switch -->
+        <div id="tdThemeToggle" class="theme-switch-pill" role="button" aria-label="Toggle Theme" tabindex="0">
+          <span class="theme-icon-track">🌙</span>
+          <span class="theme-icon-track">☀️</span>
+          <div class="theme-switch-thumb">🌙</div>
+        </div>
+
+        <!-- Profile Avatar Button -->
+        <a href="index.html" class="nav-avatar-btn" title="Profile">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </a>
+
+        <!-- Language Pill -->
+        <button type="button" id="tdLangBtn" class="lang-pill-btn">
+          <span id="tdCurrentLang">EN</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+
+        <!-- Log out Button -->
+        <a href="index.html" class="nav-logout-pill" style="text-decoration:none;">Log out</a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ==========================================
+       MAIN TRIUMM DELTA VIEWPORT
+       ========================================== -->
+  <main class="td-main-wrapper">
+    <div class="td-content-column">
+
+      <!-- Back Navigation -->
+      <div class="td-back-row">
+        <a href="index.html" class="td-back-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span>Back</span>
+        </a>
+      </div>
+
+      <!-- Live Indicator & Clock Row -->
+      <div class="td-live-bar">
+        <div class="td-live-left">
+          <span class="td-live-pill">
+            <span class="td-live-dot"></span>
+            <span>LIVE</span>
+          </span>
+          <span class="td-clock-text" id="tdLiveClock">01:49:46 PM</span>
+        </div>
+
+        <button type="button" class="td-refresh-btn" id="tdRefreshBtn" aria-label="Refresh Feed" title="Sync Latest Feed">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Hero Title Block -->
+      <section class="td-hero-section">
+        <h1 class="td-hero-heading">
+          <span class="td-brand-white">Triumm</span>
+          <span class="td-brand-delta-pill">Delta.</span>
+        </h1>
+        <h2 class="td-hero-sub-heading">AI Market Intelligence Feed.</h2>
+        <p class="td-hero-description">
+          Real-time forex, crypto &amp; macro news · AI price impact analysis
+        </p>
+      </section>
+
+      <!-- KPI Summary Pills -->
+      <section class="td-kpi-row">
+        <div class="td-kpi-pill">
+          <span class="td-kpi-icon green">((•))</span>
+          <span id="kpiItemsCount">142 ITEMS</span>
+        </div>
+        <div class="td-kpi-pill">
+          <span class="td-kpi-icon green">↗</span>
+          <span id="kpiMoversCount">2 MOVERS</span>
+        </div>
+        <div class="td-kpi-pill">
+          <span class="td-kpi-icon red">⚡</span>
+          <span id="kpiHighCount">14 HIGH</span>
+        </div>
+        <div class="td-kpi-pill">
+          <span class="td-kpi-icon cyan">🌐</span>
+          <span id="kpiSourcesCount">2 SOURCES</span>
+        </div>
+        <div class="td-kpi-pill">
+          <span class="td-kpi-icon green">↗</span>
+          <span id="kpiBullishCount">4 BULLISH</span>
+        </div>
+      </section>
+
+      <!-- PANEL 1: MARKET SENTIMENT -->
+      <section class="td-glass-card">
+        <div class="td-card-header">
+          <span class="td-card-title">MARKET SENTIMENT</span>
+          <span class="td-card-meta" id="sentimentAnalyzedText">50 analyzed</span>
+        </div>
+
+        <div class="td-sentiment-track">
+          <div class="td-sent-bar-bull" id="sentBarBull" style="width: 8%;"></div>
+          <div class="td-sent-bar-neut" id="sentBarNeut" style="width: 72%;"></div>
+          <div class="td-sent-bar-bear" id="sentBarBear" style="width: 20%;"></div>
+        </div>
+
+        <div class="td-sentiment-labels">
+          <span class="td-sent-lbl-bull" id="sentLblBull">▲ 8% Bullish</span>
+          <span class="td-sent-lbl-neut" id="sentLblNeut">◆ 72% Neutral</span>
+          <span class="td-sent-lbl-bear" id="sentLblBear">▼ 20% Bearish</span>
+        </div>
+      </section>
+
+      <!-- PANEL 2: TOP MOVERS -->
+      <section class="td-glass-card">
+        <div class="td-card-header">
+          <span class="td-card-title"><span class="td-green-text">↗</span> TOP MOVERS</span>
+        </div>
+        <div class="td-movers-stack" id="topMoversList"></div>
+      </section>
+
+      <!-- PANEL 3: CATEGORY HEATMAP -->
+      <section class="td-glass-card">
+        <div class="td-card-header">
+          <span class="td-card-title"><span class="td-amber-text">⬡</span> CATEGORY HEATMAP</span>
+        </div>
+        <div class="td-heatmap-grid" id="categoryHeatmapGrid"></div>
+      </section>
+
+      <!-- PANEL 4: AI INSIGHT -->
+      <section class="td-glass-card">
+        <div class="td-card-header">
+          <span class="td-card-title"><span class="td-purple-text">🧠</span> AI INSIGHT</span>
+        </div>
+        <div class="td-insight-stack" id="aiInsightList"></div>
+      </section>
+
+      <!-- PANEL 5: DELTA SIGNALS -->
+      <section class="td-signals-block" id="deltaSignalsSection">
+        <div class="td-signals-header">
+          <span class="td-signals-heading">
+            <span class="td-diamond-icon">◇</span> DELTA SIGNALS
+          </span>
+          <span class="td-signals-live">
+            <span class="td-live-dot"></span> Live
+          </span>
+        </div>
+
+        <div class="td-signals-grid" id="deltaSignalsGrid"></div>
+      </section>
+
+      <!-- PANEL 6: SEARCH & FILTER CONTROLS -->
+      <section class="td-controls-section">
+        <div class="td-search-wrapper">
+          <input
+            type="text"
+            id="tdSearchInput"
+            class="td-search-input"
+            placeholder="Search news, assets, sources..."
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="td-filters-container">
+          <div class="td-filter-group">
+            <div class="td-filter-label">⚡ AI SENTIMENT</div>
+            <div class="td-filter-pills" data-group="sentiment">
+              <button type="button" class="td-filter-pill active" data-value="ALL">All</button>
+              <button type="button" class="td-filter-pill" data-value="BULLISH">BULLISH</button>
+              <button type="button" class="td-filter-pill" data-value="BEARISH">BEARISH</button>
+              <button type="button" class="td-filter-pill" data-value="NEUTRAL">NEUTRAL</button>
+            </div>
+          </div>
+
+          <div class="td-filter-group">
+            <div class="td-filter-label">⋈ SOURCE</div>
+            <div class="td-filter-pills" data-group="source">
+              <button type="button" class="td-filter-pill active" data-value="ALL">All</button>
+              <button type="button" class="td-filter-pill" data-value="ForexFactory">ForexFactory</button>
+              <button type="button" class="td-filter-pill" data-value="TriummAI">TriummAI</button>
+            </div>
+          </div>
+
+          <div class="td-filter-group">
+            <div class="td-filter-label">▽ CATEGORY</div>
+            <div class="td-filter-pills" data-group="category">
+              <button type="button" class="td-filter-pill active" data-value="ALL">All</button>
+              <button type="button" class="td-filter-pill" data-value="Geopolitics">Geopolitics</button>
+              <button type="button" class="td-filter-pill" data-value="Equities">Equities</button>
+              <button type="button" class="td-filter-pill" data-value="Crypto">Crypto</button>
+              <button type="button" class="td-filter-pill" data-value="Forex">Forex</button>
+              <button type="button" class="td-filter-pill" data-value="Commodities">Commodities</button>
+              <button type="button" class="td-filter-pill" data-value="Other">Other</button>
+            </div>
+          </div>
+
+          <div class="td-filter-group">
+            <div class="td-filter-label">⚡ IMPACT</div>
+            <div class="td-filter-pills" data-group="impact">
+              <button type="button" class="td-filter-pill active" data-value="ALL">All</button>
+              <button type="button" class="td-filter-pill" data-value="HIGH">HIGH</button>
+              <button type="button" class="td-filter-pill" data-value="MED">MED</button>
+              <button type="button" class="td-filter-pill" data-value="LOW">LOW</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="td-showing-count" id="tdShowingCount">Showing 142 of 142 items</div>
+      </section>
+
+      <!-- PANEL 7: NEWS & INTELLIGENCE FEED STREAM -->
+      <section class="td-feed-stream" id="tdFeedStream"></section>
+
+    </div>
+  </main>
+
+  <script src="triumm-delta.js"></script>
+</body>
+</html>

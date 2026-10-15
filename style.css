@@ -150,28 +150,36 @@ body {
   transition: background 0.25s ease;
 }
 
-/* GLOBAL HEADER */
+/* ========================================================
+   CLEAN SINGLE-LINE GLOBAL TOP HEADER
+   ======================================================== */
 .global-top-bar {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  padding: 14px 32px;
-  padding-top: calc(14px + env(safe-area-inset-top, 0px));
+  min-height: 60px;
+  padding: 10px 28px;
+  padding-top: calc(10px + env(safe-area-inset-top, 0px));
   background: var(--bg-card);
   border-bottom: 1px solid var(--card-border);
   z-index: 100;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
 }
 
 .top-bar-inner {
-  max-width: 1100px;
+  width: 100%;
+  max-width: 1440px;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 20px;
+  flex-wrap: nowrap;
 }
 
 .nav-brand {
@@ -180,7 +188,7 @@ body {
   gap: 10px;
   user-select: none;
   flex-shrink: 0;
-  margin-right: 18px;
+  margin-right: 0;
 }
 
 .brand-badge-circle {
@@ -219,16 +227,22 @@ body {
 .nav-center-links {
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: center;
+  gap: 18px;
+  flex-wrap: nowrap;
+  flex: 1;
+  min-width: 0;
 }
 
 .nav-link {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-sub);
   text-decoration: none;
   transition: all 0.18s ease;
   white-space: nowrap;
+  flex-shrink: 0;
+  padding: 4px 2px;
 }
 
 .nav-link:hover,
@@ -238,8 +252,19 @@ body {
 }
 
 /* ========================================================
-   MENU SPECIFIC ACCENTS (RED, YELLOW, LAVENDER PURPLE)
+   MENU SPECIFIC ACCENTS (CYAN/GREEN, RED, YELLOW, PURPLE)
    ======================================================== */
+/* 0. Triumm Delta Navigation Accent */
+.nav-terminal-accent {
+  color: var(--sky-blue) !important;
+  font-weight: 700 !important;
+}
+.nav-terminal-accent:hover,
+.nav-terminal-accent.active {
+  color: #7dd3fc !important;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.45);
+}
+
 /* 1. Preview - recent signals (RED MENU & BUTTONS) */
 .nav-link-red {
   color: #ef4444 !important;
@@ -262,7 +287,7 @@ body {
   box-shadow: 0 6px 18px rgba(239, 68, 68, 0.5) !important;
 }
 
-/* 2. My Trades (YELLOW MENU & BUTTONS) */
+/* 2. Goal Future / My Trades (YELLOW MENU & BUTTONS) */
 .nav-link-yellow {
   color: #eab308 !important;
   font-weight: 700 !important;
@@ -326,13 +351,16 @@ body {
   gap: 7px;
   background: rgba(13, 148, 136, 0.1);
   border: 1px solid rgba(13, 148, 136, 0.35);
-  padding: 5px 12px;
+  height: 32px;
+  padding: 0 12px;
   border-radius: 18px;
   color: var(--teal-accent);
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nav-music-link-btn:hover {
@@ -380,25 +408,31 @@ body {
 .nav-controls-group {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-shrink: 0;
+  flex-wrap: nowrap;
 }
 
 .sound-toggle-pill {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
   background: var(--pill-bg);
   border: 1.5px solid var(--pill-border);
-  padding: 6px 12px;
+  height: 32px;
+  padding: 0 12px;
   border-radius: 20px;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .sound-label-text {
   font-size: 11.5px;
   font-weight: 700;
   color: var(--text-sub);
+  white-space: nowrap;
 }
 
 .sound-wave-track {
@@ -477,7 +511,10 @@ body {
   transform: translateX(30px);
 }
 
-.nav-profile-wrapper { position: relative; }
+.nav-profile-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
 
 .nav-avatar-btn {
   width: 32px;
@@ -592,13 +629,18 @@ body {
   color: #2dd4bf;
 }
 
-.lang-dropdown-wrapper { position: relative; }
+.lang-dropdown-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
 
 .lang-pill-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 5px;
-  padding: 6px 12px;
+  height: 32px;
+  padding: 0 12px;
   background: var(--pill-bg);
   border: 1.5px solid var(--pill-border);
   border-radius: 20px;
@@ -606,6 +648,8 @@ body {
   font-weight: 700;
   color: var(--text-main);
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .lang-dropdown-menu {
@@ -648,7 +692,11 @@ body {
 }
 
 .nav-logout-pill {
-  padding: 6px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 14px;
   border-radius: 20px;
   background: var(--pill-bg);
   border: 1.5px solid var(--pill-border);
@@ -656,6 +704,8 @@ body {
   font-weight: 600;
   color: var(--text-sub);
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .mobile-menu-btn {
@@ -669,6 +719,22 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Hide mobile menu button on desktop screens */
+@media (min-width: 1121px) {
+  #mobileMenuBtn {
+    display: none !important;
+  }
+}
+
+/* Switch cleanly to mobile hamburger menu below 1120px */
+@media (max-width: 1120px) {
+  .nav-center-links,
+  #navLogoutBtn {
+    display: none !important;
+  }
 }
 
 /* MOBILE DRAWER */
@@ -1430,12 +1496,77 @@ body {
   justify-content: space-between;
   gap: 14px;
   box-shadow: var(--card-shadow);
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .product-feature-card:hover {
   transform: translateY(-2px);
   border-color: rgba(56, 189, 248, 0.4);
+}
+
+/* ========================================================
+   FEATURE CARD 1: TRIUMM DELTA PROMO CARD (EXACT MATCH)
+   ======================================================== */
+.por-terminal-promo-card {
+  border: 1.5px solid rgba(56, 189, 248, 0.5) !important;
+  background: linear-gradient(145deg, rgba(8, 22, 36, 0.96) 0%, rgba(6, 16, 28, 0.96) 100%) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 24px rgba(56, 189, 248, 0.05) !important;
+}
+
+.por-terminal-promo-card:hover {
+  border-color: var(--sky-blue) !important;
+  box-shadow: 0 12px 32px rgba(56, 189, 248, 0.22) !important;
+}
+
+.terminal-icon-badge-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(14, 165, 233, 0.12);
+  border: 1.5px solid rgba(56, 189, 248, 0.38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.terminal-card-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.por-terminal-promo-card .promo-sub-label {
+  color: #f8fafc !important;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+}
+
+.terminal-custom-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.4px;
+  line-height: 1.18;
+}
+
+.btn-terminal-launch {
+  width: 100%;
+  border-radius: 26px !important;
+  padding: 11px 18px !important;
+  background: rgba(7, 17, 30, 0.92) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
+  color: var(--sky-blue) !important;
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.6px !important;
+  text-align: center;
+}
+
+.btn-terminal-launch:hover {
+  background: var(--sky-blue) !important;
+  color: #04101c !important;
+  box-shadow: 0 4px 18px rgba(56, 189, 248, 0.4) !important;
 }
 
 /* CARDS ACCENTS: RED FOR PREVIEW SIGNALS, YELLOW FOR MY TRADES, LAVENDER PURPLE FOR LIVE CHART */
@@ -3013,7 +3144,6 @@ body {
     padding-top: calc(10px + env(safe-area-inset-top, 0px));
   }
 
-  .nav-center-links { display: none !important; }
   .brand-title { font-size: 15px; }
   .brand-badge-circle { width: 32px; height: 32px; }
   .nav-controls-group { gap: 7px; }
@@ -3037,8 +3167,14 @@ body {
 
   .lang-pill-btn,
   .nav-logout-pill {
-    padding: 5px 9px;
+    padding: 0 9px;
+    height: 28px;
     font-size: 11.5px;
+  }
+
+  .sound-toggle-pill {
+    height: 28px;
+    padding: 0 10px;
   }
 
   .dashboard-page-container {
@@ -3087,6 +3223,7 @@ body {
   .day-cell { min-height: 60px; padding: 5px 3px; }
   .pnl-value { font-size: 10.5px; }
   .symbol-name { font-size: 8px; }
+  .products-dual-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
@@ -3182,11 +3319,6 @@ body {
   z-index: -1;
 }
 
-.por-terminal-promo-card {
-  border-color: rgba(56, 189, 248, 0.35);
-  background: linear-gradient(135deg, rgba(12, 22, 36, 0.95) 0%, rgba(10, 28, 38, 0.92) 100%);
-}
-.por-terminal-promo-card:hover { border-color: var(--sky-blue); }
 .terminal-badge-glow { box-shadow: 0 0 14px rgba(56, 189, 248, 0.35); }
 .terminal-pill {
   align-self: flex-start;
@@ -3199,14 +3331,13 @@ body {
   border-radius: 6px;
   padding: 3px 10px;
 }
-.por-terminal-promo-card .promo-sub-label { color: var(--text-main); }
+
 a.product-chart-btn {
   display: block;
   width: 100%;
   text-align: center;
   text-decoration: none;
 }
-.btn-terminal-launch { border-radius: 24px; }
 
 .por-analysis-promo-card { border-color: rgba(0, 210, 106, 0.3); }
 .por-analysis-promo-card:hover { border-color: var(--emerald-green); }
@@ -3218,8 +3349,4 @@ a.product-chart-btn {
   input, select, textarea { font-size: 16px; }
   button, .product-chart-btn { touch-action: manipulation; }
   a.product-chart-btn, .product-chart-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
-}
-.global-top-bar { padding-top: env(safe-area-inset-top, 0px); }
-@media (max-width: 768px) {
-  .products-dual-grid { grid-template-columns: 1fr; }
 }
