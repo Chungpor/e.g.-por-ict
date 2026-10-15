@@ -345,6 +345,11 @@ body {
   color: var(--lavender-purple) !important;
 }
 
+/* Hide duplicate center-nav music button on desktop (keep right pill) */
+#navMusicBtn {
+  display: none !important;
+}
+
 .nav-music-link-btn {
   display: inline-flex;
   align-items: center;
@@ -761,6 +766,8 @@ body {
   background: var(--bg-card);
   border-left: 1px solid var(--card-border);
   padding: 22px 18px;
+  padding-top: calc(22px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -3133,105 +3140,6 @@ body {
   cursor: pointer;
 }
 
-/* RESPONSIVE DESIGN */
-@media (max-width: 768px) {
-  input, textarea, select, .login-input, .form-input, .form-textarea, .otp-box {
-    font-size: 16px !important;
-  }
-
-  .global-top-bar {
-    padding: 10px 14px;
-    padding-top: calc(10px + env(safe-area-inset-top, 0px));
-  }
-
-  .brand-title { font-size: 15px; }
-  .brand-badge-circle { width: 32px; height: 32px; }
-  .nav-controls-group { gap: 7px; }
-
-  .theme-switch-pill {
-    width: 52px;
-    height: 28px;
-    padding: 0 6px;
-  }
-
-  .theme-switch-thumb {
-    width: 20px;
-    height: 20px;
-    top: 2.5px;
-    left: 2.5px;
-  }
-
-  [data-theme="light"] .theme-switch-thumb {
-    transform: translateX(23px);
-  }
-
-  .lang-pill-btn,
-  .nav-logout-pill {
-    padding: 0 9px;
-    height: 28px;
-    font-size: 11.5px;
-  }
-
-  .sound-toggle-pill {
-    height: 28px;
-    padding: 0 10px;
-  }
-
-  .dashboard-page-container {
-    padding: 78px 12px 30px;
-    padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px));
-  }
-
-  .login-page-container { padding: 74px 12px 30px; }
-  .login-card, .signup-card, .verify-card, .reset-card {
-    padding: 26px 18px;
-    border-radius: 20px;
-  }
-
-  .profile-gradient-banner { height: 80px; }
-
-  .profile-body {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    margin-top: -42px;
-    padding: 0 14px 18px;
-  }
-
-  .profile-avatar { width: 72px; height: 72px; }
-  .profile-tags { justify-content: center; flex-wrap: wrap; }
-
-  .ff-banner-inner {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .ff-banner-right {
-    align-items: flex-start;
-    width: 100%;
-  }
-
-  .ff-direct-cta-btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .wire-cards-grid { grid-template-columns: 1fr; }
-  .live-chart-viewport-box { height: 480px; min-height: 420px; }
-  .stats-row { grid-template-columns: 1fr; }
-  .calendar-board { padding: 14px 8px; }
-  .day-cell { min-height: 60px; padding: 5px 3px; }
-  .pnl-value { font-size: 10.5px; }
-  .symbol-name { font-size: 8px; }
-  .products-dual-grid { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 480px) {
-  .news-headline-title { font-size: 24px; }
-  .headline-kh { font-size: 20px; }
-  .hot-news-item-card { flex-direction: column; gap: 10px; }
-}
-
 .hot-headline-row {
   display: flex;
   align-items: center;
@@ -3349,4 +3257,181 @@ a.product-chart-btn {
   input, select, textarea { font-size: 16px; }
   button, .product-chart-btn { touch-action: manipulation; }
   a.product-chart-btn, .product-chart-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+}
+
+/* ========================================================
+   RESPONSIVE DESIGN & IPHONE 18 PRO MAX (SAFARI)
+   ======================================================== */
+@media (max-width: 768px) {
+  input, textarea, select, .login-input, .form-input, .form-textarea, .otp-box {
+    font-size: 16px !important;
+  }
+
+  .global-top-bar {
+    padding: 10px 14px;
+    padding-top: calc(10px + env(safe-area-inset-top, 0px));
+  }
+
+  .brand-title { font-size: 15px; }
+  .brand-badge-circle { width: 32px; height: 32px; }
+  .nav-controls-group { gap: 7px; }
+
+  .theme-switch-pill {
+    width: 52px;
+    height: 28px;
+    padding: 0 6px;
+  }
+
+  .theme-switch-thumb {
+    width: 20px;
+    height: 20px;
+    top: 2.5px;
+    left: 2.5px;
+  }
+
+  [data-theme="light"] .theme-switch-thumb {
+    transform: translateX(23px);
+  }
+
+  .lang-pill-btn,
+  .nav-logout-pill {
+    padding: 0 9px;
+    height: 28px;
+    font-size: 11.5px;
+  }
+
+  .sound-toggle-pill {
+    height: 28px;
+    padding: 0 10px;
+  }
+
+  .dashboard-page-container {
+    padding: 78px 12px 30px;
+    padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .login-page-container { padding: 74px 12px 30px; }
+  .login-card, .signup-card, .verify-card, .reset-card {
+    padding: 26px 18px;
+    border-radius: 20px;
+  }
+
+  .profile-gradient-banner { height: 80px; }
+
+  .profile-body {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-top: -42px;
+    padding: 0 14px 18px;
+  }
+
+  .profile-avatar { width: 72px; height: 72px; }
+  .profile-tags { justify-content: center; flex-wrap: wrap; }
+
+  .ff-banner-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ff-banner-right {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .ff-direct-cta-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .wire-cards-grid { grid-template-columns: 1fr; }
+  .live-chart-viewport-box { height: 480px; min-height: 420px; }
+  .stats-row { grid-template-columns: 1fr; }
+  .calendar-board { padding: 14px 8px; }
+  .day-cell { min-height: 60px; padding: 5px 3px; }
+  .pnl-value { font-size: 10.5px; }
+  .symbol-name { font-size: 8px; }
+  .products-dual-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .news-headline-title { font-size: 24px; }
+  .headline-kh { font-size: 20px; }
+  .hot-news-item-card { flex-direction: column; gap: 10px; }
+}
+
+/* iOS Safari Frosted Glass & Safe-Area Support */
+@supports (-webkit-touch-callout: none) {
+  .global-top-bar {
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+    backdrop-filter: saturate(180%) blur(16px);
+    padding-top: max(10px, env(safe-area-inset-top, 0px)) !important;
+  }
+}
+
+/* iPhone 18 Pro Max (440x956 CSS Viewport) & Smaller Mobile Screens */
+@media only screen and (max-width: 440px) {
+  .global-top-bar {
+    min-height: 54px;
+    padding: 8px 14px !important;
+    padding-top: calc(8px + env(safe-area-inset-top, 0px)) !important;
+  }
+
+  .top-bar-inner {
+    gap: 8px !important;
+  }
+
+  .brand-badge-circle {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .brand-title {
+    font-size: 15px !important;
+  }
+
+  /* Hide duplicate Music & Logout pills on mobile header (available in Mobile Drawer) */
+  #soundToggleBtn,
+  #navLogoutBtn,
+  .nav-center-links {
+    display: none !important;
+  }
+
+  .nav-controls-group {
+    gap: 6px !important;
+  }
+
+  .theme-switch-pill {
+    width: 48px !important;
+    height: 28px !important;
+    padding: 0 5px !important;
+  }
+
+  .theme-switch-thumb {
+    width: 20px !important;
+    height: 20px !important;
+    top: 2.5px !important;
+    left: 2.5px !important;
+  }
+
+  [data-theme="light"] .theme-switch-thumb {
+    transform: translateX(20px) !important;
+  }
+
+  .nav-avatar-btn,
+  .mobile-menu-btn {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .lang-pill-btn {
+    height: 28px !important;
+    padding: 0 9px !important;
+    font-size: 11px !important;
+  }
+
+  .profile-popover-card {
+    right: -40px;
+    width: min(260px, calc(100vw - 28px));
+  }
 }
