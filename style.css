@@ -3487,3 +3487,833 @@ a.product-chart-btn {
     width: min(260px, calc(100vw - 28px));
   }
 }
+/* ========================================================
+   LIVE MARKET CHART: CLEAN SMOOTH UI (matches index.html)
+   ======================================================== */
+
+/* ---------- Breadcrumb row + "Open Full Terminal" link ---------- */
+.lc-top-breadcrumb-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 0;
+}
+
+.lc-open-full-terminal-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  text-decoration: none;
+  color: var(--lavender-purple);
+  background: rgba(157, 114, 255, 0.1);
+  border: 1px solid rgba(157, 114, 255, 0.4);
+  white-space: nowrap;
+  transition: background 0.22s ease, border-color 0.22s ease,
+              box-shadow 0.22s ease, transform 0.16s ease;
+}
+
+.lc-open-full-terminal-link:hover {
+  background: rgba(157, 114, 255, 0.2);
+  border-color: var(--lavender-purple);
+  box-shadow: 0 4px 16px var(--lavender-purple-glow);
+  transform: translateY(-1px);
+}
+
+.lc-open-full-terminal-link:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* ---------- Header: title left, action buttons right ---------- */
+.lc-header-flex {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.live-chart-main-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  line-height: 1.2;
+}
+
+/* live price pill next to the title */
+.live-chart-main-title .lc-live-price-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--teal-accent);
+  background: rgba(13, 148, 136, 0.14);
+  border: 1px solid rgba(13, 148, 136, 0.45);
+  padding: 3px 11px;
+  border-radius: 9px;
+  letter-spacing: 0;
+}
+
+/* ---------- Primary action buttons ---------- */
+.lc-primary-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.live-chart-header .lc-analyze-btn,
+.live-chart-header .lc-best-setup-btn,
+.live-chart-header .lc-run-council-btn {
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.16s ease, box-shadow 0.22s ease,
+              filter 0.2s ease, background 0.2s ease;
+}
+
+.live-chart-header .lc-analyze-btn:hover,
+.live-chart-header .lc-best-setup-btn:hover,
+.live-chart-header .lc-run-council-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+.live-chart-header .lc-analyze-btn:active,
+.live-chart-header .lc-best-setup-btn:active,
+.live-chart-header .lc-run-council-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.live-chart-header .lc-analyze-btn:focus-visible,
+.live-chart-header .lc-best-setup-btn:focus-visible,
+.live-chart-header .lc-run-council-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(32, 178, 170, 0.35);
+}
+
+/* ---------- Controls bar (glass card, stacked rows) ---------- */
+.live-chart-controls-bar {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  padding: 16px 20px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.controls-pill-group {
+  flex-wrap: wrap;
+}
+
+.control-group-label {
+  min-width: 82px;
+}
+
+.pills-scroll-track {
+  scrollbar-width: none;
+}
+.pills-scroll-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- Asset / Timeframe pills ---------- */
+.chart-pill-btn {
+  transition: background 0.22s ease, border-color 0.22s ease,
+              color 0.2s ease, box-shadow 0.22s ease, transform 0.16s ease;
+}
+
+.chart-pill-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(157, 114, 255, 0.5);
+}
+
+.chart-pill-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.chart-pill-btn.active,
+.chart-pill-btn.active:hover {
+  transform: none;
+}
+
+.chart-pill-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--lavender-purple-glow);
+}
+
+/* ---------- Playbook / Risk / Horizon dropdowns ---------- */
+.lc-filter-selects-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.lc-select-pill {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  height: 34px;
+  padding: 0 34px 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  background-color: var(--input-bg);
+  color: var(--text-main);
+
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+  cursor: pointer;
+  outline: none;
+  max-width: 100%;
+
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239d72ff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+
+  transition: border-color 0.2s ease, box-shadow 0.2s ease,
+              background-color 0.2s ease, transform 0.16s ease;
+}
+
+.lc-select-pill:hover {
+  border-color: rgba(157, 114, 255, 0.55);
+  background-color: rgba(157, 114, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.lc-select-pill:focus,
+.lc-select-pill:focus-visible {
+  outline: none;
+  border-color: var(--lavender-purple);
+  box-shadow: 0 0 0 3px var(--lavender-purple-glow);
+}
+
+.lc-select-pill:active {
+  transform: translateY(0);
+}
+
+.lc-select-pill option {
+  background: #11141d;
+  color: #f8fafc;
+  font-weight: 600;
+  padding: 8px;
+}
+
+[data-theme="light"] .lc-select-pill option {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+/* ---------- "45m left" pill ---------- */
+.lc-time-left-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--warning-amber);
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  white-space: nowrap;
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 768px) {
+  .lc-header-flex {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .lc-primary-actions-bar {
+    width: 100%;
+  }
+
+  .live-chart-header .lc-analyze-btn,
+  .live-chart-header .lc-best-setup-btn,
+  .live-chart-header .lc-run-council-btn {
+    flex: 1 1 auto;
+    height: 40px;
+  }
+
+  .live-chart-controls-bar {
+    padding: 14px 12px;
+  }
+
+  .controls-pill-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .pills-scroll-track {
+    width: 100%;
+    padding-bottom: 2px;
+  }
+
+  .lc-filter-selects-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .lc-select-pill {
+    width: 100%;
+    height: 42px;
+    font-size: 16px; /* stops iOS Safari zoom on focus */
+  }
+
+  .lc-time-left-pill {
+    justify-self: start;
+  }
+}
+
+/* ---------- Respect reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .lc-open-full-terminal-link,
+  .lc-select-pill,
+  .chart-pill-btn,
+  .live-chart-header .lc-analyze-btn,
+  .live-chart-header .lc-best-setup-btn,
+  .live-chart-header .lc-run-council-btn {
+    transition: none;
+  }
+}
+
+/* ========================================================
+   LIVE MARKET CHART VIEW: MISSING SECTION STYLES
+   Append at the very bottom of style.css (after the earlier
+   controls/dropdown block). Works with your index.html as is.
+   ======================================================== */
+
+#liveChartView {
+  --lc-accent: #20b2aa;
+  --lc-accent-soft: rgba(32, 178, 170, 0.16);
+  --lc-accent-line: rgba(32, 178, 170, 0.45);
+  --lc-sell: #ef4444;
+  --lc-sell-soft: rgba(239, 68, 68, 0.15);
+  --lc-amber: #f59e0b;
+  --lc-panel-2: rgba(14, 22, 34, 0.94);
+  --lc-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+[data-theme="light"] #liveChartView {
+  --lc-accent: #0f8f89;
+  --lc-accent-soft: rgba(15, 143, 137, 0.12);
+  --lc-accent-line: rgba(15, 143, 137, 0.4);
+  --lc-sell: #dc2626;
+  --lc-sell-soft: rgba(220, 38, 38, 0.1);
+  --lc-amber: #d97706;
+  --lc-panel-2: #f8fafc;
+}
+
+.live-chart-wide-inner { max-width: 1100px; }
+
+/* ---------- Live price pill (header) ---------- */
+#liveChartView .lc-live-price-pill {
+  font-family: var(--lc-mono);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0;
+  color: var(--lc-accent);
+  background: var(--lc-accent-soft);
+  border: 1px solid var(--lc-accent-line);
+  padding: 3px 11px;
+  border-radius: 9px;
+}
+
+/* ---------- AI chart reader banner ---------- */
+.lc-ai-reader-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: linear-gradient(90deg, var(--lc-accent-soft) 0%, var(--bg-card) 100%);
+  border: 1px solid var(--lc-accent-line);
+  border-radius: 12px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.lc-reader-left {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  min-width: 0;
+}
+
+.lc-reader-bot-ico { font-weight: 800; color: var(--text-main); }
+
+.lc-reader-score {
+  background: var(--lc-accent);
+  color: #031514;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.lc-structure-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--lc-accent-soft);
+  color: var(--lc-accent);
+}
+
+.lc-reader-summary { color: var(--text-sub); line-height: 1.45; }
+
+.lc-active-dir-badge {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 14px;
+  border-radius: 8px;
+}
+.lc-active-dir-badge.buy { background: var(--lc-accent); color: #031514; }
+.lc-active-dir-badge.sell { background: var(--lc-sell); color: #ffffff; }
+
+/* ---------- Chart viewport (rounded frame around TradingView) ---------- */
+.live-chart-viewport-box { position: relative; }
+
+.lc-scan-laser-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 25;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  background: radial-gradient(circle at 50% 50%, rgba(32, 178, 170, 0.12) 0%, transparent 70%);
+  overflow: hidden;
+}
+.lc-scan-laser-overlay.is-scanning { opacity: 1; }
+
+.lc-scan-beam {
+  position: absolute;
+  top: 4%;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, #20b2aa 25%, #5eead4 50%, #20b2aa 75%, transparent 100%);
+  box-shadow: 0 0 18px #20b2aa, 0 0 32px #20b2aa;
+  animation: lcLaserSweep 0.75s ease-in-out infinite alternate;
+}
+@keyframes lcLaserSweep {
+  0% { top: 4%; }
+  100% { top: 94%; }
+}
+
+.lc-scan-hud {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(4, 14, 18, 0.94);
+  border: 1px solid #20b2aa;
+  color: #20b2aa;
+  font-family: var(--lc-mono);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 5px 14px;
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(32, 178, 170, 0.4);
+  white-space: nowrap;
+}
+
+/* ---------- Trade levels strip ---------- */
+.lc-chart-levels-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  font-size: 11.5px;
+  box-shadow: var(--card-shadow);
+}
+
+.lc-strip-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-sub);
+  font-weight: 600;
+}
+.lc-strip-tag strong { color: var(--lc-accent); font-family: var(--lc-mono); }
+
+.lc-strip-pills {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.lc-lvl-chip {
+  font-family: var(--lc-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 7px;
+  white-space: nowrap;
+}
+.lc-lvl-chip.entry { background: var(--lc-accent-soft); color: var(--lc-accent); border: 1px solid var(--lc-accent-line); }
+.lc-lvl-chip.sl { background: var(--lc-sell-soft); color: var(--danger-soft); border: 1px solid rgba(239, 68, 68, 0.35); }
+.lc-lvl-chip.tp { background: var(--lc-accent-soft); color: var(--lc-accent); border: 1px solid var(--lc-accent-line); }
+
+/* ---------- Super AI consensus banner ---------- */
+.lc-council-banner-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--lc-accent-line);
+  border-radius: 14px;
+  box-shadow: var(--card-shadow);
+}
+
+.lc-council-banner-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.lc-council-heading { font-size: 13px; font-weight: 800; color: var(--text-main); }
+.lc-council-heading strong { color: var(--sky-blue); }
+
+.lc-llm-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.lc-llm-pill {
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 7px;
+  background: var(--lc-accent-soft);
+  border: 1px solid var(--lc-accent-line);
+  color: var(--text-sub);
+  white-space: nowrap;
+  transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+.lc-llm-pill.llm-active-vote {
+  border-color: var(--lc-accent);
+  background: rgba(32, 178, 170, 0.28);
+  color: var(--text-main);
+  box-shadow: 0 0 12px rgba(32, 178, 170, 0.5);
+}
+
+.lc-council-status {
+  font-size: 12px;
+  color: var(--text-sub);
+  line-height: 1.5;
+}
+
+.lc-flash-highlight {
+  border-color: var(--lc-accent) !important;
+  box-shadow: 0 0 18px rgba(32, 178, 170, 0.38);
+}
+
+/* ---------- 3-card analysis grid ---------- */
+.lc-analysis-bottom-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.lc-detail-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  min-width: 0;
+}
+
+.lc-detail-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--card-border);
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.lc-last-close-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.lc-last-close-lbl strong { color: var(--text-main); font-family: var(--lc-mono); }
+
+.lc-rr-tag {
+  font-family: var(--lc-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--lc-accent);
+  white-space: nowrap;
+}
+
+/* Card 1: observations */
+.lc-observations-list { display: flex; flex-direction: column; gap: 8px; }
+
+.lc-obs-item {
+  font-size: 11.5px;
+  color: var(--text-sub);
+  line-height: 1.45;
+  padding: 8px 10px;
+  background: var(--lc-panel-2);
+  border-radius: 8px;
+  border-left: 3px solid var(--lc-accent);
+}
+.lc-obs-item strong { display: block; margin-bottom: 2px; color: var(--text-main); }
+
+/* Card 2: levels + regime + KPIs */
+.lc-levels-rows { display: flex; flex-direction: column; gap: 5px; }
+
+.lc-level-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: var(--lc-panel-2);
+  font-size: 11.5px;
+  color: var(--text-sub);
+}
+.lc-level-row .val { font-family: var(--lc-mono); font-weight: 800; color: var(--text-main); }
+
+.lc-regime-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.lc-reg-chip {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: rgba(148, 163, 184, 0.14);
+  color: var(--text-sub);
+}
+.lc-reg-chip.green { background: var(--lc-accent-soft); color: var(--lc-accent); }
+
+.lc-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.lc-kpi-box {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 9px 8px;
+  text-align: center;
+  background: var(--lc-panel-2);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+}
+.lc-kpi-lbl { font-size: 10px; font-weight: 600; color: var(--text-muted); }
+.lc-kpi-num { font-family: var(--lc-mono); font-size: 16px; font-weight: 800; }
+.lc-kpi-num.green { color: var(--lc-accent); }
+.lc-kpi-num.cyan { color: var(--sky-blue); }
+.lc-kpi-num.amber { color: var(--lc-amber); }
+
+/* Card 3: agents */
+.lc-agents-stack { display: flex; flex-direction: column; gap: 8px; }
+
+.lc-agent-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 12px;
+  background: var(--lc-panel-2);
+  border: 1px solid var(--card-border);
+  border-radius: 11px;
+}
+
+.lc-agent-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.lc-agent-role { font-size: 10px; font-weight: 600; color: var(--text-muted); }
+
+.lc-agent-bias {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--lc-accent-soft);
+  color: var(--lc-accent);
+}
+.lc-agent-bias.sell { background: var(--lc-sell-soft); color: var(--danger-soft); }
+
+.lc-agent-body { font-size: 11px; color: var(--text-sub); line-height: 1.5; }
+.lc-agent-conviction { font-size: 10px; font-weight: 700; color: var(--lc-accent); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1000px) {
+  .lc-analysis-bottom-grid { grid-template-columns: 1fr; }
+  .lc-kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+  .lc-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lc-council-banner-top { align-items: flex-start; flex-direction: column; }
+  .lc-chart-levels-strip { align-items: flex-start; flex-direction: column; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-scan-beam { animation: none; top: 50%; }
+  .lc-llm-pill, .lc-ai-reader-banner { transition: none; }
+}
+
+/* ---------- Live chart: state variants + small extras ---------- */
+#liveChartView .lc-live-price-pill { transition: color 0.2s ease, background 0.2s ease; }
+
+.lc-ai-reader-banner.is-sell {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.16) 0%, var(--bg-card) 100%);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+.lc-ai-reader-banner.is-sell .lc-reader-score { background: var(--lc-sell); color: #ffffff; }
+.lc-ai-reader-banner.is-sell .lc-structure-tag { background: var(--lc-sell-soft); color: var(--danger-soft); }
+
+.lc-ai-reader-banner.is-hold {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.16) 0%, var(--bg-card) 100%);
+  border-color: rgba(245, 158, 11, 0.5);
+}
+.lc-ai-reader-banner.is-hold .lc-reader-score { background: var(--lc-amber); color: #04101c; }
+.lc-ai-reader-banner.is-hold .lc-structure-tag { background: rgba(245, 158, 11, 0.16); color: var(--lc-amber); }
+
+.lc-active-dir-badge.hold { background: var(--lc-amber); color: #04101c; }
+
+.lc-llm-pill.llm-active-vote { color: var(--text-main); }
+
+.lc-council-banner-card.lc-flash-highlight,
+.lc-ai-reader-banner.lc-flash-highlight {
+  border-color: var(--lc-accent);
+  box-shadow: 0 0 18px rgba(32, 178, 170, 0.38);
+}
+
+.lc-agent-role { display: block; }
+
+.lc-disclaimer {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
+button:disabled.lc-analyze-btn,
+button:disabled.lc-best-setup-btn,
+button:disabled.lc-run-council-btn {
+  opacity: 0.6;
+  cursor: progress;
+  transform: none;
+  filter: none;
+}
+
+/* ---------- Live chart header: title left, actions right ---------- */
+.live-chart-header.lc-header-flex {
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px 16px;
+}
+.live-chart-header.lc-header-flex > div:first-child { flex: 1 1 420px; min-width: 0; }
+.live-chart-header .live-chart-description { max-width: 62ch; }
+
+@media (max-width: 768px) {
+  .live-chart-header.lc-header-flex { flex-direction: column; align-items: flex-start; }
+  .live-chart-header.lc-header-flex > div:first-child { flex: 0 0 auto; width: 100%; }
+}
+
+/* ---------- Live chart: action buttons (were unstyled in index.html) ---------- */
+.lc-primary-actions-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.lc-analyze-btn,
+.lc-best-setup-btn,
+.lc-run-council-btn {
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.lc-analyze-btn {
+  background: var(--lc-accent-soft, rgba(32, 178, 170, 0.16));
+  border: 1px solid var(--lc-accent-line, rgba(32, 178, 170, 0.55));
+  color: var(--lc-accent, #20b2aa);
+}
+.lc-best-setup-btn {
+  background: var(--lc-accent, #20b2aa);
+  border: 1px solid var(--lc-accent, #20b2aa);
+  color: #031514;
+  box-shadow: 0 0 14px rgba(32, 178, 170, 0.28);
+}
+.lc-run-council-btn {
+  background: linear-gradient(135deg, #20b2aa 0%, #148f89 100%);
+  border: 1px solid var(--lc-accent, #20b2aa);
+  color: #031514;
+}
+
+.lc-analyze-btn:focus-visible,
+.lc-best-setup-btn:focus-visible,
+.lc-run-council-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(32, 178, 170, 0.35);
+}
+
+@media (max-width: 768px) {
+  .lc-primary-actions-bar { width: 100%; }
+  .lc-analyze-btn,
+  .lc-best-setup-btn,
+  .lc-run-council-btn { flex: 1 1 auto; height: 40px; }
+}

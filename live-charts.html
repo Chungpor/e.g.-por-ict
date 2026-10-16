@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Live Charts AI | 4-LLM Consensus &amp; TradingView Terminal</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="por.jpg" />
+  <link rel="apple-touch-icon" href="por.jpg" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Kantumruy+Pro:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- TradingView Chart Engine -->
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+
+  <!-- YouTube IFrame Player API for 4K Zen Audio -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="live-charts.css" />
+</head>
+<body>
+
+  <!-- ==========================================
+       DYNAMIC 4K VIDEO BACKGROUND
+       ========================================== -->
+  <video class="lc-bg-video" autoplay loop muted playsinline preload="auto">
+    <source src="finance_data_tunnel_4k.mp4" type="video/mp4" />
+    <source src="https://github.com/ProTrader-cmyk/GenzWebsite/releases/download/videos/finance_data_tunnel_4k.mp4" type="video/mp4" />
+  </video>
+  <div class="lc-video-overlay"></div>
+
+  <!-- Hidden YouTube Background Audio Player Container -->
+  <div id="youtubeAudioPlayerContainer" class="lc-hidden-yt-audio">
+    <div id="youtubeAudioPlayer"></div>
+  </div>
+
+  <!-- ==========================================
+       UNIFIED CLEAN POR ICT TOP HEADER BAR
+       ========================================== -->
+  <header class="global-top-bar">
+    <div class="top-bar-inner">
+
+      <!-- Brand Logo & Title -->
+      <a href="index.html" class="nav-brand" style="text-decoration:none;">
+        <div class="brand-badge-circle">
+          <img
+            src="por.jpg"
+            alt="Por ICT Logo"
+            class="brand-nav-logo"
+            onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80';"
+          />
+        </div>
+        <span class="brand-title"><strong>Por</strong> ICT</span>
+      </a>
+
+      <!-- Center Navigation Links -->
+      <nav class="nav-center-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="index.html#news" class="nav-link">Por ICT News</a>
+        <a href="live-charts.html" class="nav-link nav-link-lavender active">Live Chart</a>
+        <a href="triumm-delta.html" class="nav-link nav-terminal-accent">Triumm Delta</a>
+        <a href="chart-analysis.html" class="nav-link">Analysis</a>
+        <a href="goal.html" class="nav-link nav-link-yellow">Goal Future</a>
+        <a href="Preview%20-recent%20signals.html" class="nav-link nav-link-red">Preview - recent signals</a>
+        <a href="index.html#membership" class="nav-link">Membership</a>
+        <a href="index.html#contact" class="nav-link">Contact Us</a>
+
+        <!-- 4K Zen Music Button -->
+        <button type="button" id="lcNavMusicBtn" class="nav-music-link-btn" aria-label="Toggle Background Music">
+          <span class="music-icon-pulse">🎵</span>
+          <span class="music-nav-title">4K Zen Music</span>
+          <span class="sound-wave-mini">
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+          </span>
+        </button>
+      </nav>
+
+      <!-- Right Action Controls -->
+      <div class="nav-controls-group">
+        <!-- Sound Toggle Pill -->
+        <button type="button" id="lcSoundToggleBtn" class="sound-toggle-pill" aria-label="Toggle Sound">
+          <span class="sound-wave-track">
+            <span class="sound-wave-bar"></span>
+            <span class="sound-wave-bar"></span>
+            <span class="sound-wave-bar"></span>
+          </span>
+          <span class="sound-label-text" id="lcSoundStatusText">Music: OFF</span>
+        </button>
+
+        <!-- Profile Avatar Button -->
+        <a href="index.html" class="nav-avatar-btn" title="Profile">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </a>
+
+        <!-- Language Pill -->
+        <button type="button" id="lcLangBtn" class="lang-pill-btn">
+          <span id="lcCurrentLang">EN</span>
+        </button>
+
+        <!-- Log out Button -->
+        <a href="index.html" class="nav-logout-pill" style="text-decoration:none;">Log out</a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ==========================================
+       MACRO REGIME & MARKET STATUS STRIP
+       ========================================== -->
+  <section class="lc-macro-strip">
+    <div class="lc-macro-left">
+      <div class="lc-macro-chip">
+        <span class="lc-chip-label">Crypto F&amp;G</span>
+        <span class="lc-chip-val red">19 · Extreme Fear</span>
+      </div>
+      <div class="lc-macro-chip">
+        <span class="lc-chip-label">Volatility</span>
+        <span class="lc-chip-val amber">High</span>
+      </div>
+      <div class="lc-macro-chip">
+        <span class="lc-chip-label">Regime</span>
+        <span class="lc-chip-val red">Risk-off</span>
+      </div>
+      <div class="lc-macro-chip">
+        <span class="lc-open-dot">●</span>
+        <span class="lc-chip-val green">Open</span>
+        <span class="lc-chip-sub" id="lcMarketCountdown">· Closes in 2d 21h 17:00:05</span>
+      </div>
+    </div>
+
+    <div class="lc-macro-right">
+      <span class="lc-vip-pill">👑 VIP plan</span>
+      <a href="index.html#membership" class="lc-upgrade-btn">Upgrade</a>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       3-COLUMN AI LIVE CHARTS WORKSPACE
+       ========================================== -->
+  <main class="lc-workspace" id="lcWorkspace">
+
+    <!-- COLUMN 1: WATCHLIST SIDEBAR -->
+    <aside class="lc-watchlist-sidebar" id="lcSidebar">
+      <div class="lc-portfolio-bar">
+        <span class="lc-port-icon">▦</span>
+        <span class="lc-port-name">Main Portfolio</span>
+        <span class="lc-port-caret">▾</span>
+      </div>
+
+      <!-- Watchlist Search -->
+      <div class="lc-watch-search-wrap">
+        <input
+          type="text"
+          id="lcWatchSearch"
+          class="lc-watch-search"
+          placeholder="⌕ Search symbol..."
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- Asset Class Tabs -->
+      <div class="lc-class-tabs" id="lcClassTabs">
+        <button type="button" class="lc-class-tab active" data-cat="ALL">All</button>
+        <button type="button" class="lc-class-tab" data-cat="Crypto">Crypto</button>
+        <button type="button" class="lc-class-tab" data-cat="Forex">Forex</button>
+        <button type="button" class="lc-class-tab" data-cat="Indices">Indices</button>
+        <button type="button" class="lc-class-tab" data-cat="Metals">Metals</button>
+      </div>
+
+      <!-- Watchlist Header -->
+      <div class="lc-watch-header">
+        <span>Watchlist · <strong id="lcWatchCount">7</strong></span>
+        <span class="lc-live-24h"><span class="lc-pulse-dot"></span> LIVE 24H</span>
+      </div>
+
+      <!-- Watchlist Items -->
+      <div class="lc-watchlist-items" id="lcWatchlistContainer"></div>
+
+      <!-- Sidebar Footer -->
+      <div class="lc-watch-footer">
+        <span class="lc-pulse-dot"></span>
+        <span>6 active signals streaming</span>
+      </div>
+    </aside>
+
+    <!-- COLUMN 2: CENTER CHART & AI CHART READER -->
+    <section class="lc-center-stage">
+
+      <!-- Chart Top Control Bar -->
+      <div class="lc-chart-topbar">
+        <div class="lc-chart-sym-group">
+          <button type="button" class="lc-toggle-side-btn" id="lcToggleSidebarBtn" title="Toggle Watchlist (⌘B)">
+            ☰
+          </button>
+          <div class="lc-active-sym-badge">
+            <span class="lc-sym-triangle">▲</span>
+            <strong id="lcActiveSymTitle">XAUUSD</strong>
+            <span class="lc-sym-check">✔ Price on chart · TradingView feed</span>
+          </div>
+          <span class="lc-live-price-pill" id="lcTopLivePrice">4,175.99</span>
+        </div>
+
+        <!-- Timeframe Buttons -->
+        <div class="lc-tf-group" id="lcTimeframeGroup">
+          <button type="button" class="lc-tf-btn" data-tf="1">1m</button>
+          <button type="button" class="lc-tf-btn" data-tf="5">5m</button>
+          <button type="button" class="lc-tf-btn" data-tf="15">15m</button>
+          <button type="button" class="lc-tf-btn active" data-tf="30">30m</button>
+          <button type="button" class="lc-tf-btn" data-tf="60">1h</button>
+          <button type="button" class="lc-tf-btn" data-tf="240">4h</button>
+          <button type="button" class="lc-tf-btn" data-tf="D">1d</button>
+        </div>
+      </div>
+
+      <!-- AI Chart Reader Banner -->
+      <div class="lc-ai-reader-banner" id="lcAiReaderBanner">
+        <div class="lc-reader-left">
+          <span class="lc-reader-bot-ico">🤖 AI Chart Reader</span>
+          <span class="lc-reader-score" id="lcReaderScoreBadge">Bullish +40</span>
+          <span class="lc-reader-summary" id="lcReaderSummaryText">
+            Chart reads bullish (moderate): bullish market structure. Key support at 4167.84.
+          </span>
+        </div>
+        <button type="button" class="lc-reader-toggle-btn" id="lcFocusAiBtn">▴ read</button>
+      </div>
+
+      <!-- TradingView Live Chart Box -->
+      <div class="lc-tv-viewport">
+        <div id="lc_tradingview_chart" class="lc-tv-embed"></div>
+      </div>
+
+      <!-- On-Chart Trade Levels Strip -->
+      <div class="lc-chart-levels-strip">
+        <div class="lc-strip-tag">
+          <span>🎯 Trade Levels · On Chart</span>
+          <strong id="lcStripRR">R:R 1.3 / 2.0 / 2.8</strong>
+        </div>
+        <div class="lc-strip-pills">
+          <span class="lc-lvl-chip entry" id="lcStripEntry">Entry BUY: 4,175.99</span>
+          <span class="lc-lvl-chip sl" id="lcStripSL">SL: 4,165.98</span>
+          <span class="lc-lvl-chip tp" id="lcStripTP1">TP1: 4,188.59</span>
+          <span class="lc-lvl-chip tp" id="lcStripTP2">TP2: 4,196.02</span>
+          <span class="lc-lvl-chip tp" id="lcStripTP3">TP3: 4,204.03</span>
+        </div>
+      </div>
+
+      <!-- Keyboard Shortcuts Bar -->
+      <footer class="lc-shortcuts-bar">
+        <button type="button" class="lc-sc-item" id="scFocusAi"><kbd>⌘F</kbd> Focus AI</button>
+        <button type="button" class="lc-sc-item" id="scSearch"><kbd>⌘S</kbd> Search</button>
+        <button type="button" class="lc-sc-item" id="scSidebar"><kbd>⌘B</kbd> Sidebar</button>
+        <button type="button" class="lc-sc-item" id="scRunCouncil"><kbd>⌘M</kbd> Run 4-LLM Council</button>
+        <a href="triumm-delta.html" class="lc-sc-item" style="text-decoration:none;"><kbd>⌘L</kbd> Triumm Delta</a>
+      </footer>
+    </section>
+
+    <!-- COLUMN 3: RIGHT AI CONSENSUS & SIGNAL DETAIL PANEL -->
+    <aside class="lc-ai-panel" id="lcAiPanel">
+
+      <!-- Panel Mode Tabs -->
+      <div class="lc-panel-tabs" id="lcPanelTabs">
+        <button type="button" class="lc-p-tab active" data-tab="analysis">Analysis</button>
+        <button type="button" class="lc-p-tab" data-tab="council">4-LLM Council</button>
+        <button type="button" class="lc-p-tab" data-tab="levels">Levels</button>
+        <button type="button" class="lc-p-tab" data-tab="signals">Signals (6)</button>
+      </div>
+
+      <!-- Signal Header Bar -->
+      <div class="lc-sig-detail-header">
+        <div>
+          <div class="lc-sig-detail-title">
+            Signal Detail · <strong id="lcPanelSym">XAUUSD</strong> · <span id="lcPanelTf">30m</span>
+          </div>
+          <div class="lc-sig-detail-sub">
+            Last candle close: <strong id="lcLastCandleClose">4,175.99</strong>
+          </div>
+        </div>
+        <span class="lc-active-dir-badge buy" id="lcMainDirBadge">BUY</span>
+      </div>
+
+      <!-- SUPER AI CONSENSUS · 4 LLMs -->
+      <div class="lc-council-card">
+        <div class="lc-council-top">
+          <span class="lc-council-heading">🧠 Super AI Consensus · 4 LLMs</span>
+          <button type="button" class="lc-run-council-btn" id="lcRunCouncilBtn">✦ Run Council</button>
+        </div>
+
+        <div class="lc-llm-badges-row">
+          <span class="lc-llm-pill tech">🔵 TECHNICAL</span>
+          <span class="lc-llm-pill risk">🟣 RISK</span>
+          <span class="lc-llm-pill smc">🟠 SMC</span>
+          <span class="lc-llm-pill synth">🏆 SYNTHESIZER</span>
+        </div>
+
+        <p class="lc-council-status" id="lcCouncilStatusText">
+          Active BUY signal detected — the 4-LLM council evaluated structure, order blocks, and macro risk.
+        </p>
+      </div>
+
+      <!-- PLAYBOOK & RISK CONTROLS -->
+      <div class="lc-playbook-card">
+        <div class="lc-pb-top">
+          <button type="button" class="lc-analyze-btn" id="lcAnalyzeSetupBtn">📊 Analyze</button>
+          <button type="button" class="lc-best-setup-btn" id="lcBestSetupBtn">✦ Best setup</button>
+        </div>
+
+        <div class="lc-pb-select-row">
+          <select id="lcPlaybookSelect" class="lc-select">
+            <option value="auto">Auto (AI picks best)</option>
+            <option value="smc">SMC Order Block + FVG</option>
+            <option value="ict">ICT Judas Swing + Silver Bullet</option>
+            <option value="trend">EMA Momentum Continuation</option>
+          </select>
+        </div>
+        <p class="lc-pb-hint">Let the engine choose the highest-probability playbook for current conditions.</p>
+
+        <div class="lc-pb-filters">
+          <select id="lcRiskSelect" class="lc-select-sm">
+            <option value="Medium risk">Medium risk</option>
+            <option value="Low risk">Low risk (≤ 0.5%)</option>
+            <option value="Aggressive">Aggressive (1.5%)</option>
+          </select>
+          <select id="lcHorizonSelect" class="lc-select-sm">
+            <option value="Intraday">Intraday</option>
+            <option value="Scalp">Scalp (M1–M15)</option>
+            <option value="Swing">Swing (H4–D1)</option>
+          </select>
+          <span class="lc-time-left-pill">⏳ 1h 30m left</span>
+        </div>
+      </div>
+
+      <!-- AI CHART READER STRUCTURE OBSERVATIONS -->
+      <div class="lc-reader-card" id="lcSectionAnalysis">
+        <div class="lc-reader-card-head">
+          <span>🤖 AI Chart Reader</span>
+          <span class="lc-structure-tag" id="lcStructureTag">Uptrend (HH + HL)</span>
+        </div>
+        <div class="lc-observations-list" id="lcObservationsList"></div>
+      </div>
+
+      <!-- TRADE LEVELS & R:R DESK -->
+      <div class="lc-levels-card" id="lcSectionLevels">
+        <div class="lc-levels-head">
+          <span>Trade Levels · On Chart</span>
+          <span class="lc-rr-tag" id="lcCardRR">R:R 1.3 / 2.0 / 2.8</span>
+        </div>
+        <div class="lc-levels-rows" id="lcLevelsRows"></div>
+
+        <!-- Regime Tags -->
+        <div class="lc-regime-tags" id="lcRegimeTags">
+          <span class="lc-reg-chip">contracting vol</span>
+          <span class="lc-reg-chip">strong trend</span>
+          <span class="lc-reg-chip green">confluence +6</span>
+        </div>
+
+        <!-- 4 KPI Gauges -->
+        <div class="lc-kpi-grid">
+          <div class="lc-kpi-box">
+            <span class="lc-kpi-lbl">Confidence</span>
+            <strong class="lc-kpi-num green" id="lcKpiConf">71%</strong>
+          </div>
+          <div class="lc-kpi-box">
+            <span class="lc-kpi-lbl">Win Prob.</span>
+            <strong class="lc-kpi-num cyan" id="lcKpiWin">52%</strong>
+          </div>
+          <div class="lc-kpi-box">
+            <span class="lc-kpi-lbl">Indicator Conf.</span>
+            <strong class="lc-kpi-num amber" id="lcKpiInd">54%</strong>
+          </div>
+          <div class="lc-kpi-box">
+            <span class="lc-kpi-lbl">Risk Score</span>
+            <strong class="lc-kpi-num green" id="lcKpiRisk">100%</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4-LLM AGENTS BREAKDOWN -->
+      <div class="lc-agents-stack" id="lcAgentsStack"></div>
+
+    </aside>
+
+  </main>
+
+  <!-- Live Charts AI JavaScript -->
+  <script src="live-engine.js"></script>
+  <script src="live-charts.js"></script>
+</body>
+</html>

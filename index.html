@@ -8,6 +8,7 @@
   <!-- Browser Tab Favicon -->
   <link rel="icon" type="image/jpeg" href="por.jpg" />
   <link rel="apple-touch-icon" href="por.jpg" />
+
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -62,10 +63,10 @@
       <!-- Center Navigation Links (Desktop) -->
       <nav id="navCenterLinks" class="nav-center-links hidden">
         <a href="#" id="navHomeLink" class="nav-link active" data-i18n="nav_home">Home</a>
-        <a href="#" id="navNewsLink" class="nav-link" data-i18n="nav_news">Por ICT News</a>
+        <a href="#news" id="navNewsLink" class="nav-link" data-i18n="nav_news">Por ICT News</a>
         
         <!-- Live Market Chart (Golden Chestnut / Lavender) -->
-        <a href="#" id="navLiveChartLink" class="nav-link nav-link-golden-chestnut" data-i18n="nav_live_chart">Live Chart</a>
+        <a href="#livechart" id="navLiveChartLink" class="nav-link nav-link-golden-chestnut" data-i18n="nav_live_chart">Live Chart</a>
         
         <!-- Triumm Delta Link -->
         <a href="triumm-delta.html" id="navTerminalLink" class="nav-link nav-terminal-accent" data-i18n="nav_terminal">Triumm Delta</a>
@@ -80,8 +81,8 @@
         <!-- Preview - recent signals (Red) -->
         <a href="Preview%20-recent%20signals.html" id="navPreviewLink" class="nav-link nav-link-red">Preview - recent signals</a>
 
-        <a href="#" id="navMembershipLink" class="nav-link" data-i18n="nav_membership">Membership</a>
-        <a href="#" id="navContactLink" class="nav-link" data-i18n="nav_contact">Contact Us</a>
+        <a href="#membership" id="navMembershipLink" class="nav-link" data-i18n="nav_membership">Membership</a>
+        <a href="#contact" id="navContactLink" class="nav-link" data-i18n="nav_contact">Contact Us</a>
       </nav>
 
       <!-- Right Action Controls -->
@@ -195,7 +196,7 @@
           <span data-i18n="logout_btn">Log out</span>
         </button>
 
-        <!-- Mobile Hamburger Button (Hidden on Desktop via CSS) -->
+        <!-- Mobile Hamburger Button -->
         <button type="button" id="mobileMenuBtn" class="mobile-menu-btn hidden" aria-label="Toggle Mobile Menu">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
             <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -253,26 +254,15 @@
       <!-- Navigation Links -->
       <nav class="mobile-nav-links">
         <a href="#" id="mobileHomeLink" class="mobile-nav-link-item active" data-i18n="nav_home">Home</a>
-        <a href="#" id="mobileNewsLink" class="mobile-nav-link-item" data-i18n="nav_news">Por ICT News</a>
-        
-        <!-- Live Market Chart (Golden Chestnut) -->
-        <a href="#" id="mobileLiveChartLink" class="mobile-nav-link-item nav-link-golden-chestnut" data-i18n="nav_live_chart">Live Chart</a>
-        
-        <!-- Triumm Delta Link -->
+        <a href="#news" id="mobileNewsLink" class="mobile-nav-link-item" data-i18n="nav_news">Por ICT News</a>
+        <a href="#livechart" id="mobileLiveChartLink" class="mobile-nav-link-item nav-link-golden-chestnut" data-i18n="nav_live_chart">Live Chart</a>
         <a href="triumm-delta.html" id="mobileTerminalLink" class="mobile-nav-link-item nav-terminal-accent" data-i18n="nav_terminal">Triumm Delta</a>
         <a href="chart-analysis.html" id="mobileAnalysisLink" class="mobile-nav-link-item" data-i18n="nav_analysis">Analysis</a>
-
-        <!-- Dashboard / Indicators (Electric Flamingo) -->
         <a href="indicators.html" id="mobileIndicatorsLink" class="mobile-nav-link-item nav-link-flamingo" data-i18n="nav_indicators">Indicators</a>
-
-        <!-- Goal Future (Yellow) -->
         <a href="goal.html" id="mobileTradesLink" class="mobile-nav-link-item nav-link-yellow">Goal Future</a>
-
-        <!-- Preview - recent signals (Red) -->
         <a href="Preview%20-recent%20signals.html" id="mobilePreviewLink" class="mobile-nav-link-item nav-link-red">Preview - recent signals</a>
-
-        <a href="#" id="mobileMembershipLink" class="mobile-nav-link-item" data-i18n="nav_membership">Membership</a>
-        <a href="#" id="mobileContactLink" class="mobile-nav-link-item" data-i18n="nav_contact">Contact Us</a>
+        <a href="#membership" id="mobileMembershipLink" class="mobile-nav-link-item" data-i18n="nav_membership">Membership</a>
+        <a href="#contact" id="mobileContactLink" class="mobile-nav-link-item" data-i18n="nav_contact">Contact Us</a>
 
         <!-- Mobile Audio Music Menu Item -->
         <button type="button" id="mobileMusicBtn" class="mobile-music-menu-btn">
@@ -346,13 +336,7 @@
                 <rect x="2" y="4" width="20" height="16" rx="2"></rect>
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
               </svg>
-              <input 
-                type="email" 
-                id="loginEmail" 
-                class="login-input" 
-                value="" 
-                required 
-              />
+              <input type="email" id="loginEmail" class="login-input" value="" required />
             </div>
           </div>
 
@@ -366,13 +350,7 @@
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
               </svg>
-              <input 
-                type="password" 
-                id="loginPassword" 
-                class="login-input" 
-                value="" 
-                required 
-              />
+              <input type="password" id="loginPassword" class="login-input" value="" required />
               <button type="button" id="togglePasswordBtn" class="toggle-password-btn" aria-label="Toggle Password Visibility">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
@@ -413,13 +391,7 @@
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
-              <input 
-                type="text" 
-                id="signupName" 
-                class="login-input" 
-                placeholder="Your name" 
-                required 
-              />
+              <input type="text" id="signupName" class="login-input" placeholder="Your name" required />
             </div>
           </div>
 
@@ -430,13 +402,7 @@
                 <rect x="2" y="4" width="20" height="16" rx="2"></rect>
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
               </svg>
-              <input 
-                type="email" 
-                id="signupEmail" 
-                class="login-input" 
-                placeholder="you@email.com" 
-                required 
-              />
+              <input type="email" id="signupEmail" class="login-input" placeholder="you@email.com" required />
             </div>
           </div>
 
@@ -447,13 +413,7 @@
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
               </svg>
-              <input 
-                type="password" 
-                id="signupPassword" 
-                class="login-input" 
-                placeholder="••••••••" 
-                required 
-              />
+              <input type="password" id="signupPassword" class="login-input" placeholder="••••••••" required />
               <button type="button" id="toggleSignupPasswordBtn" class="toggle-password-btn" aria-label="Toggle Password Visibility">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
@@ -470,13 +430,7 @@
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
               </svg>
-              <input 
-                type="password" 
-                id="signupConfirmPassword" 
-                class="login-input" 
-                placeholder="••••••••" 
-                required 
-              />
+              <input type="password" id="signupConfirmPassword" class="login-input" placeholder="••••••••" required />
               <button type="button" id="toggleSignupConfirmBtn" class="toggle-password-btn" aria-label="Toggle Confirm Password Visibility">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
@@ -565,13 +519,7 @@
                 <rect x="2" y="4" width="20" height="16" rx="2"></rect>
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
               </svg>
-              <input 
-                type="email" 
-                id="resetEmailInput" 
-                class="login-input" 
-                placeholder="you@email.com" 
-                required 
-              />
+              <input type="email" id="resetEmailInput" class="login-input" placeholder="you@email.com" required />
             </div>
           </div>
 
@@ -609,12 +557,7 @@
         <div class="profile-gradient-banner"></div>
         <div class="profile-body">
           <div class="avatar-wrapper" id="avatarUploadTrigger" title="Click to change photo">
-            <img 
-              src="por.jpg" 
-              alt="Avatar" 
-              class="profile-avatar" 
-              id="profileAvatarImg" 
-            />
+            <img src="por.jpg" alt="Avatar" class="profile-avatar" id="profileAvatarImg" />
             <div class="avatar-edit-badge">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
@@ -629,7 +572,7 @@
             <p class="profile-email" id="profileEmail">chungpor908@gmail.com</p>
             <div class="profile-tags">
               <span class="tag-member" id="bannerTierTag" data-i18n="tag_member">Admin</span>
-              <a href="#" id="bannerUpgradeBtn" class="tag-upgrade-link" data-i18n="tag_upgrade">Upgrade ⚡</a>
+              <a href="#membership" id="bannerUpgradeBtn" class="tag-upgrade-link" data-i18n="tag_upgrade">Upgrade ⚡</a>
               <span class="tag-verified" data-i18n="tag_verified">Email verified ✓</span>
             </div>
           </div>
@@ -665,10 +608,10 @@
             <span class="fire-icon-pulse">🔥</span>
           </div>
           <div>
-            <span class="promo-sub-label" data-i18n="news_card_label">USD FOCUS & FOREX FACTORY</span>
+            <span class="promo-sub-label" data-i18n="news_card_label">USD FOCUS &amp; FOREX FACTORY</span>
             <h3 class="product-card-title" data-i18n="news_card_title">Por ICT News</h3>
           </div>
-          <p class="promo-card-desc" data-i18n="news_card_desc">High, Medium & Low impact USD newswire feeds with institutional ICT execution commentary.</p>
+          <p class="promo-card-desc" data-i18n="news_card_desc">High, Medium &amp; Low impact USD newswire feeds with institutional ICT execution commentary.</p>
           <button type="button" id="openNewsFromDashBtn" class="product-chart-btn btn-news-gradient" data-i18n="news_card_btn">READ POR ICT NEWS ➔</button>
         </div>
 
@@ -684,10 +627,10 @@
             </svg>
           </div>
           <div>
-            <span class="promo-sub-label" style="color:var(--golden-chestnut)">REAL-TIME CANDLESTICKS</span>
+            <span class="promo-sub-label" style="color:var(--golden-chestnut)">REAL-TIME CANDLESTICKS &amp; AI SCANNER</span>
             <h3 class="product-card-title" style="color:var(--golden-chestnut)">Live Market Chart</h3>
           </div>
-          <p class="promo-card-desc">Real-time institutional candlestick charts with customizable indicators.</p>
+          <p class="promo-card-desc">Real-time institutional candlestick charts with instant AI Analyze, Best Setup scanner, and 4-LLM consensus levels.</p>
           <button type="button" id="openLiveChartBtn" class="product-chart-btn btn-golden-chestnut" data-i18n="prod_live_btn">
             LIVE CHART ➔
           </button>
@@ -735,7 +678,7 @@
             </svg>
           </div>
           <div>
-            <span class="promo-sub-label" style="color:#eab308;">JOURNAL & TRACKER</span>
+            <span class="promo-sub-label" style="color:#eab308;">JOURNAL &amp; TRACKER</span>
             <h3 class="product-card-title" style="color:#eab308;">Goal Future</h3>
           </div>
           <p class="promo-card-desc">Inspect all your active trades, performance history, automatic TP/SL tracking, and win rates.</p>
@@ -875,7 +818,7 @@
                 <span class="ff-session-tag" id="currentSessionTag">NY SESSION ACTIVE</span>
                 <span class="ff-usd-focus-pill">USD FOCUSED</span>
               </div>
-              <h2 class="ff-banner-heading" data-i18n="ff_banner_title">Economic Events & USD High-Impact Calendar</h2>
+              <h2 class="ff-banner-heading" data-i18n="ff_banner_title">Economic Events &amp; USD High-Impact Calendar</h2>
               <p class="ff-banner-desc" data-i18n="ff_banner_desc">
                 Live releases synced from <a href="https://www.forexfactory.com/" target="_blank" rel="noopener noreferrer" class="ff-inline-link">ForexFactory.com</a>. Filtered for institutional ICT setups across Red, Orange, and Yellow folders.
               </p>
@@ -883,7 +826,6 @@
           </div>
 
           <div class="ff-banner-right">
-            <!-- Impact Legend -->
             <div class="ff-impact-legend-box">
               <div class="legend-pill high-pill">
                 <span class="impact-indicator-dot red"></span>
@@ -899,7 +841,6 @@
               </div>
             </div>
 
-            <!-- Clickable Forex Factory External Anchor -->
             <a 
               href="https://www.forexfactory.com/" 
               target="_blank" 
@@ -997,37 +938,51 @@
   </div>
 
   <!-- ==========================================
-       VIEW 3: LIVE MARKET CHART
+       VIEW 3: LIVE MARKET CHART + AI SCANNER & BEST SETUP
        ========================================== -->
   <div id="liveChartView" class="dashboard-page-container hidden">
-    <div class="dashboard-inner">
+    <div class="dashboard-inner live-chart-wide-inner">
 
-      <!-- Breadcrumb Link -->
-      <div class="nav-breadcrumbs-row">
+      <!-- Top Breadcrumb & Full-Screen Terminal Link -->
+      <div class="nav-breadcrumbs-row lc-top-breadcrumb-flex">
         <a href="#" id="liveChartBackBtn" class="breadcrumb-link" data-i18n="breadcrumb_sections">← Sections</a>
+        <a href="live-charts.html" class="lc-open-full-terminal-link">⚡ Open Full 3-Column AI Chart Terminal ↗</a>
       </div>
 
       <!-- Live Chart Header -->
-      <header class="live-chart-header">
-        <span class="live-chart-subtitle-tag" data-i18n="chart_category">REAL-TIME CANDLESTICKS</span>
-        <h1 class="live-chart-main-title" data-i18n="chart_title">Live Market Chart</h1>
-        <p class="live-chart-description" data-i18n="chart_subtitle">
-          Track gold, Bitcoin, and more in real time — add indicators as you like
-        </p>
+      <header class="live-chart-header lc-header-flex">
+        <div>
+          <span class="live-chart-subtitle-tag" data-i18n="chart_category">REAL-TIME CANDLESTICKS · AI LIVE SCANNER</span>
+          <h1 class="live-chart-main-title">
+            <span data-i18n="chart_title">Live Market Chart</span> · <strong id="lcActiveSymTitle" style="color:var(--sky-blue);">XAUUSD</strong>
+            <span class="lc-live-price-pill" id="lcTopLivePrice">4,175.99</span>
+          </h1>
+          <p class="live-chart-description" data-i18n="chart_subtitle">
+            Scan any asset or timeframe in real time — AI recalculates structure, Entry, Stop Loss, TP1–TP3 &amp; 4-LLM consensus anytime.
+          </p>
+        </div>
+
+        <!-- Primary AI Scanner Action Buttons -->
+        <div class="lc-primary-actions-bar">
+          <button type="button" class="lc-analyze-btn" id="lcAnalyzeSetupBtn">📊 Analyze</button>
+          <button type="button" class="lc-best-setup-btn" id="lcBestSetupBtn">✦ Best setup</button>
+          <button type="button" class="lc-run-council-btn" id="lcRunCouncilBtn">✦ Run 4-LLM Council</button>
+        </div>
       </header>
 
-      <!-- Chart Control Toolbar: Assets & Timeframes -->
+      <!-- Chart Control Toolbar: Assets, Timeframes & Playbook Filters -->
       <div class="live-chart-controls-bar">
         <!-- Asset Selectors -->
         <div class="controls-pill-group">
           <span class="control-group-label" data-i18n="asset_label">ASSET:</span>
           <div class="pills-scroll-track" id="assetPillsTrack">
-            <button type="button" class="chart-pill-btn active" data-symbol="OANDA:XAUUSD" data-i18n="asset_gold">Gold</button>
-            <button type="button" class="chart-pill-btn" data-symbol="OANDA:XAGUSD" data-i18n="asset_silver">Silver</button>
-            <button type="button" class="chart-pill-btn" data-symbol="FX:EURUSD">EUR/USD</button>
-            <button type="button" class="chart-pill-btn" data-symbol="FX:GBPUSD">GBP/USD</button>
-            <button type="button" class="chart-pill-btn" data-symbol="FX:USDJPY">USD/JPY</button>
-            <button type="button" class="chart-pill-btn" data-symbol="BINANCE:BTCUSDT">BTC/USD</button>
+            <button type="button" class="chart-pill-btn active" data-symbol="OANDA:XAUUSD" data-short="XAUUSD" data-i18n="asset_gold">🥇 Gold (XAUUSD)</button>
+            <button type="button" class="chart-pill-btn" data-symbol="BINANCE:BTCUSDT" data-short="BTCUSDT">₿ BTC/USDT</button>
+            <button type="button" class="chart-pill-btn" data-symbol="BINANCE:ETHUSDT" data-short="ETHUSDT">Ξ ETH/USDT</button>
+            <button type="button" class="chart-pill-btn" data-symbol="FX:EURUSD" data-short="EURUSD">€ EUR/USD</button>
+            <button type="button" class="chart-pill-btn" data-symbol="FX:GBPUSD" data-short="GBPUSD">£ GBP/USD</button>
+            <button type="button" class="chart-pill-btn" data-symbol="PEPPERSTONE:NAS100" data-short="NAS100">◆ NAS100</button>
+            <button type="button" class="chart-pill-btn" data-symbol="PEPPERSTONE:US30" data-short="US30">▲ US30</button>
           </div>
         </div>
 
@@ -1035,21 +990,144 @@
         <div class="controls-pill-group">
           <span class="control-group-label" data-i18n="timeframe_label">TIMEFRAME:</span>
           <div class="pills-scroll-track" id="timeframePillsTrack">
-            <button type="button" class="chart-pill-btn icon-bolt" data-interval="1">
-              ⚡ <span data-i18n="tf_1m">1m (Live Ticks)</span>
-            </button>
+            <button type="button" class="chart-pill-btn icon-bolt" data-interval="1">⚡ 1m</button>
             <button type="button" class="chart-pill-btn" data-interval="5">5m</button>
             <button type="button" class="chart-pill-btn active" data-interval="15">15m (ICT)</button>
+            <button type="button" class="chart-pill-btn" data-interval="30">30m</button>
             <button type="button" class="chart-pill-btn" data-interval="60">1H</button>
             <button type="button" class="chart-pill-btn" data-interval="240">4H</button>
+            <button type="button" class="chart-pill-btn" data-interval="D">1D</button>
           </div>
+        </div>
+
+        <!-- Playbook, Risk & Horizon Selectors -->
+        <div class="lc-filter-selects-row">
+          <select id="lcPlaybookSelect" class="lc-select-pill">
+            <option value="auto">Playbook: Auto (AI picks best)</option>
+            <option value="smc">SMC Order Block + FVG</option>
+            <option value="ict">ICT Judas Swing + Silver Bullet</option>
+            <option value="trend">EMA Momentum Continuation</option>
+          </select>
+
+          <select id="lcRiskSelect" class="lc-select-pill">
+            <option value="Medium risk">Medium risk (1.0%)</option>
+            <option value="Low risk">Low risk (≤ 0.5%)</option>
+            <option value="Aggressive">Aggressive (1.5%)</option>
+          </select>
+
+          <select id="lcHorizonSelect" class="lc-select-pill">
+            <option value="Scalp">Scalp (M1–M15)</option>
+            <option value="Intraday" selected>Intraday (M15–H1)</option>
+            <option value="Swing">Swing (H4–D1)</option>
+          </select>
+
+          <span class="lc-time-left-pill" id="lcTimeLeftPill">⏳ 45m left</span>
         </div>
       </div>
 
-      <!-- TradingView Advanced Candlestick Chart Container -->
-      <div class="live-chart-viewport-box">
-        <div id="tradingview_live_chart" class="tradingview-embed-target"></div>
+      <!-- AI Chart Reader Live Banner -->
+      <div class="lc-ai-reader-banner" id="lcAiReaderBanner">
+        <div class="lc-reader-left">
+          <span class="lc-reader-bot-ico">🤖 AI Chart Reader</span>
+          <span class="lc-reader-score" id="lcReaderScoreBadge">Bullish +40</span>
+          <span class="lc-structure-tag" id="lcStructureTag">Uptrend (HH + HL · 15m)</span>
+          <span class="lc-reader-summary" id="lcReaderSummaryText">
+            15m scan bullish (SMC Order Block + FVG): structure holding above key invalidation.
+          </span>
+        </div>
+        <span class="lc-active-dir-badge buy" id="lcMainDirBadge">BUY</span>
       </div>
+
+      <!-- TradingView Advanced Candlestick Chart Container (with Laser Scanner Overlay) -->
+      <div class="live-chart-viewport-box" id="lcChartViewportBox">
+        <div id="tradingview_live_chart" class="tradingview-embed-target"></div>
+        <div id="lcScanLaserOverlay" class="lc-scan-laser-overlay">
+          <div class="lc-scan-beam"></div>
+          <div class="lc-scan-hud" id="lcScanHudText">⚡ SCANNING LIVE CHART...</div>
+        </div>
+      </div>
+
+      <!-- On-Chart Trade Levels Strip -->
+      <div class="lc-chart-levels-strip">
+        <div class="lc-strip-tag">
+          <span>🎯 Trade Levels · On Chart</span>
+          <strong id="lcStripRR">R:R 1.4 / 2.1 / 3.0</strong>
+        </div>
+        <div class="lc-strip-pills">
+          <span class="lc-lvl-chip entry" id="lcStripEntry">Entry BUY: 4,175.99</span>
+          <span class="lc-lvl-chip sl" id="lcStripSL">SL: 4,165.98</span>
+          <span class="lc-lvl-chip tp" id="lcStripTP1">TP1: 4,188.59</span>
+          <span class="lc-lvl-chip tp" id="lcStripTP2">TP2: 4,196.02</span>
+          <span class="lc-lvl-chip tp" id="lcStripTP3">TP3: 4,204.03</span>
+        </div>
+      </div>
+
+      <!-- AI Consensus Status Banner -->
+      <div class="lc-council-banner-card">
+        <div class="lc-council-banner-top">
+          <span class="lc-council-heading">🧠 Super AI Consensus · 4 LLMs (<strong id="lcPanelSym">XAUUSD</strong> · <span id="lcPanelTf">15m</span>)</span>
+          <div class="lc-llm-badges-row">
+            <span class="lc-llm-pill">🔵 TECHNICAL</span>
+            <span class="lc-llm-pill">🟣 RISK</span>
+            <span class="lc-llm-pill">🟠 SMC</span>
+            <span class="lc-llm-pill">🏆 SYNTHESIZER</span>
+          </div>
+        </div>
+        <p class="lc-council-status" id="lcCouncilStatusText">
+          Active BUY setup on XAUUSD — the 4-LLM council evaluated structure, order blocks, and macro risk.
+        </p>
+      </div>
+
+      <!-- 3-Card AI Breakdown Grid: Observations, Trade Levels + KPIs, and All 7 Markets Scanner -->
+      <div class="lc-analysis-bottom-grid">
+        <!-- Card 1: AI Chart Reader Observations -->
+        <div class="lc-detail-card" id="lcSectionAnalysis">
+          <div class="lc-detail-card-head">
+            <span>🤖 Structure &amp; SMC Observations</span>
+            <span class="lc-last-close-lbl">Close: <strong id="lcLastCandleClose">4,175.99</strong></span>
+          </div>
+          <div class="lc-observations-list" id="lcObservationsList"></div>
+        </div>
+
+        <!-- Card 2: Trade Levels & 4 KPI Gauges -->
+        <div class="lc-detail-card" id="lcSectionLevels">
+          <div class="lc-detail-card-head">
+            <span>📐 Trade Execution Desk</span>
+            <span class="lc-rr-tag" id="lcCardRR">R:R 1.4 / 2.1 / 3.0</span>
+          </div>
+          <div class="lc-levels-rows" id="lcLevelsRows"></div>
+          <div class="lc-regime-tags" id="lcRegimeTags"></div>
+          <div class="lc-kpi-grid">
+            <div class="lc-kpi-box">
+              <span class="lc-kpi-lbl">Confidence</span>
+              <strong class="lc-kpi-num green" id="lcKpiConf">78%</strong>
+            </div>
+            <div class="lc-kpi-box">
+              <span class="lc-kpi-lbl">Win Prob.</span>
+              <strong class="lc-kpi-num cyan" id="lcKpiWin">62%</strong>
+            </div>
+            <div class="lc-kpi-box">
+              <span class="lc-kpi-lbl">Indicator Conf.</span>
+              <strong class="lc-kpi-num amber" id="lcKpiInd">68%</strong>
+            </div>
+            <div class="lc-kpi-box">
+              <span class="lc-kpi-lbl">Risk Score</span>
+              <strong class="lc-kpi-num green" id="lcKpiRisk">100%</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: 4-LLM Agents Stack -->
+        <div class="lc-detail-card">
+          <div class="lc-detail-card-head">
+            <span>🏆 4-LLM Specialist Breakdown</span>
+            <span style="color:var(--emerald-green);font-size:11px;">● Live Sync</span>
+          </div>
+          <div class="lc-agents-stack" id="lcAgentsStack"></div>
+        </div>
+      </div>
+
+      <p class="lc-disclaimer">Demo scanner: levels, scores and agent notes are simulated and are not financial advice.</p>
 
     </div>
   </div>
@@ -1091,7 +1169,7 @@
         <div class="pricing-card" data-plan="Member">
           <div class="plan-card-header">
             <h3 class="plan-name" data-i18n="plan_starter_title">Starter Member</h3>
-            <p class="plan-tagline" data-i18n="plan_starter_tagline">Fundamental analytics & tracking</p>
+            <p class="plan-tagline" data-i18n="plan_starter_tagline">Fundamental analytics &amp; tracking</p>
             <div class="plan-price-box">
               <span class="price-val">$0</span>
               <span class="price-cycle" data-i18n="price_forever">/ forever</span>
@@ -1099,9 +1177,9 @@
           </div>
 
           <ul class="plan-features-list">
-            <li><span class="chk">✓</span> <span data-i18n="feat_starter_1">Full Trading Calendar & PnL tracker</span></li>
-            <li><span class="chk">✓</span> <span data-i18n="feat_starter_2">1W & 1M Performance charts</span></li>
-            <li><span class="chk">✓</span> <span data-i18n="feat_starter_3">Standard Currency & Gold (XAUUSD) analytics</span></li>
+            <li><span class="chk">✓</span> <span data-i18n="feat_starter_1">Full Trading Calendar &amp; PnL tracker</span></li>
+            <li><span class="chk">✓</span> <span data-i18n="feat_starter_2">1W &amp; 1M Performance charts</span></li>
+            <li><span class="chk">✓</span> <span data-i18n="feat_starter_3">Standard Currency &amp; Gold (XAUUSD) analytics</span></li>
             <li class="feat-disabled"><span class="chk">✕</span> <span data-i18n="feat_starter_4">Live Order Block alerts</span></li>
             <li class="feat-disabled"><span class="chk">✕</span> <span data-i18n="feat_starter_5">Por ICT Private Discord</span></li>
           </ul>
@@ -1116,7 +1194,7 @@
           <div class="popular-ribbon" data-i18n="ribbon_popular">MOST POPULAR</div>
           <div class="plan-card-header">
             <h3 class="plan-name" data-i18n="plan_pro_title">ICT Pro Trader</h3>
-            <p class="plan-tagline" data-i18n="plan_pro_tagline">Designed for serious prop & forex traders</p>
+            <p class="plan-tagline" data-i18n="plan_pro_tagline">Designed for serious prop &amp; forex traders</p>
             <div class="plan-price-box">
               <span class="price-val price-pro-display">$29</span>
               <span class="price-cycle price-cycle-label" data-i18n="price_monthly">/ month</span>
@@ -1125,9 +1203,9 @@
 
           <ul class="plan-features-list">
             <li><span class="chk">✓</span> <span data-i18n="feat_pro_1">Everything in Starter</span></li>
-            <li><span class="chk">✓</span> <span data-i18n="feat_pro_2">Real-time FVG & Liquidity Sweeps</span></li>
+            <li><span class="chk">✓</span> <span data-i18n="feat_pro_2">Real-time FVG &amp; Liquidity Sweeps</span></li>
             <li><span class="chk">✓</span> <span data-i18n="feat_pro_3">Multi-Pair Unlimited Trading Journal</span></li>
-            <li><span class="chk">✓</span> <span data-i18n="feat_pro_4">Weekly London & NY Session Outlooks</span></li>
+            <li><span class="chk">✓</span> <span data-i18n="feat_pro_4">Weekly London &amp; NY Session Outlooks</span></li>
             <li><span class="chk">✓</span> <span data-i18n="feat_pro_5">Access to Por ICT Discord Community</span></li>
           </ul>
 
@@ -1151,7 +1229,7 @@
             <li><span class="chk">✓</span> <span data-i18n="feat_elite_1">Everything in Pro Trader</span></li>
             <li><span class="chk">✓</span> <span data-i18n="feat_elite_2">1-on-1 Monthly Trade Review with Por</span></li>
             <li><span class="chk">✓</span> <span data-i18n="feat_elite_3">Prop Firm Pass Challenge Models</span></li>
-            <li><span class="chk">✓</span> <span data-i18n="feat_elite_4">Instant VIP Telegram Signals & Entries</span></li>
+            <li><span class="chk">✓</span> <span data-i18n="feat_elite_4">Instant VIP Telegram Signals &amp; Entries</span></li>
             <li><span class="chk">✓</span> <span data-i18n="feat_elite_5">Custom ICT Algorithm Indicators</span></li>
           </ul>
 
@@ -1188,7 +1266,6 @@
       <!-- Telegram Direct Link Cards -->
       <div class="contact-cards-stack">
 
-        <!-- Card 1: Direct Telegram to @KaingChungpor -->
         <a href="https://t.me/KaingChungpor" target="_blank" rel="noopener noreferrer" class="contact-card-link">
           <div class="contact-icon-box">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
@@ -1202,7 +1279,6 @@
           <span class="contact-arrow-icon">→</span>
         </a>
 
-        <!-- Card 2: Private Mentorship with @KaingChungpor -->
         <a href="https://t.me/KaingChungpor" target="_blank" rel="noopener noreferrer" class="contact-card-link">
           <div class="contact-icon-box">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
@@ -1233,35 +1309,17 @@
       <form id="tradeForm">
         <div class="form-group">
           <label class="form-label" for="inputPnl" data-i18n="modal_pnl_label">Profit/Loss ($)</label>
-          <input 
-            type="number" 
-            step="any" 
-            id="inputPnl" 
-            class="form-input" 
-            placeholder="0.0" 
-            required 
-            autofocus 
-          />
+          <input type="number" step="any" id="inputPnl" class="form-input" placeholder="0.0" required autofocus />
         </div>
 
         <div class="form-group">
           <label class="form-label" for="inputSymbol" data-i18n="modal_pair_label">Trading Pair (Optional)</label>
-          <input 
-            type="text" 
-            id="inputSymbol" 
-            class="form-input" 
-            placeholder="e.g. XAU/USD" 
-          />
+          <input type="text" id="inputSymbol" class="form-input" placeholder="e.g. XAU/USD" />
         </div>
 
         <div class="form-group">
           <label class="form-label" for="inputNote" data-i18n="modal_note_label">Notes (Optional)</label>
-          <textarea 
-            id="inputNote" 
-            class="form-textarea" 
-            rows="3" 
-            placeholder="e.g. Trendline breakout trade"
-          ></textarea>
+          <textarea id="inputNote" class="form-textarea" rows="3" placeholder="e.g. Trendline breakout trade"></textarea>
         </div>
 
         <div class="modal-buttons-stack">
@@ -1287,6 +1345,7 @@
     <button type="button" id="toastCloseBtn" class="toast-close-btn">✕</button>
   </div>
 
+  <script src="live-engine.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

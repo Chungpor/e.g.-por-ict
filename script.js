@@ -1305,6 +1305,7 @@ function openLiveChartView(e) {
   if (e) e.preventDefault();
   if (!isLoggedIn()) return;
   showAppView(liveChartView, navLiveChartLink, mobileLiveChartLink);
+  lcvRender();
   initTradingViewChart();
 }
 
@@ -1341,11 +1342,30 @@ on(navLogoutBtn, "click", handleLogout);
 on(mobileLogoutLink, "click", handleLogout);
 
 // ==========================================
-// 12. TRADINGVIEW LIVE CHART
+// 12. LIVE MARKET CHART: TRADINGVIEW + AI SCANNER
 // ==========================================
+// The scanner uses the shared engine in live-engine.js (WATCHLIST_DB, TF_CONFIG,
+// PLAYBOOK_NAMES, computeDynamicAnalysisForAsset). If that file is missing, only the
+// TradingView chart runs. Scanner output is simulated and is not financial advice.
+const lcvEngineReady =
+  typeof WATCHLIST_DB !== "undefined" && typeof computeDynamicAnalysisForAsset === "function";
+
+let lcvAsset = lcvEngineReady ? WATCHLIST_DB[0] : null;
+let lcvBusy = false;
+let lcvLastBest = "";
+let lcvScanTimer = null;
+
+const lcvSleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 function initTradingViewChart() {
   const container = $("tradingview_live_chart");
-  if (!container || typeof TradingView === "undefined") return;
+  if (!container) return;
+
+  if (typeof TradingView === "undefined") {
+    container.innerHTML =
+      '<div style="padding:24px;color:var(--text-muted);font-size:13px;">The TradingView script could not load. Check your connection and refresh.</div>';
+    return;
+  }
 
   const isLight = document.documentElement.getAttribute("data-theme") === "light";
   container.innerHTML = "";
@@ -1366,23 +1386,337 @@ function initTradingViewChart() {
   });
 }
 
-document.querySelectorAll("#assetPillsTrack .chart-pill-btn").forEach((btn) => {
-  btn.addEventListener("click", (e) => {
-    document.querySelectorAll("#assetPillsTrack .chart-pill-btn").forEach((b) => b.classList.remove("active"));
-    e.currentTarget.classList.add("active");
-    currentChartSymbol = e.currentTarget.getAttribute("data-symbol");
-    initTradingViewChart();
-  });
-});
+function lcvSettings() {
+  const pb = $("lcPlaybookSelect");
+  const risk = $("lcRiskSelect");
+  const hor = $("lcHorizonSelect");
+  return {
+    playbook: pb ? pb.value : "auto",
+    risk: risk ? risk.value : "Medium risk",
+    horizon: hor ? hor.value : "Intraday"
+  };
+}
 
-document.querySelectorAll("#timeframePillsTrack .chart-pill-btn").forEach((btn) => {
-  btn.addEventListener("click", (e) => {
-    document.querySelectorAll("#timeframePillsTrack .chart-pill-btn").forEach((b) => b.classList.remove("active"));
-    e.currentTarget.classList.add("active");
-    currentChartInterval = e.currentTarget.getAttribute("data-interval");
-    initTradingViewChart();
+function lcvRefreshAll() {
+  if (!lcvEngineReady) return;
+  const s = lcvSettings();
+  WATCHLIST_DB.forEach((item) => {
+    computeDynamicAnalysisForAsset(item, currentChartInterval, s.playbook, s.risk, s.horizon);
   });
-});
+}
+
+function lcvTfLabel() {
+  const tf = TF_CONFIG[currentChartInterval] || TF_CONFIG["15"];
+  return tf.label;
+}
+
+/** Real countdown to the close of the current candle (the engine's timeLeft text is static). */
+function lcvTimeLeftText() {
+  const mins = currentChartInterval === "D" ? 1440 : parseInt(currentChartInterval, 10) || 15;
+  const step = mins * 60000;
+  const total = Math.max(0, Math.floor((step - (Date.now() % step)) / 1000));
+  const d = Math.floor(total / 86400);
+  const h = Math.floor((total % 86400) / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  if (d > 0) return `⏳ ${d}d ${h}h left`;
+  if (h > 0) return `⏳ ${h}h ${String(m).padStart(2, "0")}m left`;
+  if (m > 0) return `⏳ ${m}m ${String(s).padStart(2, "0")}s left`;
+  return `⏳ ${s}s left`;
+}
+
+function lcvUpdateTimeLeft() {
+  const pill = $("lcTimeLeftPill");
+  if (pill) pill.textContent = lcvTimeLeftText();
+}
+
+function lcvSet(id, text) {
+  const el = $(id);
+  if (el) el.textContent = text;
+}
+
+function lcvRenderLevels() {
+  const a = lcvAsset;
+  lcvSet("lcStripRR", a.rr.replace("R:R ", "R:R "));
+  lcvSet("lcStripEntry", `Entry ${a.signal}: ${a.entry}`);
+  lcvSet("lcStripSL", `SL: ${a.sl}`);
+  lcvSet("lcStripTP1", `TP1: ${a.tp1}`);
+  lcvSet("lcStripTP2", `TP2: ${a.tp2}`);
+  lcvSet("lcStripTP3", `TP3: ${a.tp3}`);
+
+  lcvSet("lcCardRR", a.rr);
+  const rows = $("lcLevelsRows");
+  if (rows) {
+    rows.innerHTML =
+      `<div class="lc-level-row"><span>Entry ${esc(a.signal)}</span><span class="val">${esc(a.entry)}</span></div>` +
+      `<div class="lc-level-row"><span>Stop Loss</span><span class="val" style="color:var(--danger-soft);">${esc(a.sl)}</span></div>` +
+      `<div class="lc-level-row"><span>Take Profit 1</span><span class="val" style="color:var(--lc-accent);">${esc(a.tp1)}</span></div>` +
+      `<div class="lc-level-row"><span>Take Profit 2</span><span class="val" style="color:var(--lc-accent);">${esc(a.tp2)}</span></div>` +
+      `<div class="lc-level-row"><span>Take Profit 3</span><span class="val" style="color:var(--lc-accent);">${esc(a.tp3)}</span></div>`;
+  }
+}
+
+function lcvRender(councilText) {
+  if (!lcvEngineReady || !lcvAsset) return;
+  const a = lcvAsset;
+  const price = fmtPrice(a.price, a.decimals);
+  const sideClass = a.signal === "SELL" ? "sell" : a.signal === "HOLD" ? "hold" : "buy";
+
+  lcvSet("lcActiveSymTitle", a.symbol);
+  lcvSet("lcTopLivePrice", price);
+  lcvSet("lcReaderScoreBadge", a.readerScore);
+  lcvSet("lcStructureTag", a.structureTag);
+  lcvSet("lcReaderSummaryText", a.readerSummary);
+  lcvSet("lcPanelSym", a.symbol);
+  lcvSet("lcPanelTf", lcvTfLabel());
+  lcvSet("lcLastCandleClose", price);
+
+  const banner = $("lcAiReaderBanner");
+  if (banner) {
+    banner.classList.toggle("is-sell", sideClass === "sell");
+    banner.classList.toggle("is-hold", sideClass === "hold");
+  }
+  const badge = $("lcMainDirBadge");
+  if (badge) {
+    badge.textContent = a.signal;
+    badge.className = `lc-active-dir-badge ${sideClass}`;
+  }
+
+  lcvSet(
+    "lcCouncilStatusText",
+    councilText ||
+      `Active ${a.signal} setup on ${a.symbol} (${lcvTfLabel()}). 4-LLM consensus ${a.kpi.conf} with Entry ${a.entry} and SL ${a.sl}.`
+  );
+
+  const obs = $("lcObservationsList");
+  if (obs) {
+    obs.innerHTML = a.observations
+      .map((o) => `<div class="lc-obs-item"><strong>${esc(o.title)}</strong><span>${esc(o.text)}</span></div>`)
+      .join("");
+  }
+
+  lcvRenderLevels();
+
+  const regime = $("lcRegimeTags");
+  if (regime && Array.isArray(a.regime)) {
+    regime.innerHTML = a.regime
+      .map((tag, i) => `<span class="lc-reg-chip${i === a.regime.length - 1 ? " green" : ""}">${esc(tag)}</span>`)
+      .join("");
+  }
+
+  lcvSet("lcKpiConf", a.kpi.conf);
+  lcvSet("lcKpiWin", a.kpi.win);
+  lcvSet("lcKpiInd", a.kpi.ind);
+  lcvSet("lcKpiRisk", a.kpi.risk);
+
+  const agents = $("lcAgentsStack");
+  if (agents) {
+    agents.innerHTML = a.agents
+      .map((ag) => `
+        <article class="lc-agent-card">
+          <div class="lc-agent-top">
+            <span>${esc(ag.title)}</span>
+            <span class="lc-agent-bias${ag.bias === "Bearish" ? " sell" : ""}">${esc(ag.bias)}</span>
+          </div>
+          <div class="lc-agent-role">${esc(ag.role)}</div>
+          <p class="lc-agent-body">${esc(ag.text)}</p>
+          <span class="lc-agent-conviction">${esc(ag.conviction)}</span>
+        </article>`)
+      .join("");
+  }
+
+  lcvUpdateTimeLeft();
+}
+
+function lcvShowScan(text, ms) {
+  const overlay = $("lcScanLaserOverlay");
+  if (!overlay) return;
+  lcvSet("lcScanHudText", text);
+  overlay.classList.add("is-scanning");
+  clearTimeout(lcvScanTimer);
+  if (ms) lcvScanTimer = setTimeout(() => overlay.classList.remove("is-scanning"), ms);
+}
+
+function lcvHideScan() {
+  clearTimeout(lcvScanTimer);
+  const overlay = $("lcScanLaserOverlay");
+  if (overlay) overlay.classList.remove("is-scanning");
+}
+
+function lcvFlash(el) {
+  if (!el) return;
+  el.classList.add("lc-flash-highlight");
+  setTimeout(() => el.classList.remove("lc-flash-highlight"), 900);
+}
+
+function lcvSetButtons(disabled, activeId, activeText) {
+  const defaults = {
+    lcAnalyzeSetupBtn: "📊 Analyze",
+    lcBestSetupBtn: "✦ Best setup",
+    lcRunCouncilBtn: "✦ Run 4-LLM Council"
+  };
+  Object.keys(defaults).forEach((id) => {
+    const btn = $(id);
+    if (!btn) return;
+    btn.disabled = disabled;
+    btn.textContent = disabled && id === activeId ? activeText : defaults[id];
+  });
+}
+
+function lcvSelectAsset(item, reloadChart) {
+  lcvAsset = item;
+  currentChartSymbol = item.tvSymbol;
+  document.querySelectorAll("#assetPillsTrack .chart-pill-btn").forEach((b) => {
+    b.classList.toggle("active", b.getAttribute("data-short") === item.symbol);
+  });
+  lcvRefreshAll();
+  lcvRender();
+  if (reloadChart) initTradingViewChart();
+}
+
+async function lcvAnalyze() {
+  if (lcvBusy || !lcvEngineReady) return;
+  lcvBusy = true;
+  const s = lcvSettings();
+  lcvSetButtons(true, "lcAnalyzeSetupBtn", "⏳ Scanning...");
+  lcvShowScan(`📊 SCANNING ${lcvAsset.symbol} (${lcvTfLabel()}) · ${s.playbook.toUpperCase()}...`);
+  lcvSet("lcCouncilStatusText", `🔍 Scanning ${lcvAsset.symbol} on ${lcvTfLabel()} (${s.risk}, ${s.horizon})... recalculating order blocks and ATR levels.`);
+
+  await lcvSleep(1000);
+  lcvRefreshAll();
+  const pb = s.playbook === "auto" ? lcvAsset.bestPlaybook.toUpperCase() : s.playbook.toUpperCase();
+  lcvRender(`✓ Live scan complete (${lcvTfLabel()} · ${pb}): ${lcvAsset.signal} setup at ${lcvAsset.entry} | SL ${lcvAsset.sl} | TP1 ${lcvAsset.tp1} (${lcvAsset.kpi.conf} conf).`);
+  lcvFlash($("lcAiReaderBanner"));
+  lcvHideScan();
+  lcvSetButtons(false);
+  lcvBusy = false;
+}
+
+async function lcvBestSetup() {
+  if (lcvBusy || !lcvEngineReady) return;
+  lcvBusy = true;
+  lcvSetButtons(true, "lcBestSetupBtn", "⚡ Scanning 7 Markets...");
+  lcvRefreshAll();
+
+  for (const item of WATCHLIST_DB) {
+    lcvShowScan(`✦ SCANNING ${item.symbol}...`);
+    lcvSet("lcCouncilStatusText", `🛰️ Evaluating ${item.symbol} structure, liquidity sweep and R:R profile...`);
+    await lcvSleep(160);
+  }
+
+  const actionable = WATCHLIST_DB
+    .filter((x) => x.signal !== "HOLD")
+    .sort((a, b) => (b.CompositeScore || 0) - (a.CompositeScore || 0));
+
+  let winner = actionable[0] || WATCHLIST_DB[0];
+  if (winner.symbol === lcvAsset.symbol && winner.symbol === lcvLastBest && actionable.length > 1) {
+    winner = actionable[1];
+  }
+  lcvLastBest = winner.symbol;
+
+  const changed = winner.symbol !== lcvAsset.symbol;
+  const pb = $("lcPlaybookSelect");
+  if (pb && pb.value !== "auto") pb.value = winner.bestPlaybook || "auto";
+
+  lcvSelectAsset(winner, changed);
+  lcvRender(`🏆 Best setup: ${winner.symbol} (${winner.signal} · ${lcvTfLabel()}) via ${PLAYBOOK_NAMES[winner.bestPlaybook] || "SMC Order Block + FVG"} — ${winner.kpi.conf} confidence, ${winner.rr}, Entry ${winner.entry}.`);
+  lcvFlash($("lcAiReaderBanner"));
+  lcvHideScan();
+  lcvSetButtons(false);
+  lcvBusy = false;
+}
+
+async function lcvCouncil() {
+  if (lcvBusy || !lcvEngineReady) return;
+  lcvBusy = true;
+  lcvSetButtons(true, "lcRunCouncilBtn", "⏳ Running 4 LLMs...");
+  lcvShowScan(`🧠 4-LLM COUNCIL EVALUATING ${lcvAsset.symbol}...`);
+
+  const a = lcvAsset;
+  const steps = [
+    `🔵 [1/4] Technical LLM verifying ${a.symbol} EMA stack and ADX trend strength...`,
+    `🟣 [2/4] Risk LLM computing ATR stop-loss and position sizing around ${a.sl}...`,
+    `🟠 [3/4] SMC LLM mapping unmitigated order blocks and fair value gaps...`,
+    `🏆 [4/4] Synthesizer LLM locking the final ${a.signal} read...`
+  ];
+  const pills = document.querySelectorAll("#liveChartView .lc-llm-badges-row .lc-llm-pill");
+
+  for (let i = 0; i < steps.length; i++) {
+    pills.forEach((p, idx) => p.classList.toggle("llm-active-vote", idx === i));
+    lcvSet("lcCouncilStatusText", steps[i]);
+    await lcvSleep(650);
+  }
+  pills.forEach((p) => p.classList.remove("llm-active-vote"));
+
+  lcvRefreshAll();
+  lcvRender(`✓ 4-LLM council complete (${lcvAsset.kpi.conf} confidence): ${lcvAsset.signal} ${lcvAsset.symbol} at ${lcvAsset.entry} | SL ${lcvAsset.sl} | TP1 ${lcvAsset.tp1}.`);
+  lcvFlash($("lcCouncilStatusText") && $("lcCouncilStatusText").closest(".lc-council-banner-card"));
+  lcvHideScan();
+  lcvSetButtons(false);
+  lcvBusy = false;
+}
+
+/** Demo price stream: small random ticks, levels re-synced so the strip always matches the price. */
+function lcvTickPrices() {
+  if (!lcvEngineReady || !liveChartView || liveChartView.classList.contains("hidden")) return;
+
+  WATCHLIST_DB.forEach((item) => {
+    const step = item.symbol === "XAUUSD" ? 0.45 : item.symbol === "BTCUSDT" ? 18.0 : item.decimals === 4 ? 0.0002 : 2.5;
+    item.price = Math.max(0.0001, item.price + (Math.random() - 0.49) * step);
+  });
+
+  lcvRefreshAll();
+  const price = fmtPrice(lcvAsset.price, lcvAsset.decimals);
+  lcvSet("lcTopLivePrice", price);
+  lcvSet("lcLastCandleClose", price);
+  lcvRenderLevels();
+}
+
+function lcvInit() {
+  document.querySelectorAll("#assetPillsTrack .chart-pill-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const short = e.currentTarget.getAttribute("data-short");
+      const item = lcvEngineReady ? WATCHLIST_DB.find((x) => x.symbol === short) : null;
+      if (item) {
+        lcvSelectAsset(item, true);
+      } else {
+        document.querySelectorAll("#assetPillsTrack .chart-pill-btn").forEach((b) => b.classList.remove("active"));
+        e.currentTarget.classList.add("active");
+        currentChartSymbol = e.currentTarget.getAttribute("data-symbol");
+        initTradingViewChart();
+      }
+    });
+  });
+
+  document.querySelectorAll("#timeframePillsTrack .chart-pill-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      document.querySelectorAll("#timeframePillsTrack .chart-pill-btn").forEach((b) => b.classList.remove("active"));
+      e.currentTarget.classList.add("active");
+      currentChartInterval = e.currentTarget.getAttribute("data-interval");
+      lcvRefreshAll();
+      lcvRender();
+      initTradingViewChart();
+    });
+  });
+
+  ["lcPlaybookSelect", "lcRiskSelect", "lcHorizonSelect"].forEach((id) => {
+    on($(id), "change", () => {
+      lcvRefreshAll();
+      lcvRender();
+    });
+  });
+
+  on($("lcAnalyzeSetupBtn"), "click", lcvAnalyze);
+  on($("lcBestSetupBtn"), "click", lcvBestSetup);
+  on($("lcRunCouncilBtn"), "click", lcvCouncil);
+
+  if (lcvEngineReady) {
+    lcvRefreshAll();
+    lcvRender();
+    setInterval(lcvTickPrices, 2200);
+  }
+  setInterval(lcvUpdateTimeLeft, 1000);
+}
 
 // ==========================================
 // 13. MEMBERSHIP & BILLING
@@ -1704,6 +2038,7 @@ applyTheme(localStorage.getItem("por_theme") || "dark");
 loadAccount(activeUserEmail);
 setLanguage(currentLang);
 setNewsTab(currentActiveNewsTab);
+lcvInit();
 
 if (window.YT && window.YT.Player) initYouTubeAudio();
 
