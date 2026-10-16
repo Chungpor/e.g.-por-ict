@@ -34,6 +34,13 @@
   --electric-flamingo-hover: #f42595;
   --electric-flamingo-soft: #ff77c2;
   --electric-flamingo-glow: rgba(252, 70, 170, 0.38);
+
+  /* Aquamarine Accent (#7FFFD4 - Por AI Chat) */
+  --aquamarine: #7FFFD4;
+  --aquamarine-hover: #5eead4;
+  --aquamarine-soft: rgba(127, 255, 212, 0.16);
+  --aquamarine-border: rgba(127, 255, 212, 0.45);
+  --aquamarine-glow: rgba(127, 255, 212, 0.38);
   
   --text-main: #f8fafc;
   --text-sub: #94a3b8;
@@ -86,6 +93,12 @@
   --electric-flamingo-hover: #be185d;
   --electric-flamingo-soft: #ec4899;
   --electric-flamingo-glow: rgba(219, 39, 119, 0.28);
+
+  --aquamarine: #7FFFD4;
+  --aquamarine-hover: #5eead4;
+  --aquamarine-soft: rgba(127, 255, 212, 0.22);
+  --aquamarine-border: rgba(127, 255, 212, 0.55);
+  --aquamarine-glow: rgba(127, 255, 212, 0.35);
   
   --text-main: #0f172a;
   --text-sub: #475569;
@@ -263,7 +276,7 @@ body {
 }
 
 /* ========================================================
-   MENU SPECIFIC ACCENTS (CYAN/GREEN, RED, YELLOW, PURPLE, ELECTRIC FLAMINGO)
+   MENU SPECIFIC ACCENTS (CYAN/GREEN, RED, YELLOW, PURPLE, ELECTRIC FLAMINGO, AQUAMARINE)
    ======================================================== */
 /* 0. Triumm Delta Navigation Accent */
 .nav-terminal-accent {
@@ -395,6 +408,81 @@ body {
   background: linear-gradient(135deg, #ff77c2 0%, #f42595 100%) !important;
   box-shadow: 0 6px 22px rgba(252, 70, 170, 0.58) !important;
   color: #ffffff !important;
+}
+
+/* 5. Por AI Chat (AQUAMARINE #7FFFD4 MENU, FEATURE CARD & BUTTONS) */
+.nav-link-aquamarine {
+  color: var(--aquamarine) !important;
+  font-weight: 700 !important;
+}
+.nav-link-aquamarine:hover,
+.nav-link-aquamarine.active {
+  color: #a7f3d0 !important;
+  text-shadow: 0 0 12px var(--aquamarine-glow);
+}
+
+.por-aichat-promo-card {
+  border: 1.5px solid var(--aquamarine-border) !important;
+  background: linear-gradient(135deg, rgba(12, 30, 32, 0.96) 0%, rgba(16, 44, 40, 0.92) 100%) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), inset 0 0 22px rgba(127, 255, 212, 0.06) !important;
+  position: relative;
+  overflow: hidden;
+}
+.por-aichat-promo-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--aquamarine);
+  opacity: 0.9;
+}
+.por-aichat-promo-card:hover {
+  border-color: var(--aquamarine) !important;
+  box-shadow: 0 12px 32px var(--aquamarine-glow) !important;
+  transform: translateY(-2px);
+}
+.por-aichat-promo-card .promo-sub-label {
+  color: var(--aquamarine) !important;
+}
+
+.badge-aquamarine {
+  background: var(--aquamarine-soft) !important;
+  border: 1.5px solid var(--aquamarine-border) !important;
+  color: var(--aquamarine) !important;
+  box-shadow: 0 0 16px rgba(127, 255, 212, 0.25);
+}
+
+.aichat-status-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #031510;
+  background: var(--aquamarine);
+  padding: 3px 10px;
+  border-radius: 12px;
+  letter-spacing: 0.04em;
+  box-shadow: 0 0 12px var(--aquamarine-glow);
+}
+
+.text-aquamarine {
+  color: var(--aquamarine) !important;
+}
+
+.btn-aquamarine-action {
+  background: linear-gradient(135deg, #7FFFD4 0%, #34d399 100%) !important;
+  border: 1px solid var(--aquamarine) !important;
+  color: #031510 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 4px 16px var(--aquamarine-glow) !important;
+}
+.btn-aquamarine-action:hover {
+  background: #ffffff !important;
+  border-color: var(--aquamarine) !important;
+  color: #031510 !important;
+  box-shadow: 0 6px 24px rgba(127, 255, 212, 0.65) !important;
+  transform: translateY(-1px);
 }
 
 /* Hide duplicate center-nav music button on desktop (keep right pill) */
@@ -3461,7 +3549,7 @@ a.product-chart-btn {
 
   .theme-switch-thumb {
     width: 20px !important;
-    height: 20px !important;
+    height: 20px;
     top: 2.5px !important;
     left: 2.5px !important;
   }
@@ -3487,6 +3575,7 @@ a.product-chart-btn {
     width: min(260px, calc(100vw - 28px));
   }
 }
+
 /* ========================================================
    LIVE MARKET CHART: CLEAN SMOOTH UI (matches index.html)
    ======================================================== */
@@ -3778,7 +3867,7 @@ a.product-chart-btn {
   .lc-select-pill {
     width: 100%;
     height: 42px;
-    font-size: 16px; /* stops iOS Safari zoom on focus */
+    font-size: 16px;
   }
 
   .lc-time-left-pill {
@@ -3800,8 +3889,6 @@ a.product-chart-btn {
 
 /* ========================================================
    LIVE MARKET CHART VIEW: MISSING SECTION STYLES
-   Append at the very bottom of style.css (after the earlier
-   controls/dropdown block). Works with your index.html as is.
    ======================================================== */
 
 #liveChartView {
@@ -4271,7 +4358,7 @@ button:disabled.lc-run-council-btn {
   .live-chart-header.lc-header-flex > div:first-child { flex: 0 0 auto; width: 100%; }
 }
 
-/* ---------- Live chart: action buttons (were unstyled in index.html) ---------- */
+/* ---------- Live chart: action buttons ---------- */
 .lc-primary-actions-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
 .lc-analyze-btn,

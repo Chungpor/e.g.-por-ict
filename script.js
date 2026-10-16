@@ -56,12 +56,13 @@ const FALLBACK_DICT = {
 
 let currentLang = localStorage.getItem("por_lang") || "EN";
 
-// Updated strings for Triumm Delta, Chart Analysis, and Electric Flamingo Indicators
+// Updated strings for Triumm Delta, Chart Analysis, Electric Flamingo Indicators & Aquamarine Por AI Chat
 const EXTRA_DICT = {
   EN: {
     nav_terminal: "Triumm Delta",
     nav_analysis: "Analysis",
     nav_indicators: "Indicators",
+    nav_aichat: "Por AI Chat",
     ca_sub: "SIGNAL GENERATOR",
     ca_title: "Chart Analysis",
     ca_desc: "Generate entry, stop loss and targets from live data, your own levels, or an uploaded chart screenshot, with lot-size calculation.",
@@ -70,6 +71,11 @@ const EXTRA_DICT = {
     ind_title: "Dashboard / Indicators",
     ind_desc: "Live multi-asset technical indicators (EMA 20/50/200 stack, RSI, ADX, DI Edge, ATR & CHOP) with AI regime & 5-indicator confluence scoring.",
     ind_btn: "OPEN INDICATORS ➔",
+    pac_pill: "💎 POR1.0 · AQUAMARINE",
+    pac_sub: "SMC & ICT AI TRADING MENTOR",
+    pac_title: "Por AI Chat",
+    pac_desc: "Interactive AI trading command center for XAUUSD, BTCUSDT & NAS100 with Chart Snap vision, live setups, and position sizing.",
+    pac_btn: "OPEN POR AI CHAT ➔",
     term_pill: "⚡ TRIUMM DELTA AI",
     term_sub: "AUTO SIGNALS · SUPER LLM · DEEP ANALYSIS",
     term_title: "Triumm Delta",
@@ -85,6 +91,7 @@ const EXTRA_DICT = {
     nav_terminal: "Triumm Delta",
     nav_analysis: "វិភាគ",
     nav_indicators: "សូចនាករ (Indicators)",
+    nav_aichat: "Por AI Chat",
     ca_sub: "ឧបករណ៍បង្កើតសញ្ញា",
     ca_title: "វិភាគក្រាហ្វ",
     ca_desc: "បង្កើត Entry, Stop Loss និងគោលដៅ ពីទិន្នន័យផ្ទាល់ កម្រិតរបស់អ្នក ឬរូបថតក្រាហ្វ ព្រមទាំងគណនាទំហំ Lot។",
@@ -93,6 +100,11 @@ const EXTRA_DICT = {
     ind_title: "ផ្ទាំងគ្រប់គ្រង / Indicators",
     ind_desc: "សូចនាករបច្ចេកទេសផ្ទាល់ (EMA 20/50/200, RSI, ADX, DI Edge, ATR & CHOP) ជាមួយការវាយតម្លៃទិសដៅទីផ្សារដោយ AI។",
     ind_btn: "បើក INDICATORS ➔",
+    pac_pill: "💎 POR1.0 · AQUAMARINE",
+    pac_sub: "ជំនួយការជួញដូរ SMC & ICT AI",
+    pac_title: "Por AI Chat",
+    pac_desc: "មជ្ឈមណ្ឌលជំនួយការជួញដូរ AI សម្រាប់ XAUUSD, BTCUSDT និង NAS100 ជាមួយការវិភាគរូបភាពក្រាហ្វ Chart Snap និងការគណនាហានិភ័យ 1%។",
+    pac_btn: "បើក POR AI CHAT ➔",
     term_pill: "⚡ TRIUMM DELTA AI",
     term_sub: "សញ្ញាស្វ័យប្រវត្តិ · SUPER LLM · ការវិភាគស៊ីជម្រៅ",
     term_title: "Triumm Delta",
@@ -218,6 +230,7 @@ const navHomeLink = $("navHomeLink");
 const navNewsLink = $("navNewsLink");
 const navLiveChartLink = $("navLiveChartLink");
 const navIndicatorsLink = $("navIndicatorsLink");
+const navPorAiChatLink = $("navPorAiChatLink");
 const navMembershipLink = $("navMembershipLink");
 const navContactLink = $("navContactLink");
 const navMusicBtn = $("navMusicBtn");
@@ -229,6 +242,7 @@ const mobileHomeLink = $("mobileHomeLink");
 const mobileNewsLink = $("mobileNewsLink");
 const mobileLiveChartLink = $("mobileLiveChartLink");
 const mobileIndicatorsLink = $("mobileIndicatorsLink");
+const mobilePorAiChatLink = $("mobilePorAiChatLink");
 const mobileMembershipLink = $("mobileMembershipLink");
 const mobileContactLink = $("mobileContactLink");
 const mobileMusicBtn = $("mobileMusicBtn");
@@ -1256,10 +1270,10 @@ on(mobileMenuBtn, "click", () => { if (mobileMenuDrawer) mobileMenuDrawer.classL
 on(mobileDrawerBackdrop, "click", closeMobileDrawer);
 
 function updateNavActiveLink(activeEl, mobileActiveEl) {
-  [navHomeLink, navNewsLink, navLiveChartLink, navIndicatorsLink, navMembershipLink, navContactLink]
+  [navHomeLink, navNewsLink, navLiveChartLink, navIndicatorsLink, navPorAiChatLink, navMembershipLink, navContactLink]
     .forEach((l) => l && l.classList.remove("active"));
   if (activeEl) activeEl.classList.add("active");
-  [mobileHomeLink, mobileNewsLink, mobileLiveChartLink, mobileIndicatorsLink, mobileMembershipLink, mobileContactLink]
+  [mobileHomeLink, mobileNewsLink, mobileLiveChartLink, mobileIndicatorsLink, mobilePorAiChatLink, mobileMembershipLink, mobileContactLink]
     .forEach((l) => l && l.classList.remove("active"));
   if (mobileActiveEl) mobileActiveEl.classList.add("active");
 }
@@ -1344,9 +1358,6 @@ on(mobileLogoutLink, "click", handleLogout);
 // ==========================================
 // 12. LIVE MARKET CHART: TRADINGVIEW + AI SCANNER
 // ==========================================
-// The scanner uses the shared engine in live-engine.js (WATCHLIST_DB, TF_CONFIG,
-// PLAYBOOK_NAMES, computeDynamicAnalysisForAsset). If that file is missing, only the
-// TradingView chart runs. Scanner output is simulated and is not financial advice.
 const lcvEngineReady =
   typeof WATCHLIST_DB !== "undefined" && typeof computeDynamicAnalysisForAsset === "function";
 
@@ -1410,7 +1421,6 @@ function lcvTfLabel() {
   return tf.label;
 }
 
-/** Real countdown to the close of the current candle (the engine's timeLeft text is static). */
 function lcvTimeLeftText() {
   const mins = currentChartInterval === "D" ? 1440 : parseInt(currentChartInterval, 10) || 15;
   const step = mins * 60000;
@@ -1656,7 +1666,6 @@ async function lcvCouncil() {
   lcvBusy = false;
 }
 
-/** Demo price stream: small random ticks, levels re-synced so the strip always matches the price. */
 function lcvTickPrices() {
   if (!lcvEngineReady || !liveChartView || liveChartView.classList.contains("hidden")) return;
 

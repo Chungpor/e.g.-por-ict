@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Por AI Chat | LightCyan &amp; Aquamarine Trading Mentor</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="por.jpg" />
+  <link rel="apple-touch-icon" href="por.jpg" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="por-ai-chat.css" />
+</head>
+<body>
+
+  <!-- Hidden Input to Let You Change/Upload Your Logo Image Anytime -->
+  <input type="file" id="pacLogoFileInput" accept="image/*" style="display: none;" />
+
+  <!-- ==========================================
+       1. TOP HEADER BAR (Por AI Chat + Terminal)
+       ========================================== -->
+  <header class="pac-topbar">
+    <div class="pac-topbar-left">
+      <a href="por-ai-chat.html" class="pac-brand" id="pacBrandReset">
+        <div class="pac-bolt-logo">
+          <img
+            src="por.jpg"
+            alt="Por AI Logo"
+            class="pac-custom-logo-img"
+            onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80';"
+          />
+        </div>
+        <span class="pac-brand-title">Por AI Chat</span>
+      </a>
+    </div>
+
+    <div class="pac-topbar-right">
+      <a href="index.html" class="pac-nav-subtle">Home</a>
+      <a href="Preview%20-recent%20signals.html" class="pac-nav-subtle">Live Signals</a>
+      <a href="live-charts.html" class="pac-terminal-btn" title="Open Live Chart Terminal">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="6" y1="4" x2="6" y2="20"></line>
+          <rect x="4" y="8" width="4" height="8" rx="1" fill="currentColor"></rect>
+          <line x1="12" y1="2" x2="12" y2="22"></line>
+          <rect x="10" y="6" width="4" height="10" rx="1"></rect>
+          <line x1="18" y1="5" x2="18" y2="19"></line>
+          <rect x="16" y="9" width="4" height="6" rx="1" fill="currentColor"></rect>
+        </svg>
+        <span>Terminal</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ==========================================
+       2. SUB-HEADER BAR (Chats | New chat | +)
+       ========================================== -->
+  <div class="pac-subheader">
+    <button type="button" class="pac-chats-history-btn" id="pacToggleHistoryBtn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+        <path d="M3 3v5h5"></path>
+        <path d="M12 7v5l4 2"></path>
+      </svg>
+      <span>Chats</span>
+      <span class="pac-chat-count-pill" id="pacHistoryCount">0</span>
+    </button>
+
+    <div class="pac-subheader-title" id="pacCurrentChatTitle">New chat</div>
+
+    <button type="button" class="pac-new-chat-btn" id="pacNewChatBtn" title="Start New Chat">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ==========================================
+       3. SLIDE-OUT CHATS HISTORY DRAWER
+       ========================================== -->
+  <aside class="pac-history-drawer" id="pacHistoryDrawer" aria-hidden="true">
+    <div class="pac-drawer-head">
+      <strong>Saved Conversations</strong>
+      <button type="button" class="pac-drawer-close" id="pacCloseDrawerBtn">✕</button>
+    </div>
+    <div class="pac-drawer-list" id="pacHistoryList"></div>
+    <div class="pac-drawer-foot">
+      <button type="button" class="pac-clear-history-btn" id="pacClearHistoryBtn">Clear All Chats</button>
+    </div>
+  </aside>
+  <div class="pac-drawer-backdrop" id="pacDrawerBackdrop"></div>
+
+  <!-- ==========================================
+       4. MAIN SCROLLABLE CHAT & DISCOVERY STAGE
+       ========================================== -->
+  <main class="pac-main-stage" id="pacMainStage">
+    <div class="pac-container">
+
+      <!-- WELCOME HERO & FEATURE CARDS VIEW -->
+      <section class="pac-welcome-view" id="pacWelcomeView">
+
+        <!-- Center Hero Badge & Title -->
+        <div class="pac-hero-center">
+          <div class="pac-hero-icon-box" id="pacHeroLogoTrigger" title="Click to change logo image">
+            <img
+              src="por.jpg"
+              alt="Por AI Hero Logo"
+              class="pac-custom-logo-img"
+              onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80';"
+            />
+            <span class="pac-logo-edit-badge">📷</span>
+          </div>
+
+          <div class="pac-hero-title-row">
+            <h1 class="pac-hero-title">Por AI</h1>
+            <span class="pac-model-badge">POR1.0</span>
+          </div>
+
+          <p class="pac-hero-subtitle">
+            Your trading mentor. Ask anything about markets, strategies, risk management,
+            smart-money concepts or how to use the platform.
+          </p>
+
+          <div class="pac-hero-links-row">
+            <button type="button" class="pac-learn-pill-btn" id="pacLearnChartBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="8" y1="4" x2="8" y2="20"></line>
+                <rect x="6" y="8" width="4" height="8" rx="1"></rect>
+                <line x1="16" y1="4" x2="16" y2="20"></line>
+                <rect x="14" y="7" width="4" height="9" rx="1"></rect>
+              </svg>
+              <span>Learn &amp; chart reads</span>
+            </button>
+
+            <span class="pac-tracked-links">
+              For tracked signals:
+              <a href="live-charts.html">Terminal</a>
+              <span class="pac-dot">·</span>
+              <a href="Preview%20-recent%20signals.html">Live Signals</a>
+            </span>
+          </div>
+        </div>
+
+        <!-- CHART SNAP UPLOAD BANNER CARD -->
+        <div class="pac-chart-snap-card" id="pacChartSnapCard" role="button" tabindex="0">
+          <div class="pac-snap-icon-box">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="3" ry="3"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+          </div>
+          <div class="pac-snap-content">
+            <div class="pac-snap-title">Chart Snap — upload a chart screenshot</div>
+            <div class="pac-snap-desc">
+              The AI reads your chart: trend, structure, key levels and patterns. Educational read — not a tracked signal.
+            </div>
+          </div>
+          <span class="pac-snap-action-tag">Upload Chart ↗</span>
+        </div>
+
+        <!-- DIVIDER -->
+        <div class="pac-divider">
+          <span class="pac-divider-line"></span>
+          <span class="pac-divider-text">OR START WITH A QUESTION</span>
+          <span class="pac-divider-line"></span>
+        </div>
+
+        <!-- FEATURE CARDS GRID (1 AQUAMARINE FEATURE CARD + 6 LIGHTCYAN CARDS) -->
+        <div class="pac-feature-grid" id="pacFeatureGrid">
+
+          <!-- NEW AQUAMARINE FEATURE CARD: Por AI Chat -->
+          <article
+            class="pac-feature-card pac-card-aquamarine"
+            data-prompt="Open Por AI Chat Command Center — show me live XAUUSD & BTCUSDT setups, SMC Order Blocks, and how Por AI Chat can mentor my trading today."
+          >
+            <div class="pac-card-icon">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                <polygon points="13 6 9 11 12 11 11 15 15 10 12 10 13 6"></polygon>
+              </svg>
+            </div>
+            <div class="pac-card-body">
+              <div class="pac-card-head-row">
+                <h3 class="pac-card-title">Por AI Chat</h3>
+                <span class="pac-aquamarine-badge">AQUAMARINE · LIVE AI</span>
+              </div>
+              <p class="pac-card-text">
+                Launch your interactive 24/7 Por AI Chat mentor — analyze live XAUUSD &amp; BTCUSDT order blocks, calculate position risk, and get instant SMC/ICT trade guidance.
+              </p>
+            </div>
+          </article>
+
+          <!-- Card 1 (LightCyan): I'm new — teach me -->
+          <article class="pac-feature-card" data-prompt="I'm a complete beginner in trading. Teach me the very first things I need to understand, step by step.">
+            <div class="pac-card-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            </div>
+            <div class="pac-card-body">
+              <h3 class="pac-card-title">I'm new — teach me</h3>
+              <p class="pac-card-text">
+                I'm a complete beginner in trading. Teach me the very first things I need to understand, step by step.
+              </p>
+            </div>
+          </article>
+
+          <!-- Card 2 (LightCyan): Explain a concept -->
+          <article class="pac-feature-card" data-prompt="Explain what support and resistance are, with a simple real-life example">
+            <div class="pac-card-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="7" y1="4" x2="7" y2="20"></line>
+                <rect x="5" y="8" width="4" height="8" rx="1"></rect>
+                <line x1="17" y1="4" x2="17" y2="20"></line>
+                <rect x="15" y="6" width="4" height="10" rx="1"></rect>
+              </svg>
+            </div>
+            <div class="pac-card-body">
+              <h3 class="pac-card-title">Explain a concept</h3>
+              <p class="pac-card-text">
+                Explain what support and resistance are, with a simple real-life example
+              </p>
+            </div>
+          </article>
+
+          <!-- Card 3 (LightCyan): Risk management -->
+          <article class="pac-feature-card" data-prompt="How do I size my position if my account is $1,000 and I risk 1% per trade?">
+            <div class="pac-card-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 3v18"></path>
+                <path d="M5 7h14"></path>
+                <path d="M3 14l3-7 3 7a3 3 0 0 1-6 0z"></path>
+                <path d="M15 14l3-7 3 7a3 3 0 0 1-6 0z"></path>
+              </svg>
+            </div>
+            <div class="pac-card-body">
+              <h3 class="pac-card-title">Risk management</h3>
+              <p class="pac-card-text">
+                How do I size my position if my account is $1,000 and I risk 1% per trade?
+              </p>
+            </div>
+          </article>
+
+          <!-- Card 4 (LightCyan): Market outlook -->
+          <article class="pac-feature-card" data-prompt="What is the current market regime and what should I focus on today?">
+            <div class="pac-card-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2a10 10 0 1 0 10 10"></path>
+                <path d="M12 12l5-5"></path>
+                <circle cx="12" cy="12" r="1.5"></circle>
+              </svg>
+            </div>
+            <div class="pac-card-body">
+              <h3 class="pac-card-title">Market outlook</h3>
+              <p class="pac-card-text">
+                What is the current market regime and what should I focus on today?
+              </p>
+            </div>
+          </article>
+
+          <!-- Card 5 (LightCyan): Improve my trading -->
+          <article class="pac-feature-card" data-prompt="What are the most common mistakes that make traders lose money?">
+            <div class="pac-card-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04z"></path>
+                <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z"></path>
+              </svg>
+            </div>
+            <div class="pac-card-body">
+              <h3 class="pac-card-title">Improve my trading</h3>
+              <p class="pac-card-text">
+                What are the most common mistakes that make traders lose money?
+              </p>
+            </div>
+          </article>
+
+          <!-- Card 6 (LightCyan): Read my chart -->
+          <article class="pac-feature-card" data-prompt="How do I read a candlestick chart? Explain what each candle tells me.">
+            <div class="pac-card-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </div>
+            <div class="pac-card-body">
+              <h3 class="pac-card-title">Read my chart</h3>
+              <p class="pac-card-text">
+                How do I read a candlestick chart? Explain what each candle tells me.
+              </p>
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- ACTIVE CONVERSATION STREAM -->
+      <section class="pac-chat-stream" id="pacChatStream" style="display: none;">
+        <div class="pac-messages-list" id="pacMessagesList"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ==========================================
+       5. BOTTOM CHAT INPUT DOCK
+       ========================================== -->
+  <footer class="pac-bottom-dock">
+    <div class="pac-dock-inner">
+
+      <!-- Hidden File Input for Chart Snap -->
+      <input type="file" id="pacChartFileInput" accept="image/*" style="display: none;" />
+
+      <!-- Optional Pending Image Preview Bar -->
+      <div class="pac-attachment-preview" id="pacAttachmentPreview" style="display: none;">
+        <img id="pacPreviewImg" src="" alt="Chart Screenshot Preview" />
+        <div class="pac-preview-meta">
+          <strong id="pacPreviewName">chart-screenshot.png</strong>
+          <span>Ready for POR1.0 Chart Snap structure analysis</span>
+        </div>
+        <button type="button" class="pac-remove-preview" id="pacRemovePreviewBtn">✕</button>
+      </div>
+
+      <!-- Input Box -->
+      <form class="pac-input-bar" id="pacChatForm" autocomplete="off">
+        <div class="pac-input-left">
+          <span class="pac-input-model-pill">
+            <img
+              src="por.jpg"
+              alt="POR1.0"
+              class="pac-custom-logo-img pac-mini-pill-logo"
+              onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80';"
+            />
+            <span>POR1.0</span>
+          </span>
+
+          <button type="button" class="pac-upload-icon-btn" id="pacBottomUploadBtn" title="Upload Chart Screenshot">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+              <rect x="3" y="3" width="18" height="18" rx="3" ry="3"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <input
+          type="text"
+          id="pacUserInput"
+          class="pac-text-input"
+          placeholder="Ask POR1.0 anything..."
+        />
+
+        <button type="submit" class="pac-send-btn" id="pacSendBtn" aria-label="Send Message">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </form>
+
+      <!-- Footer Disclaimer -->
+      <p class="pac-disclaimer">
+        <strong>POR1.0</strong> by Por ICT — educational analysis, not financial advice. For a full trade setup use
+        <a href="live-charts.html">Generate Signal</a>.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Load Shared Market Engine + Por AI Chat JS -->
+  <script src="live-engine.js"></script>
+  <script src="liveengine.js"></script>
+  <script src="por-ai-chat.js"></script>
+</body>
+</html>

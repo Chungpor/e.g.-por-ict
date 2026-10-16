@@ -75,6 +75,9 @@
         <!-- Dashboard / Indicators (Electric Flamingo) -->
         <a href="indicators.html" id="navIndicatorsLink" class="nav-link nav-link-flamingo" data-i18n="nav_indicators">Indicators</a>
 
+        <!-- Por AI Chat (Aquamarine #7FFFD4) -->
+        <a href="por-ai-chat.html" id="navAiChatLink" class="nav-link nav-link-aquamarine" data-i18n="nav_aichat">Por AI Chat</a>
+
         <!-- Goal Future (Yellow) -->
         <a href="goal.html" id="navTradesLink" class="nav-link nav-link-yellow">Goal Future</a>
 
@@ -259,6 +262,7 @@
         <a href="triumm-delta.html" id="mobileTerminalLink" class="mobile-nav-link-item nav-terminal-accent" data-i18n="nav_terminal">Triumm Delta</a>
         <a href="chart-analysis.html" id="mobileAnalysisLink" class="mobile-nav-link-item" data-i18n="nav_analysis">Analysis</a>
         <a href="indicators.html" id="mobileIndicatorsLink" class="mobile-nav-link-item nav-link-flamingo" data-i18n="nav_indicators">Indicators</a>
+        <a href="por-ai-chat.html" id="mobileAiChatLink" class="mobile-nav-link-item nav-link-aquamarine" data-i18n="nav_aichat">Por AI Chat</a>
         <a href="goal.html" id="mobileTradesLink" class="mobile-nav-link-item nav-link-yellow">Goal Future</a>
         <a href="Preview%20-recent%20signals.html" id="mobilePreviewLink" class="mobile-nav-link-item nav-link-red">Preview - recent signals</a>
         <a href="#membership" id="mobileMembershipLink" class="mobile-nav-link-item" data-i18n="nav_membership">Membership</a>
@@ -353,7 +357,7 @@
               <input type="password" id="loginPassword" class="login-input" value="" required />
               <button type="button" id="togglePasswordBtn" class="toggle-password-btn" aria-label="Toggle Password Visibility">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
               </button>
@@ -416,7 +420,7 @@
               <input type="password" id="signupPassword" class="login-input" placeholder="••••••••" required />
               <button type="button" id="toggleSignupPasswordBtn" class="toggle-password-btn" aria-label="Toggle Password Visibility">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
               </button>
@@ -433,7 +437,7 @@
               <input type="password" id="signupConfirmPassword" class="login-input" placeholder="••••••••" required />
               <button type="button" id="toggleSignupConfirmBtn" class="toggle-password-btn" aria-label="Toggle Confirm Password Visibility">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
               </button>
@@ -579,7 +583,7 @@
         </div>
       </header>
 
-      <!-- SECTION: PRODUCTS GRID (7 FEATURE CARDS) -->
+      <!-- SECTION: PRODUCTS GRID (8 FEATURE CARDS) -->
       <section class="products-dual-grid products-tri-grid">
 
         <!-- Feature Card 1: Triumm Delta -->
@@ -698,6 +702,22 @@
           </div>
           <p class="promo-card-desc" data-i18n="ind_desc">Live multi-asset technical indicators (EMA 20/50/200 stack, RSI, ADX, DI Edge, ATR &amp; CHOP) with AI regime &amp; 5-indicator confluence scoring.</p>
           <a href="indicators.html" class="product-chart-btn btn-flamingo-action" data-i18n="ind_btn">OPEN INDICATORS ➔</a>
+        </div>
+
+        <!-- Feature Card 8: Por AI Chat (Aquamarine #7FFFD4) -->
+        <div class="product-feature-card por-aichat-promo-card" onclick="location.href='por-ai-chat.html'" style="cursor:pointer;">
+          <div class="product-card-badge badge-aquamarine">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7fffd4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              <polygon points="13 6 9 11 12 11 11 15 15 10 12 10 13 6"></polygon>
+            </svg>
+          </div>
+          <div>
+            <span class="promo-sub-label" style="color:var(--aquamarine-accent);" data-i18n="aichat_sub">AI TRADING MENTOR &amp; CHART SNAP</span>
+            <h3 class="product-card-title" style="color:var(--aquamarine-accent);" data-i18n="aichat_title">Por AI Chat</h3>
+          </div>
+          <p class="promo-card-desc" data-i18n="aichat_desc">Your 24/7 AI trading mentor (POR1.0). Upload chart screenshots with Chart Snap, ask about SMC/ICT concepts, risk sizing, and live setups.</p>
+          <a href="por-ai-chat.html" id="openAiChatBtn" class="product-chart-btn btn-aquamarine-action" data-i18n="aichat_btn">OPEN POR AI CHAT ➔</a>
         </div>
 
       </section>
@@ -1346,6 +1366,7 @@
   </div>
 
   <script src="live-engine.js"></script>
+  <script src="liveengine.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
