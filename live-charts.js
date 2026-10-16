@@ -1,11 +1,416 @@
 /**
- * Live Charts AI — TradingView + Live Chart Scanner + Best Setup Engine + 4-LLM Consensus Council
+ * Live Charts AI — Self-Contained TradingView + Live Scanner + Instant BUY/SELL/Reset Engine
  * File: live-charts.js
  */
 "use strict";
 
 // ==========================================
-// 0. 4K ZEN AMBIENT AUDIO (YOUTUBE IFRAME API)
+// 0. BUILT-IN FALLBACK ENGINE (PREVENTS MISSING FILE CRASHES)
+// ==========================================
+window.WATCHLIST_DB = window.WATCHLIST_DB || [
+  {
+    symbol: "XAUUSD",
+    tvSymbol: "OANDA:XAUUSD",
+    name: "Gold",
+    icon: "🥇",
+    category: "Metals",
+    signal: "BUY",
+    defaultSignal: "BUY",
+    price: 4175.99,
+    basePrice: 4175.99,
+    baseAtr: 8.5,
+    decimals: 2,
+    bestPlaybook: "smc",
+    baseConf: 78,
+    baseWin: 62,
+    baseInd: 68,
+    readerScore: "Bullish +40",
+    structureTag: "Uptrend (HH + HL)",
+    readerSummary: "Chart reads bullish (strong): bullish market structure. Key support at 4,167.84.",
+    rr: "R:R 1.3 / 2.0 / 2.8",
+    entry: "4,175.99",
+    sl: "4,165.98",
+    tp1: "4,188.59",
+    tp2: "4,196.02",
+    tp3: "4,204.03",
+    regime: ["contracting vol", "strong trend", "confluence +6"],
+    kpi: { conf: "78%", win: "62%", ind: "68%", risk: "100%" },
+    observations: [],
+    agents: []
+  },
+  {
+    symbol: "BTCUSDT",
+    tvSymbol: "BINANCE:BTCUSDT",
+    name: "Bitcoin",
+    icon: "₿",
+    category: "Crypto",
+    signal: "SELL",
+    defaultSignal: "SELL",
+    price: 81911.66,
+    basePrice: 81911.66,
+    baseAtr: 620.0,
+    decimals: 2,
+    bestPlaybook: "smc",
+    baseConf: 76,
+    baseWin: 58,
+    baseInd: 62,
+    readerScore: "Bearish -35",
+    structureTag: "Lower Highs (LH + LL)",
+    readerSummary: "Chart reads bearish: resistance sweep at 82,450 with M15 bearish displacement.",
+    rr: "R:R 1.5 / 2.2 / 3.0",
+    entry: "81,911.66",
+    sl: "82,650.00",
+    tp1: "80,800.00",
+    tp2: "80,150.00",
+    tp3: "79,400.00",
+    regime: ["high vol", "bearish displacement", "confluence +6"],
+    kpi: { conf: "76%", win: "58%", ind: "62%", risk: "95%" },
+    observations: [],
+    agents: []
+  },
+  {
+    symbol: "ETHUSDT",
+    tvSymbol: "BINANCE:ETHUSDT",
+    name: "Ethereum",
+    icon: "Ξ",
+    category: "Crypto",
+    signal: "SELL",
+    defaultSignal: "SELL",
+    price: 2424.26,
+    basePrice: 2424.26,
+    baseAtr: 34.0,
+    decimals: 2,
+    bestPlaybook: "trend",
+    baseConf: 71,
+    baseWin: 55,
+    baseInd: 59,
+    readerScore: "Bearish -28",
+    structureTag: "Range Breakdown",
+    readerSummary: "Chart reads bearish: trading below EMA50 with supply overhead at 2,460.",
+    rr: "R:R 1.4 / 2.1 / 2.9",
+    entry: "2,424.26",
+    sl: "2,468.00",
+    tp1: "2,365.00",
+    tp2: "2,330.00",
+    tp3: "2,290.00",
+    regime: ["weak RS", "EMA50 rejection", "confluence +5"],
+    kpi: { conf: "71%", win: "55%", ind: "59%", risk: "92%" },
+    observations: [],
+    agents: []
+  },
+  {
+    symbol: "EURUSD",
+    tvSymbol: "FX:EURUSD",
+    name: "Euro / USD",
+    icon: "€",
+    category: "Forex",
+    signal: "SELL",
+    defaultSignal: "SELL",
+    price: 1.0920,
+    basePrice: 1.0920,
+    baseAtr: 0.0032,
+    decimals: 4,
+    bestPlaybook: "ict",
+    baseConf: 74,
+    baseWin: 57,
+    baseInd: 61,
+    readerScore: "Bearish -22",
+    structureTag: "London Sweep",
+    readerSummary: "DXY strength pressuring EURUSD below 1.0940 session liquidity.",
+    rr: "R:R 1.4 / 2.0 / 2.8",
+    entry: "1.0920",
+    sl: "1.0958",
+    tp1: "1.0865",
+    tp2: "1.0835",
+    tp3: "1.0805",
+    regime: ["PDH swept", "DXY bid", "confluence +6"],
+    kpi: { conf: "74%", win: "57%", ind: "61%", risk: "100%" },
+    observations: [],
+    agents: []
+  },
+  {
+    symbol: "GBPUSD",
+    tvSymbol: "FX:GBPUSD",
+    name: "Pound / USD",
+    icon: "£",
+    category: "Forex",
+    signal: "BUY",
+    defaultSignal: "BUY",
+    price: 1.2810,
+    basePrice: 1.2810,
+    baseAtr: 0.0038,
+    decimals: 4,
+    bestPlaybook: "smc",
+    baseConf: 73,
+    baseWin: 58,
+    baseInd: 62,
+    readerScore: "Bullish +29",
+    structureTag: "Bullish Order Block",
+    readerSummary: "GBPUSD defending 1.2785 institutional demand block with upside liquidity target at 1.2875.",
+    rr: "R:R 1.5 / 2.2 / 3.0",
+    entry: "1.2810",
+    sl: "1.2765",
+    tp1: "1.2875",
+    tp2: "1.2910",
+    tp3: "1.2950",
+    regime: ["OB defended", "bullish shift", "confluence +6"],
+    kpi: { conf: "73%", win: "58%", ind: "62%", risk: "100%" },
+    observations: [],
+    agents: []
+  },
+  {
+    symbol: "NAS100",
+    tvSymbol: "PEPPERSTONE:NAS100",
+    name: "Nasdaq 100",
+    icon: "◆",
+    category: "Indices",
+    signal: "BUY",
+    defaultSignal: "BUY",
+    price: 20485.50,
+    basePrice: 20485.50,
+    baseAtr: 105.0,
+    decimals: 2,
+    bestPlaybook: "ict",
+    baseConf: 84,
+    baseWin: 66,
+    baseInd: 72,
+    readerScore: "Bullish +44",
+    structureTag: "Uptrend (HH + HL)",
+    readerSummary: "Semiconductor & AI data-center inflows driving NAS100 above NY opening range.",
+    rr: "R:R 1.5 / 2.3 / 3.2",
+    entry: "20,485.50",
+    sl: "20,360.00",
+    tp1: "20,670.00",
+    tp2: "20,780.00",
+    tp3: "20,895.00",
+    regime: ["NY Silver Bullet", "strong trend", "confluence +8"],
+    kpi: { conf: "84%", win: "66%", ind: "72%", risk: "100%" },
+    observations: [],
+    agents: []
+  },
+  {
+    symbol: "US30",
+    tvSymbol: "PEPPERSTONE:US30",
+    name: "Dow Jones",
+    icon: "▲",
+    category: "Indices",
+    signal: "BUY",
+    defaultSignal: "BUY",
+    price: 43120.00,
+    basePrice: 43120.00,
+    baseAtr: 145.0,
+    decimals: 2,
+    bestPlaybook: "trend",
+    baseConf: 75,
+    baseWin: 59,
+    baseInd: 63,
+    readerScore: "Bullish +36",
+    structureTag: "Relative Strength",
+    readerSummary: "US30 showing relative strength above 43,000 institutional demand zone.",
+    rr: "R:R 1.4 / 2.1 / 2.9",
+    entry: "43,120.00",
+    sl: "42,950.00",
+    tp1: "43,360.00",
+    tp2: "43,490.00",
+    tp3: "43,620.00",
+    regime: ["demand defended", "EMA stack bull", "confluence +6"],
+    kpi: { conf: "75%", win: "59%", ind: "63%", risk: "100%" },
+    observations: [],
+    agents: []
+  }
+];
+
+window.TF_CONFIG = window.TF_CONFIG || {
+  "1":   { label: "1m",  atrMult: 0.28, horizon: "Scalp",    timeLeft: "⏳ 12m left",     confMod: -2 },
+  "5":   { label: "5m",  atrMult: 0.48, horizon: "Scalp",    timeLeft: "⏳ 25m left",     confMod: 0 },
+  "15":  { label: "15m", atrMult: 0.75, horizon: "Scalp",    timeLeft: "⏳ 45m left",     confMod: 1 },
+  "30":  { label: "30m", atrMult: 1.00, horizon: "Intraday", timeLeft: "⏳ 1h 30m left",  confMod: 2 },
+  "60":  { label: "1h",  atrMult: 1.45, horizon: "Intraday", timeLeft: "⏳ 3h 15m left",  confMod: 4 },
+  "240": { label: "4h",  atrMult: 2.35, horizon: "Swing",    timeLeft: "⏳ 11h 40m left", confMod: 5 },
+  "D":   { label: "1d",  atrMult: 4.10, horizon: "Swing",    timeLeft: "⏳ 1d 18h left",  confMod: 6 }
+};
+
+window.PLAYBOOK_NAMES = window.PLAYBOOK_NAMES || {
+  auto: "Auto (AI Dynamic Selection)",
+  smc: "SMC Order Block + FVG",
+  ict: "ICT Judas Swing + Silver Bullet",
+  trend: "EMA Momentum Continuation"
+};
+
+window.fmtPrice = window.fmtPrice || function (num, decimals) {
+  return Number(num).toLocaleString("en-US", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  });
+};
+
+window.computeDynamicAnalysisForAsset = window.computeDynamicAnalysisForAsset || function (asset, tfKey, playbookMode, riskMode, horizonMode) {
+  const tf = window.TF_CONFIG[tfKey] || window.TF_CONFIG["30"];
+  const resolvedPlaybook = playbookMode === "auto" ? (asset.bestPlaybook || "smc") : playbookMode;
+  const playbookLabel = window.PLAYBOOK_NAMES[resolvedPlaybook] || window.PLAYBOOK_NAMES.smc;
+
+  if (asset.signal !== "BUY" && asset.signal !== "SELL") {
+    asset.signal = asset.defaultSignal || "BUY";
+  }
+
+  let slMult = 1.15;
+  let rr1 = 1.4, rr2 = 2.2, rr3 = 3.1;
+  let riskScoreStr = "100%";
+
+  if (riskMode && riskMode.indexOf("Low") !== -1) {
+    slMult = 0.90;
+    rr1 = 1.6; rr2 = 2.5; rr3 = 3.6;
+  } else if (riskMode && riskMode.indexOf("Aggressive") !== -1) {
+    slMult = 1.40;
+    rr1 = 1.3; rr2 = 2.0; rr3 = 2.8;
+    riskScoreStr = "88%";
+  } else {
+    slMult = 1.12;
+    rr1 = 1.4; rr2 = 2.1; rr3 = 3.0;
+    riskScoreStr = asset.category === "Crypto" ? "95%" : "100%";
+  }
+
+  let horizonMult = 1.0;
+  if (horizonMode && horizonMode.indexOf("Scalp") !== -1) horizonMult = 0.65;
+  else if (horizonMode && horizonMode.indexOf("Swing") !== -1) horizonMult = 1.75;
+
+  const effectiveAtr = asset.baseAtr * tf.atrMult * horizonMult;
+  const slDist = Math.max(effectiveAtr * slMult, Math.pow(10, -asset.decimals) * 15);
+
+  const p = asset.price;
+  const isSell = asset.signal === "SELL";
+  const dirSign = isSell ? -1 : 1;
+
+  const slNum = p - dirSign * slDist;
+  const tp1Num = p + dirSign * (slDist * rr1);
+  const tp2Num = p + dirSign * (slDist * rr2);
+  const tp3Num = p + dirSign * (slDist * rr3);
+
+  const keyLevel = p - dirSign * (slDist * 0.68);
+  const fvgLow = p - dirSign * (slDist * 0.25);
+  const fvgHigh = p + dirSign * (slDist * 0.18);
+
+  asset.entry = window.fmtPrice(p, asset.decimals);
+  asset.sl = window.fmtPrice(slNum, asset.decimals);
+  asset.tp1 = window.fmtPrice(tp1Num, asset.decimals);
+  asset.tp2 = window.fmtPrice(tp2Num, asset.decimals);
+  asset.tp3 = window.fmtPrice(tp3Num, asset.decimals);
+  asset.rr = "R:R " + rr1.toFixed(1) + " / " + rr2.toFixed(1) + " / " + rr3.toFixed(1);
+
+  const playbookBonus = resolvedPlaybook === asset.bestPlaybook ? 5 : 2;
+  const jitter = Math.floor((Math.sin(p * 13.7) + 1) * 2);
+  const confVal = Math.min(96, Math.max(62, asset.baseConf + tf.confMod + playbookBonus + jitter));
+  const winVal = Math.min(84, Math.max(52, asset.baseWin + Math.round(tf.confMod * 0.7) + (playbookBonus > 3 ? 3 : 0)));
+  const indVal = Math.min(92, Math.max(54, asset.baseInd + tf.confMod + jitter));
+  const confluenceCount = Math.min(9, Math.max(5, Math.round((confVal - 45) / 6)));
+
+  asset.kpi = {
+    conf: confVal + "%",
+    win: winVal + "%",
+    ind: indVal + "%",
+    risk: riskScoreStr
+  };
+
+  asset.CompositeScore = confVal + winVal * 0.5 + (rr2 * 10);
+
+  const scoreMag = Math.round((confVal - 45) * 1.1);
+  const keyLevelStr = window.fmtPrice(keyLevel, asset.decimals);
+  const fvgLowStr = window.fmtPrice(fvgLow, asset.decimals);
+  const fvgHighStr = window.fmtPrice(fvgHigh, asset.decimals);
+
+  if (!isSell) {
+    asset.readerScore = "Bullish +" + scoreMag;
+    asset.structureTag = resolvedPlaybook === "ict" ? ("NY Silver Bullet (" + tf.label + ")") : ("Uptrend (HH + HL · " + tf.label + ")");
+    asset.readerSummary = tf.label + " live action BUY (" + playbookLabel + "): structure holding above " + keyLevelStr + " invalidation. Target TP1 " + asset.tp1 + ".";
+  } else {
+    asset.readerScore = "Bearish -" + scoreMag;
+    asset.structureTag = resolvedPlaybook === "ict" ? ("Judas Sweep (" + tf.label + ")") : ("Lower Highs (LH + LL · " + tf.label + ")");
+    asset.readerSummary = tf.label + " live action SELL (" + playbookLabel + "): supply defending " + keyLevelStr + ". Downside magnet at " + asset.tp1 + ".";
+  }
+
+  asset.regime = [
+    tf.label + " " + resolvedPlaybook.toUpperCase(),
+    isSell ? "supply control" : "demand control",
+    "confluence +" + confluenceCount
+  ];
+
+  if (isSell) {
+    asset.observations = [
+      {
+        title: "📉 Bearish " + tf.label + " Structure (LH + LL)",
+        text: "Price rejected premium supply near " + keyLevelStr + " — structure invalidation sits at SL " + asset.sl + "."
+      },
+      {
+        title: "🟥 " + playbookLabel + " Trigger",
+        text: "Unmitigated bearish zone between " + fvgHighStr + " and " + keyLevelStr + " capping intraday pullbacks."
+      },
+      {
+        title: "💧 Sell-Side Liquidity Pool",
+        text: "Resting stop clusters identified below " + asset.tp1 + " and " + asset.tp2 + " acting as primary downside draw on liquidity."
+      },
+      {
+        title: "🌡️ Momentum & Volatility Filter",
+        text: "Bearish order flow confirmed on " + tf.label + " with " + confVal + "% model confidence and " + asset.rr + " reward profile."
+      }
+    ];
+  } else {
+    asset.observations = [
+      {
+        title: "📈 Bullish " + tf.label + " Structure (HH + HL)",
+        text: "Buyers defending higher-low support at " + keyLevelStr + " — structure invalidation sits below SL " + asset.sl + "."
+      },
+      {
+        title: "🟩 " + playbookLabel + " Trigger",
+        text: "Bullish displacement left an active demand imbalance at " + fvgLowStr + " to " + fvgHighStr + "."
+      },
+      {
+        title: "💧 Buy-Side Liquidity Target",
+        text: "Equal highs and buy-stops resting above " + asset.tp1 + " and " + asset.tp2 + " serve as the immediate institutional magnet."
+      },
+      {
+        title: "🌡️ Momentum & Volatility Filter",
+        text: "EMA20/50 stack aligned constructively on " + tf.label + " (" + confVal + "% confidence, confluence +" + confluenceCount + ")."
+      }
+    ];
+  }
+
+  const biasWord = isSell ? "Bearish" : "Bullish";
+  const convLevel = confVal >= 76 ? "High conviction" : "Medium conviction";
+
+  asset.agents = [
+    {
+      title: "📐 Technical Analyst",
+      role: "Indicators, " + tf.label + " structure & " + resolvedPlaybook.toUpperCase(),
+      bias: biasWord,
+      conviction: convLevel,
+      text: tf.label + " structure favors " + asset.signal + " continuation via " + playbookLabel + ". Key invalidation anchored at " + keyLevelStr + " with indicator confluence at " + asset.kpi.ind + "."
+    },
+    {
+      title: "🌍 Fundamental Analyst",
+      role: "Macro, rates & cross-asset flows",
+      bias: biasWord,
+      conviction: "Medium conviction",
+      text: "Cross-asset liquidity and session flows align with " + asset.symbol + " " + asset.signal + " bias. Current " + horizonMode + " horizon supports holding toward " + asset.tp1 + "."
+    },
+    {
+      title: "🧠 Sentiment Analyst",
+      role: "Positioning & liquidity pools",
+      bias: biasWord,
+      conviction: convLevel,
+      text: "Retail counter-trend positioning is trapped near " + asset.entry + ". Expect liquidity sweep through " + asset.tp1 + " (" + rr1.toFixed(1) + "R) before major rebalancing."
+    },
+    {
+      title: "🛡️ Risk Manager",
+      role: "Sizing, " + riskMode + " & exposure",
+      bias: biasWord,
+      conviction: "High conviction",
+      text: "Mode: " + riskMode + ". Entry " + asset.entry + " | Adaptive SL " + asset.sl + " | Targets " + asset.tp1 + " / " + asset.tp2 + " / " + asset.tp3 + " (" + asset.rr + "). Confluence +" + confluenceCount + "."
+    }
+  ];
+};
+
+// ==========================================
+// 1. 4K ZEN AMBIENT AUDIO (YOUTUBE IFRAME API)
 // ==========================================
 const YT_AUDIO_VIDEO_ID = "yGbaHLXUZWY";
 let ytAudioPlayer = null;
@@ -100,42 +505,10 @@ function toggleAudioPlayback() {
 }
 
 // ==========================================
-// 1. AUTO-INJECT SCANNER STYLES (FALLBACK)
+// 2. STATE & HELPERS
 // ==========================================
-function injectScannerStyles() {
-  if (document.getElementById("lcDynamicScannerStyles")) return;
-  const style = document.createElement("style");
-  style.id = "lcDynamicScannerStyles";
-  style.textContent = [
-    ".lc-scan-laser-overlay { position:absolute; inset:0; pointer-events:none; z-index:25; opacity:0; transition:opacity 0.22s ease; background:radial-gradient(circle at 50% 50%, rgba(32,178,170,0.12) 0%, transparent 70%); overflow:hidden; }",
-    ".lc-scan-laser-overlay.is-scanning { opacity:1; }",
-    ".lc-scan-beam { position:absolute; top:0; left:0; width:100%; height:3px; background:linear-gradient(90deg, transparent 0%, #20b2aa 25%, #5eead4 50%, #20b2aa 75%, transparent 100%); box-shadow:0 0 18px #20b2aa, 0 0 32px #20b2aa; animation:lcLaserSweep 0.75s ease-in-out infinite alternate; }",
-    "@keyframes lcLaserSweep { 0% { top:4%; } 100% { top:94%; } }",
-    ".lc-scan-hud { position:absolute; top:14px; left:50%; transform:translateX(-50%); background:rgba(4,14,18,0.94); border:1px solid #20b2aa; color:#20b2aa; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:800; padding:5px 14px; border-radius:20px; box-shadow:0 0 20px rgba(32,178,170,0.4); white-space:nowrap; }",
-    ".lc-watch-item.scanning-pulse { border-color:#20b2aa !important; background:rgba(32,178,170,0.22) !important; transform:translateX(3px); }",
-    ".lc-llm-pill.llm-active-vote { border-color:#20b2aa !important; background:rgba(32,178,170,0.28) !important; color:#ffffff !important; box-shadow:0 0 12px rgba(32,178,170,0.5); }",
-    ".lc-flash-highlight { border-color:#20b2aa !important; box-shadow:0 0 18px rgba(32,178,170,0.38); transition:all 0.3s ease; }",
-    ".lc-signals-list-view { display:flex; flex-direction:column; gap:8px; }",
-    ".lc-signals-list-head { display:flex; align-items:center; justify-content:space-between; font-size:11.5px; font-weight:800; padding:4px 2px; }",
-    ".lc-sig-feed-card { background:rgba(14,22,34,0.94); border:1px solid rgba(32,178,170,0.28); border-radius:10px; padding:10px 12px; cursor:pointer; display:flex; flex-direction:column; gap:7px; transition:all 0.16s ease; }",
-    ".lc-sig-feed-card:hover, .lc-sig-feed-card.active { border-color:#20b2aa; background:rgba(32,178,170,0.14); }",
-    ".lc-sig-feed-top { display:flex; align-items:center; justify-content:space-between; font-size:12px; }",
-    ".lc-sig-feed-tf { display:block; font-size:10px; color:#64748b; margin-top:2px; }",
-    ".lc-sig-feed-levels { display:flex; align-items:center; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:10.5px; color:#94a3b8; padding-top:5px; border-top:1px solid rgba(32,178,170,0.14); }"
-  ].join("\n");
-  document.head.appendChild(style);
-}
-
-// ==========================================
-// 2. SHARED DATA & ENGINE
-// ==========================================
-// WATCHLIST_DB, TF_CONFIG, PLAYBOOK_NAMES, fmtPrice() and
-// computeDynamicAnalysisForAsset() now live in live-engine.js (loaded before this file).
-
-// ==========================================
-// 3. STATE & HELPERS
-// ==========================================
-let activeAsset = WATCHLIST_DB[0];
+const DB = window.WATCHLIST_DB;
+let activeAsset = DB[0];
 let activeTimeframe = "30";
 let activeCategory = "ALL";
 let activePanelTab = "analysis";
@@ -143,7 +516,12 @@ let watchSearchQuery = "";
 let isScanning = false;
 let lastBestSetupIndex = -1;
 
-
+// Ensure GBPUSD or any HOLD item is upgraded to actionable BUY/SELL
+DB.forEach(function (item) {
+  if (item.signal !== "BUY" && item.signal !== "SELL") {
+    item.signal = item.defaultSignal || "BUY";
+  }
+});
 
 function escHtml(str) {
   return String(str === null || str === undefined ? "" : str).replace(/[&<>"']/g, function (c) {
@@ -151,7 +529,6 @@ function escHtml(str) {
     return map[c] || c;
   });
 }
-
 
 function getCurrentFilterSettings() {
   const pbEl = document.getElementById("lcPlaybookSelect");
@@ -166,20 +543,20 @@ function getCurrentFilterSettings() {
 
 function refreshAllAssetsAnalysis() {
   const settings = getCurrentFilterSettings();
-  WATCHLIST_DB.forEach(function (item) {
-    computeDynamicAnalysisForAsset(item, activeTimeframe, settings.playbook, settings.risk, settings.horizon);
+  DB.forEach(function (item) {
+    window.computeDynamicAnalysisForAsset(item, activeTimeframe, settings.playbook, settings.risk, settings.horizon);
   });
 }
 
 // ==========================================
-// 5. RENDER WATCHLIST SIDEBAR
+// 3. RENDER WATCHLIST SIDEBAR
 // ==========================================
 function renderWatchlist() {
   const container = document.getElementById("lcWatchlistContainer");
   const countEl = document.getElementById("lcWatchCount");
   if (!container) return;
 
-  const filtered = WATCHLIST_DB.filter(function (item) {
+  const filtered = DB.filter(function (item) {
     if (activeCategory !== "ALL" && item.category !== activeCategory) return false;
     if (watchSearchQuery) {
       const q = watchSearchQuery.toLowerCase();
@@ -213,7 +590,7 @@ function renderWatchlist() {
   container.querySelectorAll(".lc-watch-item").forEach(function (row) {
     row.addEventListener("click", function () {
       const sym = row.getAttribute("data-symbol");
-      const found = WATCHLIST_DB.find(function (x) { return x.symbol === sym; });
+      const found = DB.find(function (x) { return x.symbol === sym; });
       if (found) {
         activeAsset = found;
         runLiveChartAnalysis({ reloadWidget: true, reason: "Symbol Switch" });
@@ -223,12 +600,11 @@ function renderWatchlist() {
 }
 
 // ==========================================
-// 6. TRADINGVIEW LIVE CHART WIDGET & SCAN OVERLAY
+// 4. TRADINGVIEW LIVE CHART WIDGET & SCAN OVERLAY
 // ==========================================
 function ensureChartScanOverlay() {
   const viewport = document.querySelector(".lc-tv-viewport");
   if (!viewport) return null;
-  viewport.style.position = "relative";
 
   let overlay = document.getElementById("lcScanLaserOverlay");
   if (!overlay) {
@@ -245,7 +621,7 @@ function ensureChartScanOverlay() {
 
 function triggerVisualChartScan(hudMessage, duration) {
   const msg = hudMessage || "⚡ SCANNING LIVE CHART...";
-  const dur = duration || 850;
+  const dur = duration || 750;
   const overlay = ensureChartScanOverlay();
   if (!overlay) return;
   const hud = document.getElementById("lcScanHudText");
@@ -258,32 +634,48 @@ function triggerVisualChartScan(hudMessage, duration) {
   }, dur);
 }
 
+let tvRetryCount = 0;
 function initTradingViewWidget() {
   const target = document.getElementById("lc_tradingview_chart");
-  if (!target || typeof TradingView === "undefined") return;
+  if (!target) return;
+
+  if (typeof TradingView === "undefined" || !TradingView.widget) {
+    if (tvRetryCount < 20) {
+      tvRetryCount++;
+      setTimeout(initTradingViewWidget, 250);
+    }
+    return;
+  }
+
+  tvRetryCount = 0;
   target.innerHTML = "";
 
-  new TradingView.widget({
-    autosize: true,
-    symbol: activeAsset.tvSymbol,
-    interval: activeTimeframe,
-    timezone: "Asia/Phnom_Penh",
-    theme: "dark",
-    style: "1",
-    locale: "en",
-    enable_publishing: false,
-    allow_symbol_change: true,
-    withdateranges: true,
-    hide_side_toolbar: false,
-    studies: ["EMA@tv-basicstudies", "RSI@tv-basicstudies"],
-    container_id: "lc_tradingview_chart"
-  });
+  try {
+    new TradingView.widget({
+      width: "100%",
+      height: 530,
+      symbol: activeAsset.tvSymbol,
+      interval: activeTimeframe,
+      timezone: "Asia/Phnom_Penh",
+      theme: "dark",
+      style: "1",
+      locale: "en",
+      enable_publishing: false,
+      allow_symbol_change: true,
+      withdateranges: true,
+      hide_side_toolbar: false,
+      studies: ["EMA@tv-basicstudies", "RSI@tv-basicstudies"],
+      container_id: "lc_tradingview_chart"
+    });
+  } catch (err) {
+    console.warn("TradingView widget error:", err);
+  }
 
   ensureChartScanOverlay();
 }
 
 // ==========================================
-// 7. UPDATE AI READER & 4-LLM COUNCIL PANEL
+// 5. UPDATE AI READER, ON-CHART HUD & 4-LLM COUNCIL PANEL
 // ==========================================
 function updateCenterAndRightPanels(customCouncilBanner) {
   const setTxt = function (id, val) {
@@ -291,22 +683,42 @@ function updateCenterAndRightPanels(customCouncilBanner) {
     if (el) el.textContent = val;
   };
 
-  const formattedPrice = fmtPrice(activeAsset.price, activeAsset.decimals);
-  const tfInfo = TF_CONFIG[activeTimeframe] || TF_CONFIG["30"];
+  const formattedPrice = window.fmtPrice(activeAsset.price, activeAsset.decimals);
+  const tfInfo = window.TF_CONFIG[activeTimeframe] || window.TF_CONFIG["30"];
+  const isSell = activeAsset.signal === "SELL";
 
   setTxt("lcActiveSymTitle", activeAsset.symbol);
   setTxt("lcTopLivePrice", formattedPrice);
   setTxt("lcReaderScoreBadge", activeAsset.readerScore);
   setTxt("lcReaderSummaryText", activeAsset.readerSummary);
 
+  const symTriangle = document.getElementById("lcSymTriangle");
+  if (symTriangle) {
+    symTriangle.textContent = isSell ? "▼" : "▲";
+    symTriangle.classList.toggle("sell", isSell);
+  }
+
+  const quickBuyBtn = document.getElementById("lcQuickBuyBtn");
+  const quickSellBtn = document.getElementById("lcQuickSellBtn");
+  if (quickBuyBtn) quickBuyBtn.classList.toggle("is-active", !isSell);
+  if (quickSellBtn) quickSellBtn.classList.toggle("is-active", isSell);
+
+  // Update Floating On-Chart Action HUD
+  const hudBadge = document.getElementById("lcHudSignalBadge");
+  if (hudBadge) {
+    hudBadge.textContent = activeAsset.signal + " ACTIVE";
+    hudBadge.className = "lc-hud-sig " + (isSell ? "sell" : "buy");
+  }
+  setTxt(
+    "lcHudLevelText",
+    activeAsset.symbol + " (" + tfInfo.label + ") · Entry: " + activeAsset.entry + " · SL: " + activeAsset.sl + " · TP1: " + activeAsset.tp1
+  );
+
   const scoreBadge = document.getElementById("lcReaderScoreBadge");
   if (scoreBadge) {
-    if (activeAsset.signal === "SELL") {
+    if (isSell) {
       scoreBadge.style.background = "#ef4444";
       scoreBadge.style.color = "#ffffff";
-    } else if (activeAsset.signal === "HOLD") {
-      scoreBadge.style.background = "#f59e0b";
-      scoreBadge.style.color = "#04101c";
     } else {
       scoreBadge.style.background = "var(--lc-neon-green)";
       scoreBadge.style.color = "#03150b";
@@ -330,7 +742,7 @@ function updateCenterAndRightPanels(customCouncilBanner) {
   const dirBadge = document.getElementById("lcMainDirBadge");
   if (dirBadge) {
     dirBadge.textContent = activeAsset.signal;
-    dirBadge.className = "lc-active-dir-badge " + (activeAsset.signal === "SELL" ? "sell" : "buy");
+    dirBadge.className = "lc-active-dir-badge " + (isSell ? "sell" : "buy");
   }
 
   if (customCouncilBanner) {
@@ -359,11 +771,11 @@ function updateCenterAndRightPanels(customCouncilBanner) {
   const levelsRows = document.getElementById("lcLevelsRows");
   if (levelsRows) {
     levelsRows.innerHTML =
-      '<div class="lc-level-row"><span>Entry ' + escHtml(activeAsset.signal) + '</span><span class="val" style="color:var(--lc-cyan);">' + escHtml(activeAsset.entry) + '</span></div>' +
-      '<div class="lc-level-row"><span>Stop Loss</span><span class="val" style="color:#f87171;">' + escHtml(activeAsset.sl) + '</span></div>' +
-      '<div class="lc-level-row"><span>Take Profit 1</span><span class="val" style="color:var(--lc-neon-green);">' + escHtml(activeAsset.tp1) + '</span></div>' +
-      '<div class="lc-level-row"><span>Take Profit 2</span><span class="val" style="color:var(--lc-neon-green);">' + escHtml(activeAsset.tp2) + '</span></div>' +
-      '<div class="lc-level-row"><span>Take Profit 3</span><span class="val" style="color:var(--lc-neon-green);">' + escHtml(activeAsset.tp3) + '</span></div>';
+      '<div class="lc-level-row"><span>Entry ' + escHtml(activeAsset.signal) + '</span><span class="val" id="rowValEntry" style="color:var(--lc-cyan);">' + escHtml(activeAsset.entry) + '</span></div>' +
+      '<div class="lc-level-row"><span>Stop Loss</span><span class="val" id="rowValSL" style="color:#f87171;">' + escHtml(activeAsset.sl) + '</span></div>' +
+      '<div class="lc-level-row"><span>Take Profit 1</span><span class="val" id="rowValTP1" style="color:var(--lc-neon-green);">' + escHtml(activeAsset.tp1) + '</span></div>' +
+      '<div class="lc-level-row"><span>Take Profit 2</span><span class="val" id="rowValTP2" style="color:var(--lc-neon-green);">' + escHtml(activeAsset.tp2) + '</span></div>' +
+      '<div class="lc-level-row"><span>Take Profit 3</span><span class="val" id="rowValTP3" style="color:var(--lc-neon-green);">' + escHtml(activeAsset.tp3) + '</span></div>';
   }
 
   const regimeContainer = document.getElementById("lcRegimeTags");
@@ -401,7 +813,7 @@ function updateCenterAndRightPanels(customCouncilBanner) {
 }
 
 // ==========================================
-// 8. RIGHT PANEL TABS & SIGNALS (6) VIEW
+// 6. RIGHT PANEL TABS & SIGNALS (7) VIEW
 // ==========================================
 function renderSignalsTabList() {
   let sigBox = document.getElementById("lcSignalsListView");
@@ -416,11 +828,11 @@ function renderSignalsTabList() {
     aiPanel.appendChild(sigBox);
   }
 
-  const ranked = WATCHLIST_DB.slice().sort(function (a, b) {
+  const ranked = DB.slice().sort(function (a, b) {
     return (b.CompositeScore || 0) - (a.CompositeScore || 0);
   });
 
-  const tfLabel = (TF_CONFIG[activeTimeframe] && TF_CONFIG[activeTimeframe].label) ? TF_CONFIG[activeTimeframe].label : "30m";
+  const tfLabel = (window.TF_CONFIG[activeTimeframe] && window.TF_CONFIG[activeTimeframe].label) ? window.TF_CONFIG[activeTimeframe].label : "30m";
 
   const cardsHtml = ranked.map(function (item, idx) {
     const activeCls = item.symbol === activeAsset.symbol ? " active" : "";
@@ -446,14 +858,14 @@ function renderSignalsTabList() {
   sigBox.innerHTML =
     '<div class="lc-signals-list-head">' +
       '<span>📡 Live Multi-Asset Scanner (' + ranked.length + ')</span>' +
-      '<span style="color:var(--lc-neon-green);font-size:10.5px;">Ranked by AI Confluence</span>' +
+      '<span style="color:var(--lc-neon-green);font-size:10.5px;">All BUY/SELL Actionable</span>' +
     '</div>' +
     cardsHtml;
 
   sigBox.querySelectorAll(".lc-sig-feed-card").forEach(function (card) {
     card.addEventListener("click", function () {
       const sym = card.getAttribute("data-sig-sym");
-      const target = WATCHLIST_DB.find(function (x) { return x.symbol === sym; });
+      const target = DB.find(function (x) { return x.symbol === sym; });
       if (target) {
         activeAsset = target;
         switchRightPanelTab("analysis");
@@ -513,22 +925,78 @@ function switchRightPanelTab(tabName) {
 }
 
 // ==========================================
-// 9. CORE ACTIONS: ANALYZE, BEST SETUP & 4-LLM COUNCIL
+// 7. INSTANT BUY / SELL SWITCH & LIVE ACTION RESET
+// ==========================================
+function setLiveSignalDirection(newDirection) {
+  if (newDirection !== "BUY" && newDirection !== "SELL") return;
+  activeAsset.signal = newDirection;
+
+  const tfLabel = (window.TF_CONFIG[activeTimeframe] && window.TF_CONFIG[activeTimeframe].label) ? window.TF_CONFIG[activeTimeframe].label : "30m";
+  triggerVisualChartScan("⚡ LIVE ACTION SWITCHED TO " + newDirection + " ON " + activeAsset.symbol + " (" + tfLabel + ")...", 620);
+
+  refreshAllAssetsAnalysis();
+  renderWatchlist();
+  updateCenterAndRightPanels(
+    "⚡ Instant " + newDirection + " Action Activated on " + activeAsset.symbol + " (" + tfLabel + ") — Entry locked at " + activeAsset.entry + " | SL " + activeAsset.sl + " | TP1 " + activeAsset.tp1 + "."
+  );
+
+  flashChartLevelsStrip();
+}
+
+function resetLiveChartAction() {
+  const tfLabel = (window.TF_CONFIG[activeTimeframe] && window.TF_CONFIG[activeTimeframe].label) ? window.TF_CONFIG[activeTimeframe].label : "30m";
+
+  const step =
+    activeAsset.symbol === "XAUUSD" ? 0.35 :
+    activeAsset.symbol === "BTCUSDT" ? 14.0 :
+    activeAsset.decimals === 4 ? 0.0002 : 2.0;
+  activeAsset.price = Math.max(0.0001, activeAsset.price + (Math.random() - 0.48) * step);
+
+  if (activeAsset.signal !== "BUY" && activeAsset.signal !== "SELL") {
+    activeAsset.signal = activeAsset.defaultSignal || "BUY";
+  }
+
+  triggerVisualChartScan("⚡ RESETTING & RE-ANCHORING " + activeAsset.symbol + " (" + activeAsset.signal + " · " + tfLabel + ")...", 680);
+
+  refreshAllAssetsAnalysis();
+  renderWatchlist();
+  updateCenterAndRightPanels(
+    "✓ Live Action Reset Complete (" + tfLabel + "): " + activeAsset.signal + " " + activeAsset.symbol + " re-anchored to current price " + activeAsset.entry + " | SL " + activeAsset.sl + " | TP1 " + activeAsset.tp1 + "."
+  );
+
+  flashChartLevelsStrip();
+}
+
+function flashChartLevelsStrip() {
+  const strip = document.getElementById("lcChartLevelsStrip");
+  const levelsCard = document.getElementById("lcSectionLevels");
+  const hud = document.getElementById("lcOnChartHud");
+  [strip, levelsCard, hud].forEach(function (el) {
+    if (!el) return;
+    el.classList.add("lc-flash-highlight");
+    clearTimeout(el._flashTimer);
+    el._flashTimer = setTimeout(function () {
+      el.classList.remove("lc-flash-highlight");
+    }, 800);
+  });
+}
+
+// ==========================================
+// 8. CORE ACTIONS: ANALYZE, BEST SETUP & 4-LLM COUNCIL
 // ==========================================
 function runLiveChartAnalysis(options) {
   const opts = options || {};
   const reloadWidget = Boolean(opts.reloadWidget);
   const analyzeBtn = document.getElementById("lcAnalyzeSetupBtn");
   const statusEl = document.getElementById("lcCouncilStatusText");
-  const tfLabel = (TF_CONFIG[activeTimeframe] && TF_CONFIG[activeTimeframe].label) ? TF_CONFIG[activeTimeframe].label : "30m";
+  const tfLabel = (window.TF_CONFIG[activeTimeframe] && window.TF_CONFIG[activeTimeframe].label) ? window.TF_CONFIG[activeTimeframe].label : "30m";
   const settings = getCurrentFilterSettings();
 
   if (analyzeBtn) {
-    analyzeBtn.disabled = true;
     analyzeBtn.textContent = "⏳ Scanning...";
   }
 
-  triggerVisualChartScan("📊 SCANNING " + activeAsset.symbol + " (" + tfLabel + ") · " + settings.playbook.toUpperCase() + "...", 650);
+  triggerVisualChartScan("📊 SCANNING " + activeAsset.symbol + " (" + tfLabel + ") · " + settings.playbook.toUpperCase() + "...", 600);
 
   if (statusEl) {
     statusEl.textContent = "🔍 Scanning " + activeAsset.symbol + " on " + tfLabel + " (" + settings.risk + ", " + settings.horizon + ")... recalculating order blocks & ATR levels.";
@@ -543,25 +1011,23 @@ function runLiveChartAnalysis(options) {
 
   setTimeout(function () {
     if (analyzeBtn) {
-      analyzeBtn.disabled = false;
       analyzeBtn.textContent = "📊 Analyze";
     }
     const resolvedPb = settings.playbook === "auto" ? activeAsset.bestPlaybook.toUpperCase() : settings.playbook.toUpperCase();
     updateCenterAndRightPanels(
       "✓ Live Scan Complete (" + tfLabel + " · " + resolvedPb + "): " + activeAsset.signal + " setup locked at " + activeAsset.entry + " | SL " + activeAsset.sl + " | TP1 " + activeAsset.tp1 + " (" + activeAsset.kpi.conf + " conf)."
     );
-  }, 420);
+    flashChartLevelsStrip();
+  }, 360);
 }
 
 function runBestSetupScanner() {
-  if (isScanning) return;
   isScanning = true;
 
   const bestBtn = document.getElementById("lcBestSetupBtn");
   const statusEl = document.getElementById("lcCouncilStatusText");
 
   if (bestBtn) {
-    bestBtn.disabled = true;
     bestBtn.textContent = "⚡ Scanning 7 Markets...";
   }
 
@@ -577,7 +1043,7 @@ function runBestSetupScanner() {
   }
 
   refreshAllAssetsAnalysis();
-  triggerVisualChartScan("✦ AI SCANNING ALL 7 MARKETS FOR BEST SETUP...", 1250);
+  triggerVisualChartScan("✦ AI SCANNING ALL 7 MARKETS FOR BEST BUY/SELL SETUP...", 1100);
 
   const watchRows = Array.from(document.querySelectorAll("#lcWatchlistContainer .lc-watch-item"));
   let stepIndex = 0;
@@ -595,14 +1061,14 @@ function runBestSetupScanner() {
     } else {
       clearInterval(sweepInterval);
 
-      const actionable = WATCHLIST_DB
-        .filter(function (x) { return x.signal !== "HOLD"; })
-        .sort(function (a, b) { return (b.CompositeScore || 0) - (a.CompositeScore || 0); });
+      const actionable = DB.slice().sort(function (a, b) {
+        return (b.CompositeScore || 0) - (a.CompositeScore || 0);
+      });
 
-      let winner = actionable[0] || WATCHLIST_DB[0];
-      if (winner.symbol === activeAsset.symbol && actionable.length > 1 && lastBestSetupIndex === 0) {
-        winner = actionable[1];
-        lastBestSetupIndex = 1;
+      let winner = actionable[0] || DB[0];
+      if (winner.symbol === activeAsset.symbol && actionable.length > 1) {
+        lastBestSetupIndex = (lastBestSetupIndex + 1) % Math.min(3, actionable.length);
+        winner = actionable[lastBestSetupIndex];
       } else {
         lastBestSetupIndex = 0;
       }
@@ -610,31 +1076,26 @@ function runBestSetupScanner() {
       const prevSymbol = activeAsset.symbol;
       activeAsset = winner;
 
-      const pbSelect = document.getElementById("lcPlaybookSelect");
-      if (pbSelect && pbSelect.value !== "auto") {
-        pbSelect.value = winner.bestPlaybook || "auto";
-      }
-
       refreshAllAssetsAnalysis();
       renderWatchlist();
       if (prevSymbol !== activeAsset.symbol) {
         initTradingViewWidget();
       }
 
-      const tfLabel = (TF_CONFIG[activeTimeframe] && TF_CONFIG[activeTimeframe].label) ? TF_CONFIG[activeTimeframe].label : "30m";
-      const pbName = PLAYBOOK_NAMES[winner.bestPlaybook] || "SMC Order Block + FVG";
+      const tfLabel = (window.TF_CONFIG[activeTimeframe] && window.TF_CONFIG[activeTimeframe].label) ? window.TF_CONFIG[activeTimeframe].label : "30m";
+      const pbName = window.PLAYBOOK_NAMES[winner.bestPlaybook] || "SMC Order Block + FVG";
 
       updateCenterAndRightPanels(
         "🏆 BEST SETUP FOUND: " + winner.symbol + " (" + winner.signal + " · " + tfLabel + ") via " + pbName + " — " + winner.kpi.conf + " Confidence, " + winner.rr + ", Entry " + winner.entry + "."
       );
+      flashChartLevelsStrip();
 
       if (bestBtn) {
-        bestBtn.disabled = false;
         bestBtn.textContent = "✦ Best setup";
       }
       isScanning = false;
     }
-  }, 140);
+  }, 120);
 }
 
 function runFourLlmCouncil() {
@@ -643,10 +1104,9 @@ function runFourLlmCouncil() {
   const pills = document.querySelectorAll(".lc-llm-badges-row .lc-llm-pill");
 
   if (!statusEl || !btn) return;
-  btn.disabled = true;
   btn.textContent = "⏳ Running 4 LLMs...";
 
-  triggerVisualChartScan("🧠 4-LLM COUNCIL EVALUATING " + activeAsset.symbol + "...", 950);
+  triggerVisualChartScan("🧠 4-LLM COUNCIL EVALUATING " + activeAsset.symbol + "...", 850);
 
   const steps = [
     "🔵 [1/4] Technical LLM verifying " + activeAsset.symbol + " EMA stack & ADX trend strength...",
@@ -665,19 +1125,20 @@ function runFourLlmCouncil() {
       clearInterval(timer);
       pills.forEach(function (p) { p.classList.remove("llm-active-vote"); });
       refreshAllAssetsAnalysis();
-      btn.disabled = false;
       btn.textContent = "✦ Run Council";
       updateCenterAndRightPanels(
         "✓ 4-LLM Council Unanimous (" + activeAsset.kpi.conf + " confidence): " + activeAsset.signal + " " + activeAsset.symbol + " at " + activeAsset.entry + " | SL " + activeAsset.sl + " | TP1 " + activeAsset.tp1 + "."
       );
+      flashChartLevelsStrip();
     }
-  }, 220);
+  }, 190);
 }
 
 // ==========================================
-// 10. INTERACTIVE EVENTS, SHORTCUTS & LIVE STREAM
+// 9. INTERACTIVE EVENTS, SHORTCUTS & LIVE STREAM
 // ==========================================
 function bindEvents() {
+  // Timeframe buttons
   document.querySelectorAll("#lcTimeframeGroup .lc-tf-btn").forEach(function (btn) {
     btn.addEventListener("click", function () {
       document.querySelectorAll("#lcTimeframeGroup .lc-tf-btn").forEach(function (b) { b.classList.remove("active"); });
@@ -685,10 +1146,10 @@ function bindEvents() {
       activeTimeframe = btn.getAttribute("data-tf") || "30";
 
       const horizonSelect = document.getElementById("lcHorizonSelect");
-      const tfCfg = TF_CONFIG[activeTimeframe];
+      const tfCfg = window.TF_CONFIG[activeTimeframe];
       if (horizonSelect && tfCfg) {
-        if (tfCfg.horizon === "Scalp") horizonSelect.value = "Scalp (M1–M15)";
-        else if (tfCfg.horizon === "Swing") horizonSelect.value = "Swing (H4–D1)";
+        if (tfCfg.horizon === "Scalp") horizonSelect.value = "Scalp";
+        else if (tfCfg.horizon === "Swing") horizonSelect.value = "Swing";
         else horizonSelect.value = "Intraday";
       }
 
@@ -696,6 +1157,7 @@ function bindEvents() {
     });
   });
 
+  // Watchlist category tabs
   document.querySelectorAll("#lcClassTabs .lc-class-tab").forEach(function (tab) {
     tab.addEventListener("click", function () {
       document.querySelectorAll("#lcClassTabs .lc-class-tab").forEach(function (t) { t.classList.remove("active"); });
@@ -705,6 +1167,7 @@ function bindEvents() {
     });
   });
 
+  // Right panel tabs
   document.querySelectorAll("#lcPanelTabs .lc-p-tab").forEach(function (tabBtn) {
     tabBtn.addEventListener("click", function () {
       const tabName = tabBtn.getAttribute("data-tab") || "analysis";
@@ -712,6 +1175,7 @@ function bindEvents() {
     });
   });
 
+  // Playbook, Risk, Horizon selects
   ["lcPlaybookSelect", "lcRiskSelect", "lcHorizonSelect"].forEach(function (selectId) {
     const el = document.getElementById(selectId);
     if (el) {
@@ -721,6 +1185,39 @@ function bindEvents() {
     }
   });
 
+  // Instant BUY buttons (Topbar + On-Chart HUD)
+  ["lcQuickBuyBtn", "lcHudBuyBtn"].forEach(function (id) {
+    const btn = document.getElementById(id);
+    if (btn) btn.addEventListener("click", function () { setLiveSignalDirection("BUY"); });
+  });
+
+  // Instant SELL buttons (Topbar + On-Chart HUD)
+  ["lcQuickSellBtn", "lcHudSellBtn"].forEach(function (id) {
+    const btn = document.getElementById(id);
+    if (btn) btn.addEventListener("click", function () { setLiveSignalDirection("SELL"); });
+  });
+
+  // Clickable BUY/SELL badge in Right Panel header
+  const mainDirBadge = document.getElementById("lcMainDirBadge");
+  if (mainDirBadge) {
+    mainDirBadge.addEventListener("click", function () {
+      const nextDir = activeAsset.signal === "BUY" ? "SELL" : "BUY";
+      setLiveSignalDirection(nextDir);
+    });
+  }
+
+  // All Reset Action triggers across Topbar, On-Chart HUD, Banner, Strip, Panel, and Shortcuts
+  ["lcQuickResetBtn", "lcHudResetBtn", "lcBannerResetBtn", "lcStripResetBtn", "lcPanelResetBtn", "scResetAction"].forEach(function (btnId) {
+    const btn = document.getElementById(btnId);
+    if (btn) {
+      btn.addEventListener("click", function () {
+        if (activePanelTab === "signals") switchRightPanelTab("analysis");
+        resetLiveChartAction();
+      });
+    }
+  });
+
+  // Search input
   const searchEl = document.getElementById("lcWatchSearch");
   if (searchEl) {
     searchEl.addEventListener("input", function (e) {
@@ -729,6 +1226,7 @@ function bindEvents() {
     });
   }
 
+  // Sidebar toggle
   const workspace = document.getElementById("lcWorkspace");
   const toggleSidebar = function () {
     if (workspace) workspace.classList.toggle("sidebar-collapsed");
@@ -738,6 +1236,7 @@ function bindEvents() {
   if (sideBtn) sideBtn.addEventListener("click", toggleSidebar);
   if (scSideBtn) scSideBtn.addEventListener("click", toggleSidebar);
 
+  // Analyze & Best Setup buttons
   const analyzeBtn = document.getElementById("lcAnalyzeSetupBtn");
   if (analyzeBtn) {
     analyzeBtn.addEventListener("click", function () {
@@ -754,11 +1253,13 @@ function bindEvents() {
     });
   }
 
+  // 4-LLM Council buttons
   const councilBtn = document.getElementById("lcRunCouncilBtn");
   const scCouncilBtn = document.getElementById("scRunCouncil");
   if (councilBtn) councilBtn.addEventListener("click", runFourLlmCouncil);
   if (scCouncilBtn) scCouncilBtn.addEventListener("click", runFourLlmCouncil);
 
+  // Focus AI Reader button
   const focusReaderBtn = document.getElementById("lcFocusAiBtn");
   if (focusReaderBtn) {
     focusReaderBtn.addEventListener("click", function () {
@@ -775,9 +1276,7 @@ function bindEvents() {
   const scFocusAi = document.getElementById("scFocusAi");
   if (scFocusAi) {
     scFocusAi.addEventListener("click", function () {
-      const panel = document.getElementById("lcAiPanel");
-      if (panel) panel.scrollIntoView({ behavior: "smooth" });
-      runLiveChartAnalysis({ reloadWidget: false });
+      runBestSetupScanner();
     });
   }
 
@@ -791,6 +1290,7 @@ function bindEvents() {
     });
   }
 
+  // Keyboard shortcuts
   document.addEventListener("keydown", function (e) {
     if (!(e.metaKey || e.ctrlKey)) return;
     const key = e.key.toLowerCase();
@@ -803,12 +1303,16 @@ function bindEvents() {
     } else if (key === "f") {
       e.preventDefault();
       runBestSetupScanner();
+    } else if (key === "r") {
+      e.preventDefault();
+      resetLiveChartAction();
     } else if (key === "s") {
       e.preventDefault();
       if (searchEl) searchEl.focus();
     }
   });
 
+  // Audio playback buttons
   ["lcNavMusicBtn", "lcSoundToggleBtn"].forEach(function (id) {
     const btn = document.getElementById(id);
     if (btn) btn.addEventListener("click", toggleAudioPlayback);
@@ -818,7 +1322,7 @@ function bindEvents() {
 // Live Price Micro-Ticks + Live Level Auto-Sync
 function startLivePriceStream() {
   setInterval(function () {
-    WATCHLIST_DB.forEach(function (item) {
+    DB.forEach(function (item) {
       const step =
         item.symbol === "XAUUSD" ? 0.45 :
         item.symbol === "BTCUSDT" ? 18.0 :
@@ -830,25 +1334,33 @@ function startLivePriceStream() {
       if (wiEl) wiEl.textContent = item.price.toFixed(item.decimals);
     });
 
-    // Dynamically recalculate levels on live tick so chart & panel stay 100% synced
     refreshAllAssetsAnalysis();
 
-    const formatted = fmtPrice(activeAsset.price, activeAsset.decimals);
-    const topEl = document.getElementById("lcTopLivePrice");
-    const closeEl = document.getElementById("lcLastCandleClose");
-    if (topEl) topEl.textContent = formatted;
-    if (closeEl) closeEl.textContent = formatted;
-
-    // Keep Entry/SL/TP strip & table synced with live price ticks
+    const formatted = window.fmtPrice(activeAsset.price, activeAsset.decimals);
+    const tfInfo = window.TF_CONFIG[activeTimeframe] || window.TF_CONFIG["30"];
     const setTxt = function (id, val) {
       const el = document.getElementById(id);
       if (el) el.textContent = val;
     };
+
+    setTxt("lcTopLivePrice", formatted);
+    setTxt("lcLastCandleClose", formatted);
     setTxt("lcStripEntry", "Entry " + activeAsset.signal + ": " + activeAsset.entry);
     setTxt("lcStripSL", "SL: " + activeAsset.sl);
     setTxt("lcStripTP1", "TP1: " + activeAsset.tp1);
     setTxt("lcStripTP2", "TP2: " + activeAsset.tp2);
     setTxt("lcStripTP3", "TP3: " + activeAsset.tp3);
+
+    setTxt(
+      "lcHudLevelText",
+      activeAsset.symbol + " (" + tfInfo.label + ") · Entry: " + activeAsset.entry + " · SL: " + activeAsset.sl + " · TP1: " + activeAsset.tp1
+    );
+
+    setTxt("rowValEntry", activeAsset.entry);
+    setTxt("rowValSL", activeAsset.sl);
+    setTxt("rowValTP1", activeAsset.tp1);
+    setTxt("rowValTP2", activeAsset.tp2);
+    setTxt("rowValTP3", activeAsset.tp3);
   }, 2200);
 
   let totalSec = 2 * 86400 + 21 * 3600 + 17 * 60 + 5;
@@ -864,11 +1376,9 @@ function startLivePriceStream() {
 }
 
 // ==========================================
-// 11. INITIALIZE EVERYTHING
+// 10. INITIALIZE EVERYTHING
 // ==========================================
-document.addEventListener("DOMContentLoaded", function () {
-  injectScannerStyles();
-
+function initLiveChartsApp() {
   const bgVideo = document.querySelector(".lc-bg-video");
   if (bgVideo) {
     bgVideo.muted = true;
@@ -895,4 +1405,10 @@ document.addEventListener("DOMContentLoaded", function () {
   initTradingViewWidget();
   bindEvents();
   startLivePriceStream();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initLiveChartsApp);
+} else {
+  initLiveChartsApp();
+}

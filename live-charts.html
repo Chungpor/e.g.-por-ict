@@ -84,7 +84,6 @@
 
       <!-- Right Action Controls -->
       <div class="nav-controls-group">
-        <!-- Sound Toggle Pill -->
         <button type="button" id="lcSoundToggleBtn" class="sound-toggle-pill" aria-label="Toggle Sound">
           <span class="sound-wave-track">
             <span class="sound-wave-bar"></span>
@@ -94,7 +93,6 @@
           <span class="sound-label-text" id="lcSoundStatusText">Music: OFF</span>
         </button>
 
-        <!-- Profile Avatar Button -->
         <a href="index.html" class="nav-avatar-btn" title="Profile">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -102,12 +100,10 @@
           </svg>
         </a>
 
-        <!-- Language Pill -->
         <button type="button" id="lcLangBtn" class="lang-pill-btn">
           <span id="lcCurrentLang">EN</span>
         </button>
 
-        <!-- Log out Button -->
         <a href="index.html" class="nav-logout-pill" style="text-decoration:none;">Log out</a>
       </div>
 
@@ -189,7 +185,7 @@
       <!-- Sidebar Footer -->
       <div class="lc-watch-footer">
         <span class="lc-pulse-dot"></span>
-        <span>6 active signals streaming</span>
+        <span>7 active BUY/SELL signals streaming</span>
       </div>
     </aside>
 
@@ -203,11 +199,24 @@
             ☰
           </button>
           <div class="lc-active-sym-badge">
-            <span class="lc-sym-triangle">▲</span>
+            <span class="lc-sym-triangle" id="lcSymTriangle">▲</span>
             <strong id="lcActiveSymTitle">XAUUSD</strong>
             <span class="lc-sym-check">✔ Price on chart · TradingView feed</span>
           </div>
           <span class="lc-live-price-pill" id="lcTopLivePrice">4,175.99</span>
+
+          <!-- Instant Live Action Buy / Sell / Reset Controls -->
+          <div class="lc-live-action-group">
+            <button type="button" class="lc-action-pill buy-btn is-active" id="lcQuickBuyBtn" title="Switch to Live BUY Setup">
+              ▲ BUY
+            </button>
+            <button type="button" class="lc-action-pill sell-btn" id="lcQuickSellBtn" title="Switch to Live SELL Setup">
+              ▼ SELL
+            </button>
+            <button type="button" class="lc-action-pill reset-btn" id="lcQuickResetBtn" title="Reset &amp; Re-Anchor Live Chart Action (⌘R)">
+              ⚡ Reset Action
+            </button>
+          </div>
         </div>
 
         <!-- Timeframe Buttons -->
@@ -228,19 +237,31 @@
           <span class="lc-reader-bot-ico">🤖 AI Chart Reader</span>
           <span class="lc-reader-score" id="lcReaderScoreBadge">Bullish +40</span>
           <span class="lc-reader-summary" id="lcReaderSummaryText">
-            Chart reads bullish (moderate): bullish market structure. Key support at 4167.84.
+            Chart reads bullish (strong): bullish market structure. Key support at 4,167.84.
           </span>
         </div>
-        <button type="button" class="lc-reader-toggle-btn" id="lcFocusAiBtn">▴ read</button>
+        <div class="lc-reader-actions">
+          <button type="button" class="lc-reader-toggle-btn" id="lcBannerResetBtn">↻ Reset Signal</button>
+          <button type="button" class="lc-reader-toggle-btn" id="lcFocusAiBtn">▴ read</button>
+        </div>
       </div>
 
-      <!-- TradingView Live Chart Box -->
-      <div class="lc-tv-viewport">
+      <!-- TradingView Live Chart Box + Floating On-Chart Action HUD -->
+      <div class="lc-tv-viewport" id="lcTvViewport">
         <div id="lc_tradingview_chart" class="lc-tv-embed"></div>
+
+        <!-- Floating Live Chart Action Bar (Always accessible on live chart) -->
+        <div class="lc-onchart-hud" id="lcOnChartHud">
+          <span class="lc-hud-sig buy" id="lcHudSignalBadge">BUY ACTIVE</span>
+          <span class="lc-hud-lvl" id="lcHudLevelText">Entry: 4,175.99 · SL: 4,165.98 · TP1: 4,188.59</span>
+          <button type="button" class="lc-hud-btn buy" id="lcHudBuyBtn">BUY</button>
+          <button type="button" class="lc-hud-btn sell" id="lcHudSellBtn">SELL</button>
+          <button type="button" class="lc-hud-btn reset" id="lcHudResetBtn">⚡ Reset</button>
+        </div>
       </div>
 
       <!-- On-Chart Trade Levels Strip -->
-      <div class="lc-chart-levels-strip">
+      <div class="lc-chart-levels-strip" id="lcChartLevelsStrip">
         <div class="lc-strip-tag">
           <span>🎯 Trade Levels · On Chart</span>
           <strong id="lcStripRR">R:R 1.3 / 2.0 / 2.8</strong>
@@ -251,12 +272,16 @@
           <span class="lc-lvl-chip tp" id="lcStripTP1">TP1: 4,188.59</span>
           <span class="lc-lvl-chip tp" id="lcStripTP2">TP2: 4,196.02</span>
           <span class="lc-lvl-chip tp" id="lcStripTP3">TP3: 4,204.03</span>
+          <button type="button" class="lc-strip-reset-btn" id="lcStripResetBtn" title="Re-anchor levels to current live price">
+            ⚡ Re-Anchor Now
+          </button>
         </div>
       </div>
 
       <!-- Keyboard Shortcuts Bar -->
       <footer class="lc-shortcuts-bar">
-        <button type="button" class="lc-sc-item" id="scFocusAi"><kbd>⌘F</kbd> Focus AI</button>
+        <button type="button" class="lc-sc-item" id="scResetAction"><kbd>⌘R</kbd> Reset Action</button>
+        <button type="button" class="lc-sc-item" id="scFocusAi"><kbd>⌘F</kbd> Best Setup</button>
         <button type="button" class="lc-sc-item" id="scSearch"><kbd>⌘S</kbd> Search</button>
         <button type="button" class="lc-sc-item" id="scSidebar"><kbd>⌘B</kbd> Sidebar</button>
         <button type="button" class="lc-sc-item" id="scRunCouncil"><kbd>⌘M</kbd> Run 4-LLM Council</button>
@@ -272,7 +297,7 @@
         <button type="button" class="lc-p-tab active" data-tab="analysis">Analysis</button>
         <button type="button" class="lc-p-tab" data-tab="council">4-LLM Council</button>
         <button type="button" class="lc-p-tab" data-tab="levels">Levels</button>
-        <button type="button" class="lc-p-tab" data-tab="signals">Signals (6)</button>
+        <button type="button" class="lc-p-tab" data-tab="signals">Signals (7)</button>
       </div>
 
       <!-- Signal Header Bar -->
@@ -285,7 +310,9 @@
             Last candle close: <strong id="lcLastCandleClose">4,175.99</strong>
           </div>
         </div>
-        <span class="lc-active-dir-badge buy" id="lcMainDirBadge">BUY</span>
+        <div class="lc-sig-header-right">
+          <span class="lc-active-dir-badge buy" id="lcMainDirBadge" title="Click to toggle BUY/SELL">BUY</span>
+        </div>
       </div>
 
       <!-- SUPER AI CONSENSUS · 4 LLMs -->
@@ -309,9 +336,10 @@
 
       <!-- PLAYBOOK & RISK CONTROLS -->
       <div class="lc-playbook-card">
-        <div class="lc-pb-top">
+        <div class="lc-pb-top-3">
           <button type="button" class="lc-analyze-btn" id="lcAnalyzeSetupBtn">📊 Analyze</button>
           <button type="button" class="lc-best-setup-btn" id="lcBestSetupBtn">✦ Best setup</button>
+          <button type="button" class="lc-reset-panel-btn" id="lcPanelResetBtn">⚡ Reset</button>
         </div>
 
         <div class="lc-pb-select-row">
@@ -322,7 +350,7 @@
             <option value="trend">EMA Momentum Continuation</option>
           </select>
         </div>
-        <p class="lc-pb-hint">Let the engine choose the highest-probability playbook for current conditions.</p>
+        <p class="lc-pb-hint">Switch or reset anytime — engine dynamically recalculates BUY/SELL levels on the live chart.</p>
 
         <div class="lc-pb-filters">
           <select id="lcRiskSelect" class="lc-select-sm">
@@ -367,15 +395,15 @@
         <div class="lc-kpi-grid">
           <div class="lc-kpi-box">
             <span class="lc-kpi-lbl">Confidence</span>
-            <strong class="lc-kpi-num green" id="lcKpiConf">71%</strong>
+            <strong class="lc-kpi-num green" id="lcKpiConf">78%</strong>
           </div>
           <div class="lc-kpi-box">
             <span class="lc-kpi-lbl">Win Prob.</span>
-            <strong class="lc-kpi-num cyan" id="lcKpiWin">52%</strong>
+            <strong class="lc-kpi-num cyan" id="lcKpiWin">62%</strong>
           </div>
           <div class="lc-kpi-box">
             <span class="lc-kpi-lbl">Indicator Conf.</span>
-            <strong class="lc-kpi-num amber" id="lcKpiInd">54%</strong>
+            <strong class="lc-kpi-num amber" id="lcKpiInd">68%</strong>
           </div>
           <div class="lc-kpi-box">
             <span class="lc-kpi-lbl">Risk Score</span>
@@ -391,8 +419,9 @@
 
   </main>
 
-  <!-- Live Charts AI JavaScript -->
+  <!-- Load shared engine (supports both live-engine.js and liveengine.js) + main script -->
   <script src="live-engine.js"></script>
+  <script src="liveengine.js"></script>
   <script src="live-charts.js"></script>
 </body>
 </html>

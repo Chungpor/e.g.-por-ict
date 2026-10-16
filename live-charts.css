@@ -564,12 +564,6 @@ html, body {
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-.lc-wi-sig.hold {
-  background: var(--lc-amber-soft);
-  color: var(--lc-amber);
-  border: 1px solid rgba(245, 158, 11, 0.3);
-}
-
 .lc-watch-footer {
   display: flex;
   align-items: center;
@@ -628,6 +622,7 @@ html, body {
 }
 
 .lc-sym-triangle { color: var(--lc-neon-green); font-size: 11px; }
+.lc-sym-triangle.sell { color: #f87171; }
 .lc-sym-check { font-size: 11px; color: var(--lc-emerald); font-weight: 600; }
 
 .lc-live-price-pill {
@@ -639,6 +634,54 @@ html, body {
   border: 1px solid rgba(0, 230, 118, 0.3);
   padding: 3px 10px;
   border-radius: 8px;
+}
+
+/* Instant BUY / SELL / Reset Action Group on Chart Topbar */
+.lc-live-action-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.lc-action-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 4px 9px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  border: 1px solid var(--lc-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--lc-text-sub);
+}
+
+.lc-action-pill.buy-btn:hover,
+.lc-action-pill.buy-btn.is-active {
+  background: rgba(0, 230, 118, 0.18);
+  border-color: var(--lc-neon-green);
+  color: var(--lc-neon-green);
+  box-shadow: 0 0 12px rgba(0, 230, 118, 0.25);
+}
+
+.lc-action-pill.sell-btn:hover,
+.lc-action-pill.sell-btn.is-active {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: var(--lc-red);
+  color: #f87171;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.25);
+}
+
+.lc-action-pill.reset-btn {
+  background: rgba(56, 189, 248, 0.14);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: var(--lc-cyan);
+}
+
+.lc-action-pill.reset-btn:hover {
+  background: var(--lc-cyan);
+  color: #04101c;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
 }
 
 .lc-tf-group {
@@ -692,6 +735,12 @@ html, body {
   font-size: 12px;
 }
 
+.lc-reader-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .lc-reader-bot-ico {
   font-weight: 800;
   color: var(--lc-text-main);
@@ -721,20 +770,105 @@ html, body {
   cursor: pointer;
 }
 
-/* TradingView Container */
+.lc-reader-toggle-btn:hover {
+  border-color: var(--lc-cyan);
+  background: rgba(56, 189, 248, 0.15);
+}
+
+/* TradingView Container - EXPLICIT HEIGHT PREVENTS FLEX IFRAME COLLAPSE */
 .lc-tv-viewport {
-  flex: 1;
-  min-height: 510px;
+  width: 100%;
+  height: 530px;
+  min-height: 530px;
   background: var(--lc-panel);
   border: 1px solid var(--lc-border);
   border-radius: 14px;
   overflow: hidden;
+  position: relative;
 }
 
 .lc-tv-embed {
   width: 100%;
-  height: 100%;
-  min-height: 510px;
+  height: 530px;
+  min-height: 530px;
+}
+
+/* Floating On-Chart Live Action HUD */
+.lc-onchart-hud {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(6, 12, 20, 0.92);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  padding: 6px 11px;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
+  flex-wrap: wrap;
+}
+
+.lc-hud-sig {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.lc-hud-sig.buy {
+  background: var(--lc-neon-green);
+  color: #03150b;
+}
+
+.lc-hud-sig.sell {
+  background: var(--lc-red);
+  color: #ffffff;
+}
+
+.lc-hud-lvl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: var(--lc-text-main);
+  font-weight: 700;
+}
+
+.lc-hud-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--lc-border);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--lc-text-main);
+  transition: all 0.15s ease;
+}
+
+.lc-hud-btn.buy:hover {
+  background: var(--lc-neon-green);
+  color: #03150b;
+  border-color: var(--lc-neon-green);
+}
+
+.lc-hud-btn.sell:hover {
+  background: var(--lc-red);
+  color: #ffffff;
+  border-color: var(--lc-red);
+}
+
+.lc-hud-btn.reset {
+  border-color: var(--lc-cyan);
+  color: var(--lc-cyan);
+}
+
+.lc-hud-btn.reset:hover {
+  background: var(--lc-cyan);
+  color: #04101c;
 }
 
 /* On-Chart Levels Strip */
@@ -749,6 +883,7 @@ html, body {
   gap: 10px;
   flex-wrap: wrap;
   font-size: 11.5px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .lc-strip-tag {
@@ -778,6 +913,24 @@ html, body {
 .lc-lvl-chip.entry { background: var(--lc-cyan-soft); color: var(--lc-cyan); border: 1px solid rgba(56, 189, 248, 0.35); }
 .lc-lvl-chip.sl { background: var(--lc-red-soft); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); }
 .lc-lvl-chip.tp { background: var(--lc-emerald-soft); color: var(--lc-neon-green); border: 1px solid rgba(0, 230, 118, 0.32); }
+
+.lc-strip-reset-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 7px;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid var(--lc-cyan);
+  color: var(--lc-cyan);
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.lc-strip-reset-btn:hover {
+  background: var(--lc-cyan);
+  color: #04101c;
+}
 
 /* Shortcuts Bar */
 .lc-shortcuts-bar {
@@ -885,6 +1038,13 @@ html, body {
   font-weight: 800;
   padding: 4px 12px;
   border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease;
+}
+
+.lc-active-dir-badge:hover {
+  transform: scale(1.05);
 }
 
 .lc-active-dir-badge.buy {
@@ -958,14 +1118,15 @@ html, body {
 }
 
 /* Playbook Controls */
-.lc-pb-top {
+.lc-pb-top-3 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 6px;
 }
 
 .lc-analyze-btn,
-.lc-best-setup-btn {
+.lc-best-setup-btn,
+.lc-reset-panel-btn {
   padding: 7px 10px;
   border-radius: 8px;
   font-size: 11.5px;
@@ -984,6 +1145,17 @@ html, body {
   background: rgba(16, 185, 129, 0.15);
   border: 1px solid rgba(0, 230, 118, 0.4);
   color: var(--lc-neon-green);
+}
+
+.lc-reset-panel-btn {
+  background: rgba(168, 85, 247, 0.16);
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  color: #c084fc;
+}
+
+.lc-reset-panel-btn:hover {
+  background: var(--lc-purple);
+  color: #ffffff;
 }
 
 .lc-select,
@@ -1192,26 +1364,6 @@ html, body {
 }
 
 /* ==========================================
-   RESPONSIVE BREAKPOINTS
-   ========================================== */
-@media (max-width: 1280px) {
-  .lc-workspace {
-    grid-template-columns: 230px 1fr 340px;
-  }
-}
-
-@media (max-width: 1080px) {
-  .nav-center-links {
-    display: none;
-  }
-  .lc-workspace {
-    grid-template-columns: 1fr;
-  }
-  .lc-ai-panel {
-    max-height: none;
-  }
-}
-/* ==========================================
    LIVE CHART LASER SCANNER & BEST SETUP UI
    ========================================== */
 .lc-scan-laser-overlay {
@@ -1281,7 +1433,7 @@ html, body {
   transition: all 0.3s ease;
 }
 
-/* Signals (6) Tab List View */
+/* Signals (7) Tab List View */
 .lc-signals-list-view {
   display: flex;
   flex-direction: column;
@@ -1338,4 +1490,25 @@ html, body {
   color: var(--lc-text-sub);
   padding-top: 5px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
+@media (max-width: 1280px) {
+  .lc-workspace {
+    grid-template-columns: 230px 1fr 340px;
+  }
+}
+
+@media (max-width: 1080px) {
+  .nav-center-links {
+    display: none;
+  }
+  .lc-workspace {
+    grid-template-columns: 1fr;
+  }
+  .lc-ai-panel {
+    max-height: none;
+  }
 }
