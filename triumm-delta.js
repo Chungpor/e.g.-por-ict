@@ -153,8 +153,8 @@ const DELTA_SIGNALS_DATA = [
     confidence: 87,
     live: 158.2,
     decimals: 1,
-    sl: "149.163...",
-    tp: "162.866...",
+    sl: "149.163",
+    tp: "162.866",
     summary: "USDJPY bullish signal: EMA bullish crossover, RSI 64.0 (bullish), ADX 40.0, strong yield momentum."
   },
   {
@@ -435,7 +435,8 @@ const filterState = {
   source: "ALL",
   category: "ALL",
   impact: "ALL",
-  search: ""
+  search: "",
+  globalKhmer: false
 };
 
 function escapeHtml(value) {
@@ -563,14 +564,61 @@ function renderDeltaSignals() {
 
         <p class="td-sig-summary">${escapeHtml(sig.summary)}</p>
 
-        <div class="td-sig-foot">
-          <span>just now</span>
-          <span>→</span>
-        </div>
+        <button type="button" class="td-sig-action-btn" onclick="openSignalModal(${i})">
+          <span>INSPECT SETUP</span>
+          <span class="td-btn-arrow">➜</span>
+        </button>
       </article>
     `;
   }).join("");
 }
+
+window.openSignalModal = function (index) {
+  const sig = DELTA_SIGNALS_DATA[index];
+  const modal = document.getElementById("tdSignalModal");
+  const content = document.getElementById("tdSignalModalContent");
+  if (!sig || !modal || !content) return;
+
+  const isBuy = sig.side === "BUY";
+  content.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <span class="td-tech-pill">TRIUMM DELTA SIGNAL</span>
+      <span class="td-rr-pill">RR ${escapeHtml(sig.rr)} · ${sig.confidence}% CONFIDENCE</span>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:4px;">
+      <h3 style="font-size:24px; font-weight:800; color:#fff;">${escapeHtml(sig.symbol)}</h3>
+      <span class="td-sig-side ${isBuy ? "buy" : "sell"}" style="font-size:18px;">${escapeHtml(sig.side)}</span>
+    </div>
+    <div class="td-sig-prices" style="margin:6px 0;">
+      <div class="td-price-box">
+        <span class="td-price-lbl">ENTRY / LIVE</span>
+        <span class="td-price-num green">${sig.live.toFixed(sig.decimals)}</span>
+      </div>
+      <div class="td-price-box">
+        <span class="td-price-lbl">STOP LOSS</span>
+        <span class="td-price-num red">${escapeHtml(sig.sl)}</span>
+      </div>
+      <div class="td-price-box">
+        <span class="td-price-lbl">TAKE PROFIT</span>
+        <span class="td-price-num green">${escapeHtml(sig.tp)}</span>
+      </div>
+    </div>
+    <p style="font-size:13px; color:#94a3b8; line-height:1.55;">${escapeHtml(sig.summary)}</p>
+    <div style="display:flex; gap:10px; margin-top:8px;">
+      <a href="chart-analysis.html" class="td-fc-launch-btn" style="flex:1;">
+        <span>OPEN LIVE CHART</span>
+        <span class="td-fc-arrow">➜</span>
+      </a>
+      <button type="button" onclick="closeSignalModal()" class="td-filter-pill" style="padding:10px 16px;">Close</button>
+    </div>
+  `;
+  modal.classList.add("open");
+};
+
+window.closeSignalModal = function () {
+  const modal = document.getElementById("tdSignalModal");
+  if (modal) modal.classList.remove("open");
+};
 
 // ==========================================
 // 6. RENDER INTELLIGENCE FEED STREAM
@@ -633,7 +681,8 @@ function renderFeedStream() {
       (m) => `<span class="td-metric-pill">${escapeHtml(m)}</span>`
     ).join("");
 
-    const khmerSection = item.show_km_inline
+    const showKm = item.show_km_inline || filterState.globalKhmer;
+    const khmerSection = showKm
       ? `<p class="td-feed-khmer" id="km_${escapeHtml(item.id)}">${escapeHtml(item.title_km)}</p>`
       : `
         <button type="button" class="td-translate-pill" onclick="toggleFeedKhmer('${escapeHtml(item.id)}')">
@@ -723,6 +772,27 @@ function bindFilterControls() {
     refreshBtn.addEventListener("click", () => {
       fetchLiveForexFactoryFeed();
       renderDeltaSignals();
+      renderFeedStream();
+    });
+  }
+
+  // Bind Theme Toggle
+  const themeToggle = document.getElementById("tdThemeToggle");
+  const themeThumb = document.getElementById("tdThemeThumb");
+  if (themeToggle) {
+    themeToggle.addEventListener("click", () => {
+      const isLight = document.body.classList.toggle("light-mode");
+      if (themeThumb) themeThumb.textContent = isLight ? "☀️" : "🌙";
+    });
+  }
+
+  // Bind Global Language Toggle (EN / KM)
+  const langBtn = document.getElementById("tdLangBtn");
+  const currentLangEl = document.getElementById("tdCurrentLang");
+  if (langBtn) {
+    langBtn.addEventListener("click", () => {
+      filterState.globalKhmer = !filterState.globalKhmer;
+      if (currentLangEl) currentLangEl.textContent = filterState.globalKhmer ? "KM" : "EN";
       renderFeedStream();
     });
   }

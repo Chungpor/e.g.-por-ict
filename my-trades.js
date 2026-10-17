@@ -5,11 +5,100 @@
   const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const S = window.PorTrades;
   let filter = "all", tab = "history", tracking = false;
-  let focusId = decodeURIComponent((location.hash || "").slice(1)).replace(/^trade-/, ""), focusScrolled = false; // from Chart Analysis "Open in My Trades"
+  let focusId = decodeURIComponent((location.hash || "").slice(1)).replace(/^trade-/, ""), focusScrolled = false;
 
   const fmtDate = (ts) => new Date(ts).toLocaleString([], { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
   const fmtR = (r) => (r > 0 ? "+" : "") + r.toFixed(2) + "R";
   const num = (t, v) => Number(v).toFixed(t.dec ?? 2);
+
+  // ---------- custom modal & undo toast ----------
+  let modalEl = null, toastEl = null, toastTimer = null, lastDeleted = null;
+
+  function initActionUI() {
+    if (modalEl) return;
+
+    // 1. Custom Confirmation Modal
+    modalEl = document.createElement("div");
+    modalEl.className = "mt-modal-backdrop";
+    modalEl.setAttribute("role", "dialog");
+    modalEl.setAttribute("aria-modal", "true");
+    modalEl.innerHTML = `
+      <div class="mt-modal">
+        <div class="mt-modal-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
+          </svg>
+        </div>
+        <h3 class="mt-modal-title" id="mtModalTitle">Delete trade?</h3>
+        <div id="mtModalPillWrap"></div>
+        <p class="mt-modal-desc" id="mtModalDesc">This signal and its journal notes will be removed.</p>
+        <div class="mt-modal-actions">
+          <button type="button" class="mt-modal-btn cancel" id="mtModalCancel">Cancel</button>
+          <button type="button" class="mt-modal-btn danger" id="mtModalConfirm">Delete</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modalEl);
+
+    // 2. Undo Toast
+    toastEl = document.createElement("div");
+    toastEl.className = "mt-toast";
+    toastEl.innerHTML = `
+      <span id="mtToastText">Trade deleted</span>
+      <button type="button" class="mt-toast-undo" id="mtToastUndo">Undo</button>
+    `;
+    document.body.appendChild(toastEl);
+
+    $("mtToastUndo").addEventListener("click", () => {
+      if (!lastDeleted) return;
+      const list = S.load();
+      list.splice(lastDeleted.index, 0, lastDeleted.trade);
+      S.save(list);
+      lastDeleted = null;
+      toastEl.classList.remove("show");
+      render();
+    });
+  }
+
+  function showConfirmModal({ title, pillHtml = "", desc, confirmText = "Delete", onConfirm }) {
+    initActionUI();
+    $("mtModalTitle").textContent = title;
+    $("mtModalPillWrap").innerHTML = pillHtml;
+    $("mtModalDesc").textContent = desc;
+    $("mtModalConfirm").textContent = confirmText;
+
+    const close = () => {
+      modalEl.classList.remove("open");
+      document.removeEventListener("keydown", onKey);
+    };
+    const onKey = (e) => {
+      if (e.key === "Escape") close();
+    };
+
+    $("mtModalCancel").onclick = close;
+    modalEl.onclick = (e) => {
+      if (e.target === modalEl) close();
+    };
+    $("mtModalConfirm").onclick = () => {
+      close();
+      if (typeof onConfirm === "function") onConfirm();
+    };
+
+    document.addEventListener("keydown", onKey);
+    modalEl.classList.add("open");
+    $("mtModalConfirm").focus();
+  }
+
+  function showUndoToast(msg) {
+    initActionUI();
+    $("mtToastText").textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toastEl.classList.remove("show");
+      lastDeleted = null;
+    }, 4500);
+  }
 
   // ---------- tabs ----------
   function setTab(name) {
@@ -26,7 +115,7 @@
   }
 
   // ---------- history ----------
-  function badge(r, t) {
+  function badge(r) {
     if (r.state === "win") return `<span class="mt-badge win">✓ TP${r.level} HIT</span>`;
     if (r.state === "loss") return `<span class="mt-badge loss">✕ SL HIT</span>`;
     if (r.state === "be") return `<span class="mt-badge be">CLOSED · BREAKEVEN</span>`;
@@ -154,7 +243,18 @@
         ${st.byPair.map((p) => `<tr><td>${esc(p.pair)}</td><td>${p.wins}</td><td>${p.losses}</td><td class="${cls(p.r)}">${fmtR(p.r)}</td></tr>`).join("")}</tbody></table></div>` : ""}
       <p class="ca-muted" style="margin:0 0 10px">A win means price reached TP${win} before SL. Change this on the History tab. R = multiples of the amount risked per trade.</p>
       <button type="button" class="mt-danger" id="clearAllBtn">Delete all saved trades</button>`;
-    $("clearAllBtn").addEventListener("click", () => { if (confirm("Delete all saved trades and journal notes? This cannot be undone.")) { S.clearAll(); render(); } });
+
+    $("clearAllBtn").addEventListener("click", () => {
+      showConfirmModal({
+        title: "Delete all saved trades?",
+        desc: "All saved trades, performance history, and journal notes will be permanently removed.",
+        confirmText: "Delete All",
+        onConfirm: () => {
+          S.clearAll();
+          render();
+        }
+      });
+    });
   }
 
   function render() {
@@ -179,6 +279,8 @@
 
   // ---------- events ----------
   document.addEventListener("DOMContentLoaded", () => {
+    initActionUI();
+
     document.querySelectorAll(".mt-tab").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tab)));
     document.querySelectorAll(".mt-filter").forEach((b) => b.addEventListener("click", () => {
       filter = b.dataset.f;
@@ -190,13 +292,46 @@
 
     $("historyList").addEventListener("click", (e) => {
       const b = e.target.closest("[data-act]"); if (!b) return;
-      const id = b.closest("[data-id]").dataset.id, now = Date.now(), act = b.dataset.act;
-      if (act === "tp") S.update(id, { manual: { result: "win", level: +b.dataset.lv, at: now } });
-      else if (act === "sl") S.update(id, { manual: { result: "loss", at: now } });
-      else if (act === "be") S.update(id, { manual: { result: "be", at: now } });
-      else if (act === "reopen") S.update(id, { manual: null });
-      else if (act === "del") { if (!confirm("Delete this trade?")) return; S.remove(id); }
-      render();
+      const card = b.closest("[data-id]"); if (!card) return;
+      const id = card.dataset.id, now = Date.now(), act = b.dataset.act;
+
+      if (act === "tp") {
+        S.update(id, { manual: { result: "win", level: +b.dataset.lv, at: now } });
+        render();
+      } else if (act === "sl") {
+        S.update(id, { manual: { result: "loss", at: now } });
+        render();
+      } else if (act === "be") {
+        S.update(id, { manual: { result: "be", at: now } });
+        render();
+      } else if (act === "reopen") {
+        S.update(id, { manual: null });
+        render();
+      } else if (act === "del") {
+        const list = S.load();
+        const idx = list.findIndex((x) => x.id === id);
+        const trade = list[idx];
+        if (!trade) return;
+
+        const buy = trade.dir === "BUY";
+        const pillHtml = `<div class="mt-modal-pill"><span class="ca-dir ${buy ? "buy" : "sell"}">${buy ? "▲ BUY" : "▼ SELL"}</span><span>${esc(trade.pair)} · ${esc(trade.tf)}</span></div>`;
+
+        showConfirmModal({
+          title: "Delete this trade?",
+          pillHtml,
+          desc: "This trade and its journal notes will be removed from your history.",
+          confirmText: "Delete Trade",
+          onConfirm: () => {
+            lastDeleted = { trade, index: idx };
+            card.classList.add("mt-fade-out");
+            setTimeout(() => {
+              S.remove(id);
+              render();
+              showUndoToast(`${trade.pair} trade deleted`);
+            }, 220);
+          }
+        });
+      }
     });
 
     let timer = null;

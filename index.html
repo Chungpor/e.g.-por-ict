@@ -583,30 +583,32 @@
         </div>
       </header>
 
-      <!-- SECTION: PRODUCTS GRID (8 FEATURE CARDS) -->
+      <!-- ========================================================
+           SECTION: PRODUCTS GRID (8 UNIFIED FEATURE CARDS & BUTTONS)
+           ======================================================== -->
       <section class="products-dual-grid products-tri-grid">
 
-        <!-- Feature Card 1: Triumm Delta -->
+        <!-- Feature Card 1: Triumm Delta (Cyan #00b4ff) -->
         <div class="product-feature-card terminal-feature-card por-terminal-promo-card" id="openTerminalCardBtn" onclick="location.href='triumm-delta.html'" style="cursor:pointer;">
           <div class="terminal-icon-badge-box">
-            <svg class="candlestick-icon-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <svg class="candlestick-icon-svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="6" y1="3" x2="6" y2="21"></line>
-              <rect x="4" y="8" width="4" height="8" rx="1" fill="#091424"></rect>
+              <rect x="4" y="8" width="4" height="8" rx="1" fill="currentColor" fill-opacity="0.2"></rect>
               <line x1="12" y1="2" x2="12" y2="22"></line>
-              <rect x="10" y="5" width="4" height="10" rx="1" fill="#091424"></rect>
+              <rect x="10" y="5" width="4" height="10" rx="1" fill="currentColor" fill-opacity="0.35"></rect>
               <line x1="18" y1="4" x2="18" y2="20"></line>
-              <rect x="16" y="11" width="4" height="6" rx="1" fill="#091424"></rect>
+              <rect x="16" y="11" width="4" height="6" rx="1" fill="currentColor" fill-opacity="0.2"></rect>
             </svg>
           </div>
           <div class="terminal-card-texts">
-            <span class="promo-sub-label text-cyan" data-i18n="term_sub">AUTO SIGNALS · SUPER LLM · DEEP ANALYSIS</span>
+            <span class="promo-sub-label" data-i18n="term_sub">AUTO SIGNALS · SUPER LLM · DEEP ANALYSIS</span>
             <h3 class="terminal-custom-title" data-i18n="term_title">Triumm Delta</h3>
           </div>
           <p class="promo-card-desc" data-i18n="term_desc">AI Market Intelligence Feed, real-time forex, crypto &amp; macro news, AI price impact analysis, and live technical Delta Signals.</p>
-          <a href="triumm-delta.html" id="openTerminalBtn" class="product-chart-btn btn-terminal-launch btn-terminal-gradient" data-i18n="term_btn">LAUNCH TRIUMM DELTA ➔</a>
+          <a href="triumm-delta.html" id="openTerminalBtn" class="product-chart-btn btn-terminal-launch" data-i18n="term_btn" onclick="event.stopPropagation();">LAUNCH TRIUMM DELTA ➔</a>
         </div>
 
-        <!-- Feature Card 2: Por ICT News -->
+        <!-- Feature Card 2: Por ICT News (Amber #f59e0b) -->
         <div class="product-feature-card por-news-promo-card">
           <div class="product-card-badge news-badge-glow">
             <span class="fire-icon-pulse">🔥</span>
@@ -619,7 +621,7 @@
           <button type="button" id="openNewsFromDashBtn" class="product-chart-btn btn-news-gradient" data-i18n="news_card_btn">READ POR ICT NEWS ➔</button>
         </div>
 
-        <!-- Feature Card 3: Live Market Chart -->
+        <!-- Feature Card 3: Live Market Chart (Lavender Purple #9d72ff) -->
         <div class="product-feature-card por-livechart-promo-card">
           <div class="product-card-badge badge-golden-chestnut">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -631,8 +633,8 @@
             </svg>
           </div>
           <div>
-            <span class="promo-sub-label" style="color:var(--golden-chestnut)">REAL-TIME CANDLESTICKS &amp; AI SCANNER</span>
-            <h3 class="product-card-title" style="color:var(--golden-chestnut)">Live Market Chart</h3>
+            <span class="promo-sub-label">REAL-TIME CANDLESTICKS &amp; AI SCANNER</span>
+            <h3 class="product-card-title">Live Market Chart</h3>
           </div>
           <p class="promo-card-desc">Real-time institutional candlestick charts with instant AI Analyze, Best Setup scanner, and 4-LLM consensus levels.</p>
           <button type="button" id="openLiveChartBtn" class="product-chart-btn btn-golden-chestnut" data-i18n="prod_live_btn">
@@ -640,8 +642,8 @@
           </button>
         </div>
 
-        <!-- Feature Card 4: Chart Analysis -->
-        <div class="product-feature-card por-analysis-promo-card">
+        <!-- Feature Card 4: Chart Analysis (Emerald #10b981) -->
+        <div class="product-feature-card por-analysis-promo-card" onclick="location.href='chart-analysis.html'" style="cursor:pointer;">
           <div class="product-card-badge">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M8 17v-5M13 17V8M18 17v-8"/></svg>
           </div>
@@ -650,30 +652,30 @@
             <h3 class="product-card-title" data-i18n="ca_title">Chart Analysis</h3>
           </div>
           <p class="promo-card-desc" data-i18n="ca_desc">Generate entry, stop loss, and targets from live data, your own levels, or an uploaded chart screenshot, with lot-size calculation.</p>
-          <a href="chart-analysis.html" id="openAnalysisBtn" class="product-chart-btn" data-i18n="ca_btn">OPEN CHART ANALYSIS ➔</a>
+          <a href="chart-analysis.html" id="openAnalysisBtn" class="product-chart-btn" data-i18n="ca_btn" onclick="event.stopPropagation();">OPEN CHART ANALYSIS ➔</a>
         </div>
 
-        <!-- Feature Card 5: Preview - recent signals -->
+        <!-- Feature Card 5: Preview - recent signals (Red #ef4444) -->
         <div class="product-feature-card por-preview-promo-card" onclick="location.href='Preview%20-recent%20signals.html'" style="cursor:pointer;">
           <div class="product-card-badge badge-red">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
               <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
               <line x1="8" y1="21" x2="16" y2="21"></line>
               <line x1="12" y1="17" x2="12" y2="21"></line>
             </svg>
           </div>
           <div>
-            <span class="promo-sub-label" style="color:#ef4444;">LIVE SIGNALS DESK</span>
-            <h3 class="product-card-title" style="color:#ef4444;">Preview - recent signals</h3>
+            <span class="promo-sub-label">LIVE SIGNALS DESK</span>
+            <h3 class="product-card-title">Preview - recent signals</h3>
           </div>
           <p class="promo-card-desc">Review recent signals generated by Chart Analysis, auto-tracked and synchronized directly with your My Trades history.</p>
-          <a href="Preview%20-recent%20signals.html" class="product-chart-btn btn-red-action">VIEW RECENT SIGNALS ➔</a>
+          <a href="Preview%20-recent%20signals.html" class="product-chart-btn btn-red-action" onclick="event.stopPropagation();">VIEW RECENT SIGNALS ➔</a>
         </div>
 
-        <!-- Feature Card 6: Goal Future -->
+        <!-- Feature Card 6: Goal Future (Yellow #eab308) -->
         <div class="product-feature-card por-trades-promo-card" onclick="location.href='goal.html'" style="cursor:pointer;">
           <div class="product-card-badge badge-yellow">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
               <polyline points="14 2 14 8 20 8"></polyline>
               <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -682,42 +684,42 @@
             </svg>
           </div>
           <div>
-            <span class="promo-sub-label" style="color:#eab308;">JOURNAL &amp; TRACKER</span>
-            <h3 class="product-card-title" style="color:#eab308;">Goal Future</h3>
+            <span class="promo-sub-label">JOURNAL &amp; TRACKER</span>
+            <h3 class="product-card-title">Goal Future</h3>
           </div>
           <p class="promo-card-desc">Inspect all your active trades, performance history, automatic TP/SL tracking, and win rates.</p>
-          <a href="goal.html" class="product-chart-btn btn-yellow-action">OPEN GOAL FUTURE ➔</a>
+          <a href="goal.html" class="product-chart-btn btn-yellow-action" onclick="event.stopPropagation();">OPEN GOAL FUTURE ➔</a>
         </div>
 
-        <!-- Feature Card 7: Dashboard / Indicators (Electric Flamingo #FC46AA) -->
+        <!-- Feature Card 7: Dashboard / Indicators (Electric Flamingo #fc46aa) -->
         <div class="product-feature-card por-indicators-promo-card" onclick="location.href='indicators.html'" style="cursor:pointer;">
           <div class="product-card-badge badge-flamingo">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fc46aa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
             </svg>
           </div>
           <div>
-            <span class="promo-sub-label" style="color:var(--electric-flamingo);" data-i18n="ind_sub">TECHNICAL CONFLUENCE &amp; REGIME</span>
-            <h3 class="product-card-title" style="color:var(--electric-flamingo);" data-i18n="ind_title">Dashboard / Indicators</h3>
+            <span class="promo-sub-label" data-i18n="ind_sub">TECHNICAL CONFLUENCE &amp; REGIME</span>
+            <h3 class="product-card-title" data-i18n="ind_title">Dashboard / Indicators</h3>
           </div>
           <p class="promo-card-desc" data-i18n="ind_desc">Live multi-asset technical indicators (EMA 20/50/200 stack, RSI, ADX, DI Edge, ATR &amp; CHOP) with AI regime &amp; 5-indicator confluence scoring.</p>
-          <a href="indicators.html" class="product-chart-btn btn-flamingo-action" data-i18n="ind_btn">OPEN INDICATORS ➔</a>
+          <a href="indicators.html" class="product-chart-btn btn-flamingo-action" data-i18n="ind_btn" onclick="event.stopPropagation();">OPEN INDICATORS ➔</a>
         </div>
 
         <!-- Feature Card 8: Por AI Chat (Aquamarine #7FFFD4) -->
         <div class="product-feature-card por-aichat-promo-card" onclick="location.href='por-ai-chat.html'" style="cursor:pointer;">
           <div class="product-card-badge badge-aquamarine">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7fffd4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
               <polygon points="13 6 9 11 12 11 11 15 15 10 12 10 13 6"></polygon>
             </svg>
           </div>
           <div>
-            <span class="promo-sub-label" style="color:var(--aquamarine-accent);" data-i18n="aichat_sub">AI TRADING MENTOR &amp; CHART SNAP</span>
-            <h3 class="product-card-title" style="color:var(--aquamarine-accent);" data-i18n="aichat_title">Por AI Chat</h3>
+            <span class="promo-sub-label" data-i18n="aichat_sub">AI TRADING MENTOR &amp; CHART SNAP</span>
+            <h3 class="product-card-title" data-i18n="aichat_title">Por AI Chat</h3>
           </div>
           <p class="promo-card-desc" data-i18n="aichat_desc">Your 24/7 AI trading mentor (POR1.0). Upload chart screenshots with Chart Snap, ask about SMC/ICT concepts, risk sizing, and live setups.</p>
-          <a href="por-ai-chat.html" id="openAiChatBtn" class="product-chart-btn btn-aquamarine-action" data-i18n="aichat_btn">OPEN POR AI CHAT ➔</a>
+          <a href="por-ai-chat.html" id="openAiChatBtn" class="product-chart-btn btn-aquamarine-action" data-i18n="aichat_btn" onclick="event.stopPropagation();">OPEN POR AI CHAT ➔</a>
         </div>
 
       </section>
@@ -1098,7 +1100,7 @@
         </p>
       </div>
 
-      <!-- 3-Card AI Breakdown Grid: Observations, Trade Levels + KPIs, and All 7 Markets Scanner -->
+      <!-- 3-Card AI Breakdown Grid -->
       <div class="lc-analysis-bottom-grid">
         <!-- Card 1: AI Chart Reader Observations -->
         <div class="lc-detail-card" id="lcSectionAnalysis">

@@ -177,7 +177,7 @@ body {
 }
 
 /* ========================================================
-   CLEAN SINGLE-LINE GLOBAL TOP HEADER (NO OVERLAP)
+   CLEAN SINGLE-LINE GLOBAL TOP HEADER
    ======================================================== */
 .global-top-bar {
   position: fixed;
@@ -253,7 +253,6 @@ body {
   color: var(--teal-accent);
 }
 
-/* Center links track: auto-centers when wide, scrolls smoothly without overlap when tight */
 .nav-center-links {
   display: flex;
   align-items: center;
@@ -311,9 +310,8 @@ body {
 }
 
 /* ========================================================
-   MENU SPECIFIC ACCENTS (CYAN/GREEN, RED, YELLOW, PURPLE, ELECTRIC FLAMINGO, AQUAMARINE)
+   MENU SPECIFIC ACCENTS
    ======================================================== */
-/* 0. Triumm Delta Navigation Accent */
 .nav-terminal-accent {
   color: var(--sky-blue) !important;
   font-weight: 700 !important;
@@ -324,9 +322,8 @@ body {
   text-shadow: 0 0 10px rgba(56, 189, 248, 0.45);
 }
 
-/* 1. Preview - recent signals (RED MENU & BUTTONS) */
 .nav-link-red {
-  color: #ef4444 !important;
+  color: var(--danger-red) !important;
   font-weight: 700 !important;
 }
 .nav-link-red:hover,
@@ -335,20 +332,8 @@ body {
   text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
 }
 
-.btn-red-action {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-  border: 1px solid #ef4444 !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35) !important;
-}
-.btn-red-action:hover {
-  background: #dc2626 !important;
-  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.5) !important;
-}
-
-/* 2. Goal Future / My Trades (YELLOW MENU & BUTTONS) */
 .nav-link-yellow {
-  color: #eab308 !important;
+  color: var(--low-yellow) !important;
   font-weight: 700 !important;
 }
 .nav-link-yellow:hover,
@@ -357,19 +342,6 @@ body {
   text-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
 }
 
-.btn-yellow-action {
-  background: linear-gradient(135deg, #facc15 0%, #eab308 100%) !important;
-  border: 1px solid #eab308 !important;
-  color: #000000 !important;
-  font-weight: 800 !important;
-  box-shadow: 0 4px 14px rgba(234, 179, 8, 0.35) !important;
-}
-.btn-yellow-action:hover {
-  background: #eab308 !important;
-  box-shadow: 0 6px 18px rgba(234, 179, 8, 0.5) !important;
-}
-
-/* 3. Live Market Chart (LAVENDER PURPLE MENU & BUTTONS) */
 .nav-link-golden-chestnut,
 .nav-link-lavender-purple {
   color: var(--lavender-purple) !important;
@@ -383,28 +355,6 @@ body {
   text-shadow: 0 0 10px var(--lavender-purple-glow);
 }
 
-.btn-golden-chestnut,
-.btn-lavender-purple {
-  background: linear-gradient(135deg, #a78bfa 0%, var(--lavender-purple) 100%) !important;
-  border: 1px solid var(--lavender-purple) !important;
-  color: #ffffff !important;
-  font-weight: 800 !important;
-  box-shadow: 0 4px 14px var(--lavender-purple-glow) !important;
-}
-.btn-golden-chestnut:hover,
-.btn-lavender-purple:hover {
-  background: #7c3aed !important;
-  box-shadow: 0 6px 18px rgba(157, 114, 255, 0.5) !important;
-}
-
-.badge-golden-chestnut,
-.badge-lavender-purple {
-  background: rgba(157, 114, 255, 0.15) !important;
-  border-color: rgba(157, 114, 255, 0.45) !important;
-  color: var(--lavender-purple) !important;
-}
-
-/* 4. Dashboard / Indicators (ELECTRIC FLAMINGO MENU & BUTTONS) */
 .nav-link-flamingo {
   color: var(--electric-flamingo) !important;
   font-weight: 700 !important;
@@ -415,37 +365,6 @@ body {
   text-shadow: 0 0 12px var(--electric-flamingo-glow);
 }
 
-.por-indicators-promo-card {
-  border-color: rgba(252, 70, 170, 0.42) !important;
-  background: linear-gradient(135deg, rgba(20, 24, 38, 0.95) 0%, rgba(44, 16, 34, 0.92) 100%) !important;
-}
-.por-indicators-promo-card:hover {
-  border-color: var(--electric-flamingo) !important;
-  box-shadow: 0 10px 28px var(--electric-flamingo-glow) !important;
-  transform: translateY(-2px);
-}
-
-.badge-flamingo {
-  background: rgba(252, 70, 170, 0.16) !important;
-  border-color: rgba(252, 70, 170, 0.48) !important;
-  color: var(--electric-flamingo) !important;
-  box-shadow: 0 0 14px rgba(252, 70, 170, 0.25);
-}
-
-.btn-flamingo-action {
-  background: linear-gradient(135deg, #ff5db6 0%, #fc46aa 55%, #db2777 100%) !important;
-  border: 1px solid var(--electric-flamingo) !important;
-  color: #ffffff !important;
-  font-weight: 800 !important;
-  box-shadow: 0 4px 16px var(--electric-flamingo-glow) !important;
-}
-.btn-flamingo-action:hover {
-  background: linear-gradient(135deg, #ff77c2 0%, #f42595 100%) !important;
-  box-shadow: 0 6px 22px rgba(252, 70, 170, 0.58) !important;
-  color: #ffffff !important;
-}
-
-/* 5. Por AI Chat (AQUAMARINE #7FFFD4 MENU, FEATURE CARD & BUTTONS) */
 .nav-link-aquamarine {
   color: var(--aquamarine) !important;
   font-weight: 700 !important;
@@ -456,12 +375,273 @@ body {
   text-shadow: 0 0 12px var(--aquamarine-glow);
 }
 
-.por-aichat-promo-card {
-  border: 1.5px solid var(--aquamarine-border) !important;
-  background: linear-gradient(135deg, rgba(12, 30, 32, 0.96) 0%, rgba(16, 44, 40, 0.92) 100%) !important;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), inset 0 0 22px rgba(127, 255, 212, 0.06) !important;
+/* ========================================================
+   UNIFIED 8-CARD FEATURE GRID & PERFECT PILL BUTTON EFFECT
+   (WITH FULL DARK MODE & LIGHT MODE SUPPORT)
+   ======================================================== */
+.products-dual-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(295px, 1fr));
+  gap: 18px;
+}
+
+/* Base Unified Feature Card */
+.product-feature-card {
+  --card-accent: #00b4ff;
+  --card-accent-rgb: 0, 180, 255;
+  --card-hover-text: #031522;
+  --card-title-color: #ffffff;
+  --card-eyebrow-color: #f8fafc;
+
   position: relative;
+  background: linear-gradient(
+    160deg,
+    rgba(var(--card-accent-rgb), 0.10) 0%,
+    rgba(9, 15, 24, 0.96) 52%,
+    rgba(5, 10, 17, 0.98) 100%
+  );
+  border: 1.5px solid rgba(var(--card-accent-rgb), 0.36);
+  border-radius: 22px;
+  padding: 24px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.52),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   overflow: hidden;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.28s ease,
+              box-shadow 0.28s ease,
+              background 0.28s ease;
+}
+
+/* Ambient Corner Glow on every Feature Card */
+.product-feature-card::after {
+  content: "";
+  position: absolute;
+  top: -70px;
+  left: -50px;
+  width: 190px;
+  height: 190px;
+  background: radial-gradient(circle, rgba(var(--card-accent-rgb), 0.16) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 0.28s ease;
+}
+
+.product-feature-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.product-feature-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(var(--card-accent-rgb), 0.78);
+  box-shadow:
+    0 20px 44px rgba(0, 0, 0, 0.65),
+    0 0 28px rgba(var(--card-accent-rgb), 0.22),
+    inset 0 1px 0 rgba(var(--card-accent-rgb), 0.25);
+}
+
+/* Unified Icon Badge Box */
+.product-card-badge,
+.terminal-icon-badge-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
+  background: rgba(var(--card-accent-rgb), 0.14);
+  border: 1.5px solid rgba(var(--card-accent-rgb), 0.42);
+  color: var(--card-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 18px rgba(var(--card-accent-rgb), 0.16),
+    inset 0 0 12px rgba(var(--card-accent-rgb), 0.10);
+  transition: transform 0.26s ease, border-color 0.26s ease, box-shadow 0.26s ease;
+}
+
+.product-feature-card:hover .product-card-badge,
+.product-feature-card:hover .terminal-icon-badge-box {
+  transform: scale(1.06);
+  border-color: var(--card-accent);
+  box-shadow: 0 0 24px rgba(var(--card-accent-rgb), 0.34);
+}
+
+.fire-icon-pulse { font-size: 22px; }
+
+.terminal-card-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Unified Eyebrow & Title Typography */
+.promo-sub-label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.75px;
+  color: var(--card-eyebrow-color);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.product-card-title,
+.terminal-custom-title {
+  font-size: 23px;
+  font-weight: 800;
+  color: var(--card-title-color);
+  letter-spacing: -0.4px;
+  line-height: 1.2;
+}
+
+.promo-card-desc {
+  font-size: 13px;
+  color: var(--text-sub);
+  line-height: 1.55;
+  margin-bottom: 4px;
+}
+
+/* ========================================================
+   UNIFIED FULL-WIDTH PILL BUTTON EFFECT (ALL 8 CARDS)
+   ======================================================== */
+.product-chart-btn,
+a.product-chart-btn,
+button.product-chart-btn {
+  position: relative;
+  width: 100% !important;
+  min-height: 44px;
+  padding: 12px 20px !important;
+  border-radius: 999px !important;
+  background: rgba(5, 16, 28, 0.88) !important;
+  border: 1.5px solid rgba(var(--card-accent-rgb), 0.52) !important;
+  color: var(--card-accent) !important;
+  font-family: inherit;
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.75px !important;
+  text-transform: uppercase;
+  text-decoration: none !important;
+  text-align: center;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 14px rgba(var(--card-accent-rgb), 0.10),
+    0 4px 14px rgba(0, 0, 0, 0.28) !important;
+  transition: all 0.26s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+/* Shimmer Light Sweep Across All 8 Feature Card Buttons */
+.product-chart-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -110%;
+  width: 65%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(var(--card-accent-rgb), 0.28),
+    transparent
+  );
+  transition: left 0.55s ease;
+  pointer-events: none;
+}
+
+.product-feature-card:hover .product-chart-btn,
+.product-chart-btn:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(var(--card-accent-rgb), 0.22) 0%,
+    rgba(var(--card-accent-rgb), 0.36) 100%
+  ) !important;
+  border-color: var(--card-accent) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 0 24px rgba(var(--card-accent-rgb), 0.36),
+    inset 0 0 14px rgba(var(--card-accent-rgb), 0.22) !important;
+  transform: translateY(-1px);
+}
+
+.product-feature-card:hover .product-chart-btn::after,
+.product-chart-btn:hover::after {
+  left: 135%;
+}
+
+/* ========================================================
+   PER-CARD SIGNATURE COLOR THEMES (CARDS 1 TO 8)
+   ======================================================== */
+
+/* 1. Triumm Delta (Cyan #00b4ff) */
+.por-terminal-promo-card {
+  --card-accent: #00b4ff;
+  --card-accent-rgb: 0, 180, 255;
+  --card-eyebrow-color: #f8fafc;
+  --card-title-color: #ffffff;
+}
+
+/* 2. Por ICT News (Amber/Orange #f59e0b) */
+.por-news-promo-card {
+  --card-accent: #f59e0b;
+  --card-accent-rgb: 245, 158, 11;
+  --card-eyebrow-color: #f59e0b;
+  --card-title-color: #ffffff;
+}
+
+/* 3. Live Market Chart (Lavender Purple #9d72ff) */
+.por-livechart-promo-card {
+  --card-accent: #9d72ff;
+  --card-accent-rgb: 157, 114, 255;
+  --card-eyebrow-color: #9d72ff;
+  --card-title-color: #b794ff;
+}
+
+/* 4. Chart Analysis (Emerald Green #10b981) */
+.por-analysis-promo-card {
+  --card-accent: #10b981;
+  --card-accent-rgb: 16, 185, 129;
+  --card-eyebrow-color: #10b981;
+  --card-title-color: #ffffff;
+}
+
+/* 5. Preview - recent signals (Red #ef4444) */
+.por-preview-promo-card {
+  --card-accent: #ef4444;
+  --card-accent-rgb: 239, 68, 68;
+  --card-eyebrow-color: #ef4444;
+  --card-title-color: #f87171;
+}
+
+/* 6. Goal Future (Yellow/Gold #eab308) */
+.por-trades-promo-card {
+  --card-accent: #eab308;
+  --card-accent-rgb: 234, 179, 8;
+  --card-eyebrow-color: #eab308;
+  --card-title-color: #facc15;
+}
+
+/* 7. Dashboard / Indicators (Electric Flamingo #fc46aa) */
+.por-indicators-promo-card {
+  --card-accent: #fc46aa;
+  --card-accent-rgb: 252, 70, 170;
+  --card-eyebrow-color: #fc46aa;
+  --card-title-color: #ff6ec7;
+}
+
+/* 8. Por AI Chat (Aquamarine #7FFFD4) */
+.por-aichat-promo-card {
+  --card-accent: #7FFFD4;
+  --card-accent-rgb: 127, 255, 212;
+  --card-eyebrow-color: #7FFFD4;
+  --card-title-color: #7FFFD4;
 }
 .por-aichat-promo-card::before {
   content: "";
@@ -470,57 +650,109 @@ body {
   left: 0;
   width: 4px;
   height: 100%;
-  background: var(--aquamarine);
+  background: var(--card-accent);
   opacity: 0.9;
-}
-.por-aichat-promo-card:hover {
-  border-color: var(--aquamarine) !important;
-  box-shadow: 0 12px 32px var(--aquamarine-glow) !important;
-  transform: translateY(-2px);
-}
-.por-aichat-promo-card .promo-sub-label {
-  color: var(--aquamarine) !important;
+  z-index: 2;
 }
 
-.badge-aquamarine {
-  background: var(--aquamarine-soft) !important;
-  border: 1.5px solid var(--aquamarine-border) !important;
-  color: var(--aquamarine) !important;
-  box-shadow: 0 0 16px rgba(127, 255, 212, 0.25);
+/* ========================================================
+   LIGHT MODE FIX FOR ALL 8 FEATURE CARDS & BUTTONS
+   ======================================================== */
+[data-theme="light"] .product-feature-card {
+  background: linear-gradient(
+    165deg,
+    #ffffff 0%,
+    rgba(var(--card-accent-rgb), 0.07) 100%
+  ) !important;
+  border: 1.5px solid rgba(var(--card-accent-rgb), 0.38) !important;
+  box-shadow:
+    0 10px 26px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
 }
 
-.aichat-status-pill {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  font-weight: 800;
-  color: #031510;
-  background: var(--aquamarine);
-  padding: 3px 10px;
-  border-radius: 12px;
-  letter-spacing: 0.04em;
-  box-shadow: 0 0 12px var(--aquamarine-glow);
+[data-theme="light"] .product-feature-card:hover {
+  border-color: var(--card-accent) !important;
+  box-shadow:
+    0 16px 36px rgba(15, 23, 42, 0.11),
+    0 0 22px rgba(var(--card-accent-rgb), 0.22) !important;
 }
 
-.text-aquamarine {
-  color: var(--aquamarine) !important;
+[data-theme="light"] .por-terminal-promo-card {
+  --card-accent: #0284c7;
+  --card-accent-rgb: 2, 132, 199;
+  --card-eyebrow-color: #0369a1;
+  --card-title-color: #0f172a;
 }
 
-.btn-aquamarine-action {
-  background: linear-gradient(135deg, #7FFFD4 0%, #34d399 100%) !important;
-  border: 1px solid var(--aquamarine) !important;
-  color: #031510 !important;
-  font-weight: 800 !important;
-  box-shadow: 0 4px 16px var(--aquamarine-glow) !important;
-}
-.btn-aquamarine-action:hover {
-  background: #ffffff !important;
-  border-color: var(--aquamarine) !important;
-  color: #031510 !important;
-  box-shadow: 0 6px 24px rgba(127, 255, 212, 0.65) !important;
-  transform: translateY(-1px);
+[data-theme="light"] .por-news-promo-card {
+  --card-accent: #d97706;
+  --card-accent-rgb: 217, 119, 6;
+  --card-eyebrow-color: #b45309;
+  --card-title-color: #0f172a;
 }
 
-/* Hide duplicate center-nav music button on desktop (keep right pill) */
+[data-theme="light"] .por-livechart-promo-card {
+  --card-accent: #7c3aed;
+  --card-accent-rgb: 124, 58, 237;
+  --card-eyebrow-color: #6d28d9;
+  --card-title-color: #5b21b6;
+}
+
+[data-theme="light"] .por-analysis-promo-card {
+  --card-accent: #059669;
+  --card-accent-rgb: 5, 150, 105;
+  --card-eyebrow-color: #047857;
+  --card-title-color: #0f172a;
+}
+
+[data-theme="light"] .por-preview-promo-card {
+  --card-accent: #dc2626;
+  --card-accent-rgb: 220, 38, 38;
+  --card-eyebrow-color: #b91c1c;
+  --card-title-color: #b91c1c;
+}
+
+[data-theme="light"] .por-trades-promo-card {
+  --card-accent: #ca8a04;
+  --card-accent-rgb: 202, 138, 4;
+  --card-eyebrow-color: #a16207;
+  --card-title-color: #854d0e;
+}
+
+[data-theme="light"] .por-indicators-promo-card {
+  --card-accent: #db2777;
+  --card-accent-rgb: 219, 39, 119;
+  --card-eyebrow-color: #be185d;
+  --card-title-color: #9d174d;
+}
+
+[data-theme="light"] .por-aichat-promo-card {
+  --card-accent: #0d9488;
+  --card-accent-rgb: 13, 148, 136;
+  --card-eyebrow-color: #0f766e;
+  --card-title-color: #0f766e;
+}
+
+[data-theme="light"] .product-chart-btn,
+[data-theme="light"] a.product-chart-btn,
+[data-theme="light"] button.product-chart-btn {
+  background: rgba(var(--card-accent-rgb), 0.10) !important;
+  border: 1.5px solid rgba(var(--card-accent-rgb), 0.55) !important;
+  color: var(--card-accent) !important;
+  box-shadow:
+    inset 0 0 10px rgba(var(--card-accent-rgb), 0.06),
+    0 2px 8px rgba(15, 23, 42, 0.05) !important;
+}
+
+[data-theme="light"] .product-feature-card:hover .product-chart-btn,
+[data-theme="light"] .product-chart-btn:hover {
+  background: var(--card-accent) !important;
+  border-color: var(--card-accent) !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 20px rgba(var(--card-accent-rgb), 0.35) !important;
+}
+
+/* Hide duplicate center-nav music button on desktop */
 #navMusicBtn {
   display: none !important;
 }
@@ -914,14 +1146,12 @@ body {
   flex-shrink: 0;
 }
 
-/* Hide mobile menu button on desktop screens */
 @media (min-width: 1181px) {
   #mobileMenuBtn {
     display: none !important;
   }
 }
 
-/* Switch cleanly to mobile hamburger menu below 1180px */
 @media (max-width: 1180px) {
   .nav-center-links,
   #navLogoutBtn {
@@ -1303,6 +1533,12 @@ body {
   margin-bottom: 4px;
 }
 
+[data-theme="light"] .signup-title,
+[data-theme="light"] .verify-title,
+[data-theme="light"] .reset-title {
+  color: #1d4ed8;
+}
+
 .signup-subtitle {
   font-size: 13px;
   color: #94a3b8;
@@ -1371,7 +1607,7 @@ body {
 }
 
 .verify-email-highlight {
-  color: #cbd5e1;
+  color: var(--text-main);
   font-weight: 700;
 }
 
@@ -1674,221 +1910,6 @@ body {
   font-weight: 600;
 }
 
-.products-dual-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-  gap: 16px;
-}
-
-.product-feature-card {
-  background: var(--bg-card);
-  border: 1px solid var(--card-border);
-  border-radius: 20px;
-  padding: 22px 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 14px;
-  box-shadow: var(--card-shadow);
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.product-feature-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(56, 189, 248, 0.4);
-}
-
-/* ========================================================
-   FEATURE CARD 1: TRIUMM DELTA PROMO CARD (EXACT MATCH)
-   ======================================================== */
-.por-terminal-promo-card {
-  border: 1.5px solid rgba(56, 189, 248, 0.5) !important;
-  background: linear-gradient(145deg, rgba(8, 22, 36, 0.96) 0%, rgba(6, 16, 28, 0.96) 100%) !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 24px rgba(56, 189, 248, 0.05) !important;
-}
-
-.por-terminal-promo-card:hover {
-  border-color: var(--sky-blue) !important;
-  box-shadow: 0 12px 32px rgba(56, 189, 248, 0.22) !important;
-}
-
-.terminal-icon-badge-box {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  background: rgba(14, 165, 233, 0.12);
-  border: 1.5px solid rgba(56, 189, 248, 0.38);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.terminal-card-texts {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.por-terminal-promo-card .promo-sub-label {
-  color: #f8fafc !important;
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.7px;
-}
-
-.terminal-custom-title {
-  font-size: 24px;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: -0.4px;
-  line-height: 1.18;
-}
-
-.btn-terminal-launch {
-  width: 100%;
-  border-radius: 26px !important;
-  padding: 11px 18px !important;
-  background: rgba(7, 17, 30, 0.92) !important;
-  border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
-  color: var(--sky-blue) !important;
-  font-size: 12.5px !important;
-  font-weight: 800 !important;
-  letter-spacing: 0.6px !important;
-  text-align: center;
-}
-
-.btn-terminal-launch:hover {
-  background: var(--sky-blue) !important;
-  color: #04101c !important;
-  box-shadow: 0 4px 18px rgba(56, 189, 248, 0.4) !important;
-}
-
-/* CARDS ACCENTS: RED FOR PREVIEW SIGNALS, YELLOW FOR MY TRADES, LAVENDER PURPLE FOR LIVE CHART */
-.por-preview-promo-card {
-  border-color: rgba(239, 68, 68, 0.38) !important;
-  background: linear-gradient(135deg, rgba(20, 24, 38, 0.95) 0%, rgba(38, 18, 22, 0.92) 100%) !important;
-}
-.por-preview-promo-card:hover {
-  border-color: #ef4444 !important;
-  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.25) !important;
-}
-
-.por-trades-promo-card {
-  border-color: rgba(234, 179, 8, 0.38) !important;
-  background: linear-gradient(135deg, rgba(20, 24, 38, 0.95) 0%, rgba(38, 34, 18, 0.92) 100%) !important;
-}
-.por-trades-promo-card:hover {
-  border-color: #eab308 !important;
-  box-shadow: 0 8px 24px rgba(234, 179, 8, 0.25) !important;
-}
-
-.por-livechart-promo-card {
-  border-color: rgba(157, 114, 255, 0.38) !important;
-  background: linear-gradient(135deg, rgba(20, 24, 38, 0.95) 0%, rgba(32, 22, 45, 0.92) 100%) !important;
-}
-.por-livechart-promo-card:hover {
-  border-color: var(--lavender-purple) !important;
-  box-shadow: 0 8px 24px var(--lavender-purple-glow) !important;
-}
-
-.badge-red {
-  background: rgba(239, 68, 68, 0.16) !important;
-  border-color: rgba(239, 68, 68, 0.45) !important;
-  color: #f87171 !important;
-}
-.badge-yellow {
-  background: rgba(234, 179, 8, 0.16) !important;
-  border-color: rgba(234, 179, 8, 0.45) !important;
-  color: #facc15 !important;
-}
-
-.por-news-promo-card {
-  border-color: rgba(245, 158, 11, 0.3);
-  background: linear-gradient(135deg, rgba(20, 24, 38, 0.95) 0%, rgba(35, 25, 20, 0.92) 100%);
-}
-
-.por-news-promo-card:hover {
-  border-color: var(--warning-amber);
-}
-
-.product-card-badge {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  background: rgba(14, 165, 233, 0.12);
-  border: 1.5px solid rgba(56, 189, 248, 0.35);
-  color: var(--sky-blue);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.news-badge-glow {
-  background: rgba(245, 158, 11, 0.16);
-  border-color: rgba(245, 158, 11, 0.45);
-}
-
-.fire-icon-pulse { font-size: 22px; }
-
-.promo-sub-label {
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.8px;
-  color: var(--teal-accent);
-  text-transform: uppercase;
-}
-
-.por-news-promo-card .promo-sub-label {
-  color: var(--warning-amber);
-}
-
-.product-card-title {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--text-main);
-  letter-spacing: -0.2px;
-  margin-top: 2px;
-}
-
-.promo-card-desc {
-  font-size: 12.5px;
-  color: var(--text-sub);
-  line-height: 1.45;
-}
-
-.product-chart-btn {
-  background: rgba(15, 23, 42, 0.85);
-  border: 1.5px solid rgba(56, 189, 248, 0.45);
-  border-radius: 24px;
-  padding: 8px 18px;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.6px;
-  color: var(--sky-blue);
-  cursor: pointer;
-  align-self: flex-start;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.product-chart-btn:hover {
-  background: var(--sky-blue);
-  color: #07090e;
-}
-
-.btn-news-gradient {
-  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-  border: 1px solid var(--warning-amber);
-  color: #ffffff;
-}
-
-.btn-news-gradient:hover {
-  background: var(--warning-amber);
-  color: #000;
-}
-
 /* FOREX FACTORY OFFICIAL LIVE BANNER */
 .ff-official-banner-card {
   background: linear-gradient(135deg, rgba(20, 24, 38, 0.98) 0%, rgba(13, 20, 32, 0.98) 100%);
@@ -1898,6 +1919,12 @@ body {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
   position: relative;
   overflow: hidden;
+}
+
+[data-theme="light"] .ff-official-banner-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+  border-color: rgba(2, 132, 199, 0.35);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
 .ff-banner-glow-effect {
@@ -1981,7 +2008,7 @@ body {
   font-weight: 800;
   background: rgba(245, 158, 11, 0.15);
   border: 1px solid rgba(245, 158, 11, 0.4);
-  color: #fbbf24;
+  color: var(--warning-amber);
   padding: 1px 7px;
   border-radius: 8px;
 }
@@ -2039,12 +2066,12 @@ body {
 
 .legend-pill.medium-pill {
   border-color: rgba(245, 158, 11, 0.4);
-  color: #fbbf24;
+  color: var(--warning-amber);
 }
 
 .legend-pill.low-pill {
   border-color: rgba(234, 179, 8, 0.4);
-  color: #facc15;
+  color: var(--low-yellow);
 }
 
 .impact-indicator-dot {
@@ -2349,13 +2376,13 @@ body {
 .impact-badge-pill.medium {
   background: rgba(245, 158, 11, 0.16);
   border: 1px solid rgba(245, 158, 11, 0.45);
-  color: #fbbf24;
+  color: var(--warning-amber);
 }
 
 .impact-badge-pill.low {
   background: rgba(234, 179, 8, 0.14);
   border: 1px solid rgba(234, 179, 8, 0.38);
-  color: #facc15;
+  color: var(--low-yellow);
 }
 
 .hot-item-content {
@@ -2398,7 +2425,7 @@ body {
 
 .tag-neutral {
   background: rgba(148, 163, 184, 0.15);
-  color: #cbd5e1;
+  color: var(--text-sub);
 }
 
 .por-wire-source-tag {
@@ -3414,40 +3441,13 @@ body {
   z-index: -1;
 }
 
-.terminal-badge-glow { box-shadow: 0 0 14px rgba(56, 189, 248, 0.35); }
-.terminal-pill {
-  align-self: flex-start;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.4px;
-  color: var(--emerald-soft);
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid var(--emerald-border);
-  border-radius: 6px;
-  padding: 3px 10px;
-}
-
-a.product-chart-btn {
-  display: block;
-  width: 100%;
-  text-align: center;
-  text-decoration: none;
-}
-
-.por-analysis-promo-card { border-color: rgba(0, 210, 106, 0.3); }
-.por-analysis-promo-card:hover { border-color: var(--emerald-green); }
-.por-analysis-promo-card .product-card-badge { color: var(--emerald-green); border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.12); }
-.por-analysis-promo-card .product-chart-btn { border-color: rgba(16, 185, 129, 0.5); color: var(--emerald-soft); }
-.por-analysis-promo-card .product-chart-btn:hover { background: var(--emerald-green); color: #04130b; }
-
 @media (pointer: coarse) {
   input, select, textarea { font-size: 16px; }
   button, .product-chart-btn { touch-action: manipulation; }
-  a.product-chart-btn, .product-chart-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
 }
 
 /* ========================================================
-   RESPONSIVE DESIGN & IPHONE 18 PRO MAX (SAFARI)
+   RESPONSIVE DESIGN & IPHONE SAFARI SUPPORT
    ======================================================== */
 @media (max-width: 768px) {
   input, textarea, select, .login-input, .form-input, .form-textarea, .otp-box {
@@ -3547,7 +3547,6 @@ a.product-chart-btn {
   .hot-news-item-card { flex-direction: column; gap: 10px; }
 }
 
-/* iOS Safari Frosted Glass & Safe-Area Support */
 @supports (-webkit-touch-callout: none) {
   .global-top-bar {
     -webkit-backdrop-filter: saturate(180%) blur(16px);
@@ -3556,7 +3555,6 @@ a.product-chart-btn {
   }
 }
 
-/* iPhone 18 Pro Max (440x956 CSS Viewport) & Smaller Mobile Screens */
 @media only screen and (max-width: 440px) {
   .global-top-bar {
     min-height: 54px;
@@ -3577,7 +3575,6 @@ a.product-chart-btn {
     font-size: 15px !important;
   }
 
-  /* Hide duplicate Music & Logout pills on mobile header (available in Mobile Drawer) */
   #soundToggleBtn,
   #navLogoutBtn,
   .nav-center-links {
@@ -3624,10 +3621,8 @@ a.product-chart-btn {
 }
 
 /* ========================================================
-   LIVE MARKET CHART: CLEAN SMOOTH UI (matches index.html)
+   LIVE MARKET CHART: CLEAN SMOOTH UI
    ======================================================== */
-
-/* ---------- Breadcrumb row + "Open Full Terminal" link ---------- */
 .lc-top-breadcrumb-flex {
   display: flex;
   align-items: center;
@@ -3663,11 +3658,6 @@ a.product-chart-btn {
   transform: translateY(-1px);
 }
 
-.lc-open-full-terminal-link:active {
-  transform: translateY(0) scale(0.97);
-}
-
-/* ---------- Header: title left, action buttons right ---------- */
 .lc-header-flex {
   display: flex;
   align-items: flex-end;
@@ -3684,7 +3674,6 @@ a.product-chart-btn {
   line-height: 1.2;
 }
 
-/* live price pill next to the title */
 .live-chart-main-title .lc-live-price-pill {
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
@@ -3697,7 +3686,6 @@ a.product-chart-btn {
   letter-spacing: 0;
 }
 
-/* ---------- Primary action buttons ---------- */
 .lc-primary-actions-bar {
   display: flex;
   align-items: center;
@@ -3727,20 +3715,6 @@ a.product-chart-btn {
   filter: brightness(1.1);
 }
 
-.live-chart-header .lc-analyze-btn:active,
-.live-chart-header .lc-best-setup-btn:active,
-.live-chart-header .lc-run-council-btn:active {
-  transform: translateY(0) scale(0.97);
-}
-
-.live-chart-header .lc-analyze-btn:focus-visible,
-.live-chart-header .lc-best-setup-btn:focus-visible,
-.live-chart-header .lc-run-council-btn:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(32, 178, 170, 0.35);
-}
-
-/* ---------- Controls bar (glass card, stacked rows) ---------- */
 .live-chart-controls-bar {
   flex-direction: column;
   align-items: stretch;
@@ -3765,7 +3739,6 @@ a.product-chart-btn {
   display: none;
 }
 
-/* ---------- Asset / Timeframe pills ---------- */
 .chart-pill-btn {
   transition: background 0.22s ease, border-color 0.22s ease,
               color 0.2s ease, box-shadow 0.22s ease, transform 0.16s ease;
@@ -3776,21 +3749,6 @@ a.product-chart-btn {
   border-color: rgba(157, 114, 255, 0.5);
 }
 
-.chart-pill-btn:active {
-  transform: translateY(0) scale(0.97);
-}
-
-.chart-pill-btn.active,
-.chart-pill-btn.active:hover {
-  transform: none;
-}
-
-.chart-pill-btn:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--lavender-purple-glow);
-}
-
-/* ---------- Playbook / Risk / Horizon dropdowns ---------- */
 .lc-filter-selects-row {
   display: flex;
   align-items: center;
@@ -3802,14 +3760,12 @@ a.product-chart-btn {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-
   height: 34px;
   padding: 0 34px 0 14px;
   border-radius: 12px;
   border: 1px solid var(--card-border);
   background-color: var(--input-bg);
   color: var(--text-main);
-
   font-family: inherit;
   font-size: 12.5px;
   font-weight: 700;
@@ -3817,12 +3773,10 @@ a.product-chart-btn {
   cursor: pointer;
   outline: none;
   max-width: 100%;
-
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239d72ff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 12px;
-
   transition: border-color 0.2s ease, box-shadow 0.2s ease,
               background-color 0.2s ease, transform 0.16s ease;
 }
@@ -3831,17 +3785,6 @@ a.product-chart-btn {
   border-color: rgba(157, 114, 255, 0.55);
   background-color: rgba(157, 114, 255, 0.08);
   transform: translateY(-1px);
-}
-
-.lc-select-pill:focus,
-.lc-select-pill:focus-visible {
-  outline: none;
-  border-color: var(--lavender-purple);
-  box-shadow: 0 0 0 3px var(--lavender-purple-glow);
-}
-
-.lc-select-pill:active {
-  transform: translateY(0);
 }
 
 .lc-select-pill option {
@@ -3856,7 +3799,6 @@ a.product-chart-btn {
   color: #0f172a;
 }
 
-/* ---------- "45m left" pill ---------- */
 .lc-time-left-pill {
   display: inline-flex;
   align-items: center;
@@ -3871,72 +3813,6 @@ a.product-chart-btn {
   border: 1px solid rgba(245, 158, 11, 0.35);
   white-space: nowrap;
 }
-
-/* ---------- Mobile ---------- */
-@media (max-width: 768px) {
-  .lc-header-flex {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .lc-primary-actions-bar {
-    width: 100%;
-  }
-
-  .live-chart-header .lc-analyze-btn,
-  .live-chart-header .lc-best-setup-btn,
-  .live-chart-header .lc-run-council-btn {
-    flex: 1 1 auto;
-    height: 40px;
-  }
-
-  .live-chart-controls-bar {
-    padding: 14px 12px;
-  }
-
-  .controls-pill-group {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .pills-scroll-track {
-    width: 100%;
-    padding-bottom: 2px;
-  }
-
-  .lc-filter-selects-row {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .lc-select-pill {
-    width: 100%;
-    height: 42px;
-    font-size: 16px;
-  }
-
-  .lc-time-left-pill {
-    justify-self: start;
-  }
-}
-
-/* ---------- Respect reduced motion ---------- */
-@media (prefers-reduced-motion: reduce) {
-  .lc-open-full-terminal-link,
-  .lc-select-pill,
-  .chart-pill-btn,
-  .live-chart-header .lc-analyze-btn,
-  .live-chart-header .lc-best-setup-btn,
-  .live-chart-header .lc-run-council-btn {
-    transition: none;
-  }
-}
-
-/* ========================================================
-   LIVE MARKET CHART VIEW: MISSING SECTION STYLES
-   ======================================================== */
 
 #liveChartView {
   --lc-accent: #20b2aa;
@@ -3961,7 +3837,6 @@ a.product-chart-btn {
 
 .live-chart-wide-inner { max-width: 1100px; }
 
-/* ---------- Live price pill (header) ---------- */
 #liveChartView .lc-live-price-pill {
   font-family: var(--lc-mono);
   font-size: 13px;
@@ -3974,7 +3849,6 @@ a.product-chart-btn {
   border-radius: 9px;
 }
 
-/* ---------- AI chart reader banner ---------- */
 .lc-ai-reader-banner {
   display: flex;
   align-items: center;
@@ -4027,8 +3901,8 @@ a.product-chart-btn {
 }
 .lc-active-dir-badge.buy { background: var(--lc-accent); color: #031514; }
 .lc-active-dir-badge.sell { background: var(--lc-sell); color: #ffffff; }
+.lc-active-dir-badge.hold { background: var(--lc-amber); color: #04101c; }
 
-/* ---------- Chart viewport (rounded frame around TradingView) ---------- */
 .live-chart-viewport-box { position: relative; }
 
 .lc-scan-laser-overlay {
@@ -4075,7 +3949,6 @@ a.product-chart-btn {
   white-space: nowrap;
 }
 
-/* ---------- Trade levels strip ---------- */
 .lc-chart-levels-strip {
   display: flex;
   align-items: center;
@@ -4118,7 +3991,6 @@ a.product-chart-btn {
 .lc-lvl-chip.sl { background: var(--lc-sell-soft); color: var(--danger-soft); border: 1px solid rgba(239, 68, 68, 0.35); }
 .lc-lvl-chip.tp { background: var(--lc-accent-soft); color: var(--lc-accent); border: 1px solid var(--lc-accent-line); }
 
-/* ---------- Super AI consensus banner ---------- */
 .lc-council-banner-card {
   display: flex;
   flex-direction: column;
@@ -4177,7 +4049,6 @@ a.product-chart-btn {
   box-shadow: 0 0 18px rgba(32, 178, 170, 0.38);
 }
 
-/* ---------- 3-card analysis grid ---------- */
 .lc-analysis-bottom-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -4225,7 +4096,6 @@ a.product-chart-btn {
   white-space: nowrap;
 }
 
-/* Card 1: observations */
 .lc-observations-list { display: flex; flex-direction: column; gap: 8px; }
 
 .lc-obs-item {
@@ -4239,7 +4109,6 @@ a.product-chart-btn {
 }
 .lc-obs-item strong { display: block; margin-bottom: 2px; color: var(--text-main); }
 
-/* Card 2: levels + regime + KPIs */
 .lc-levels-rows { display: flex; flex-direction: column; gap: 5px; }
 
 .lc-level-row {
@@ -4289,7 +4158,6 @@ a.product-chart-btn {
 .lc-kpi-num.cyan { color: var(--sky-blue); }
 .lc-kpi-num.amber { color: var(--lc-amber); }
 
-/* Card 3: agents */
 .lc-agents-stack { display: flex; flex-direction: column; gap: 8px; }
 
 .lc-agent-card {
@@ -4312,7 +4180,7 @@ a.product-chart-btn {
   color: var(--text-main);
 }
 
-.lc-agent-role { font-size: 10px; font-weight: 600; color: var(--text-muted); }
+.lc-agent-role { font-size: 10px; font-weight: 600; color: var(--text-muted); display: block; }
 
 .lc-agent-bias {
   font-size: 10px;
@@ -4326,26 +4194,6 @@ a.product-chart-btn {
 
 .lc-agent-body { font-size: 11px; color: var(--text-sub); line-height: 1.5; }
 .lc-agent-conviction { font-size: 10px; font-weight: 700; color: var(--lc-accent); }
-
-/* ---------- Responsive ---------- */
-@media (max-width: 1000px) {
-  .lc-analysis-bottom-grid { grid-template-columns: 1fr; }
-  .lc-kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
-
-@media (max-width: 560px) {
-  .lc-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .lc-council-banner-top { align-items: flex-start; flex-direction: column; }
-  .lc-chart-levels-strip { align-items: flex-start; flex-direction: column; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lc-scan-beam { animation: none; top: 50%; }
-  .lc-llm-pill, .lc-ai-reader-banner { transition: none; }
-}
-
-/* ---------- Live chart: state variants + small extras ---------- */
-#liveChartView .lc-live-price-pill { transition: color 0.2s ease, background 0.2s ease; }
 
 .lc-ai-reader-banner.is-sell {
   background: linear-gradient(90deg, rgba(239, 68, 68, 0.16) 0%, var(--bg-card) 100%);
@@ -4361,52 +4209,12 @@ a.product-chart-btn {
 .lc-ai-reader-banner.is-hold .lc-reader-score { background: var(--lc-amber); color: #04101c; }
 .lc-ai-reader-banner.is-hold .lc-structure-tag { background: rgba(245, 158, 11, 0.16); color: var(--lc-amber); }
 
-.lc-active-dir-badge.hold { background: var(--lc-amber); color: #04101c; }
-
-.lc-llm-pill.llm-active-vote { color: var(--text-main); }
-
-.lc-council-banner-card.lc-flash-highlight,
-.lc-ai-reader-banner.lc-flash-highlight {
-  border-color: var(--lc-accent);
-  box-shadow: 0 0 18px rgba(32, 178, 170, 0.38);
-}
-
-.lc-agent-role { display: block; }
-
 .lc-disclaimer {
   font-size: 11px;
   color: var(--text-muted);
   text-align: center;
   line-height: 1.5;
 }
-
-button:disabled.lc-analyze-btn,
-button:disabled.lc-best-setup-btn,
-button:disabled.lc-run-council-btn {
-  opacity: 0.6;
-  cursor: progress;
-  transform: none;
-  filter: none;
-}
-
-/* ---------- Live chart header: title left, actions right ---------- */
-.live-chart-header.lc-header-flex {
-  flex-direction: row;
-  align-items: flex-end;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 14px 16px;
-}
-.live-chart-header.lc-header-flex > div:first-child { flex: 1 1 420px; min-width: 0; }
-.live-chart-header .live-chart-description { max-width: 62ch; }
-
-@media (max-width: 768px) {
-  .live-chart-header.lc-header-flex { flex-direction: column; align-items: flex-start; }
-  .live-chart-header.lc-header-flex > div:first-child { flex: 0 0 auto; width: 100%; }
-}
-
-/* ---------- Live chart: action buttons ---------- */
-.lc-primary-actions-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
 .lc-analyze-btn,
 .lc-best-setup-btn,
@@ -4438,16 +4246,24 @@ button:disabled.lc-run-council-btn {
   color: #031514;
 }
 
-.lc-analyze-btn:focus-visible,
-.lc-best-setup-btn:focus-visible,
-.lc-run-council-btn:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(32, 178, 170, 0.35);
+@media (max-width: 1000px) {
+  .lc-analysis-bottom-grid { grid-template-columns: 1fr; }
+  .lc-kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 @media (max-width: 768px) {
+  .lc-header-flex { align-items: flex-start; flex-direction: column; }
   .lc-primary-actions-bar { width: 100%; }
-  .lc-analyze-btn,
-  .lc-best-setup-btn,
-  .lc-run-council-btn { flex: 1 1 auto; height: 40px; }
+  .lc-analyze-btn, .lc-best-setup-btn, .lc-run-council-btn { flex: 1 1 auto; height: 40px; }
+  .live-chart-controls-bar { padding: 14px 12px; }
+  .controls-pill-group { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .pills-scroll-track { width: 100%; padding-bottom: 2px; }
+  .lc-filter-selects-row { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .lc-select-pill { width: 100%; height: 42px; font-size: 16px; }
+}
+
+@media (max-width: 560px) {
+  .lc-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lc-council-banner-top { align-items: flex-start; flex-direction: column; }
+  .lc-chart-levels-strip { align-items: flex-start; flex-direction: column; }
 }

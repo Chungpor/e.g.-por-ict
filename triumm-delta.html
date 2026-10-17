@@ -96,7 +96,7 @@
         <div id="tdThemeToggle" class="theme-switch-pill" role="button" aria-label="Toggle Theme" tabindex="0">
           <span class="theme-icon-track">🌙</span>
           <span class="theme-icon-track">☀️</span>
-          <div class="theme-switch-thumb">🌙</div>
+          <div class="theme-switch-thumb" id="tdThemeThumb">🌙</div>
         </div>
 
         <!-- Profile Avatar Button -->
@@ -108,7 +108,7 @@
         </a>
 
         <!-- Language Pill -->
-        <button type="button" id="tdLangBtn" class="lang-pill-btn">
+        <button type="button" id="tdLangBtn" class="lang-pill-btn" title="Toggle EN / KM Translation">
           <span id="tdCurrentLang">EN</span>
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <polyline points="6 9 12 15 18 9"></polyline>
@@ -315,6 +315,11 @@
 
     </div>
   </main>
+
+  <!-- INTERACTIVE DELTA SIGNAL MODAL -->
+  <div class="td-signal-modal-backdrop" id="tdSignalModal" onclick="closeSignalModal()">
+    <div class="td-signal-modal-card" id="tdSignalModalContent" onclick="event.stopPropagation();"></div>
+  </div>
 
   <script src="triumm-delta.js"></script>
 </body>

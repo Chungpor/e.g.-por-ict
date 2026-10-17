@@ -27,7 +27,20 @@
 .mt-empty a { color: var(--green); font-weight: 700; text-decoration: none; }
 
 /* trade card */
-.mt-trade { background: var(--card); border: 1px solid var(--card-b); border-left-width: 4px; border-radius: 18px; padding: 16px 18px; backdrop-filter: blur(10px); }
+.mt-trade {
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-left-width: 4px;
+  border-radius: 18px;
+  padding: 16px 18px;
+  backdrop-filter: blur(10px);
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.mt-trade.mt-fade-out {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.97);
+  pointer-events: none;
+}
 .mt-trade.s-win { border-left-color: var(--green); }
 .mt-trade.s-loss { border-left-color: var(--red); }
 .mt-trade.s-open { border-left-color: var(--cyan); }
@@ -58,11 +71,12 @@
 .mt-meta .r-neg { color: #f87171; font-weight: 700; }
 .mt-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--card-b); }
 .mt-actions .lbl { font-size: 11.5px; color: var(--mut); margin-right: 4px; }
-.mt-act { background: var(--input); border: 1px solid var(--input-b); color: var(--sub); font: 700 11.5px var(--sans); padding: 8px 12px; border-radius: 10px; cursor: pointer; touch-action: manipulation; }
+.mt-act { background: var(--input); border: 1px solid var(--input-b); color: var(--sub); font: 700 11.5px var(--sans); padding: 8px 12px; border-radius: 10px; cursor: pointer; touch-action: manipulation; transition: all 0.18s ease; }
 .mt-act:hover { color: var(--text); border-color: var(--sub); }
-.mt-act.good:hover { color: var(--green); border-color: var(--green); }
-.mt-act.bad:hover { color: #f87171; border-color: var(--red); }
+.mt-act.good:hover { color: var(--green); border-color: var(--green); background: rgba(0, 210, 106, 0.08); }
+.mt-act.bad:hover { color: #f87171; border-color: var(--red); background: rgba(239, 68, 68, 0.08); }
 .mt-act.push { margin-left: auto; }
+.mt-act[data-act="del"]:hover { color: #f87171; border-color: rgba(239, 68, 68, 0.55); background: rgba(239, 68, 68, 0.1); }
 
 /* journal */
 .mt-j { background: var(--card); border: 1px solid var(--card-b); border-radius: 18px; padding: 16px 18px; }
@@ -90,6 +104,153 @@
 .mt-table th:not(:first-child), .mt-table td:not(:first-child) { text-align: right; }
 .mt-danger { background: transparent; border: 0; color: var(--mut); font: 600 12px var(--sans); cursor: pointer; text-decoration: underline; padding: 6px 0; }
 .mt-danger:hover { color: #f87171; }
+
+/* Custom Glassmorphism Confirmation Modal */
+.mt-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(6, 9, 14, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+}
+.mt-modal-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.mt-modal {
+  width: 100%;
+  max-width: 390px;
+  background: rgba(18, 23, 31, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 22px;
+  padding: 24px 22px 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(239, 68, 68, 0.15);
+  transform: translateY(12px) scale(0.95);
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+}
+.mt-modal-backdrop.open .mt-modal {
+  transform: translateY(0) scale(1);
+}
+.mt-modal-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.32);
+  color: #f87171;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.mt-modal-title {
+  font-size: 17.5px;
+  font-weight: 800;
+  color: var(--text, #f8fafc);
+  margin: 0 0 6px;
+  letter-spacing: -0.2px;
+}
+.mt-modal-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--card-b, rgba(255, 255, 255, 0.08));
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text, #f8fafc);
+  margin: 4px 0 10px;
+}
+.mt-modal-desc {
+  font-size: 13px;
+  color: var(--sub, #94a3b8);
+  line-height: 1.5;
+  margin: 0 0 20px;
+}
+.mt-modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.mt-modal-btn {
+  font: 700 13px var(--sans, sans-serif);
+  padding: 11px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.18s ease;
+}
+.mt-modal-btn.cancel {
+  background: var(--input, #161c24);
+  border-color: var(--input-b, rgba(255, 255, 255, 0.12));
+  color: var(--sub, #cbd5e1);
+}
+.mt-modal-btn.cancel:hover {
+  color: var(--text, #fff);
+  border-color: var(--sub, #94a3b8);
+}
+.mt-modal-btn.danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.32);
+}
+.mt-modal-btn.danger:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.45);
+}
+
+/* Undo Toast Notification */
+.mt-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translate(-50%, 20px);
+  z-index: 9998;
+  background: rgba(18, 24, 32, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  padding: 10px 14px 10px 16px;
+  border-radius: 14px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+  color: var(--text, #f8fafc);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.mt-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+.mt-toast-undo {
+  background: rgba(0, 210, 106, 0.15);
+  border: 1px solid rgba(0, 210, 106, 0.4);
+  color: var(--green, #00d26a);
+  font: 700 12px var(--sans, sans-serif);
+  padding: 5px 11px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.mt-toast-undo:hover {
+  background: rgba(0, 210, 106, 0.25);
+}
 
 @media (max-width: 640px) {
   .mt-head h1 { font-size: 26px; }
