@@ -18,6 +18,30 @@
       font-size: 14px;
     }
     .ca-nav-back:hover { color: #f8fafc; }
+
+    /* Hide any old built-in text/circle badges from recent-signals.css */
+    .rs-old-badge-removed {
+      display: none !important;
+    }
+
+    /* Pair Icon Styles */
+    .pair-with-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      vertical-align: middle;
+    }
+    .pair-icon-img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      display: inline-block;
+      vertical-align: middle;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      background: transparent;
+    }
   </style>
 </head>
 <body>
@@ -27,6 +51,182 @@
   <!-- REAL SIGNALS CONTAINER (All generated signals drop here) -->
   <section class="rs-section" id="caRecent"></section>
 </main>
+
+<!-- Pair Image Config, Old Badge Remover & Auto-Injection Engine -->
+<script>
+  (function () {
+    // Built-in SVG fallbacks matching your 6 uploaded images in case local filenames differ
+    const SVG_FALLBACKS = {
+      XAUUSD: "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#cc8e00"/><g fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round"><polygon points="38,44 62,44 58,31 42,31"/><polygon points="24,64 48,64 44,51 28,51"/><polygon points="52,64 76,64 72,51 56,51"/></g><polygon points="38,44 62,44 58,35" fill="#fff"/><polygon points="24,64 48,64 44,55" fill="#fff"/><polygon points="52,64 76,64 72,55" fill="#fff"/></svg>'),
+      BTCUSD: "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#f7931a"/><text x="50" y="68" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-weight="bold" font-size="54" transform="rotate(12 50 50)">₿</text></svg>'),
+      ETHUSD: "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#627eea"/><polygon points="50,15 28,51 50,41" fill="#fff"/><polygon points="50,15 72,51 50,41" fill="#c0cbf6"/><polygon points="50,62 28,51 50,41" fill="#c0cbf6"/><polygon points="50,62 72,51 50,41" fill="#8197ee"/><polygon points="50,85 28,56 50,67" fill="#fff"/><polygon points="50,85 72,56 50,67" fill="#c0cbf6"/></svg>'),
+      EURUSD: "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#d9a300" stroke="#ffbe00" stroke-width="6"/><text x="48" y="69" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-weight="bold" font-size="58">€</text></svg>'),
+      GBPUSD: "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#5a1f7d"/><text x="50" y="70" text-anchor="middle" fill="#fff" font-family="Georgia,serif" font-weight="bold" font-size="60">£</text></svg>'),
+      USDJPY: "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#1b4fd8"/><circle cx="50" cy="50" r="35" fill="none" stroke="#fff" stroke-width="3.5" stroke-dasharray="95 15"/><text x="50" y="67" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-weight="bold" font-size="48">$</text></svg>')
+    };
+
+    // Primary uploaded image files + convenient alternate filenames
+    const PAIR_IMAGE_FILES = {
+      XAUUSD: ["image_6652d9.png", "xauusd.png", "images/xauusd.png"],
+      BTCUSD: ["image_665600.png", "btcusd.png", "images/btcusd.png"],
+      ETHUSD: ["image_66565b.png", "ethusd.png", "images/ethusd.png"],
+      EURUSD: ["image_7034b8.png", "eurusd.png", "images/eurusd.png"],
+      GBPUSD: ["image_70381d.png", "gbpusd.png", "images/gbpusd.png"],
+      USDJPY: ["image_704059.png", "usdjpy.png", "images/usdjpy.png"]
+    };
+
+    function normalizePairKey(raw) {
+      if (!raw) return null;
+      const clean = String(raw).toUpperCase().replace(/[^A-Z]/g, "");
+      if (clean === "XAUUSD" || clean === "XAU" || clean === "GOLD" || clean === "PAXG" || clean === "PAXGUSDT") return "XAUUSD";
+      if (clean === "BTCUSD" || clean === "BTCUSDT" || clean === "BTC") return "BTCUSD";
+      if (clean === "ETHUSD" || clean === "ETHUSDT" || clean === "ETH") return "ETHUSD";
+      if (clean === "EURUSD" || clean === "EUR") return "EURUSD";
+      if (clean === "GBPUSD" || clean === "GBP") return "GBPUSD";
+      if (clean === "USDJPY" || clean === "JPY") return "USDJPY";
+      return PAIR_IMAGE_FILES[clean] ? clean : null;
+    }
+
+    function getPairIconUrl(pair) {
+      const key = normalizePairKey(pair);
+      if (!key) return null;
+      return PAIR_IMAGE_FILES[key][0];
+    }
+
+    function createPairIconElement(pairKey) {
+      const sources = PAIR_IMAGE_FILES[pairKey] || [];
+      const fallbackSvg = SVG_FALLBACKS[pairKey] || "";
+      const img = document.createElement("img");
+      img.className = "pair-icon-img";
+      img.alt = pairKey;
+      img.dataset.pairIcon = pairKey;
+      let tryIdx = 0;
+
+      img.onerror = function () {
+        tryIdx++;
+        if (tryIdx < sources.length) {
+          img.src = sources[tryIdx];
+        } else if (fallbackSvg && img.src !== fallbackSvg) {
+          img.src = fallbackSvg;
+        }
+      };
+
+      img.src = sources[0] || fallbackSvg;
+      return img;
+    }
+
+    // Expose helpers globally
+    window.PAIR_IMAGES = {
+      XAUUSD: "image_6652d9.png",
+      BTCUSD: "image_665600.png",
+      ETHUSD: "image_66565b.png",
+      EURUSD: "image_7034b8.png",
+      GBPUSD: "image_70381d.png",
+      USDJPY: "image_704059.png"
+    };
+    window.getPairIcon = getPairIconUrl;
+    window.getPairIconHtml = function (pair) {
+      const key = normalizePairKey(pair);
+      if (!key) return "";
+      const src = PAIR_IMAGE_FILES[key][0];
+      const fb = SVG_FALLBACKS[key];
+      return `<img src="${src}" onerror="this.onerror=null;this.src='${fb}';" class="pair-icon-img" alt="${key}" />`;
+    };
+
+    // Match old short symbol badges like "Au", "Ξ", "₿", "€", "£", "¥", "$"
+    const OLD_BADGE_TEXT_REGEX = /^(Au|Ξ|₿|€|£|¥|\$|XAU|BTC|ETH|EUR|GBP|JPY)$/i;
+    const PAIR_REGEX = /^(XAU\/?USD|BTC\/?USD[T]?|ETH\/?USD[T]?|EUR\/?USD|GBP\/?USD|USD\/?JPY|GOLD|PAXG\/?USD[T]?)$/i;
+
+    function removeOldBadges(root) {
+      if (!root) return;
+
+      // 1. Remove any element whose text is an old short badge (like "Au" or "Ξ")
+      const candidates = root.querySelectorAll("span, div, i, b, strong, em, small");
+      candidates.forEach((el) => {
+        if (el.children.length > 0) return;
+        const txt = (el.textContent || "").trim();
+        if (OLD_BADGE_TEXT_REGEX.test(txt)) {
+          el.classList.add("rs-old-badge-removed");
+          el.remove();
+        }
+      });
+
+      // 2. Also remove any known icon/avatar wrapper classes from recent-signals.js if they don't hold our new img
+      const iconClasses = root.querySelectorAll(
+        ".rs-pair-icon, .rs-icon, .rs-coin, .rs-symbol-icon, .rs-avatar, .pair-badge, .coin-icon"
+      );
+      iconClasses.forEach((el) => {
+        if (!el.querySelector("img.pair-icon-img") && !el.classList.contains("pair-icon-img")) {
+          el.classList.add("rs-old-badge-removed");
+          el.remove();
+        }
+      });
+    }
+
+    function injectIconsIntoContainer(root) {
+      if (!root) return;
+
+      // First strip out the old "Au" / "Ξ" / etc. circle badges
+      removeOldBadges(root);
+
+      // 1. Check elements with data-pair attributes
+      root.querySelectorAll("[data-pair]").forEach((el) => {
+        if (el.dataset.iconInjected) return;
+        const key = normalizePairKey(el.getAttribute("data-pair"));
+        if (!key) return;
+        const existingImg = el.querySelector("img.pair-icon-img");
+        if (!existingImg) {
+          el.prepend(createPairIconElement(key));
+        }
+        el.dataset.iconInjected = "1";
+      });
+
+      // 2. Scan text leaf nodes matching pair names (e.g., XAUUSD, XAU/USD, BTCUSD, ETHUSD, etc.)
+      const allElements = root.querySelectorAll("span, strong, b, div, h1, h2, h3, h4, h5, td, a, p");
+      allElements.forEach((el) => {
+        if (el.dataset.iconInjected) return;
+        if (el.children.length > 0) return;
+        const text = (el.textContent || "").trim();
+        if (!PAIR_REGEX.test(text)) return;
+
+        const key = normalizePairKey(text);
+        if (!key) return;
+
+        // Also check if an adjacent sibling is an old round badge and remove it
+        const prev = el.previousElementSibling;
+        if (prev && !prev.classList.contains("pair-icon-img") && prev.children.length === 0) {
+          const prevTxt = (prev.textContent || "").trim();
+          if (prevTxt.length <= 4) {
+            prev.remove();
+          }
+        }
+
+        // Avoid duplicate new icon
+        if (
+          (el.previousElementSibling && el.previousElementSibling.classList.contains("pair-icon-img")) ||
+          (el.parentElement && el.parentElement.querySelector(".pair-icon-img"))
+        ) {
+          el.dataset.iconInjected = "1";
+          return;
+        }
+
+        el.dataset.iconInjected = "1";
+        el.classList.add("pair-with-icon");
+        el.prepend(createPairIconElement(key));
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const container = document.getElementById("caRecent") || document.body;
+      injectIconsIntoContainer(container);
+
+      const observer = new MutationObserver(function () {
+        injectIconsIntoContainer(container);
+      });
+      observer.observe(container, { childList: true, subtree: true });
+    });
+  })();
+</script>
 
 <!-- Load Shared Production Trade Store (+ legacy filename & inline fallback) and Recent Signals Engine -->
 <script src="trades-store.js"></script>
@@ -142,6 +342,7 @@
           id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
           createdAt: Date.now(),
           pair: sig.pair,
+          image: sig.image || (window.getPairIcon ? window.getPairIcon(sig.pair) : null),
           tf: sig.tf,
           dir: sig.dir,
           entry: +sig.entry,
@@ -361,7 +562,13 @@
         });
         const byPair = {};
         done.forEach((x) => {
-          const p = (byPair[x.t.pair] ||= { pair: x.t.pair, wins: 0, losses: 0, r: 0 });
+          const p = (byPair[x.t.pair] ||= {
+            pair: x.t.pair,
+            image: window.getPairIcon ? window.getPairIcon(x.t.pair) : null,
+            wins: 0,
+            losses: 0,
+            r: 0
+          });
           if (x.r.state === "win") p.wins++;
           else if (x.r.state === "loss") p.losses++;
           p.r += x.r.r;
@@ -397,6 +604,8 @@
         stats,
         settings,
         setSettings,
+        getPairIcon: window.getPairIcon,
+        getPairIconHtml: window.getPairIconHtml,
       };
       window.TradesStore = window.PorTrades;
     })();

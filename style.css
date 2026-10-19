@@ -42,6 +42,13 @@
   --aquamarine-soft: rgba(127, 255, 212, 0.16);
   --aquamarine-border: rgba(127, 255, 212, 0.45);
   --aquamarine-glow: rgba(127, 255, 212, 0.38);
+
+  /* Tomato Accent (#ff6347 - Telegram bot signal) */
+  --tomato: #ff6347;
+  --tomato-hover: #ff4500;
+  --tomato-soft: rgba(255, 99, 71, 0.16);
+  --tomato-border: rgba(255, 99, 71, 0.45);
+  --tomato-glow: rgba(255, 99, 71, 0.38);
   
   --text-main: #f8fafc;
   --text-sub: #94a3b8;
@@ -101,6 +108,12 @@
   --aquamarine-soft: rgba(13, 148, 136, 0.14);
   --aquamarine-border: rgba(13, 148, 136, 0.45);
   --aquamarine-glow: rgba(13, 148, 136, 0.28);
+
+  --tomato: #e0482d;
+  --tomato-hover: #c8371d;
+  --tomato-soft: rgba(224, 72, 45, 0.14);
+  --tomato-border: rgba(224, 72, 45, 0.45);
+  --tomato-glow: rgba(224, 72, 45, 0.28);
   
   --text-main: #0f172a;
   --text-sub: #475569;
@@ -375,8 +388,18 @@ body {
   text-shadow: 0 0 12px var(--aquamarine-glow);
 }
 
+.nav-link-tomato {
+  color: var(--tomato) !important;
+  font-weight: 700 !important;
+}
+.nav-link-tomato:hover,
+.nav-link-tomato.active {
+  color: #ff856d !important;
+  text-shadow: 0 0 12px var(--tomato-glow);
+}
+
 /* ========================================================
-   UNIFIED 8-CARD FEATURE GRID & PERFECT PILL BUTTON EFFECT
+   UNIFIED 9-CARD FEATURE GRID & PERFECT PILL BUTTON EFFECT
    (WITH FULL DARK MODE & LIGHT MODE SUPPORT)
    ======================================================== */
 .products-dual-grid {
@@ -506,7 +529,7 @@ body {
 }
 
 /* ========================================================
-   UNIFIED FULL-WIDTH PILL BUTTON EFFECT (ALL 8 CARDS)
+   UNIFIED FULL-WIDTH PILL BUTTON EFFECT (ALL 9 CARDS)
    ======================================================== */
 .product-chart-btn,
 a.product-chart-btn,
@@ -538,7 +561,7 @@ button.product-chart-btn {
   transition: all 0.26s cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
-/* Shimmer Light Sweep Across All 8 Feature Card Buttons */
+/* Shimmer Light Sweep Across All 9 Feature Card Buttons */
 .product-chart-btn::after {
   content: "";
   position: absolute;
@@ -577,7 +600,7 @@ button.product-chart-btn {
 }
 
 /* ========================================================
-   PER-CARD SIGNATURE COLOR THEMES (CARDS 1 TO 8)
+   PER-CARD SIGNATURE COLOR THEMES (CARDS 1 TO 9)
    ======================================================== */
 
 /* 1. Triumm Delta (Cyan #00b4ff) */
@@ -655,8 +678,27 @@ button.product-chart-btn {
   z-index: 2;
 }
 
+/* 9. Telegram bot signal (Tomato #ff6347) */
+.por-tgbot-promo-card {
+  --card-accent: #ff6347;
+  --card-accent-rgb: 255, 99, 71;
+  --card-eyebrow-color: #ff6347;
+  --card-title-color: #ff6347;
+}
+.por-tgbot-promo-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--card-accent);
+  opacity: 0.9;
+  z-index: 2;
+}
+
 /* ========================================================
-   LIGHT MODE FIX FOR ALL 8 FEATURE CARDS & BUTTONS
+   LIGHT MODE FIX FOR ALL 9 FEATURE CARDS & BUTTONS
    ======================================================== */
 [data-theme="light"] .product-feature-card {
   background: linear-gradient(
@@ -731,6 +773,13 @@ button.product-chart-btn {
   --card-accent-rgb: 13, 148, 136;
   --card-eyebrow-color: #0f766e;
   --card-title-color: #0f766e;
+}
+
+[data-theme="light"] .por-tgbot-promo-card {
+  --card-accent: #e0482d;
+  --card-accent-rgb: 224, 72, 45;
+  --card-eyebrow-color: #c8371d;
+  --card-title-color: #c8371d;
 }
 
 [data-theme="light"] .product-chart-btn,

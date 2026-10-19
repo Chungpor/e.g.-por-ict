@@ -1,0 +1,182 @@
+:root {
+  --bg-page: #0b0d11;
+  --card-dark: #12151c;
+  --card-border: #1e2430;
+  --buy-bg: #11382b;
+  --buy-text: #2ed573;
+  --sell-bg: #401d22;
+  --sell-text: #ff4757;
+  --label-muted: #8b95a5;
+  --tomato: #ff6347;
+  --tomato-hover: #ff4500;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  background-color: var(--bg-page);
+  color: #f1f5f9;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.font-mono-num {
+  font-family: 'JetBrains Mono', 'Inter', monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Back to Main Dashboard Home Button */
+.btn-back-dashboard {
+  background-color: var(--tomato);
+  color: #ffffff;
+  border: 1px solid rgba(255, 99, 71, 0.65);
+  box-shadow: 0 6px 20px -4px rgba(255, 99, 71, 0.45);
+  text-decoration: none;
+}
+
+.btn-back-dashboard:hover {
+  background-color: var(--tomato-hover);
+  box-shadow: 0 8px 25px -3px rgba(255, 69, 0, 0.6);
+  transform: translateY(-1px);
+}
+
+/* Signal Card */
+.signal-card {
+  background-color: var(--card-dark);
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 42px -15px rgba(0, 0, 0, 0.85);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease, box-shadow 0.22s ease;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  position: relative;
+}
+
+.signal-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 99, 71, 0.55);
+  box-shadow: 0 26px 50px -12px rgba(0, 0, 0, 0.92), 0 0 25px -5px rgba(255, 99, 71, 0.2);
+}
+
+/* White chart frame (225px) */
+.chart-white-box {
+  background: #ffffff;
+  width: 100%;
+  height: 225px;
+  position: relative;
+  border-bottom: 1px solid #e2e8f0;
+  user-select: none;
+  overflow: hidden;
+}
+
+.chart-white-box canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Per-card hover overlay */
+.card-chart-overlay {
+  position: absolute;
+  top: 8px;
+  right: 62px;
+  z-index: 15;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  display: flex;
+  gap: 6px;
+}
+
+.signal-card:hover .card-chart-overlay,
+.card-chart-overlay.force-visible {
+  opacity: 1;
+}
+
+/* BUY / SELL pills */
+.pill-buy {
+  background-color: var(--buy-bg);
+  color: var(--buy-text);
+  padding: 4px 13px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.pill-sell {
+  background-color: var(--sell-bg);
+  color: var(--sell-text);
+  padding: 4px 13px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* Outcome status colors */
+.status-win {
+  color: #2ed573;
+  font-weight: 700;
+}
+.status-loss {
+  color: #ff4757;
+  font-weight: 700;
+}
+.status-active {
+  color: #ffa502;
+  font-weight: 700;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #0d1016;
+}
+::-webkit-scrollbar-thumb {
+  background: #252d3d;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #38455e;
+}
+
+@media print {
+  body {
+    background: #0b0d11 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .signal-card {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #2d3748 !important;
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.92); }
+}
+.live-dot {
+  animation: pulseGlow 1.4s infinite ease-in-out;
+}

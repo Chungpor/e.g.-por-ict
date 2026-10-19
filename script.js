@@ -1,12 +1,5 @@
 /**
- * Por ICT - Calendar, Market Analytics & Indicators System (UNIFIED)
- *
- * LOAD ORDER in index.html (all at the end of <body>, or with `defer`):
- *   <script src="translations.js"></script>   // contains: const translations = {...}
- *   <script src="news-data.js"></script>      // contains: const rawApiPayload = {...}
- *   <script src="script.js"></script>         // this file
- *
- * translations.js and news-data.js are optional: if missing, this file falls back safely.
+ * Por ICT - Calendar, Market Analytics, Indicators & Telegram Bot Signal System (UNIFIED)
  */
 "use strict";
 
@@ -16,7 +9,6 @@
 const DEFAULT_EMAIL = "chungpor908@gmail.com";
 const MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** Escape text before putting it inside innerHTML (feeds and notes are untrusted). */
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
@@ -56,13 +48,14 @@ const FALLBACK_DICT = {
 
 let currentLang = localStorage.getItem("por_lang") || "EN";
 
-// Updated strings for Triumm Delta, Chart Analysis, Electric Flamingo Indicators & Aquamarine Por AI Chat
+// Updated strings including Telegram bot signal (Tomato #ff6347)
 const EXTRA_DICT = {
   EN: {
     nav_terminal: "Triumm Delta",
     nav_analysis: "Analysis",
     nav_indicators: "Indicators",
     nav_aichat: "Por AI Chat",
+    nav_tgbot: "Telegram Bot Signal",
     ca_sub: "SIGNAL GENERATOR",
     ca_title: "Chart Analysis",
     ca_desc: "Generate entry, stop loss and targets from live data, your own levels, or an uploaded chart screenshot, with lot-size calculation.",
@@ -76,6 +69,10 @@ const EXTRA_DICT = {
     pac_title: "Por AI Chat",
     pac_desc: "Interactive AI trading command center for XAUUSD, BTCUSDT & NAS100 with Chart Snap vision, live setups, and position sizing.",
     pac_btn: "OPEN POR AI CHAT ➔",
+    tgbot_sub: "OANDA XAUUSD · US100 · BITCOIN",
+    tgbot_title: "Telegram bot signal",
+    tgbot_desc: "Real TradingView charts, live EMA/RSI/ATR engine, and interactive Telegram Bot buttons for XAUUSD, US100, and BITCOIN.",
+    tgbot_btn: "OPEN TELEGRAM BOT SIGNAL ➔",
     term_pill: "⚡ TRIUMM DELTA AI",
     term_sub: "AUTO SIGNALS · SUPER LLM · DEEP ANALYSIS",
     term_title: "Triumm Delta",
@@ -92,6 +89,7 @@ const EXTRA_DICT = {
     nav_analysis: "វិភាគ",
     nav_indicators: "សូចនាករ (Indicators)",
     nav_aichat: "Por AI Chat",
+    nav_tgbot: "សញ្ញា Telegram Bot",
     ca_sub: "ឧបករណ៍បង្កើតសញ្ញា",
     ca_title: "វិភាគក្រាហ្វ",
     ca_desc: "បង្កើត Entry, Stop Loss និងគោលដៅ ពីទិន្នន័យផ្ទាល់ កម្រិតរបស់អ្នក ឬរូបថតក្រាហ្វ ព្រមទាំងគណនាទំហំ Lot។",
@@ -105,6 +103,10 @@ const EXTRA_DICT = {
     pac_title: "Por AI Chat",
     pac_desc: "មជ្ឈមណ្ឌលជំនួយការជួញដូរ AI សម្រាប់ XAUUSD, BTCUSDT និង NAS100 ជាមួយការវិភាគរូបភាពក្រាហ្វ Chart Snap និងការគណនាហានិភ័យ 1%។",
     pac_btn: "បើក POR AI CHAT ➔",
+    tgbot_sub: "សញ្ញាជួញដូរផ្ទាល់ · OANDA & BITSTAMP",
+    tgbot_title: "Telegram bot signal",
+    tgbot_desc: "ក្រាហ្វ TradingView ផ្ទាល់ ប្រព័ន្ធ EMA/RSI/ATR និងប៊ូតុង Telegram Bot សម្រាប់ XAUUSD, US100 និង BITCOIN។",
+    tgbot_btn: "បើក TELEGRAM BOT SIGNAL ➔",
     term_pill: "⚡ TRIUMM DELTA AI",
     term_sub: "សញ្ញាស្វ័យប្រវត្តិ · SUPER LLM · ការវិភាគស៊ីជម្រៅ",
     term_title: "Triumm Delta",
@@ -179,7 +181,7 @@ function saveCurrentAccountTrades() {
 
 const today = new Date();
 let currentYear = today.getFullYear();
-let currentMonth = today.getMonth(); // 0-indexed
+let currentMonth = today.getMonth();
 let selectedDateKey = "";
 let performanceChart = null;
 
@@ -188,20 +190,17 @@ let isYearlyBilling = false;
 let currentVerificationCode = "";
 let pendingSignupUser = null;
 
-// TradingView
 let currentChartSymbol = "OANDA:XAUUSD";
 let currentChartInterval = "15";
 
-// Audio
 const YT_AUDIO_VIDEO_ID = "yGbaHLXUZWY";
 let ytAudioPlayer = null;
 let isAudioPlaying = false;
 let ytPlayerReady = false;
 let pendingPlay = false;
 
-// News state
-let currentNewsFilter = "all";     // all | usd | high | medium | low
-let currentActiveNewsTab = "hot";  // hot | wire
+let currentNewsFilter = "all";
+let currentActiveNewsTab = "hot";
 
 function isLoggedIn() {
   return localStorage.getItem("por_is_logged_in") === "true";
@@ -231,6 +230,7 @@ const navNewsLink = $("navNewsLink");
 const navLiveChartLink = $("navLiveChartLink");
 const navIndicatorsLink = $("navIndicatorsLink");
 const navPorAiChatLink = $("navPorAiChatLink");
+const navTgBotLink = $("navTgBotLink");
 const navMembershipLink = $("navMembershipLink");
 const navContactLink = $("navContactLink");
 const navMusicBtn = $("navMusicBtn");
@@ -243,6 +243,7 @@ const mobileNewsLink = $("mobileNewsLink");
 const mobileLiveChartLink = $("mobileLiveChartLink");
 const mobileIndicatorsLink = $("mobileIndicatorsLink");
 const mobilePorAiChatLink = $("mobilePorAiChatLink");
+const mobileTgBotLink = $("mobileTgBotLink");
 const mobileMembershipLink = $("mobileMembershipLink");
 const mobileContactLink = $("mobileContactLink");
 const mobileMusicBtn = $("mobileMusicBtn");
@@ -362,7 +363,7 @@ const inputSymbol = $("inputSymbol");
 const inputNote = $("inputNote");
 
 // ==========================================
-// 3. HEADLINE NEWS DATA (from news-data.js)
+// 3. HEADLINE NEWS DATA
 // ==========================================
 const rawHeadlines =
   typeof rawApiPayload !== "undefined" && rawApiPayload && Array.isArray(rawApiPayload.data)
@@ -399,7 +400,7 @@ function generateIctGuidance(item) {
 }
 
 // ==========================================
-// 4. ECONOMIC CALENDAR (live feed + honest fallback)
+// 4. ECONOMIC CALENDAR
 // ==========================================
 let liveForexEvents = [];
 let dataSourceLabel = "Loading…";
@@ -416,9 +417,7 @@ function formatDuration(totalMinutes) {
 }
 
 function computeTiming(diffMinutes, impact, currency) {
-  let status;
-  let countdown;
-  let isHot;
+  let status, countdown, isHot;
   if (diffMinutes > 0) {
     status = "UPCOMING";
     countdown = `in ${formatDuration(diffMinutes)}`;
@@ -470,7 +469,6 @@ function buildEvent(base, id) {
   };
 }
 
-/** DEMO ONLY: invented events anchored to "now". Always labelled as demo in the UI. */
 function generateDemoEvents() {
   const seed = [
     { title: "Core CPI m/m", impact: "HIGH", forecast: "0.3%", previous: "0.2%", offset: 14, km: "សន្ទស្សន៍ថ្លៃទំនិញប្រើប្រាស់ស្នូលប្រចាំខែ (Core CPI)" },
@@ -525,10 +523,7 @@ async function loadCalendarEvents() {
   for (const url of sources) {
     try {
       const data = await fetchWithTimeout(url);
-      if (data && data.source === "synthetic") {
-        console.warn("Server returned sample data; trying next source");
-        continue;
-      }
+      if (data && data.source === "synthetic") continue;
       const list = (Array.isArray(data) ? data : data && data.data) || [];
       const usable = list
         .map((ev) => ev && { ...ev, date: ev.date || ev.release_date_iso, country: ev.country || ev.currency })
@@ -1056,7 +1051,6 @@ function loadAccount(email) {
 
   const avatarSrc = currentAccount.avatar || defaultGenericAvatar;
   [profileAvatarImg, popoverAvatarImg, mobileUserAvatar].forEach((img) => { if (img) img.src = avatarSrc; });
-
   [bannerTierTag, popoverTierBadge, mobileTierBadge].forEach((el) => set(el, currentTier));
   updateTierButtons();
 }
@@ -1078,7 +1072,7 @@ if (avatarUploadTrigger && avatarFileInput) {
 }
 
 // ==========================================
-// 10. AUTH (demo only: runs in the browser, not secure)
+// 10. AUTH
 // ==========================================
 function showAuthView(viewEl) {
   [loginView, signupView, verifyView, resetPasswordView].forEach((v) => { if (v) v.classList.add("hidden"); });
@@ -1270,10 +1264,10 @@ on(mobileMenuBtn, "click", () => { if (mobileMenuDrawer) mobileMenuDrawer.classL
 on(mobileDrawerBackdrop, "click", closeMobileDrawer);
 
 function updateNavActiveLink(activeEl, mobileActiveEl) {
-  [navHomeLink, navNewsLink, navLiveChartLink, navIndicatorsLink, navPorAiChatLink, navMembershipLink, navContactLink]
+  [navHomeLink, navNewsLink, navLiveChartLink, navIndicatorsLink, navPorAiChatLink, navTgBotLink, navMembershipLink, navContactLink]
     .forEach((l) => l && l.classList.remove("active"));
   if (activeEl) activeEl.classList.add("active");
-  [mobileHomeLink, mobileNewsLink, mobileLiveChartLink, mobileIndicatorsLink, mobilePorAiChatLink, mobileMembershipLink, mobileContactLink]
+  [mobileHomeLink, mobileNewsLink, mobileLiveChartLink, mobileIndicatorsLink, mobilePorAiChatLink, mobileTgBotLink, mobileMembershipLink, mobileContactLink]
     .forEach((l) => l && l.classList.remove("active"));
   if (mobileActiveEl) mobileActiveEl.classList.add("active");
 }
@@ -2038,7 +2032,7 @@ if (bgVideo) {
 }
 
 // ==========================================
-// 19. INIT (runs once, after everything above is defined)
+// 19. INIT
 // ==========================================
 setInterval(updateIctClock, 1000);
 updateIctClock();

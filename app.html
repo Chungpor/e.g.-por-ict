@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Telegram Bot Signal — OANDA:XAUUSD, US100 &amp; BITCOIN Terminal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  <link rel="icon" type="image/jpeg" href="por.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body class="pb-16">
+
+  <!-- TOP NAVIGATION & LIVE TICKERS -->
+  <header class="border-b border-slate-800/80 bg-[#0e1117]/95 backdrop-blur-md sticky top-0 z-40 no-print">
+    <div class="max-w-[1460px] mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
+
+      <div class="flex items-center gap-3 flex-wrap">
+        <!-- BUTTON: BACK TO MAIN DASHBOARD HOME -->
+        <a href="index.html" onclick="goBackToMainDashboard(event)" class="btn-back-dashboard px-3.5 py-2 rounded-xl bg-[#ff6347] hover:bg-[#ff4500] text-white font-extrabold text-xs flex items-center gap-2 transition shadow-lg shadow-[#ff6347]/25 active:scale-95" title="Return to Main Dashboard Home">
+          <i class="fa-solid fa-house"></i>
+          <span>← Back to Main Dashboard Home</span>
+        </a>
+
+        <div class="w-10 h-10 rounded-xl bg-[#ff6347]/15 border border-[#ff6347]/40 flex items-center justify-center text-[#ff6347] shadow-inner">
+          <i class="fa-brands fa-telegram text-lg"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white">TELEGRAM BOT SIGNAL TERMINAL</h1>
+            <span id="wsStatusBadge" class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 rounded-md border border-emerald-500/30 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span>
+              LIVE OHLCV + WS
+            </span>
+            <span id="tgHeaderStatusBadge" onclick="openTelegramModal()" class="cursor-pointer px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-sky-500/15 text-sky-400 rounded-md border border-sky-500/30 flex items-center gap-1.5 hover:bg-sky-500/25 transition">
+              <i class="fa-brands fa-telegram"></i>
+              <span id="tgHeaderStatusText">TG: SETUP</span>
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Real TradingView Charts &bull; Live EMA/RSI/ATR Engine &bull; Interactive Telegram Bot Buttons (XAUUSD / US100 / BITCOIN)</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+
+        <!-- OANDA:XAUUSD Ticker -->
+        <div class="flex items-center gap-3 bg-[#12151c] border border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-amber-400 live-dot"></span>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-extrabold text-amber-400">XAU/USD</span>
+                <a href="https://www.tradingview.com/symbols/XAUUSD/?exchange=OANDA" target="_blank" rel="noopener noreferrer" class="text-[10px] font-semibold px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded inline-flex items-center gap-1">
+                  OANDA <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i>
+                </a>
+              </div>
+              <div class="text-[10px] text-slate-400 font-mono-num" id="xauMetaSub">ATR(14): 8.42 &bull; RSI: 56.4</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div id="liveXauPrice" class="text-sm sm:text-base font-extrabold font-mono-num text-emerald-400">4,172.59</div>
+            <div id="liveXauSourceTag" class="text-[10px] font-mono-num text-slate-400">OANDA Sync</div>
+          </div>
+        </div>
+
+        <!-- OANDA:NAS100USD (US100) Ticker -->
+        <div class="flex items-center gap-3 bg-[#12151c] border border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-cyan-400 live-dot"></span>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-extrabold text-cyan-400">US100 / NAS100</span>
+                <a href="https://www.tradingview.com/symbols/NAS100USD/?exchange=OANDA" target="_blank" rel="noopener noreferrer" class="text-[10px] font-semibold px-1.5 py-0.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 rounded inline-flex items-center gap-1">
+                  OANDA <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i>
+                </a>
+              </div>
+              <div class="text-[10px] text-slate-400 font-mono-num" id="nasMetaSub">ATR(14): 64.5 &bull; RSI: 61.2</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div id="liveNasPrice" class="text-sm sm:text-base font-extrabold font-mono-num text-emerald-400">21,480.50</div>
+            <div id="liveNasSourceTag" class="text-[10px] font-mono-num text-slate-400">OANDA Index</div>
+          </div>
+        </div>
+
+        <!-- BITSTAMP:BTCUSD Ticker -->
+        <div class="hidden 2xl:flex items-center gap-3 bg-[#12151c] border border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-orange-400 live-dot"></span>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-extrabold text-orange-400">BTC/USD</span>
+                <a href="https://www.tradingview.com/symbols/BTCUSD/?exchange=BITSTAMP" target="_blank" rel="noopener noreferrer" class="text-[10px] font-semibold px-1.5 py-0.5 bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 rounded inline-flex items-center gap-1">
+                  BITSTAMP <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i>
+                </a>
+              </div>
+              <div class="text-[10px] text-slate-400 font-mono-num" id="btcMetaSub">Live WS Stream</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div id="liveBtcPrice" class="text-sm sm:text-base font-extrabold font-mono-num text-emerald-400">84,250.00</div>
+            <div class="text-[10px] font-mono-num text-slate-400">Bitstamp/Binance</div>
+          </div>
+        </div>
+
+        <button onclick="openTelegramModal()" class="px-3.5 py-2 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 font-bold text-xs flex items-center gap-2 transition shadow-sm">
+          <i class="fa-brands fa-telegram text-sm"></i>
+          <span>Telegram Bot API</span>
+        </button>
+
+        <button onclick="openPineModal()" class="px-3.5 py-2 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 font-bold text-xs flex items-center gap-2 transition shadow-sm">
+          <i class="fa-solid fa-code"></i>
+          <span>Pine Script &amp; Webhook</span>
+        </button>
+
+        <!-- SAVE & PRINT SIGNAL READY BUTTON -->
+        <button onclick="saveAndPrintSignals()" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs flex items-center gap-2 transition shadow-lg shadow-emerald-500/20 active:scale-95" title="Print Signal Ready — Save as PDF or Print">
+          <i class="fa-solid fa-print"></i>
+          <span>Save &amp; Print Ready</span>
+        </button>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTROLS & INTERACTIVE TELEGRAM BOT BUTTON BAR -->
+  <section class="max-w-[1460px] mx-auto px-4 sm:px-6 pt-5 pb-4 no-print">
+    <div class="bg-[#12151c] border border-slate-800/90 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+
+      <!-- TOP NAVIGATION STRIP: BACK TO MAIN DASHBOARD HOME + PRINT SIGNAL READY -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800/80">
+        <div class="flex flex-wrap items-center gap-2.5">
+          <a href="index.html" onclick="goBackToMainDashboard(event)" class="px-4 py-2 rounded-xl bg-[#ff6347]/15 hover:bg-[#ff6347] text-[#ff6347] hover:text-white border border-[#ff6347]/50 font-extrabold text-xs sm:text-sm flex items-center gap-2 transition shadow-sm active:scale-95">
+            <i class="fa-solid fa-arrow-left"></i>
+            <i class="fa-solid fa-house"></i>
+            <span>Back to Main Dashboard Home</span>
+          </a>
+
+          <span class="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-extrabold text-xs flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
+            <span>PRINT SIGNAL READY</span>
+          </span>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="printRealMarketSignal(selectedInteractiveAsset)" class="px-3.5 py-2 rounded-xl bg-[#ff6347] hover:bg-[#ff4500] text-white font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-[#ff6347]/20 transition active:scale-95">
+            <i class="fa-solid fa-bolt"></i>
+            <span>Print Ready Active Signal</span>
+          </button>
+
+          <button onclick="saveAndPrintSignals()" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition active:scale-95">
+            <i class="fa-solid fa-file-pdf"></i>
+            <span>Save a Print / PDF</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ROW 1: PRINT & BOT ACTIONS -->
+      <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <button onclick="printRealMarketSignal('XAUUSD')" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-amber-500/10 transition active:scale-95">
+            <i class="fa-solid fa-bolt"></i>
+            <span>Print Real XAU/USD Signal</span>
+          </button>
+
+          <button onclick="printRealMarketSignal('NAS100')" class="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-cyan-500/10 transition active:scale-95">
+            <i class="fa-solid fa-bolt"></i>
+            <span>Print Real US100 Signal</span>
+          </button>
+
+          <button onclick="printRealMarketSignal('BTCUSD')" class="px-3.5 py-2.5 rounded-xl bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 border border-orange-500/30 font-bold text-xs sm:text-sm flex items-center gap-2 transition active:scale-95">
+            <i class="fa-brands fa-bitcoin"></i>
+            <span>Print Real BITCOIN</span>
+          </button>
+
+          <button id="autoBotBtn" onclick="toggleAutoBot()" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs sm:text-sm flex items-center gap-2 transition">
+            <i class="fa-solid fa-satellite-dish text-emerald-400"></i>
+            <span id="autoBotLabel">Live Tick Scanner: ON</span>
+          </button>
+
+          <button id="autoTgBtn" onclick="toggleAutoTelegramPush()" class="px-3.5 py-2.5 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 font-bold text-xs sm:text-sm flex items-center gap-2 transition" title="Automatically push every newly printed signal to your Telegram Channel">
+            <i class="fa-brands fa-telegram text-sky-400"></i>
+            <span id="autoTgLabel">Auto-Telegram Push: OFF</span>
+          </button>
+
+          <button onclick="toggleTvDrawer()" id="tvToggleBtn" class="px-3.5 py-2.5 rounded-xl bg-blue-600/25 hover:bg-blue-600/35 text-blue-300 border border-blue-500/40 font-bold text-xs sm:text-sm flex items-center gap-2 transition">
+            <i class="fa-solid fa-chart-line"></i>
+            <span id="tvDrawerBtnText">Hide Live TradingView</span>
+          </button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <div class="flex items-center bg-[#0b0d11] border border-slate-800 rounded-xl p-1 text-xs">
+            <button onclick="filterCards('ALL')" id="filterALL" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white font-bold transition">All</button>
+            <button onclick="filterCards('XAUUSD')" id="filterXAUUSD" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-semibold transition">XAU/USD</button>
+            <button onclick="filterCards('NAS100')" id="filterNAS100" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-semibold transition">US100</button>
+            <button onclick="filterCards('BTCUSD')" id="filterBTCUSD" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-semibold transition">BITCOIN</button>
+          </div>
+
+          <div class="flex items-center bg-[#0b0d11] border border-slate-800 rounded-xl px-3 py-1.5 text-xs">
+            <span class="text-slate-400 mr-2">TF:</span>
+            <select id="timeframeSelect" onchange="changeTimeframe(this.value)" class="bg-transparent text-white font-bold focus:outline-none cursor-pointer">
+              <option value="1m" class="bg-slate-900">1m Real OHLCV</option>
+              <option value="5m" class="bg-slate-900">5m Real OHLCV</option>
+              <option value="15m" selected class="bg-slate-900">15m Real OHLCV</option>
+              <option value="1h" class="bg-slate-900">1H Real OHLCV</option>
+              <option value="4h" class="bg-slate-900">4H Real OHLCV</option>
+            </select>
+          </div>
+
+          <div class="flex items-center bg-[#0b0d11] border border-slate-800 rounded-xl px-3 py-1.5 text-xs">
+            <span class="text-slate-400 mr-2">Sizing:</span>
+            <select id="sizingModeSelect" class="bg-transparent text-white font-semibold focus:outline-none cursor-pointer">
+              <option value="SCREENSHOT_100_150" class="bg-slate-900">Reference 100 Stop / +150 Target (1:1.5)</option>
+              <option value="ATR_DYNAMIC" class="bg-slate-900">Real ATR(14) Dynamic (1.5x ATR / 2.25x ATR)</option>
+              <option value="RR_1_25" class="bg-slate-900">100 Stop / +250 Target (1:2.5)</option>
+            </select>
+          </div>
+
+          <button onclick="saveAndPrintSignals()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition" title="Print Current Signal Sheet">
+            <i class="fa-solid fa-print"></i>
+            <span>Print</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ROW 2: TELEGRAM BOT INTERACTIVE ASSET & TIMEFRAME BUTTON BUILDER -->
+      <div class="bg-[#0b0d11]/90 rounded-xl p-3.5 border border-sky-500/20">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+
+          <!-- Left: Asset Selector Buttons (XAUUSD, US100, BITCOIN) -->
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="px-2.5 py-1 rounded-lg bg-sky-500/15 text-sky-300 border border-sky-500/30 font-extrabold text-[11px] flex items-center gap-1.5">
+              <i class="fa-brands fa-telegram"></i> TG BOT BUTTONS
+            </span>
+
+            <span class="text-xs text-slate-400 font-semibold ml-1">1. Choose Asset:</span>
+            <div class="flex items-center bg-[#12151c] border border-slate-800 rounded-xl p-1 gap-1">
+              <button onclick="selectInteractiveAsset('XAUUSD')" id="tgAssetBtn_XAUUSD" class="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 transition">
+                <span>🟡 XAUUSD</span>
+              </button>
+              <button onclick="selectInteractiveAsset('NAS100')" id="tgAssetBtn_NAS100" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white font-bold text-xs flex items-center gap-1.5 transition">
+                <span>🔵 US100</span>
+              </button>
+              <button onclick="selectInteractiveAsset('BTCUSD')" id="tgAssetBtn_BTCUSD" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white font-bold text-xs flex items-center gap-1.5 transition">
+                <span>🟠 BITCOIN</span>
+              </button>
+            </div>
+
+            <!-- Middle: Timeframe Buttons (1m, 5m, 15m, 1H, 4H) -->
+            <span class="text-xs text-slate-400 font-semibold ml-1">2. Click Timeframe:</span>
+            <div class="flex items-center bg-[#12151c] border border-slate-800 rounded-xl p-1 gap-1">
+              <button onclick="triggerAssetTimeframeSignal('1m')" id="tgTfBtn_1m" class="px-2.5 py-1.5 rounded-lg text-slate-300 hover:text-white font-mono-num font-bold text-xs transition">1m</button>
+              <button onclick="triggerAssetTimeframeSignal('5m')" id="tgTfBtn_5m" class="px-2.5 py-1.5 rounded-lg text-slate-300 hover:text-white font-mono-num font-bold text-xs transition">5m</button>
+              <button onclick="triggerAssetTimeframeSignal('15m')" id="tgTfBtn_15m" class="px-2.5 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-mono-num font-extrabold text-xs transition">15m</button>
+              <button onclick="triggerAssetTimeframeSignal('1h')" id="tgTfBtn_1h" class="px-2.5 py-1.5 rounded-lg text-slate-300 hover:text-white font-mono-num font-bold text-xs transition">1H</button>
+              <button onclick="triggerAssetTimeframeSignal('4h')" id="tgTfBtn_4h" class="px-2.5 py-1.5 rounded-lg text-slate-300 hover:text-white font-mono-num font-bold text-xs transition">4H</button>
+            </div>
+          </div>
+
+          <!-- Right: Push Interactive Menu to Telegram & Bot Polling Status -->
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="sendTelegramInteractiveMenu()" class="px-3.5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-sky-500/20 transition active:scale-95">
+              <i class="fa-brands fa-telegram text-sm"></i>
+              <span>Send Interactive Menu to Telegram</span>
+            </button>
+
+            <button id="tgPollingToggleBtn" onclick="toggleTelegramBotPolling()" class="px-3 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 font-bold text-xs flex items-center gap-1.5 transition" title="Listen for button clicks inside your Telegram Bot">
+              <span id="tgPollDot" class="w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
+              <span id="tgPollingBtnText">Bot Click Listener: ON</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ROW 3: CALIBRATION & TELEMETRY -->
+      <div class="pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 font-mono-num font-bold text-[11px]">
+            <i class="fa-solid fa-sliders mr-1"></i>PRICE CALIBRATION
+          </span>
+          <label class="inline-flex items-center gap-2 cursor-pointer text-slate-300">
+            <input type="radio" name="priceCalMode" value="REFERENCE_SYNC" checked onchange="setCalibrationMode(this.value)" class="accent-emerald-400">
+            <span>OANDA Reference Calibration (<strong class="font-mono-num text-white">XAU ~4,172.59</strong> &bull; Live Real Tick Delta)</span>
+          </label>
+          <label class="inline-flex items-center gap-2 cursor-pointer text-slate-300">
+            <input type="radio" name="priceCalMode" value="RAW_SPOT" onchange="setCalibrationMode(this.value)" class="accent-emerald-400">
+            <span>Raw Live Spot Feed (<strong class="font-mono-num text-emerald-400" id="rawPaxgLabel">PAXG/XAU Live</strong>)</span>
+          </label>
+        </div>
+
+        <div class="flex items-center gap-3 text-[11px] text-slate-400">
+          <span id="liveEngineTelemetry" class="font-mono-num text-slate-300 truncate max-w-md">
+            [ENGINE] Loaded 60 real OHLCV candles &bull; Forward-Walk TP1-TP5 Evaluator Active
+          </span>
+          <button onclick="rescanAllRealCandles()" class="px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 font-semibold transition">
+            <i class="fa-solid fa-rotate mr-1"></i>Rescan Real OHLCV History
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- TRADINGVIEW CHARTS -->
+  <section id="tvDrawer" class="max-w-[1460px] mx-auto px-4 sm:px-6 pb-6 no-print">
+    <div class="bg-[#12151c] border border-slate-800 rounded-2xl p-4 shadow-2xl">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 live-dot"></span>
+          <h2 class="text-sm font-extrabold text-white tracking-tight">REAL INTERACTIVE TRADINGVIEW CHARTS (OANDA:XAUUSD, US100 &amp; BITCOIN)</h2>
+          <span class="text-xs text-slate-400 hidden sm:inline">— Pre-loaded with EMA + RSI + Volume</span>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="flex items-center bg-[#0b0d11] border border-slate-800 rounded-lg p-0.5 text-[11px]">
+            <button onclick="updateTvWidgetInterval('1')" class="tv-tf-btn px-2 py-1 rounded text-slate-400 hover:text-white font-semibold">1m</button>
+            <button onclick="updateTvWidgetInterval('5')" class="tv-tf-btn px-2 py-1 rounded text-slate-400 hover:text-white font-semibold">5m</button>
+            <button onclick="updateTvWidgetInterval('15')" class="tv-tf-btn px-2 py-1 rounded bg-slate-800 text-white font-bold">15m</button>
+            <button onclick="updateTvWidgetInterval('60')" class="tv-tf-btn px-2 py-1 rounded text-slate-400 hover:text-white font-semibold">1H</button>
+            <button onclick="updateTvWidgetInterval('240')" class="tv-tf-btn px-2 py-1 rounded text-slate-400 hover:text-white font-semibold">4H</button>
+          </div>
+
+          <select id="rightTvSymbolSelect" onchange="switchRightTvSymbol(this.value)" class="bg-[#0b0d11] border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-cyan-300 font-bold focus:outline-none">
+            <option value="OANDA:NAS100USD">Right Chart: OANDA:NAS100USD (US100)</option>
+            <option value="BITSTAMP:BTCUSD">Right Chart: BITSTAMP:BTCUSD (BITCOIN)</option>
+            <option value="FOREXCOM:NSXUSD">Right Chart: FOREXCOM:NSXUSD</option>
+          </select>
+
+          <button onclick="printRealMarketSignal(selectedInteractiveAsset)" class="px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-print"></i>
+            <span>Print Live Signal Now</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="rounded-xl overflow-hidden border border-slate-800 h-[390px] bg-[#0b0d11] relative">
+          <div id="tv_chart_xau_container" class="w-full h-full"></div>
+        </div>
+        <div class="rounded-xl overflow-hidden border border-slate-800 h-[390px] bg-[#0b0d11] relative">
+          <div id="tv_chart_right_container" class="w-full h-full"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIGNAL CARDS GRID -->
+  <main class="max-w-[1460px] mx-auto px-4 sm:px-6">
+    <!-- PRINT SHEET HEADER (VISIBLE WHEN SAVING A PRINT / PDF) -->
+    <div class="hidden print:flex items-center justify-between border-b border-slate-700 pb-4 mb-6">
+      <div>
+        <h2 class="text-lg font-extrabold text-white">POR ICT &bull; TELEGRAM BOT SIGNAL SHEET (PRINT READY)</h2>
+        <p class="text-xs text-slate-400">OANDA:XAUUSD, US100 &amp; BITCOIN &bull; Forward-Walk TP1–TP5 Audit</p>
+      </div>
+      <div id="printTimestampLabel" class="text-xs font-mono-num text-emerald-400">Print Signal Ready</div>
+    </div>
+
+    <div id="signalsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      <!-- Populated dynamically by app.js -->
+    </div>
+  </main>
+
+  <!-- MODAL 1: SIGNAL ANALYSIS -->
+  <div id="analysisModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto no-print" onclick="handleModalBackdrop(event, 'analysisModal')">
+    <div class="bg-[#12151c] border border-slate-700/90 rounded-2xl max-w-3xl w-full p-5 sm:p-6 shadow-2xl my-8" onclick="event.stopPropagation()">
+
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <span id="modalPairTitle" class="text-xl font-extrabold text-white">XAU/USD</span>
+          <span id="modalDirectionPill" class="pill-buy">BUY</span>
+          <span id="modalExchangeTag" class="text-xs font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">OANDA</span>
+          <span id="modalStatusBadge" class="text-sm status-win ml-1">WIN · TP5 hit</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="index.html" onclick="goBackToMainDashboard(event)" class="px-3 py-1.5 rounded-lg bg-[#ff6347]/20 hover:bg-[#ff6347]/30 text-[#ff6347] border border-[#ff6347]/40 text-xs font-bold flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-house"></i>
+            <span>Dashboard Home</span>
+          </a>
+          <button id="modalToggleTvBtn" onclick="toggleModalChartMode()" class="px-3 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30 text-xs font-bold flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-chart-line"></i>
+            <span id="modalToggleTvText">Switch to Live TradingView</span>
+          </button>
+          <button onclick="closeModal('analysisModal')" class="w-8 h-8 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl overflow-hidden border border-slate-700">
+        <div id="modalWhiteChartWrap" class="chart-white-box !h-[260px]">
+          <canvas id="modalSignalCanvas"></canvas>
+        </div>
+        <div id="modalTvIframeWrap" class="hidden w-full h-[260px] bg-[#ffffff]"></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+
+        <div class="space-y-4">
+          <div class="bg-[#0b0d11] border border-slate-800/90 rounded-xl p-4">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center justify-between">
+              <span><i class="fa-solid fa-microchip text-emerald-400 mr-1.5"></i>Real Quantitative Telemetry</span>
+              <span id="modalSignalTime" class="text-[11px] font-mono-num text-slate-500">15m OHLCV</span>
+            </h4>
+            <div class="space-y-2 text-xs">
+              <div class="flex items-center justify-between py-1.5 border-b border-slate-800/70">
+                <span class="text-slate-400">EMA(9) vs EMA(21)</span>
+                <span id="modalEmaVals" class="font-mono-num font-bold text-emerald-400">4,171.80 &gt; 4,168.40 (Bullish)</span>
+              </div>
+              <div class="flex items-center justify-between py-1.5 border-b border-slate-800/70">
+                <span class="text-slate-400">Wilder's RSI(14)</span>
+                <span id="modalRsiVal" class="font-mono-num font-bold text-white">58.4 (Momentum Confirmed)</span>
+              </div>
+              <div class="flex items-center justify-between py-1.5 border-b border-slate-800/70">
+                <span class="text-slate-400">Real ATR(14) Volatility</span>
+                <span id="modalAtrVal" class="font-mono-num font-bold text-cyan-400">6.85 pts</span>
+              </div>
+              <div class="flex items-center justify-between pt-1">
+                <span class="text-slate-400">Trigger Reason</span>
+                <span id="modalTriggerReason" class="font-bold text-amber-400 text-right">BOS + Bullish Order Block Retest</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-[#0b0d11] border border-slate-800/90 rounded-xl p-4 space-y-2.5 text-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-[#8b95a5] font-medium">Entry</span>
+              <span id="modalEntryVal" class="font-mono-num font-bold text-white">4,172.59</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-[#8b95a5] font-medium">Stop</span>
+              <span id="modalStopVal" class="font-mono-num font-bold text-rose-400">4,162.59 (100)</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-[#8b95a5] font-medium">Target (TP5)</span>
+              <span id="modalTargetVal" class="font-mono-num font-bold text-emerald-400">4,187.59 (+150)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-[#0b0d11] border border-slate-800/90 rounded-xl p-4 flex flex-col justify-between">
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center justify-between">
+              <span><i class="fa-solid fa-bars-progress text-emerald-400 mr-1.5"></i>Real Forward-Walk TP1–TP5 Audit</span>
+              <span id="modalLivePnlTag" class="text-[11px] font-mono-num text-emerald-400">+150 Pips</span>
+            </h4>
+            <div id="modalTpLadder" class="space-y-1.5 text-xs">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+
+          <pre id="modalRawTicket" class="mt-3 p-2.5 rounded-lg bg-[#12151c] border border-slate-800 text-[11px] font-mono-num text-slate-300 whitespace-pre-wrap select-all leading-relaxed"></pre>
+        </div>
+
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <button id="modalCycleStatusBtn" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-rotate"></i>
+            <span>Override Outcome State</span>
+          </button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="copyModalSignal()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-semibold text-xs flex items-center gap-1.5 transition">
+            <i class="fa-regular fa-copy"></i>
+            <span>Copy Ticket</span>
+          </button>
+          <button id="modalSendTgTextBtn" class="px-3.5 py-2 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 font-bold text-xs flex items-center gap-1.5 transition">
+            <i class="fa-brands fa-telegram"></i>
+            <span>Send TG Text</span>
+          </button>
+          <button id="modalSendTgPhotoBtn" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 shadow-lg shadow-sky-500/10 transition">
+            <i class="fa-brands fa-telegram"></i>
+            <span>Push Card PNG to Telegram</span>
+          </button>
+          <button id="modalDownloadPngBtn" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-500/10 transition">
+            <i class="fa-solid fa-download"></i>
+            <span>Download PNG</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL 2: TELEGRAM BOT API & INTERACTIVE KEYBOARD MANAGER -->
+  <div id="telegramModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto no-print" onclick="handleModalBackdrop(event, 'telegramModal')">
+    <div class="bg-[#12151c] border border-slate-700/90 rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl my-8" onclick="event.stopPropagation()">
+
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400 text-lg">
+            <i class="fa-brands fa-telegram"></i>
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-extrabold text-white">Telegram Bot API &amp; Interactive Timeframe Buttons</h3>
+            <p class="text-xs text-slate-400">Push XAUUSD, US100 &amp; BITCOIN buttons with clickable 1m / 5m / 15m / 1H / 4H timeframe selectors</p>
+          </div>
+        </div>
+        <button onclick="closeModal('telegramModal')" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 mt-5">
+
+        <div>
+          <label class="text-xs font-bold uppercase tracking-wider text-slate-300 block mb-1.5">
+            1. Telegram Bot Token <span class="text-slate-500 font-normal">(from @BotFather)</span>
+          </label>
+          <div class="relative">
+            <input id="tgBotTokenInput" type="password" placeholder="e.g. 7123456789:AAH_your_telegram_bot_token_here" class="w-full bg-[#0b0d11] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono-num text-white focus:outline-none focus:border-sky-500 pr-20" />
+            <button type="button" onclick="toggleTokenVisibility()" class="absolute right-2.5 top-1/2 -translate-y-1/2 px-2 py-1 text-[10px] font-bold text-slate-400 hover:text-white bg-slate-800 rounded">
+              SHOW/HIDE
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-bold uppercase tracking-wider text-slate-300 block mb-1.5">
+              2. Target Chat / Channel / User ID
+            </label>
+            <input id="tgChatIdInput" type="text" placeholder="e.g. @my_signals or -100192837465 or your user ID" class="w-full bg-[#0b0d11] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono-num text-white focus:outline-none focus:border-sky-500" />
+          </div>
+
+          <div>
+            <label class="text-xs font-bold uppercase tracking-wider text-slate-300 block mb-1.5">
+              3. Default Broadcast Mode
+            </label>
+            <select id="tgDispatchModeSelect" class="w-full bg-[#0b0d11] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-bold text-sky-300 focus:outline-none focus:border-sky-500">
+              <option value="PHOTO_AND_CAPTION">Send High-Res Card PNG + TP1–TP5 Caption (sendPhoto)</option>
+              <option value="TEXT_ONLY">Send Instant HTML Signal Ticket Only (sendMessage)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">
+              Optional Topic Thread ID <span class="text-slate-500 font-normal">(Supergroups)</span>
+            </label>
+            <input id="tgThreadIdInput" type="number" placeholder="Leave blank for main channel" class="w-full bg-[#0b0d11] border border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono-num text-white focus:outline-none focus:border-sky-500" />
+          </div>
+
+          <div>
+            <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">
+              Channel Signature / Tag
+            </label>
+            <input id="tgSignatureInput" type="text" value="OANDA Institutional Algo Desk" class="w-full bg-[#0b0d11] border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-sky-500" />
+          </div>
+        </div>
+
+        <div class="bg-[#0b0d11] border border-sky-500/30 rounded-xl p-3.5 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-extrabold text-sky-300 uppercase tracking-wider">
+              <i class="fa-solid fa-gamepad mr-1"></i>Send Interactive Asset &amp; Timeframe Buttons to Telegram
+            </span>
+            <span class="text-[10px] font-mono-num text-emerald-400">1m &bull; 5m &bull; 15m &bull; 1H &bull; 4H</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <button onclick="sendTelegramInteractiveMenu()" class="px-3 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-xs transition">
+              📋 Main Asset Menu
+            </button>
+            <button onclick="sendTelegramTimeframePrompt('XAUUSD')" class="px-3 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 font-bold text-xs transition">
+              🟡 XAUUSD TFs
+            </button>
+            <button onclick="sendTelegramTimeframePrompt('NAS100')" class="px-3 py-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/30 font-bold text-xs transition">
+              🔵 US100 TFs
+            </button>
+            <button onclick="sendTelegramTimeframePrompt('BTCUSD')" class="px-3 py-2 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 border border-orange-500/30 font-bold text-xs transition">
+              🟠 BITCOIN TFs
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-[#0b0d11] border border-slate-800 rounded-xl p-3.5 flex items-center justify-between">
+          <div>
+            <div class="text-xs font-bold text-white">Auto-Broadcast Newly Printed Signals</div>
+            <div class="text-[11px] text-slate-400">Automatically send every new XAU/USD, US100, or BITCOIN signal card to Telegram with interactive buttons</div>
+          </div>
+          <input id="tgAutoBroadcastCheck" type="checkbox" class="w-4 h-4 accent-sky-400 cursor-pointer" />
+        </div>
+
+        <div id="tgApiLogBox" class="bg-[#0b0d11] border border-slate-800 rounded-xl p-3 text-[11px] font-mono-num text-slate-400">
+          [TELEGRAM BOT] Ready. Configure your Bot Token and Chat ID above.
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+          <button onclick="sendTelegramTestPing()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-bold text-xs flex items-center gap-2 transition">
+            <i class="fa-solid fa-paper-plane"></i>
+            <span>Send Test Ping + Buttons</span>
+          </button>
+
+          <div class="flex items-center gap-2.5">
+            <button onclick="pushSignalToTelegram(signalsList[0]?.id)" class="px-4 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 font-bold text-xs flex items-center gap-2 transition">
+              <i class="fa-solid fa-image"></i>
+              <span>Push Latest Signal Card Now</span>
+            </button>
+            <button onclick="saveTelegramConfig()" class="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-sky-500/20 transition">
+              <i class="fa-solid fa-floppy-disk"></i>
+              <span>Save Telegram Config</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: PINE SCRIPT v5 & WEBHOOK -->
+  <div id="pineModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto no-print" onclick="handleModalBackdrop(event, 'pineModal')">
+    <div class="bg-[#12151c] border border-slate-700/90 rounded-2xl max-w-4xl w-full p-5 sm:p-6 shadow-2xl my-8" onclick="event.stopPropagation()">
+
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-300">
+            <i class="fa-solid fa-code"></i>
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-extrabold text-white">TradingView Pine Script v5 &amp; Webhook Signal Printer</h3>
+            <p class="text-xs text-slate-400">Run this indicator directly on TradingView or paste a TradingView Alert JSON / Custom Signal to print &amp; broadcast a card</p>
+          </div>
+        </div>
+        <button onclick="closeModal('pineModal')" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-5">
+
+        <div class="flex flex-col">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-indigo-300">
+              <i class="fa-solid fa-file-code mr-1"></i>1. Pine Script v5 Strategy (OANDA XAU/USD, US100 &amp; BTC)
+            </span>
+            <button onclick="copyPineScript()" class="px-3 py-1 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 transition">
+              <i class="fa-regular fa-copy"></i>
+              <span>Copy Pine Script v5</span>
+            </button>
+          </div>
+          <textarea id="pineScriptCode" readonly class="w-full h-[310px] rounded-xl bg-[#0b0d11] border border-slate-800 p-3 text-[11px] font-mono-num text-emerald-300 focus:outline-none resize-none leading-relaxed">
+//@version=5
+indicator("OANDA XAUUSD, US100 &amp; BTC TP1-TP5 Bot Signal Engine", overlay=true, max_boxes_count=50, max_lines_count=50)
+
+// === INPUTS ===
+emaFastLen = input.int(9, "Fast EMA Length")
+emaSlowLen = input.int(21, "Slow EMA Length")
+rsiLen     = input.int(14, "RSI Length")
+stopPips   = input.float(10.0, "Stop Distance (Price Points, e.g. 10.0 = 100 pips on XAU)")
+rrRatio    = input.float(1.5, "Target Risk:Reward (1.5 = +150 pips)")
+
+// === INDICATORS ===
+emaFast = ta.ema(close, emaFastLen)
+emaSlow = ta.ema(close, emaSlowLen)
+rsiVal  = ta.rsi(close, rsiLen)
+atrVal  = ta.atr(14)
+
+plot(emaFast, "EMA 9", color=color.new(#10b981, 20), linewidth=2)
+plot(emaSlow, "EMA 21", color=color.new(#3b82f6, 20), linewidth=2)
+
+// === SIGNAL CONDITIONS ===
+bullSignal = ta.crossover(emaFast, emaSlow) and rsiVal &gt; 48
+bearSignal = ta.crossunder(emaFast, emaSlow) and rsiVal &lt; 52
+
+var float entryPrice = na
+var float slPrice    = na
+var float tp5Price   = na
+
+if bullSignal or bearSignal
+    entryPrice := close
+    slPrice    := bullSignal ? entryPrice - stopPips : entryPrice + stopPips
+    tp5Price   := bullSignal ? entryPrice + (stopPips * rrRatio) : entryPrice - (stopPips * rrRatio)
+    
+    // Webhook JSON Alert Payload
+    alertJson = '{"symbol":"' + syminfo.ticker + '","exchange":"' + syminfo.prefix + '","type":"' + (bullSignal ? "BUY" : "SELL") + '","entry":' + str.tostring(entryPrice, "#.##") + ',"stop":' + str.tostring(slPrice, "#.##") + ',"target":' + str.tostring(tp5Price, "#.##") + '}'
+    alert(alertJson, alert.freq_once_per_bar_close)
+
+plotshape(bullSignal, title="BUY Signal", style=shape.labelup, location=location.belowbar, color=#11382b, textcolor=#2ed573, text="BUY", size=size.small)
+plotshape(bearSignal, title="SELL Signal", style=shape.labeldown, location=location.abovebar, color=#401d22, textcolor=#ff4757, text="SELL", size=size.small)</textarea>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-2">
+              <i class="fa-solid fa-satellite-dish mr-1"></i>2. Paste TradingView Webhook JSON Payload
+            </span>
+            <div class="flex gap-2">
+              <input id="webhookJsonInput" type="text" placeholder='{"symbol":"XAU/USD","exchange":"OANDA","type":"BUY","entry":4172.59,"stop":4162.59,"target":4187.59}' class="flex-1 bg-[#0b0d11] border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono-num text-white focus:outline-none focus:border-emerald-500" />
+              <button onclick="parseAndPrintWebhook()" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs whitespace-nowrap transition">
+                Parse &amp; Print
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-[#0b0d11] border border-slate-800 rounded-xl p-4 space-y-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-400 block">
+              <i class="fa-solid fa-pen-ruler mr-1"></i>3. Or Manually Print Exact TradingView Setup
+            </span>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+              <div>
+                <label class="text-slate-400 block mb-1">Symbol</label>
+                <select id="customSymbol" class="w-full bg-[#12151c] border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-bold">
+                  <option value="XAU/USD">XAU/USD (OANDA)</option>
+                  <option value="NAS100">US100 / NAS100 (OANDA)</option>
+                  <option value="BTC/USD">BTC/USD (BITSTAMP)</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-slate-400 block mb-1">Direction</label>
+                <select id="customType" class="w-full bg-[#12151c] border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-bold">
+                  <option value="BUY">BUY</option>
+                  <option value="SELL">SELL</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-slate-400 block mb-1">Status</label>
+                <select id="customStatus" class="w-full bg-[#12151c] border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-bold">
+                  <option value="WIN · TP5 hit">WIN · TP5 hit</option>
+                  <option value="WIN · TP3 hit">WIN · TP3 hit</option>
+                  <option value="ACTIVE · LIVE">ACTIVE · LIVE</option>
+                  <option value="STOPPED OUT">STOPPED OUT</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-slate-400 block mb-1">Entry Price</label>
+                <input id="customEntry" type="number" step="0.01" value="4172.59" class="w-full bg-[#12151c] border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono-num font-bold" />
+              </div>
+              <div>
+                <label class="text-slate-400 block mb-1">Stop Loss</label>
+                <input id="customStop" type="number" step="0.01" value="4162.59" class="w-full bg-[#12151c] border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono-num font-bold" />
+              </div>
+              <div>
+                <label class="text-slate-400 block mb-1">Target (TP5)</label>
+                <input id="customTarget" type="number" step="0.01" value="4187.59" class="w-full bg-[#12151c] border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono-num font-bold" />
+              </div>
+            </div>
+            <button onclick="printCustomManualSignal()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-2 transition">
+              <i class="fa-solid fa-print"></i>
+              <span>Print Signal Card to Terminal Grid</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toastBox" class="fixed bottom-5 right-5 bg-emerald-500 text-slate-950 font-extrabold text-xs px-4 py-3 rounded-xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 pointer-events-none flex items-center gap-2 no-print">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="toastMessage">Signal printed!</span>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
