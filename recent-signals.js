@@ -12,6 +12,31 @@
   const root = document.getElementById("caRecent");
   if (!root) return;
 
+  // Inject CSS for circular image avatars inside .rs-av
+  if (!document.getElementById("rsPairAvatarStyles")) {
+    const style = document.createElement("style");
+    style.id = "rsPairAvatarStyles";
+    style.textContent = `
+      .rs-av.rs-av-has-img {
+        background: transparent !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        border-radius: 50% !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+      .rs-av-img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+        display: block;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   // Ensure PorTrades exists even if trades-store.js was misnamed or loaded out of order
   if (!window.PorTrades && window.TradesStore) {
     window.PorTrades = window.TradesStore;
@@ -47,14 +72,92 @@
   const esc = (v) =>
     String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-  const COINS = {
-    XAUUSD: { sub: "Gold", sym: "Au", bg: "linear-gradient(135deg,#fde68a,#f59e0b)" },
-    BTCUSD: { sub: "Crypto", sym: "₿", bg: "linear-gradient(135deg,#fdba74,#f97316)" },
-    ETHUSD: { sub: "Crypto", sym: "Ξ", bg: "linear-gradient(135deg,#a5b4fc,#6366f1)" },
-    EURUSD: { sub: "Forex", sym: "€", bg: "linear-gradient(135deg,#7dd3fc,#0284c7)" },
-    GBPUSD: { sub: "Forex", sym: "£", bg: "linear-gradient(135deg,#c084fc,#7c3aed)" },
-    USDJPY: { sub: "Forex", sym: "¥", bg: "linear-gradient(135deg,#fca5a5,#dc2626)" }
+  // Built-in SVG fallbacks matching your 6 uploaded images so icons never break even if a file is moved
+  const SVG_FALLBACKS = {
+    XAUUSD: "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#cc8e00"/><g fill="none" stroke="#fff" stroke-width="4.5" stroke-linejoin="round"><polygon points="37,44 63,44 59,29 41,29"/><polygon points="22,66 48,66 44,51 26,51"/><polygon points="52,66 78,66 74,51 56,51"/></g><polygon points="37,44 63,44 59,33" fill="#fff"/><polygon points="22,66 48,66 44,55" fill="#fff"/><polygon points="52,66 78,66 74,55" fill="#fff"/></svg>'),
+    BTCUSD: "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#f7931a"/><text x="50" y="69" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-weight="bold" font-size="56" transform="rotate(12 50 50)">₿</text></svg>'),
+    ETHUSD: "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#627eea"/><polygon points="50,14 27,51 50,40" fill="#fff"/><polygon points="50,14 73,51 50,40" fill="#c0cbf6"/><polygon points="50,62 27,51 50,40" fill="#c0cbf6"/><polygon points="50,62 73,51 50,40" fill="#8197ee"/><polygon points="50,86 27,56 50,67" fill="#fff"/><polygon points="50,86 73,56 50,67" fill="#c0cbf6"/></svg>'),
+    EURUSD: "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#d9a300" stroke="#ffbe00" stroke-width="6"/><text x="48" y="70" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-weight="bold" font-size="60">€</text></svg>'),
+    GBPUSD: "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#5a1f7d"/><text x="50" y="71" text-anchor="middle" fill="#fff" font-family="Georgia,serif" font-weight="bold" font-size="62">£</text></svg>'),
+    USDJPY: "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#1b4fd8"/><circle cx="50" cy="50" r="35" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="95 15"/><text x="50" y="67" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-weight="bold" font-size="50">$</text></svg>')
   };
+
+  const COINS = {
+    XAUUSD: {
+      sub: "Gold",
+      img: "image_6652d9.png",
+      altImg: "xauusd.png",
+      fallback: SVG_FALLBACKS.XAUUSD,
+      sym: "Au",
+      bg: "linear-gradient(135deg,#fde68a,#f59e0b)"
+    },
+    BTCUSD: {
+      sub: "Crypto",
+      img: "image_665600.png",
+      altImg: "btcusd.png",
+      fallback: SVG_FALLBACKS.BTCUSD,
+      sym: "₿",
+      bg: "linear-gradient(135deg,#fdba74,#f97316)"
+    },
+    ETHUSD: {
+      sub: "Crypto",
+      img: "image_66565b.png",
+      altImg: "ethusd.png",
+      fallback: SVG_FALLBACKS.ETHUSD,
+      sym: "Ξ",
+      bg: "linear-gradient(135deg,#a5b4fc,#6366f1)"
+    },
+    EURUSD: {
+      sub: "Forex",
+      img: "image_7034b8.png",
+      altImg: "eurusd.png",
+      fallback: SVG_FALLBACKS.EURUSD,
+      sym: "€",
+      bg: "linear-gradient(135deg,#7dd3fc,#0284c7)"
+    },
+    GBPUSD: {
+      sub: "Forex",
+      img: "image_70381d.png",
+      altImg: "gbpusd.png",
+      fallback: SVG_FALLBACKS.GBPUSD,
+      sym: "£",
+      bg: "linear-gradient(135deg,#c084fc,#7c3aed)"
+    },
+    USDJPY: {
+      sub: "Forex",
+      img: "image_704059.png",
+      altImg: "usdjpy.png",
+      fallback: SVG_FALLBACKS.USDJPY,
+      sym: "$",
+      bg: "linear-gradient(135deg,#fca5a5,#dc2626)"
+    }
+  };
+
+  function resolveCoin(pair) {
+    const clean = String(pair || "").toUpperCase().replace(/[^A-Z]/g, "");
+    if (COINS[clean]) return COINS[clean];
+    if (clean.includes("XAU") || clean.includes("GOLD") || clean.includes("PAXG")) return COINS.XAUUSD;
+    if (clean.includes("BTC")) return COINS.BTCUSD;
+    if (clean.includes("ETH")) return COINS.ETHUSD;
+    if (clean.includes("EUR")) return COINS.EURUSD;
+    if (clean.includes("GBP")) return COINS.GBPUSD;
+    if (clean.includes("JPY")) return COINS.USDJPY;
+    return {
+      sub: "Market",
+      img: null,
+      altImg: null,
+      fallback: null,
+      sym: String(pair || "?").slice(0, 1),
+      bg: "linear-gradient(135deg,#475569,#1e293b)"
+    };
+  }
+
+  function renderAvatar(pair, c) {
+    if (c && c.img) {
+      return `<div class="rs-av rs-av-has-img" aria-hidden="true"><img class="rs-av-img" src="${esc(c.img)}" alt="${esc(pair)}" data-alt="${esc(c.altImg || "")}" data-fb="${esc(c.fallback || "")}" onerror="if(this.dataset.alt && this.src.indexOf(this.dataset.alt)===-1){this.src=this.dataset.alt;}else if(this.dataset.fb){this.onerror=null;this.src=this.dataset.fb;}" /></div>`;
+    }
+    return `<div class="rs-av" style="background:${c.bg}" aria-hidden="true">${esc(c.sym)}</div>`;
+  }
 
   let filter = "all", busy = false, syncText = "";
   const openTags = new Set();
@@ -134,7 +237,7 @@
   function card(t, meta) {
     const r = resultOf(t),
       buy = t.dir === "BUY",
-      c = COINS[t.pair] || { sub: "Market", sym: String(t.pair || "?").slice(0, 1), bg: "linear-gradient(135deg,#475569,#1e293b)" };
+      c = resolveCoin(t.pair);
     const m = meta[t.id] || {},
       conf = m.conf,
       tags = m.tags || [];
@@ -153,7 +256,7 @@
 
     return `<article class="rs-card ${buy ? "buy" : "sell"}" data-id="${esc(t.id)}">
       <div class="rs-top">
-        <div class="rs-av" style="background:${c.bg}" aria-hidden="true">${esc(c.sym)}</div>
+        ${renderAvatar(t.pair, c)}
         <div class="rs-id"><div class="rs-pair">${esc(t.pair)}</div><div class="rs-sub">${esc(c.sub)} · ${esc(t.tf)}</div></div>
         <div class="rs-src">${esc(t.source || "Signal")}</div>
       </div>
@@ -199,7 +302,7 @@
     const r = resultOf(t),
       buy = t.dir === "BUY",
       m = readMeta()[t.id] || {},
-      c = COINS[t.pair] || { sub: "Market", sym: "?", bg: "#334155" };
+      c = resolveCoin(t.pair);
     const slHit = r.state === "loss";
     const tps = (t.tps || [])
       .map((p, i) => `<div class="tp ${isHit(t, i) ? "hit" : ""}"><span>TP${i + 1}${isHit(t, i) ? " ✓" : ""}</span><strong>${px(t, p)}</strong></div>`)
@@ -224,7 +327,7 @@
     wrap.setAttribute("aria-modal", "true");
     wrap.setAttribute("aria-label", `${t.pair} signal details`);
     wrap.innerHTML = `<div class="rs-sheet">
-      <div class="rs-sheet-h"><div class="rs-av" style="background:${c.bg}">${esc(c.sym)}</div>
+      <div class="rs-sheet-h">${renderAvatar(t.pair, c)}
         <div class="rs-id"><div class="rs-pair">${esc(t.pair)} · ${esc(t.tf)}</div><div class="rs-sub">${esc(c.sub)}</div></div>
         <span class="rs-pill dir ${buy ? "buy" : "sell"}">${buy ? "▲ BUY" : "▼ SELL"}</span>
         <button type="button" class="rs-x" aria-label="Close">×</button></div>

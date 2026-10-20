@@ -16,6 +16,29 @@
   const MAX_TRADES = 500;
   let hostIdx = 0;
 
+  // Pair Image Lookup Map for XAUUSD, BTCUSD, ETHUSD, EURUSD, GBPUSD, USDJPY
+  const PAIR_IMAGES = {
+    XAUUSD: "image_6652d9.png",
+    BTCUSD: "image_665600.png",
+    ETHUSD: "image_66565b.png",
+    EURUSD: "image_7034b8.png",
+    GBPUSD: "image_70381d.png",
+    USDJPY: "image_704059.png",
+  };
+
+  function getPairIcon(pair) {
+    if (!pair) return null;
+    const clean = String(pair).toUpperCase().replace(/[^A-Z]/g, "");
+    if (PAIR_IMAGES[clean]) return PAIR_IMAGES[clean];
+    if (clean.includes("XAU") || clean.includes("GOLD") || clean.includes("PAXG")) return PAIR_IMAGES.XAUUSD;
+    if (clean.includes("BTC")) return PAIR_IMAGES.BTCUSD;
+    if (clean.includes("ETH")) return PAIR_IMAGES.ETHUSD;
+    if (clean.includes("EUR")) return PAIR_IMAGES.EURUSD;
+    if (clean.includes("GBP")) return PAIR_IMAGES.GBPUSD;
+    if (clean.includes("JPY")) return PAIR_IMAGES.USDJPY;
+    return null;
+  }
+
   // Safe timeout helper for browsers that do not support AbortSignal.timeout
   function timeoutSignal(ms) {
     if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
@@ -119,6 +142,7 @@
       id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
       createdAt: Date.now(),
       pair: sig.pair,
+      image: sig.image || getPairIcon(sig.pair),
       tf: sig.tf,
       dir: sig.dir,
       entry: +sig.entry,
@@ -350,7 +374,13 @@
     });
     const byPair = {};
     done.forEach((x) => {
-      const p = (byPair[x.t.pair] ||= { pair: x.t.pair, wins: 0, losses: 0, r: 0 });
+      const p = (byPair[x.t.pair] ||= {
+        pair: x.t.pair,
+        image: getPairIcon(x.t.pair),
+        wins: 0,
+        losses: 0,
+        r: 0,
+      });
       if (x.r.state === "win") p.wins++;
       else if (x.r.state === "loss") p.losses++;
       p.r += x.r.r;
@@ -374,6 +404,9 @@
     };
   }
 
+  window.PAIR_IMAGES = PAIR_IMAGES;
+  window.getPairIcon = getPairIcon;
+
   window.PorTrades = {
     load,
     save,
@@ -386,6 +419,7 @@
     stats,
     settings,
     setSettings,
+    getPairIcon,
   };
   window.TradesStore = window.PorTrades;
 })();
