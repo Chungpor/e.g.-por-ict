@@ -155,7 +155,7 @@
       riskUsd: sig.riskUsd ?? null,
       auto: sig.auto !== undefined ? Boolean(sig.auto && bnSymbol) : Boolean(bnSymbol),
       bn: bnSymbol || null,
-      hits: { tp: [null, null, null], sl: null },
+      hits: { tp: [null, null, null], sl: null, trailClosed: false },
       checkedFrom: Date.now(),
       lastCheck: null,
       manual: null,
@@ -185,7 +185,11 @@
     save([]);
   }
 
-  /** Work out the outcome of one trade. winTp = which target counts as "TP hit" (1, 2 or 3). */
+  /**
+   * Work out the outcome of one trade.
+   * Once TP1 or TP2 (or TP3) is hit prior to SL, the trade is permanently locked as a WIN
+   * at the highest TP level reached (up to winTp or highest hit) and will NEVER flip to SL loss.
+   */
   function resultOf(t, winTp = settings().winTp) {
     const risk = Math.abs(t.entry - t.sl) || 1;
     const rOf = (n) => {
@@ -200,11 +204,34 @@
       return { state: "be", r: 0, at: m.at, by: "manual" };
     }
 
-    const tpAt = t.hits && t.hits.tp ? t.hits.tp[winTp - 1] : null;
+    const tpArr = (t.hits && Array.isArray(t.hits.tp)) ? t.hits.tp : [null, null, null];
     const slAt = t.hits ? t.hits.sl : null;
 
-    // If both happen in the same candle we cannot know the order, so count it as a loss (the cautious choice).
-    if (tpAt && (!slAt || tpAt < slAt)) return { state: "win", level: winTp, r: rOf(winTp), at: tpAt, by: "auto" };
+    // Find the first TP hit timestamp (typically TP1)
+    const firstTpAt = tpArr.find((ts) => ts != null) || null;
+
+    // If any TP (TP1, TP2, or TP3) was hit before SL (or SL was never hit), it can NEVER be a loss
+    if (firstTpAt && (!slAt || firstTpAt < slAt)) {
+      // Find the highest TP level hit before any SL
+      let highestLevel = 1;
+      let highestAt = firstTpAt;
+      for (let i = 0; i < tpArr.length; i++) {
+        if (tpArr[i] != null && (!slAt || tpArr[i] < slAt)) {
+          highestLevel = i + 1;
+          highestAt = tpArr[i];
+        }
+      }
+
+      // If the user's target winTp was reached, report that (or highest level reached)
+      const targetAt = tpArr[winTp - 1];
+      if (targetAt && (!slAt || targetAt < slAt)) {
+        return { state: "win", level: highestLevel, r: rOf(highestLevel), at: highestAt, by: "auto" };
+      }
+
+      // Even if winTp is set to 2 or 3, hitting TP1 or TP2 locks in a WIN so it never falls back to SL
+      return { state: "win", level: highestLevel, r: rOf(highestLevel), at: highestAt, by: "auto" };
+    }
+
     if (slAt) return { state: "loss", r: -1, at: slAt, by: "auto" };
     return { state: "open", r: 0 };
   }
@@ -283,22 +310,52 @@
 
   function scan(t, candles) {
     const buy = t.dir === "BUY";
+    if (!t.hits) t.hits = { tp: [null, null, null], sl: null, trailClosed: false };
+    if (!Array.isArray(t.hits.tp)) t.hits.tp = [null, null, null];
+
+    // Repair any legacy trade where TP1 or TP2 was already hit before SL
+    const earliestTp = t.hits.tp.find((ts) => ts != null);
+    if (earliestTp && t.hits.sl && earliestTp < t.hits.sl) {
+      t.hits.sl = null;
+      t.hits.trailClosed = true;
+    }
+
     for (const c of candles) {
       if (c.t < t.checkedFrom - 60000) continue;
 
-      // If already stopped out or resolved, do not scan subsequent candles
-      if (t.hits.sl) break;
+      // Stop scanning if trade was already stopped out, trail-closed after TP1/TP2, or hit all TPs
+      if (t.hits.sl || t.hits.trailClosed) break;
       if (t.tps.length && t.tps.every((_, i) => t.hits.tp[i])) break;
 
+      const alreadyHitAnyTp = t.hits.tp.some((ts) => ts != null);
       const slHit = buy ? c.l <= t.sl : c.h >= t.sl;
       const tpHitsNow = [];
+
       t.tps.forEach((p, i) => {
         if (!t.hits.tp[i] && (buy ? c.h >= p : c.l <= p)) {
           tpHitsNow.push(i);
         }
       });
 
-      // If both hit in the same candle: treat as SL (cautious choice) and break immediately
+      if (alreadyHitAnyTp) {
+        // TP1 or TP2 was ALREADY hit on an earlier candle:
+        // Record any higher TPs hit on this candle
+        tpHitsNow.forEach((i) => {
+          t.hits.tp[i] = c.t;
+        });
+
+        // If price pulls back to entry or SL after hitting TP1/TP2, NEVER mark t.hits.sl!
+        // Just stop scanning further candles so the TP1/TP2 win stays locked forever.
+        const pulledBackToEntryOrSl = buy ? c.l <= Math.max(t.entry, t.sl) : c.h >= Math.min(t.entry, t.sl);
+        if (slHit || pulledBackToEntryOrSl) {
+          t.hits.trailClosed = true;
+          break;
+        }
+        continue;
+      }
+
+      // No TP was hit prior to this candle:
+      // If both SL and TP1 hit inside the exact same 1m candle, treat cautiously as SL
       if (slHit && tpHitsNow.length) {
         t.hits.sl = c.t;
         break;
@@ -318,25 +375,43 @@
     t.lastCheck = Date.now();
   }
 
-  /** Check every unresolved auto-tracked trade. Returns how many were checked and how many just resolved. */
+  /**
+   * Check every unresolved trade (and trades that hit TP1/TP2 but are still watching for TP2/TP3).
+   * Also automatically repairs any existing trades in localStorage where SL was falsely marked after TP1/TP2.
+   */
   async function trackAll() {
     const list = load();
     let checked = 0,
       resolved = 0,
-      failed = 0;
+      failed = 0,
+      repaired = 0;
+
     for (const t of list) {
-      if (!t.auto || !t.bn || t.manual || resultOf(t).state !== "open") continue;
+      if (t.hits && Array.isArray(t.hits.tp) && t.hits.sl) {
+        const firstTp = t.hits.tp.find((ts) => ts != null);
+        if (firstTp && firstTp < t.hits.sl) {
+          t.hits.sl = null;
+          t.hits.trailClosed = true;
+          repaired++;
+        }
+      }
+
+      const allTpsHit = t.tps && t.tps.length && t.tps.every((_, i) => t.hits && t.hits.tp && t.hits.tp[i]);
+      const isStillTracking = !t.hits?.sl && !t.hits?.trailClosed && !allTpsHit;
+
+      if (!t.auto || !t.bn || t.manual || !isStillTracking) continue;
       try {
+        const wasOpen = resultOf(t).state === "open";
         const age = Date.now() - t.createdAt;
         const candles = await fetchRange(t.bn, age > 3 * 864e5 ? "5m" : "1m", t.checkedFrom);
         scan(t, candles);
         checked++;
-        if (resultOf(t).state !== "open") resolved++;
+        if (wasOpen && resultOf(t).state !== "open") resolved++;
       } catch (e) {
         failed++;
       }
     }
-    if (checked) save(list);
+    if (checked || repaired) save(list);
     return { checked, resolved, failed };
   }
 

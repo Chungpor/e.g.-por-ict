@@ -56,7 +56,6 @@
 <!-- Exchange / Pair Avatar Replacement Engine -->
 <script>
   (function () {
-    // High-res embedded SVG replicas of your 6 uploaded images so they always render even if files are in another folder
     const SVG_FALLBACKS = {
       XAUUSD: "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#cc8e00"/><g fill="none" stroke="#fff" stroke-width="4.5" stroke-linejoin="round"><polygon points="37,44 63,44 59,29 41,29"/><polygon points="22,66 48,66 44,51 26,51"/><polygon points="52,66 78,66 74,51 56,51"/></g><polygon points="37,44 63,44 59,33" fill="#fff"/><polygon points="22,66 48,66 44,55" fill="#fff"/><polygon points="52,66 78,66 74,55" fill="#fff"/></svg>'),
       BTCUSD: "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#f7931a"/><text x="50" y="69" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-weight="bold" font-size="56" transform="rotate(12 50 50)">₿</text></svg>'),
@@ -66,7 +65,6 @@
       USDJPY: "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#1b4fd8"/><circle cx="50" cy="50" r="35" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="95 15"/><text x="50" y="67" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-weight="bold" font-size="50">$</text></svg>')
     };
 
-    // Mapped to your 6 uploaded images + clean filename aliases
     const PAIR_IMAGE_FILES = {
       XAUUSD: ["image_6652d9.png", "xauusd.png", "images/xauusd.png", "images/image_6652d9.png"],
       BTCUSD: ["image_665600.png", "btcusd.png", "images/btcusd.png", "images/image_665600.png"],
@@ -79,7 +77,6 @@
     function normalizePairKey(raw) {
       if (!raw) return null;
       const s = String(raw).trim();
-      // Check short badge symbols first (Au, Ξ, ₿, €, £, ¥, $)
       if (/^Au$/i.test(s)) return "XAUUSD";
       if (/^(Ξ|ETH)$/i.test(s)) return "ETHUSD";
       if (/^(₿|BTC)$/i.test(s)) return "BTCUSD";
@@ -119,7 +116,6 @@
       return img;
     }
 
-    // Global helper functions
     window.PAIR_IMAGES = {
       XAUUSD: "image_6652d9.png",
       BTCUSD: "image_665600.png",
@@ -155,7 +151,6 @@
     function swapCardAvatars(root) {
       if (!root) return;
 
-      // Pass 1: Find every pair title (e.g., "XAUUSD", "ETHUSD", "BTCUSD") and replace the circular badge next to it
       const allNodes = root.querySelectorAll("span, strong, b, div, h2, h3, h4, p");
       allNodes.forEach((el) => {
         if (el.children.length > 0) return;
@@ -165,7 +160,6 @@
         const pairKey = normalizePairKey(txt);
         if (!pairKey) return;
 
-        // Look at the immediate sibling or parent's previous sibling (where the "Au" / "Ξ" circle lives in the card header)
         let badgeCandidate = el.previousElementSibling;
         if (!badgeCandidate && el.parentElement) {
           badgeCandidate = el.parentElement.previousElementSibling;
@@ -183,7 +177,6 @@
         }
       });
 
-      // Pass 2: Catch any standalone circular badge showing "Au", "Ξ", "₿", "€", "£", "¥", "$" directly
       const badgeNodes = root.querySelectorAll("span, div, i, b, strong");
       badgeNodes.forEach((el) => {
         if (el.dataset.avatarReplaced) return;
@@ -191,7 +184,6 @@
         const txt = (el.textContent || "").trim();
         if (!BADGE_SYMBOL_REGEX.test(txt)) return;
 
-        // Determine pair from surrounding card header text first, or fall back to symbol text
         const cardHeader = el.parentElement ? el.parentElement.textContent : "";
         const pairKey = normalizePairKey(cardHeader) || normalizePairKey(txt);
         if (pairKey) {
@@ -339,7 +331,7 @@
           riskUsd: sig.riskUsd ?? null,
           auto: sig.auto !== undefined ? Boolean(sig.auto && bnSymbol) : Boolean(bnSymbol),
           bn: bnSymbol || null,
-          hits: { tp: [null, null, null], sl: null },
+          hits: { tp: [null, null, null], sl: null, trailClosed: false },
           checkedFrom: Date.now(),
           lastCheck: null,
           manual: null,
@@ -383,10 +375,22 @@
           return { state: "be", r: 0, at: m.at, by: "manual" };
         }
 
-        const tpAt = t.hits && t.hits.tp ? t.hits.tp[winTp - 1] : null;
+        const tpArr = (t.hits && Array.isArray(t.hits.tp)) ? t.hits.tp : [null, null, null];
         const slAt = t.hits ? t.hits.sl : null;
+        const firstTpAt = tpArr.find((ts) => ts != null) || null;
 
-        if (tpAt && (!slAt || tpAt < slAt)) return { state: "win", level: winTp, r: rOf(winTp), at: tpAt, by: "auto" };
+        if (firstTpAt && (!slAt || firstTpAt < slAt)) {
+          let highestLevel = 1;
+          let highestAt = firstTpAt;
+          for (let i = 0; i < tpArr.length; i++) {
+            if (tpArr[i] != null && (!slAt || tpArr[i] < slAt)) {
+              highestLevel = i + 1;
+              highestAt = tpArr[i];
+            }
+          }
+          return { state: "win", level: highestLevel, r: rOf(highestLevel), at: highestAt, by: "auto" };
+        }
+
         if (slAt) return { state: "loss", r: -1, at: slAt, by: "auto" };
         return { state: "open", r: 0 };
       }
@@ -463,18 +467,41 @@
 
       function scan(t, candles) {
         const buy = t.dir === "BUY";
+        if (!t.hits) t.hits = { tp: [null, null, null], sl: null, trailClosed: false };
+        if (!Array.isArray(t.hits.tp)) t.hits.tp = [null, null, null];
+
+        const earliestTp = t.hits.tp.find((ts) => ts != null);
+        if (earliestTp && t.hits.sl && earliestTp < t.hits.sl) {
+          t.hits.sl = null;
+          t.hits.trailClosed = true;
+        }
+
         for (const c of candles) {
           if (c.t < t.checkedFrom - 60000) continue;
-          if (t.hits.sl) break;
+          if (t.hits.sl || t.hits.trailClosed) break;
           if (t.tps.length && t.tps.every((_, i) => t.hits.tp[i])) break;
 
+          const alreadyHitAnyTp = t.hits.tp.some((ts) => ts != null);
           const slHit = buy ? c.l <= t.sl : c.h >= t.sl;
           const tpHitsNow = [];
+
           t.tps.forEach((p, i) => {
             if (!t.hits.tp[i] && (buy ? c.h >= p : c.l <= p)) {
               tpHitsNow.push(i);
             }
           });
+
+          if (alreadyHitAnyTp) {
+            tpHitsNow.forEach((i) => {
+              t.hits.tp[i] = c.t;
+            });
+            const pulledBackToEntryOrSl = buy ? c.l <= Math.max(t.entry, t.sl) : c.h >= Math.min(t.entry, t.sl);
+            if (slHit || pulledBackToEntryOrSl) {
+              t.hits.trailClosed = true;
+              break;
+            }
+            continue;
+          }
 
           if (slHit && tpHitsNow.length) {
             t.hits.sl = c.t;
@@ -496,20 +523,34 @@
         const list = load();
         let checked = 0,
           resolved = 0,
-          failed = 0;
+          failed = 0,
+          repaired = 0;
         for (const t of list) {
-          if (!t.auto || !t.bn || t.manual || resultOf(t).state !== "open") continue;
+          if (t.hits && Array.isArray(t.hits.tp) && t.hits.sl) {
+            const firstTp = t.hits.tp.find((ts) => ts != null);
+            if (firstTp && firstTp < t.hits.sl) {
+              t.hits.sl = null;
+              t.hits.trailClosed = true;
+              repaired++;
+            }
+          }
+
+          const allTpsHit = t.tps && t.tps.length && t.tps.every((_, i) => t.hits && t.hits.tp && t.hits.tp[i]);
+          const isStillTracking = !t.hits?.sl && !t.hits?.trailClosed && !allTpsHit;
+
+          if (!t.auto || !t.bn || t.manual || !isStillTracking) continue;
           try {
+            const wasOpen = resultOf(t).state === "open";
             const age = Date.now() - t.createdAt;
             const candles = await fetchRange(t.bn, age > 3 * 864e5 ? "5m" : "1m", t.checkedFrom);
             scan(t, candles);
             checked++;
-            if (resultOf(t).state !== "open") resolved++;
+            if (wasOpen && resultOf(t).state !== "open") resolved++;
           } catch (e) {
             failed++;
           }
         }
-        if (checked) save(list);
+        if (checked || repaired) save(list);
         return { checked, resolved, failed };
       }
 
