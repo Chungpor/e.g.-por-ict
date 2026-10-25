@@ -7,7 +7,7 @@ const TELEGRAM_URL = 'https://t.me/KaingChungpor';
 
 // បញ្ចូល Gemini API Key ពិតប្រាកដដែលផ្តើមដោយ "AIzaSy..." (បង្កើតហ្វ្រីនៅ https://aistudio.google.com/app/apikey)
 // បើទុកទទេ វានឹងប្រើប្រព័ន្ធ Auto AI Chart Vision & OCR ស្វ័យប្រវត្តិដោយមិនលោត Error 401
-const DEFAULT_GEMINI_API_KEY = 'AQ.Ab8RN6JIGppUKXo3-t3leC0YlcItaQOmsqonxRvfKlAxKV3Mng';
+const DEFAULT_GEMINI_API_KEY = '';
 
 const getApiKey = () => {
   const saved = (localStorage.getItem('ksnr_gemini_key') || '').trim();
@@ -61,9 +61,8 @@ function isAdminUser(user) {
 // ==========================================
 const KEY_CHARSET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
 
-// តួអក្សរទី១ តំណាងឱ្យប្រភេទតម្លៃកញ្ចប់ (Mode Prefix)
 const MODE_TO_PREFIX = {
-  S1: '5',     // 2.5$ (1 Scan) -> Starts with '5' like 5GSR8Z
+  S1: '5',     // 2.5$ (1 Scan)
   S2: '2',     // 4.5$ (2 Scans)
   S5: '8',     // 8.5$ (5 Scans)
   H24: 'D',    // 10$ (24 Hours)
@@ -113,7 +112,6 @@ function saveKeyUsageMap(map) {
   localStorage.setItem('ksnr_key_usage', JSON.stringify(map));
 }
 
-// បង្កើត KEY ៦ ខ្ទង់ (ឧ. 5GSR8Z) ដែលប្រើបានតែ ១ ដងតាមតម្លៃកញ្ចប់
 function generateSmartKey(mode = 'S1', qrSessionId = '') {
   const prefix = MODE_TO_PREFIX[mode] || '5';
   let body = '';
@@ -155,7 +153,6 @@ function verifySmartKey(inputKey, currentUserIdentifier = '') {
   const reg = getKeyRegistry();
   const usage = getKeyUsageMap();
 
-  // A) ពិនិត្យទម្រង់ KEY ៦ ខ្ទង់ (ឧ. 5GSR8Z)
   if (clean.length === 6 && !clean.includes('-')) {
     const prefix = clean[0];
     const spec = PREFIX_TO_SPEC[prefix];
@@ -178,17 +175,14 @@ function verifySmartKey(inputKey, currentUserIdentifier = '') {
       exhausted: false
     };
 
-    // ពិនិត្យថា KEY ត្រូវបានប្រើអស់ហើយឬនៅ (1-Time Use Enforcement)
     if (record.exhausted) {
       return { valid: false, reason: '⚠️ KEY នេះត្រូវបានប្រើរួចហើយ (ប្រើបានតែ ១ ដងគត់)! សូមទិញ KEY ថ្មី។' };
     }
 
-    // ប្រសិនបើ KEY ត្រូវបាន Redeem ដោយគណនីផ្សេងរួចហើយ មិនអាចយកទៅប្រើស្ទួនបានទេ
     if (record.redeemedBy && currentUserIdentifier && record.redeemedBy !== currentUserIdentifier) {
       return { valid: false, reason: '⚠️ KEY នេះត្រូវបានដោះសោរប្រើប្រាស់រួចហើយ! មិនអាចប្រើស្ទួនបានទេ។' };
     }
 
-    // កញ្ចប់គិតតាមចំនួនដងស្កេន (1-ដង, 2-ដង, 5-ដង)
     if (spec.scans > 0) {
       const used = usage[clean] || 0;
       const left = spec.scans - used;
@@ -206,7 +200,6 @@ function verifySmartKey(inputKey, currentUserIdentifier = '') {
       };
     }
 
-    // កញ្ចប់គិតតាមម៉ោង (24H, 168H, 720H, 2880H, 12240H)
     if (spec.hours >= 999999) {
       return { valid: true, type: 'VIP Unlimited', unlimited: true };
     }
@@ -225,7 +218,6 @@ function verifySmartKey(inputKey, currentUserIdentifier = '') {
     return { valid: true, type: `${spec.label} (${timeLabel})` };
   }
 
-  // B) គាំទ្រទម្រង់ KEY ចាស់ KSNR-XXXX-XXXX-XXX
   const parts = clean.split('-');
   if (parts.length === 4 && parts[0] === 'KSNR' && parts[1].startsWith('S')) {
     const maxScans = parseInt(parts[1].slice(1), 10);
@@ -268,25 +260,24 @@ function consumeKeyScanIfNeeded() {
       saveKeyRegistry(reg);
     }
 
-    addHistoryLog('SCAN', `បានប្រើ KEY (${savedKey}) ស្កេន Chart ១ ដង`);
+    addHistoryLog('SCAN', `បានប្រើ KEY (${savedKey}) ស្កេន Chart ១ ដង (${state.tradeStyle})`);
     const after = verifySmartKey(savedKey, userId);
     if (after.valid) {
       $('keyStatusText').textContent = `បានដោះសោ (${after.type})`;
     } else {
-      // ប្រើគ្រប់ចំនួនដងភ្លាម ចាក់សោរវិញដោយស្វ័យប្រវត្តិ (1-Time KEY)
       state.unlocked = false;
       localStorage.removeItem('ksnr_saved_key');
       if (state.user) syncUserRecord({ activeKey: null });
       applyLockUI();
     }
   } else {
-    addHistoryLog('SCAN', `បានស្កេន Chart ដោយជោគជ័យ (${check.type})`);
+    addHistoryLog('SCAN', `បានស្កេន Chart ដោយជោគជ័យ (${check.type} • ${state.tradeStyle})`);
   }
   return true;
 }
 
 // ==========================================
-// 3. STATE + HELPERS
+// 3. STATE + HELPERS (WITH SCALPING vs SWING TRADE)
 // ==========================================
 const $ = (id) => document.getElementById(id);
 const state = {
@@ -295,11 +286,14 @@ const state = {
   mime: 'image/png',
   scanning: false,
   result: null,
+  tradeStyle: localStorage.getItem('ksnr_trade_style') || 'SCALPING', // 'SCALPING' | 'SWING'
+  selectedPair: 'AUTO',
+  selectedTf: 'AUTO',
   adminAuth: false,
   adminKeyMode: 'S1',
   genKey: '',
   selectedPkg: PACKAGES_MAP['1_SCAN'],
-  currentQrSession: null, // { id, price, pkgCode, used: false }
+  currentQrSession: null,
   latestIssuedKey: localStorage.getItem('ksnr_latest_approved_key') || '',
   khqrMode: 'dynamic',
   rawAbaKhqrPayload: localStorage.getItem('ksnr_raw_aba_khqr') || '',
@@ -324,7 +318,94 @@ function flashButton(btn, doneHtml, originalHtml) {
   }, 2200);
 }
 
-// Seed Admin Accounts
+// ==========================================
+// 3B. SCALPING vs SWING TRADE MODE SELECTOR & 9-TF CONTROL BAR
+// ==========================================
+function setTradeStyle(style, autoRescanIfResult = false) {
+  state.tradeStyle = style === 'SWING' ? 'SWING' : 'SCALPING';
+  localStorage.setItem('ksnr_trade_style', state.tradeStyle);
+
+  const btnScalp = $('btnModeScalping');
+  const btnSwing = $('btnModeSwing');
+  const badge = $('activeTradeStyleBadge');
+
+  if (btnScalp && btnSwing) {
+    if (state.tradeStyle === 'SCALPING') {
+      btnScalp.classList.add('active-scalp');
+      btnScalp.classList.remove('border-slate-700');
+      btnSwing.classList.remove('active-swing');
+      btnSwing.classList.add('border-slate-700');
+    } else {
+      btnSwing.classList.add('active-swing');
+      btnSwing.classList.remove('border-slate-700');
+      btnScalp.classList.remove('active-scalp');
+      btnScalp.classList.add('border-slate-700');
+    }
+  }
+
+  if (badge) {
+    if (state.tradeStyle === 'SCALPING') {
+      badge.textContent = '⚡ SCALPING MODE';
+      badge.className = 'px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-[10px] font-extrabold uppercase';
+    } else {
+      badge.textContent = '🌊 SWING TRADE MODE';
+      badge.className = 'px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300 text-[10px] font-extrabold uppercase';
+    }
+  }
+
+  renderScanButton();
+
+  if (autoRescanIfResult && state.imageBase64 && state.result && !state.scanning && typeof window.recalculateResultForTradeStyle === 'function') {
+    window.recalculateResultForTradeStyle(state.tradeStyle);
+  }
+}
+
+$('btnModeScalping')?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  setTradeStyle('SCALPING', true);
+});
+
+$('btnModeSwing')?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  setTradeStyle('SWING', true);
+});
+
+$('tradeStyleBox')?.addEventListener('click', (e) => e.stopPropagation());
+
+$('livePairSelect')?.addEventListener('change', (e) => {
+  state.selectedPair = e.target.value || 'AUTO';
+});
+
+document.querySelectorAll('#tfSelectorBar .tf-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const tf = btn.dataset.tf || 'AUTO';
+    state.selectedTf = tf;
+
+    document.querySelectorAll('#tfSelectorBar .tf-btn').forEach((b) => {
+      const isActive = b.dataset.tf === tf;
+      b.className = isActive
+        ? 'tf-btn py-1.5 rounded-xl bg-cyan-500 text-slate-950 border border-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.4)] cursor-pointer'
+        : 'tf-btn py-1.5 rounded-xl bg-[#131d31] text-slate-300 border border-slate-700 hover:border-cyan-400 cursor-pointer';
+    });
+
+    if (['1m', '3m', '5m', '15m'].includes(tf)) {
+      setTradeStyle('SCALPING', true);
+    } else if (['30m', '1h', '4h', '1d', '1w'].includes(tf)) {
+      setTradeStyle('SWING', true);
+    }
+  });
+});
+
+// ==========================================
+// 4. USER STORAGE & SEED ADMINS
+// ==========================================
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem('ksnr_users') || '[]'); } catch (e) { return []; }
+}
+function saveUsers(list) {
+  localStorage.setItem('ksnr_users', JSON.stringify(list));
+}
+
 (function seedDefaultAdmins() {
   const users = getUsers();
   const defaults = [
@@ -342,7 +423,7 @@ function flashButton(btn, doneHtml, originalHtml) {
 })();
 
 // ==========================================
-// 4. WINRATE LIVE ACTION ENGINE (91.8%)
+// 5. WINRATE LIVE ACTION ENGINE (91.8%)
 // ==========================================
 function updateWinrateUI() {
   const formatted = state.winrate.toFixed(1) + '%';
@@ -377,7 +458,7 @@ setInterval(() => {
 }, 250);
 
 // ==========================================
-// 5. LANGUAGE SWITCHER & THEME
+// 6. LANGUAGE SWITCHER & THEME
 // ==========================================
 const I18N = {
   en: {
@@ -390,7 +471,11 @@ const I18N = {
     locked: 'Locked • No KEY',
     dropTitle: 'Drop your Chart image here',
     dropSub: 'Members must Login and activate a <span class="text-[#facc15] font-bold">Special KEY</span> to scan (Admin Unlimited Scan)',
-    enterKeyBtn: 'Enter KEY to Scan'
+    enterKeyBtn: 'Enter KEY to Scan',
+    imgReadyNotice: '✅ Chart Image Ready! Choose Scalping or Swing Trade below:',
+    chooseTradeStyle: '🎯 Choose What You Want To Trade (Scalping or Swing):',
+    scalpDesc: 'Fast execution • Tight SL (1.3x ATR) • Quick profit targets (R:R 1:2.5)',
+    swingDesc: 'Hold bigger trend moves • Wide Structural SL • Big TP targets (R:R 1:4.5)'
   },
   km: {
     flag: 'KH',
@@ -402,7 +487,11 @@ const I18N = {
     locked: 'ជាប់សោរ អត់ KEY',
     dropTitle: 'ទាញរូបភាព Chart ទម្លាក់ទីនេះ',
     dropSub: 'សមាជិកត្រូវ Login គណនី និងមាន <span class="text-[#facc15] font-bold">KEY ពិសេស</span> ដើម្បីស្កេន (Admin ស្កេនឥតដែនកំណត់)',
-    enterKeyBtn: 'បញ្ចូល KEY ដើម្បីស្កេន'
+    enterKeyBtn: 'បញ្ចូល KEY ដើម្បីស្កេន',
+    imgReadyNotice: '✅ រូបភាព Chart បញ្ចូលរួចរាល់! សូមជ្រើសរើស Scalping ឬ Swing Trade ខាងក្រោម៖',
+    chooseTradeStyle: '🎯 ជ្រើសរើសទម្រង់ជួញដូរ (Choose What You Want To Trade)៖',
+    scalpDesc: 'វាយខ្លីរហ័ស • Tight SL (1.3x ATR) • យកផលចំណេញលឿន (R:R 1:2.5)',
+    swingDesc: 'កាន់វែងតាម Trend ធំ • Wide Structural SL • TP ធំ (R:R 1:4.5)'
   }
 };
 
@@ -420,6 +509,10 @@ function applyLanguage(lang) {
   if ($('txtDropTitle')) $('txtDropTitle').textContent = t.dropTitle;
   if ($('txtDropSub')) $('txtDropSub').innerHTML = t.dropSub;
   if ($('txtEnterKeyBtn')) $('txtEnterKeyBtn').textContent = t.enterKeyBtn;
+  if ($('txtImgReadyNotice')) $('txtImgReadyNotice').textContent = t.imgReadyNotice;
+  if ($('txtChooseTradeStyle')) $('txtChooseTradeStyle').innerHTML = `<span>${t.chooseTradeStyle}</span>`;
+  if ($('txtScalpDesc')) $('txtScalpDesc').textContent = t.scalpDesc;
+  if ($('txtSwingDesc')) $('txtSwingDesc').textContent = t.swingDesc;
   renderScanButton();
 }
 
@@ -442,15 +535,8 @@ $('btnTheme')?.addEventListener('click', () => {
 });
 
 // ==========================================
-// 6. USER AUTH, PROFILE & ADMIN UNLIMITED
+// 7. USER AUTH, PROFILE & ADMIN UNLIMITED
 // ==========================================
-function getUsers() {
-  try { return JSON.parse(localStorage.getItem('ksnr_users') || '[]'); } catch (e) { return []; }
-}
-function saveUsers(list) {
-  localStorage.setItem('ksnr_users', JSON.stringify(list));
-}
-
 function getInitials(name) {
   const clean = String(name || 'PO').trim();
   return clean.slice(0, 2).toUpperCase();
@@ -713,7 +799,7 @@ $('loginForm')?.addEventListener('submit', (e) => {
 });
 
 // ==========================================
-// 7. REAL 1-TIME ABA KHQR + AUTO "កន្លែងទទួលបាន KEY" ENGINE
+// 8. REAL 1-TIME ABA KHQR + AUTO "កន្លែងទទួលបាន KEY" ENGINE
 // ==========================================
 function applyLockUI() {
   show($('btnLocked'), !state.unlocked);
@@ -762,12 +848,14 @@ function renderScanButton() {
   const btn = $('btnScan');
   if (!btn) return;
   btn.disabled = state.scanning;
+  const styleLabel = state.tradeStyle === 'SWING' ? '🌊 SWING TRADE' : '⚡ SCALPING TRADE';
+
   if (state.scanning) {
-    btn.innerHTML = '<i data-lucide="refresh-cw" class="spin"></i><span>កំពុងវិភាគតំបន់ KEY Por - SNR និងរក Entry...</span>';
+    btn.innerHTML = `<i data-lucide="refresh-cw" class="spin"></i><span>កំពុងវិភាគ ${styleLabel} និងរក Entry + SL + TP...</span>`;
   } else if (!state.imageBase64) {
-    btn.innerHTML = '<i data-lucide="image"></i><span>ជ្រើសរើសរូបភាព Chart (MT4/MT5)</span>';
+    btn.innerHTML = `<i data-lucide="image"></i><span>ជ្រើសរើសរូបភាព Chart (${styleLabel})</span>`;
   } else {
-    btn.innerHTML = '<i data-lucide="sparkles"></i><span>⚡ ស្កេនរក Entry + SL + TP ឥឡូវនេះ</span>';
+    btn.innerHTML = `<i data-lucide="sparkles"></i><span>⚡ ស្កេនរក Entry + SL + TP (${styleLabel}) ឥឡូវនេះ</span>`;
   }
   icons();
 }
@@ -808,7 +896,6 @@ function parseEmvTags(rawQr) {
   return map;
 }
 
-// បង្កើត EMVCo Bakong KHQR សម្រាប់ CHUNG POR KAING (ABA Bank) តាមតម្លៃកញ្ចប់ដែលជ្រើសរើស
 function buildAbaKhqrPayload(pkg, isDynamicAmount = true, sessionId = '') {
   const amountNum = pkg && pkg.price ? parseFloat(pkg.price) : 0;
   const useAmount = isDynamicAmount && amountNum > 0;
@@ -828,10 +915,10 @@ function buildAbaKhqrPayload(pkg, isDynamicAmount = true, sessionId = '') {
       const expMs = String(Date.now() + 15 * 60 * 1000);
       let body = '';
       body += tlv('00', '01');
-      body += tlv('01', '12'); // 12 = Dynamic One-Time QR
+      body += tlv('01', '12');
       body += tlv(acctTag, tags[acctTag]);
       body += tlv('52', tags['52'] || '5999');
-      body += tlv('53', '840'); // USD
+      body += tlv('53', '840');
       body += tlv('54', amountStr);
       body += tlv('58', 'KH');
       body += tlv('59', tags['59'] || ABA_MERCHANT_INFO.merchantName);
@@ -898,7 +985,6 @@ if (state.customAbaQrImg) {
   tryDecodeAbaQrFromImageSrc('image_6229bd.jpg');
 }
 
-// Create a brand new 1-Time KHQR Payment Session for the selected package
 function startOneTimeKhqrSession(pkg) {
   state.selectedPkg = pkg;
   state.currentQrSession = {
@@ -919,7 +1005,6 @@ function startOneTimeKhqrSession(pkg) {
   $('khqrStatusText').textContent = `📱 ស្កេនបង់ប្រាក់ ${pkg.price}$ (1-Time QR #${state.currentQrSession.id})`;
   $('khqrStatusText').className = 'text-xs sm:text-sm text-cyan-300 mb-3 font-semibold';
 
-  // Highlight active quick price button
   document.querySelectorAll('#quickPriceBtns button').forEach((b) => {
     const active = b.dataset.qpkg === pkg.code;
     b.className = active
@@ -955,7 +1040,6 @@ function drawKhqrCanvas(pkg) {
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, w, h);
 
-  // Red KHQR Header Banner
   ctx.fillStyle = '#e11d27';
   ctx.beginPath();
   ctx.moveTo(0, 0);
@@ -971,7 +1055,6 @@ function drawKhqrCanvas(pkg) {
   ctx.textAlign = 'center';
   ctx.fillText('KHQR', w / 2, 31);
 
-  // Merchant Name & Selected Package Price
   ctx.textAlign = 'left';
   ctx.fillStyle = '#0f172a';
   ctx.font = '800 14px Inter, sans-serif';
@@ -992,7 +1075,6 @@ function drawKhqrCanvas(pkg) {
   ctx.stroke();
   ctx.restore();
 
-  // Generate Real Scannable QR Matrix
   const sessionId = state.currentQrSession ? state.currentQrSession.id : `OT${Date.now().toString().slice(-6)}`;
   const khqrString = buildAbaKhqrPayload(pkg, state.khqrMode === 'dynamic', sessionId);
   const qrSize = 236;
@@ -1019,7 +1101,6 @@ function drawKhqrCanvas(pkg) {
       }
     }
 
-    // Center Bakong Emblem
     const cx = startX + qrSize / 2;
     const cy = startY + qrSize / 2;
     ctx.beginPath();
@@ -1046,7 +1127,6 @@ function drawKhqrCanvas(pkg) {
     ctx.textBaseline = 'alphabetic';
   }
 
-  // Bottom Account Numbers
   const footerTop = 348;
   ctx.strokeStyle = '#e2e8f0';
   ctx.lineWidth = 1;
@@ -1096,7 +1176,6 @@ function setKhqrMode(mode) {
 $('tabKhqrDynamic')?.addEventListener('click', () => setKhqrMode('dynamic'));
 $('tabKhqrOriginal')?.addEventListener('click', () => setKhqrMode('original'));
 
-// Quick Price Selector inside KHQR Modal
 document.querySelectorAll('#quickPriceBtns button').forEach((btn) => {
   btn.addEventListener('click', () => {
     const pkg = PACKAGES_MAP[btn.dataset.qpkg];
@@ -1104,7 +1183,6 @@ document.querySelectorAll('#quickPriceBtns button').forEach((btn) => {
   });
 });
 
-// Copy USD & KHR Account Numbers
 $('btnCopyUsdAcc')?.addEventListener('click', () => {
   navigator.clipboard.writeText(ABA_MERCHANT_INFO.usdAccount);
   $('khqrStatusText').textContent = '✅ បានចម្លងលេខគណនី USD: 086 375 171 (CHUNG POR KAING)';
@@ -1117,7 +1195,6 @@ $('btnCopyKhrAcc')?.addEventListener('click', () => {
   $('khqrStatusText').className = 'text-xs sm:text-sm text-amber-300 mb-3 font-bold';
 });
 
-// Upload Original ABA QR Image
 $('uploadOriginalQrInput')?.addEventListener('change', (e) => {
   const file = e.target.files && e.target.files[0];
   if (!file || !file.type.startsWith('image/')) return;
@@ -1135,7 +1212,6 @@ $('uploadOriginalQrInput')?.addEventListener('change', (e) => {
   reader.readAsDataURL(file);
 });
 
-// Package Card Click => Start 1-Time KHQR Session & Open Modal
 document.querySelectorAll('#packageList .pkg-card').forEach((card) => {
   card.addEventListener('click', () => {
     if (!state.user) {
@@ -1157,7 +1233,6 @@ document.querySelectorAll('#packageList .pkg-card').forEach((card) => {
   });
 });
 
-// Save KHQR Image Button
 $('btnSaveKhqr')?.addEventListener('click', () => {
   const canvas = $('khqrCanvas');
   if (!canvas || !state.selectedPkg) return;
@@ -1173,9 +1248,6 @@ $('btnSaveKhqr')?.addEventListener('click', () => {
   if (prevMode === 'original') setKhqrMode('original');
 });
 
-// =========================================================
-// "កន្លែងទទួលបាន KEY" MODAL LOGIC
-// =========================================================
 function openReceiveKeyModalWithKey(keyCode, pkg) {
   const cleanKey = (keyCode || state.latestIssuedKey || localStorage.getItem('ksnr_latest_approved_key') || '').trim().toUpperCase();
   const reg = getKeyRegistry();
@@ -1198,17 +1270,14 @@ function openReceiveKeyModalWithKey(keyCode, pkg) {
   icons();
 }
 
-// Open "កន្លែងទទួលបាន KEY" from Top Bar
 $('btnOpenReceiveKey')?.addEventListener('click', () => {
   if (!state.user) return openModal('loginModal');
   openReceiveKeyModalWithKey(state.latestIssuedKey, state.selectedPkg);
 });
 
-// Complete 1-Time KHQR Payment => Mark QR Used => Auto Generate 6-Char 1-Time KEY => Open "កន្លែងទទួលបាន KEY"
 function completeOneTimePaymentAndShowKey(pkg, sourceLabel = 'ABA KHQR') {
   if (!pkg) return;
 
-  // Enforce 1-Time QR Code Rule: If this QR session was already paid, block reuse
   if (state.currentQrSession && state.currentQrSession.used && state.currentQrSession.issuedKey) {
     closeModal('khqrModal');
     openReceiveKeyModalWithKey(state.currentQrSession.issuedKey, pkg);
@@ -1236,7 +1305,6 @@ function completeOneTimePaymentAndShowKey(pkg, sourceLabel = 'ABA KHQR') {
   }, 650);
 }
 
-// Upload ABA Receipt => Auto Verify & Open "កន្លែងទទួលបាន KEY"
 $('receiptUploadInput')?.addEventListener('change', (e) => {
   const file = e.target.files && e.target.files[0];
   const pkg = state.selectedPkg;
@@ -1249,7 +1317,6 @@ $('receiptUploadInput')?.addEventListener('change', (e) => {
   }, 700);
 });
 
-// Click "ពិនិត្យការបង់" => Auto Verify & Open "កន្លែងទទួលបាន KEY"
 $('btnVerifyKhqr')?.addEventListener('click', () => {
   const pkg = state.selectedPkg;
   if (!pkg) return;
@@ -1261,8 +1328,6 @@ $('btnVerifyKhqr')?.addEventListener('click', () => {
   }, 750);
 });
 
-// Inside "កន្លែងទទួលបាន KEY" Modal:
-// 1. Copy KEY Button (Gold)
 const COPY_RECEIVED_KEY_HTML = '<i data-lucide="copy" class="w-4 h-4"></i><span>Copy KEY</span>';
 $('btnCopyReceivedKey')?.addEventListener('click', () => {
   const code = ($('receivedKeyCode')?.textContent || '').trim();
@@ -1275,7 +1340,6 @@ $('btnCopyReceivedKey')?.addEventListener('click', () => {
   );
 });
 
-// 2. Refresh Key Button (Teal) - Fetches latest approved/paid KEY
 const REFRESH_KEY_HTML = '<i data-lucide="refresh-cw" class="w-4 h-4"></i><span>Refresh Key</span>';
 $('btnRefreshReceivedKey')?.addEventListener('click', () => {
   const btn = $('btnRefreshReceivedKey');
@@ -1285,7 +1349,6 @@ $('btnRefreshReceivedKey')?.addEventListener('click', () => {
   setTimeout(() => {
     let latest = localStorage.getItem('ksnr_latest_approved_key') || state.latestIssuedKey;
     const reg = getKeyRegistry();
-    // If current key is already exhausted or missing, check if a newer unused key exists
     if (!latest || (reg[latest] && reg[latest].exhausted)) {
       const unused = Object.values(reg).reverse().find((k) => !k.exhausted);
       if (unused) latest = unused.key;
@@ -1307,7 +1370,6 @@ $('btnRefreshReceivedKey')?.addEventListener('click', () => {
   }, 500);
 });
 
-// 3. "ទៅកាន់កន្លែង Paste KEY ដើម្បីស្កេន" Button
 $('btnGoToPasteKey')?.addEventListener('click', () => {
   const code = ($('receivedKeyCode')?.textContent || '').trim();
   closeModal('receiveKeyModal');
@@ -1318,7 +1380,6 @@ $('btnGoToPasteKey')?.addEventListener('click', () => {
   openModal('keyModal');
 });
 
-// Paste button inside Enter Key Modal
 $('btnPasteKeyInput')?.addEventListener('click', async () => {
   try {
     const text = await navigator.clipboard.readText();
@@ -1333,7 +1394,7 @@ $('btnPasteKeyInput')?.addEventListener('click', async () => {
 });
 
 // ==========================================
-// 8. IMAGE HANDLING
+// 9. IMAGE HANDLING (READY FOR SCALPING OR SWING SELECTION)
 // ==========================================
 function showError(msg) {
   $('scanErrorText').textContent = msg;
@@ -1358,6 +1419,13 @@ function handleFile(file) {
     show($('dropEmpty'), false);
     show($('dropPreview'), true);
     $('dropZone').classList.add('has-image');
+
+    const styleBox = $('tradeStyleBox');
+    if (styleBox) {
+      styleBox.classList.add('ring-2', 'ring-cyan-400/70');
+      setTimeout(() => styleBox.classList.remove('ring-2', 'ring-cyan-400/70'), 2200);
+    }
+
     renderScanButton();
   };
   reader.readAsDataURL(file);
@@ -1388,9 +1456,9 @@ window.addEventListener('paste', (e) => {
 });
 
 const dz = $('dropZone');
-dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('dragging'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('dragging'));
-dz.addEventListener('drop', (e) => {
+dz?.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('dragging'); });
+dz?.addEventListener('dragleave', () => dz.classList.remove('dragging'));
+dz?.addEventListener('drop', (e) => {
   e.preventDefault();
   dz.classList.remove('dragging');
   if (!state.user) return openModal('loginModal');
@@ -1398,20 +1466,21 @@ dz.addEventListener('drop', (e) => {
   const file = e.dataTransfer.files && e.dataTransfer.files[0];
   if (file) handleFile(file);
 });
-dz.addEventListener('click', () => {
+dz?.addEventListener('click', (e) => {
+  if (e.target.closest('#tradeStyleBox') || e.target.closest('#btnScan') || e.target.closest('#btnEnterKey')) return;
   if (!state.user) return openModal('loginModal');
   if (!state.unlocked) return openModal('keyModal');
   $('fileInput').click();
 });
-$('fileInput').addEventListener('click', (e) => e.stopPropagation());
-$('fileInput').addEventListener('change', (e) => {
+$('fileInput')?.addEventListener('click', (e) => e.stopPropagation());
+$('fileInput')?.addEventListener('change', (e) => {
   const file = e.target.files && e.target.files[0];
   if (file) handleFile(file);
 });
-$('btnRemoveImg').addEventListener('click', (e) => { e.stopPropagation(); clearImage(); });
+$('btnRemoveImg')?.addEventListener('click', (e) => { e.stopPropagation(); clearImage(); });
 
 // ==========================================
-// 9. RENDER RESULT & COPY SIGNAL
+// 10. RENDER RESULT & COPY SIGNAL (WITH SCALPING / SWING BADGE)
 // ==========================================
 function parseNum(v) {
   const m = String(v || '').replace(/,/g, '').match(/-?\d+(\.\d+)?/);
@@ -1431,6 +1500,15 @@ function renderResult() {
   $('rTp2').textContent = r.tp2 || '';
   $('rRes').textContent = r.snrZones?.resistance || '';
   $('rSup').textContent = r.snrZones?.support || '';
+
+  const styleBadge = $('rTradeStyleBadge');
+  if (styleBadge) {
+    const isSwing = (r.tradeStyle || state.tradeStyle) === 'SWING';
+    styleBadge.textContent = isSwing ? '🌊 SWING TRADE (R:R 1:4.5)' : '⚡ SCALPING TRADE (R:R 1:2.5)';
+    styleBadge.className = isSwing
+      ? 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 border border-amber-400/50 text-amber-300'
+      : 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-cyan-500/20 border border-cyan-400/50 text-cyan-300';
+  }
 
   const isBuy = (r.action || '').toUpperCase().includes('BUY');
   const tag = $('rAction');
@@ -1459,11 +1537,15 @@ function renderResult() {
 }
 
 const COPY_SIGNAL_HTML = '<i data-lucide="copy"></i><span>ចម្លង Signal យកទៅផុស (Copy Signal)</span>';
-$('btnCopySignal').addEventListener('click', () => {
+$('btnCopySignal')?.addEventListener('click', () => {
   const r = state.result;
   if (!r) return;
   const isBuy = (r.action || '').toUpperCase().includes('BUY');
+  const isSwing = (r.tradeStyle || state.tradeStyle) === 'SWING';
+  const styleText = isSwing ? '🌊 SWING TRADE (Hold Trend)' : '⚡ SCALPING TRADE (Fast Execution)';
+
   const text = `⚡ លទ្ធផលស្កេនពី Por - SNR Scanner ⚡
+🎯 Trade Style: ${styleText}
 📊 Pair: ${r.pair} (${r.timeframe})
 📈 និន្នាការ (Trend): ${r.trend}
 🔔 ប្រភេទបញ្ជា: ${r.action} = ${isBuy ? 'NEW BUY' : 'NEW SELL'} (${r.orderType})
@@ -1487,7 +1569,7 @@ ${(r.confluence || []).map((c) => `- ${c}`).join('\n')}
 });
 
 // ==========================================
-// 10. ADMIN PANEL: GENERATE & APPROVE 6-CHAR KEYS
+// 11. ADMIN PANEL: GENERATE & APPROVE 6-CHAR KEYS
 // ==========================================
 function setAdminKeyMode(mode) {
   state.adminKeyMode = mode;
@@ -1506,7 +1588,7 @@ function newKey() {
   state.latestIssuedKey = state.genKey;
 }
 
-$('btnAdmin').addEventListener('click', () => {
+$('btnAdmin')?.addEventListener('click', () => {
   if (isAdminUser(state.user)) {
     state.adminAuth = true;
     show($('adminLoginForm'), false);
@@ -1516,7 +1598,7 @@ $('btnAdmin').addEventListener('click', () => {
   openModal('adminModal');
 });
 
-$('adminLoginForm').addEventListener('submit', (e) => {
+$('adminLoginForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
   if ($('adminPinInput').value === ADMIN_PIN || isAdminUser(state.user)) {
     state.adminAuth = true;
@@ -1531,10 +1613,10 @@ $('adminLoginForm').addEventListener('submit', (e) => {
 
 document.querySelectorAll('#durationBtns button').forEach((b) =>
   b.addEventListener('click', () => setAdminKeyMode(b.dataset.mode)));
-$('btnNewKey').addEventListener('click', newKey);
+$('btnNewKey')?.addEventListener('click', newKey);
 
 const COPY_MSG_HTML = '<i data-lucide="copy"></i><span>Approve & ចម្លង KEY ឱ្យភ្ញៀវ</span>';
-$('btnCopyMsg').addEventListener('click', () => {
+$('btnCopyMsg')?.addEventListener('click', () => {
   if (!state.genKey) return;
   localStorage.setItem('ksnr_latest_approved_key', state.genKey);
   state.latestIssuedKey = state.genKey;
@@ -1549,13 +1631,13 @@ $('btnCopyMsg').addEventListener('click', () => {
 });
 
 // ==========================================
-// 11. EVENT WIRING
+// 12. EVENT WIRING
 // ==========================================
-$('btnApi').addEventListener('click', () => {
+$('btnApi')?.addEventListener('click', () => {
   $('apiInput').value = getApiKey();
   openModal('apiModal');
 });
-$('apiForm').addEventListener('submit', (e) => {
+$('apiForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
   const v = $('apiInput').value.trim();
   if (v) localStorage.setItem('ksnr_gemini_key', v);
@@ -1563,24 +1645,24 @@ $('apiForm').addEventListener('submit', (e) => {
   closeModal('apiModal');
   showError('');
 });
-$('btnBuy').addEventListener('click', () => openModal('buyModal'));
-$('btnLocked').addEventListener('click', () => {
+$('btnBuy')?.addEventListener('click', () => openModal('buyModal'));
+$('btnLocked')?.addEventListener('click', () => {
   if (!state.user) return openModal('loginModal');
   openModal('keyModal');
 });
-$('btnLock').addEventListener('click', lock);
-$('btnKeyToBuy').addEventListener('click', () => { closeModal('keyModal'); openModal('buyModal'); });
+$('btnLock')?.addEventListener('click', lock);
+$('btnKeyToBuy')?.addEventListener('click', () => { closeModal('keyModal'); openModal('buyModal'); });
 
-$('btnEnterKey').addEventListener('click', (e) => {
+$('btnEnterKey')?.addEventListener('click', (e) => {
   e.stopPropagation();
   if (!state.user) return openModal('loginModal');
   openModal('keyModal');
 });
-$('btnScan').addEventListener('click', (e) => {
+$('btnScan')?.addEventListener('click', (e) => {
   e.stopPropagation();
   if (!state.user) return openModal('loginModal');
   if (!state.imageBase64) $('fileInput').click();
-  else scanChart();
+  else if (typeof window.scanChart === 'function') window.scanChart();
 });
 
 document.querySelectorAll('[data-close]').forEach((b) =>
@@ -1589,7 +1671,7 @@ document.querySelectorAll('[data-close]').forEach((b) =>
     if (b.dataset.close === 'keyModal') show($('keyError'), false);
   }));
 
-$('keyForm').addEventListener('submit', (e) => {
+$('keyForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
   if (!state.user) {
     closeModal('keyModal');
@@ -1607,13 +1689,14 @@ $('keyForm').addEventListener('submit', (e) => {
   }
 });
 
+setTradeStyle(state.tradeStyle, false);
 updateWinrateUI();
 applyLanguage(state.lang);
 applyAuthUI();
 icons();
 
 // =========================================================
-// 12. 4K DYNAMIC TRADING BACKGROUND ENGINE (CANVAS)
+// 13. 4K DYNAMIC TRADING BACKGROUND ENGINE (CANVAS)
 // =========================================================
 (function init4KTradingBackground() {
   const canvas = document.getElementById('bgTradeCanvas');
@@ -1642,7 +1725,7 @@ icons();
   }
 
   const TAGS = [
-    'XAUUSD ▲', 'BTCUSD ▲', 'NON FARM 4H', 'CPI 1H KEY', 'FOMC 15M-1H',
+    'XAUUSD ▲', 'BTCUSD ▲', 'SCALPING 1M-15M', 'SWING 30M-1W', 'FOMC 15M-1H',
     'KEY BUY=NEW BUY', 'KEY SELL=NEW SELL', 'LIQUIDITY', 'WINRATE 91.8%'
   ];
   const nodes = Array.from({ length: 20 }, (_, i) => ({
@@ -1755,7 +1838,7 @@ icons();
 })();
 
 // =========================================================
-// 13. 4K DYNAMIC BUY KEY MODAL BACKGROUND ENGINE (#buyKey4KCanvas)
+// 14. 4K DYNAMIC BUY KEY MODAL BACKGROUND ENGINE (#buyKey4KCanvas)
 // =========================================================
 (function initBuyKey4KModalBackground() {
   const canvas = document.getElementById('buyKey4KCanvas');
@@ -1765,7 +1848,6 @@ icons();
 
   let w = 0, h = 0, dpr = 1, t = 0;
 
-  // Golden & Cyan 4K Floating Key Orbs
   const orbs = Array.from({ length: 24 }, (_, i) => ({
     x: Math.random(),
     y: Math.random(),
@@ -1777,7 +1859,6 @@ icons();
     label: i < 8 ? ['🔑 2.5$', '🔑 4.5$', '🔑 8.5$', '⚡ 10$', '💎 25$', '👑 35$', '🚀 50$', '🔥 80$'][i] : null
   }));
 
-  // Mini 4K Candlesticks inside Buy Key Modal
   const miniCandles = Array.from({ length: 18 }, (_, i) => ({
     base: 0.3 + Math.sin(i * 0.5) * 0.18 + Math.random() * 0.1,
     range: 0.05 + Math.random() * 0.06,
@@ -1810,7 +1891,6 @@ icons();
       t += 1;
       ctx.clearRect(0, 0, w, h);
 
-      // 1. Dynamic 4K Aurora Glow Waves
       const g1 = ctx.createRadialGradient(
         w * (0.25 + Math.sin(t * 0.015) * 0.15),
         h * (0.2 + Math.cos(t * 0.012) * 0.1),
@@ -1825,7 +1905,6 @@ icons();
       ctx.fillStyle = g1;
       ctx.fillRect(0, 0, w, h);
 
-      // 2. Crisp 4K Cyber Grid
       const step = 42;
       const offY = (t * 0.4) % step;
       ctx.strokeStyle = 'rgba(56, 189, 248, 0.10)';
@@ -1843,7 +1922,6 @@ icons();
         ctx.stroke();
       }
 
-      // 3. Background Animated Candlesticks & Neon Profit Curve
       const cStep = w / miniCandles.length;
       ctx.beginPath();
       for (let i = 0; i < miniCandles.length; i++) {
@@ -1874,7 +1952,6 @@ icons();
       ctx.lineWidth = 1.8;
       ctx.stroke();
 
-      // 4. Floating Golden Key & Cyan Particles
       ctx.font = '700 9.5px Inter, sans-serif';
       orbs.forEach((o) => {
         o.x += o.vx;
@@ -1906,30 +1983,35 @@ icons();
 })();
 
 // =========================================================
-// 14. TELEGRAM BOT REGIME & PRICE ALERTS ENGINE
+// 15. TELEGRAM BOT REGIME & PRICE ALERTS ENGINE (CLEAN & UNIFIED)
 // =========================================================
+function playTelegramSuccessBeep() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.12);
+    gain.gain.setValueAtTime(0.001, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.35);
+  } catch (e) {}
+}
+
 (function initTelegramRegimeBot() {
   const TG_PRESETS = {
-    BTC_DOWN_RANGE: {
-      symbol: 'BTCUSDT',
-      from: 'Trending down 📉',
-      to: 'ranging ↔️'
-    },
-    XAU_DOWN_RANGE: {
-      symbol: 'XAUUSD',
-      from: 'Trending down 📉',
-      to: 'ranging ↔️'
-    },
-    XAU_UP_RANGE: {
-      symbol: 'XAUUSD',
-      from: 'Trending up 📈',
-      to: 'ranging ↔️'
-    },
-    BTC_RANGE_UP: {
-      symbol: 'BTCUSDT',
-      from: 'Ranging ↔️',
-      to: 'trending up 📈'
-    }
+    BTC_DOWN_RANGE:   { symbol: 'BTCUSDT', from: 'Trending down 📉', to: 'ranging ↔️' },
+    XAU_DOWN_RANGE:   { symbol: 'XAUUSD',  from: 'Trending down 📉', to: 'ranging ↔️' },
+    ETH_UP_RANGE:     { symbol: 'ETHUSDT', from: 'Trending up 📈',   to: 'ranging ↔️' },
+    EUR_RANGE_UP:     { symbol: 'EURUSD',  from: 'Ranging ↔️',       to: 'trending up 📈' },
+    USOIL_DOWN_RANGE: { symbol: 'USOIL',   from: 'Trending down 📉', to: 'ranging ↔️' }
   };
 
   const getBotToken = () => (localStorage.getItem('ksnr_tg_bot_token') || '').trim();
@@ -1997,7 +2079,6 @@ icons();
     return data;
   }
 
-  // Open Configuration Modal
   document.getElementById('btnOpenTgConfig')?.addEventListener('click', () => {
     const tokenInput = document.getElementById('tgBotTokenInput');
     const chatInput = document.getElementById('tgChatIdInput');
@@ -2007,7 +2088,6 @@ icons();
     openModal('tgBotModal');
   });
 
-  // Auto-Detect Chat ID from @BotFather Token via getUpdates
   document.getElementById('btnAutoDetectChatId')?.addEventListener('click', async () => {
     const token = document.getElementById('tgBotTokenInput')?.value.trim();
     const statusEl = document.getElementById('tgModalStatus');
@@ -2041,7 +2121,6 @@ icons();
     }
   });
 
-  // Save Bot Config
   document.getElementById('tgBotForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
     const token = document.getElementById('tgBotTokenInput')?.value.trim() || '';
@@ -2053,7 +2132,6 @@ icons();
     showTgFeedback('✅ បានរក្សាទុក Telegram Bot Token & Chat ID រួចរាល់!');
   });
 
-  // Test Bot Connection
   document.getElementById('btnTestTgBot')?.addEventListener('click', async () => {
     const token = document.getElementById('tgBotTokenInput')?.value.trim() || '';
     const chatId = document.getElementById('tgChatIdInput')?.value.trim() || '';
@@ -2074,6 +2152,7 @@ icons();
     try {
       const msg = formatRegimeAlertMessage('BTCUSDT', 'Ranging ↔️', 'trending up 📈');
       await sendTelegramMessage(msg);
+      playTelegramSuccessBeep();
       statusEl.textContent = '✅ ផ្ញើសារសាកល្បងជោគជ័យ! សូមពិនិត្យមើលក្នុង Telegram របស់អ្នក។';
       statusEl.className = 'text-xs font-bold text-center text-emerald-400';
     } catch (err) {
@@ -2082,7 +2161,6 @@ icons();
     }
   });
 
-  // Wire up the 4 Preset Regime Change Buttons
   document.querySelectorAll('[data-regime-preset]').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const key = btn.dataset.regimePreset;
@@ -2092,6 +2170,7 @@ icons();
       try {
         showTgFeedback(`⏳ កំពុងផ្ញើ Regime change — ${preset.symbol}...`);
         await sendTelegramMessage(msg);
+        playTelegramSuccessBeep();
         showTgFeedback(`✅ បានផ្ញើ "🔀 Regime change — ${preset.symbol} (${preset.from} → ${preset.to})" ទៅ Telegram!`);
         addHistoryLog('TELEGRAM ALERT', `ផ្ញើសារ Regime change — ${preset.symbol} (${preset.from} → ${preset.to})`);
       } catch (err) {
@@ -2100,7 +2179,6 @@ icons();
     });
   });
 
-  // Wire up Custom Regime Alert Sender
   document.getElementById('btnSendCustomRegime')?.addEventListener('click', async () => {
     const sym = document.getElementById('tgCustomSymbol')?.value || 'BTCUSDT';
     const from = document.getElementById('tgCustomFrom')?.value || 'Trending down 📉';
@@ -2111,13 +2189,13 @@ icons();
     try {
       showTgFeedback(`⏳ កំពុងផ្ញើ Regime change — ${sym}...`);
       await sendTelegramMessage(msg);
+      playTelegramSuccessBeep();
       showTgFeedback(`✅ បានផ្ញើ "🔀 Regime change — ${sym}" ទៅ Telegram ជោគជ័យ!`);
     } catch (err) {
       showTgFeedback(`❌ ${err.message}`, true);
     }
   });
 
-  // Wire up Target Price + Regime Alert Watcher
   function renderActivePriceAlerts() {
     const box = document.getElementById('tgActiveAlertsBox');
     if (!box) return;
@@ -2164,200 +2242,6 @@ icons();
     showTgFeedback(`✅ បានដាក់ម៉ោងរោទ៍ ${sym} នៅតម្លៃ ${targetPrice}!`);
   });
 
-  // Live Market Regime & Price Monitor (Polls BTCUSDT & XAUUSD via PAXGUSDT)
-  const lastRegimeState = { BTCUSDT: null, XAUUSD: null };
-  const lastPriceMemory = { BTCUSDT: null, XAUUSD: null };
-
-  async function fetchLivePriceAndKlines(symbol) {
-    const binanceSym = symbol === 'XAUUSD' ? 'PAXGUSDT' : 'BTCUSDT';
-    const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${binanceSym}&interval=15m&limit=30`);
-    const klines = await res.json();
-    if (!Array.isArray(klines) || klines.length < 20) return null;
-
-    const closes = klines.map((k) => parseFloat(k[4]));
-    const livePrice = closes[closes.length - 1];
-
-    const ema = (arr, len) => {
-      const k = 2 / (len + 1);
-      let val = arr[0];
-      for (let i = 1; i < arr.length; i++) val = arr[i] * k + val * (1 - k);
-      return val;
-    };
-    const emaFast = ema(closes.slice(-15), 7);
-    const emaSlow = ema(closes, 21);
-    const diffPct = Math.abs(emaFast - emaSlow) / emaSlow;
-
-    let regime = 'ranging ↔️';
-    if (diffPct >= 0.0018) {
-      regime = emaFast > emaSlow ? 'trending up 📈' : 'trending down 📉';
-    }
-    return { livePrice, regime };
-  }
-
-  setInterval(async () => {
-    const autoMonitor = document.getElementById('tgAutoMonitorToggle')?.checked;
-    if (!autoMonitor && activePriceAlerts.length === 0) return;
-
-    for (const sym of ['BTCUSDT', 'XAUUSD']) {
-      try {
-        const info = await fetchLivePriceAndKlines(sym);
-        if (!info) continue;
-
-        const prevPrice = lastPriceMemory[sym];
-        lastPriceMemory[sym] = info.livePrice;
-
-        // 1. Check Custom Target Price Alerts
-        for (let i = activePriceAlerts.length - 1; i >= 0; i--) {
-          const al = activePriceAlerts[i];
-          if (al.symbol !== sym) continue;
-          const crossed =
-            prevPrice !== null &&
-            ((prevPrice < al.targetPrice && info.livePrice >= al.targetPrice) ||
-              (prevPrice > al.targetPrice && info.livePrice <= al.targetPrice));
-
-          if (crossed) {
-            const msg = formatRegimeAlertMessage(sym, al.from, al.to, info.livePrice.toFixed(2));
-            await sendTelegramMessage(msg);
-            activePriceAlerts.splice(i, 1);
-            savePriceAlerts();
-          }
-        }
-
-        // 2. Check Auto Regime Transition
-        if (autoMonitor) {
-          const prevRegime = lastRegimeState[sym];
-          if (prevRegime && prevRegime !== info.regime) {
-            const fromFormatted = prevRegime.charAt(0).toUpperCase() + prevRegime.slice(1);
-            const msg = formatRegimeAlertMessage(sym, fromFormatted, info.regime, info.livePrice.toFixed(2));
-            await sendTelegramMessage(msg);
-          }
-          lastRegimeState[sym] = info.regime;
-        }
-      } catch (e) {}
-    }
-  }, 15000);
-
-  // Add "Send Signal to Telegram Bot" button inside #resultCard
-  const copyBtn = document.getElementById('btnCopySignal');
-  if (copyBtn && !document.getElementById('btnSendSignalToTg')) {
-    const tgBtn = document.createElement('button');
-    tgBtn.id = 'btnSendSignalToTg';
-    tgBtn.type = 'button';
-    tgBtn.className = 'w-full mt-2.5 py-3 rounded-xl bg-gradient-to-r from-[#00e5ff] to-[#0284c7] hover:brightness-110 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-[0_0_20px_rgba(0,229,255,0.25)]';
-    tgBtn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i><span>📲 ផ្ញើ Signal នេះទៅ Telegram Bot ផ្ទាល់</span>';
-    copyBtn.parentNode.insertBefore(tgBtn, copyBtn.nextSibling);
-
-    tgBtn.addEventListener('click', async () => {
-      const r = state.result;
-      if (!r) return;
-      const isBuy = (r.action || '').toUpperCase().includes('BUY');
-      const regimeText = isBuy
-        ? `Ranging ↔️ → trending up 📈`
-        : `Trending up 📈 → ranging ↔️`;
-      const msg = `🔀 Regime change — ${(r.pair || 'XAUUSD').replace('/', '')}
-${regimeText}
-Review open positions and pending setups on this symbol.
-
-⚡ Por - SNR Scanner Signal (${r.timeframe || 'M15'})
-🔔 Action: ${r.action} (${isBuy ? 'NEW BUY' : 'NEW SELL'})
-🎯 Entry: ${r.entry}
-🛑 SL: ${r.sl}
-💰 TP 1: ${r.tp1}
-💰 TP 2: ${r.tp2}`;
-
-      try {
-        await sendTelegramMessage(msg);
-        showTgFeedback('✅ បានផ្ញើ Signal + Regime Alert ទៅ Telegram រួចរាល់!');
-      } catch (err) {
-        showTgFeedback(`❌ ${err.message}`, true);
-      }
-    });
-  }
-
-  updateTgBadgeUI();
-  renderActivePriceAlerts();
-  icons();
-})();
-// Play a subtle, professional UI notification beep using the Web Audio API
-function playTelegramSuccessBeep() {
-  try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) return;
-    const ctx = new AudioContext();
-
-    // Create oscillator (sine wave for a clean, soft tone)
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    osc.type = 'sine';
-    // Frequency sequence: pleasant high-pitch chime (587 Hz -> 880 Hz)
-    osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5 note
-    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.12); // A5 note
-
-    // Smooth envelope gain (fade in/out quickly so it's subtle)
-    gain.gain.setValueAtTime(0.001, ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    osc.start();
-    osc.stop(ctx.currentTime + 0.35);
-  } catch (e) {
-    // Fallback if browser audio context is blocked prior to user interaction
-  }
-}
-// Wire up the 4 Preset Regime Change Buttons
-  document.querySelectorAll('[data-regime-preset]').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const key = btn.dataset.regimePreset;
-      const preset = TG_PRESETS[key];
-      if (!preset) return;
-      const msg = formatRegimeAlertMessage(preset.symbol, preset.from, preset.to);
-      try {
-        showTgFeedback(`⏳ កំពុងផ្ញើ Regime change — ${preset.symbol}...`);
-        await sendTelegramMessage(msg);
-        
-        // 🔊 Trigger subtle audio beep here!
-        playTelegramSuccessBeep();
-
-        showTgFeedback(`✅ បានផ្ញើ "🔀 Regime change — ${preset.symbol} (${preset.from} → ${preset.to})" ទៅ Telegram!`);
-        addHistoryLog('TELEGRAM ALERT', `ផ្ញើសារ Regime change — ${preset.symbol} (${preset.from} → ${preset.to})`);
-      } catch (err) {
-        showTgFeedback(`❌ ${err.message}`, true);
-      }
-    });
-  });
-  const TG_PRESETS = {
-    BTC_DOWN_RANGE: {
-      symbol: 'BTCUSDT',
-      from: 'Trending down 📉',
-      to: 'ranging ↔️'
-    },
-    XAU_DOWN_RANGE: {
-      symbol: 'XAUUSD',
-      from: 'Trending down 📉',
-      to: 'ranging ↔️'
-    },
-    ETH_UP_RANGE: {
-      symbol: 'ETHUSDT',
-      from: 'Trending up 📈',
-      to: 'ranging ↔️'
-    },
-    EUR_RANGE_UP: {
-      symbol: 'EURUSD',
-      from: 'Ranging ↔️',
-      to: 'trending up 📈'
-    },
-    USOIL_DOWN_RANGE: {
-      symbol: 'USOIL',
-      from: 'Trending down 📉',
-      to: 'ranging ↔️'
-    }
-  };
-
-  // Live Market Regime Monitor for all supported symbols
   const lastRegimeState = { BTCUSDT: null, XAUUSD: null, ETHUSDT: null, EURUSD: null, USOIL: null };
   const lastPriceMemory = { BTCUSDT: null, XAUUSD: null, ETHUSDT: null, EURUSD: null, USOIL: null };
 
@@ -2366,7 +2250,7 @@ function playTelegramSuccessBeep() {
     if (symbol === 'XAUUSD') binanceSym = 'PAXGUSDT';
     else if (symbol === 'ETHUSDT') binanceSym = 'ETHUSDT';
     else if (symbol === 'EURUSD') binanceSym = 'EURUSDT';
-    else if (symbol === 'USOIL') binanceSym = 'CRUDEUSDT';
+    else if (symbol === 'USOIL') binanceSym = 'USDCUSDT';
 
     try {
       const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${binanceSym}&interval=15m&limit=30`);
@@ -2419,6 +2303,7 @@ function playTelegramSuccessBeep() {
           if (crossed) {
             const msg = formatRegimeAlertMessage(sym, al.from, al.to, info.livePrice.toFixed(2));
             await sendTelegramMessage(msg);
+            playTelegramSuccessBeep();
             activePriceAlerts.splice(i, 1);
             savePriceAlerts();
           }
@@ -2430,9 +2315,54 @@ function playTelegramSuccessBeep() {
             const fromFormatted = prevRegime.charAt(0).toUpperCase() + prevRegime.slice(1);
             const msg = formatRegimeAlertMessage(sym, fromFormatted, info.regime, info.livePrice.toFixed(2));
             await sendTelegramMessage(msg);
+            playTelegramSuccessBeep();
           }
           lastRegimeState[sym] = info.regime;
         }
       } catch (e) {}
     }
   }, 15000);
+
+  const copyBtn = document.getElementById('btnCopySignal');
+  if (copyBtn && !document.getElementById('btnSendSignalToTg')) {
+    const tgBtn = document.createElement('button');
+    tgBtn.id = 'btnSendSignalToTg';
+    tgBtn.type = 'button';
+    tgBtn.className = 'w-full mt-2.5 py-3 rounded-xl bg-gradient-to-r from-[#00e5ff] to-[#0284c7] hover:brightness-110 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-[0_0_20px_rgba(0,229,255,0.25)]';
+    tgBtn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i><span>📲 ផ្ញើ Signal នេះទៅ Telegram Bot ផ្ទាល់</span>';
+    copyBtn.parentNode.insertBefore(tgBtn, copyBtn.nextSibling);
+
+    tgBtn.addEventListener('click', async () => {
+      const r = state.result;
+      if (!r) return;
+      const isBuy = (r.action || '').toUpperCase().includes('BUY');
+      const isSwing = (r.tradeStyle || state.tradeStyle) === 'SWING';
+      const regimeText = isBuy
+        ? `Ranging ↔️ → trending up 📈`
+        : `Trending up 📈 → ranging ↔️`;
+      const msg = `🔀 Regime change — ${(r.pair || 'XAUUSD').replace('/', '')}
+${regimeText}
+Review open positions and pending setups on this symbol.
+
+⚡ Por - SNR Scanner Signal (${r.timeframe || 'M15'})
+🎯 Trade Style: ${isSwing ? '🌊 SWING TRADE (R:R 1:4.5)' : '⚡ SCALPING TRADE (R:R 1:2.5)'}
+🔔 Action: ${r.action} (${isBuy ? 'NEW BUY' : 'NEW SELL'})
+🎯 Entry: ${r.entry}
+🛑 SL: ${r.sl}
+💰 TP 1: ${r.tp1}
+💰 TP 2: ${r.tp2}`;
+
+      try {
+        await sendTelegramMessage(msg);
+        playTelegramSuccessBeep();
+        showTgFeedback('✅ បានផ្ញើ Signal + Regime Alert ទៅ Telegram រួចរាល់!');
+      } catch (err) {
+        showTgFeedback(`❌ ${err.message}`, true);
+      }
+    });
+  }
+
+  updateTgBadgeUI();
+  renderActivePriceAlerts();
+  icons();
+})();

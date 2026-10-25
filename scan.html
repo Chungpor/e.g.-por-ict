@@ -40,7 +40,6 @@
 
   <!-- 2. TOP NAVIGATION BAR -->
   <div class="max-w-4xl w-full px-4 pt-5 pb-2 flex items-center justify-between gap-3 relative z-30 flex-wrap">
-    <!-- Left: Back to Main Dashboard + Theme + Language + Telegram Icon -->
     <div class="flex items-center gap-2 sm:gap-2.5 flex-wrap">
       <a href="index.html" id="btnBackToDashboardTop" class="aqua-back-btn px-3.5 sm:px-4 py-2 rounded-full bg-[#071a24]/95 hover:bg-[#0c2a3a] border border-[#00ffff]/60 text-[#00ffff] text-xs sm:text-sm font-extrabold flex items-center gap-2 transition-all active:scale-95 cursor-pointer shadow-[0_0_18px_rgba(0,255,255,0.28)] backdrop-blur-md">
         <i data-lucide="arrow-left" class="w-4 h-4 text-[#00ffff]"></i>
@@ -76,7 +75,6 @@
       </a>
     </div>
 
-    <!-- Right: Guest Auth Buttons -->
     <div id="authGuestBox" class="flex items-center gap-2.5">
       <button id="btnOpenLogin" type="button" class="px-4 sm:px-5 py-2 rounded-xl bg-[#0b1324]/90 hover:bg-[#13203a] border border-cyan-500/40 text-cyan-400 font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.12)] backdrop-blur-md">
         Login
@@ -86,7 +84,6 @@
       </button>
     </div>
 
-    <!-- Right: Logged-in User Profile Pill -->
     <div id="authUserBox" class="hidden flex items-center gap-2">
       <button id="btnOpenProfile" type="button" class="profile-pill pl-2 pr-4 py-1.5 rounded-full bg-[#0f1b2d]/95 hover:bg-[#162640] border border-cyan-500/35 flex items-center gap-3 transition-all cursor-pointer shadow-[0_0_20px_rgba(6,182,212,0.18)]">
         <div class="relative w-10 h-10 rounded-full p-[2px] bg-gradient-to-tr from-cyan-400 via-teal-300 to-amber-300">
@@ -108,7 +105,7 @@
   <div class="max-w-2xl w-full text-center px-4 mt-4 mb-6 relative z-10">
     <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold mb-3 backdrop-blur-sm">
       <i data-lucide="zap" class="w-3.5 h-3.5"></i>
-      <span>AI CHART VISION • MT4 / MT5 / TRADINGVIEW</span>
+      <span>AI CHART VISION • SCALPING & SWING • REAL LIVE DATA</span>
     </div>
 
     <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight flex items-center justify-center gap-3 flex-wrap">
@@ -208,7 +205,6 @@
         </button>
       </div>
 
-      <!-- Preset Regime Change Buttons (Including ETHUSDT, EURUSD, USOIL) -->
       <div class="mt-3.5">
         <div class="text-xs font-bold text-amber-300 mb-2 flex items-center justify-between">
           <span>⚡ ចុចផ្ញើសារ Regime Change ទៅ Telegram ភ្លាមៗ (1-Click Alert)៖</span>
@@ -266,7 +262,6 @@
         </div>
       </div>
 
-      <!-- Custom Price & Regime Alert Builder -->
       <div class="mt-3.5 pt-3 border-t border-slate-800/90">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
           <select id="tgCustomSymbol" class="px-2.5 py-2 rounded-xl bg-[#0b1220] border border-slate-700 text-white font-bold focus:outline-none">
@@ -312,7 +307,7 @@
       <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <!-- Top Action Bar -->
-      <div class="flex items-center justify-between gap-2.5 mb-8 relative z-10 flex-wrap">
+      <div class="flex items-center justify-between gap-2.5 mb-5 relative z-10 flex-wrap">
         <div class="flex items-center gap-2">
           <button id="btnBuy" class="gold-glow bg-gradient-to-b from-[#fcd34d] via-[#f59e0b] to-[#d97706] hover:brightness-110 active:scale-95 transition-all text-slate-950 font-bold px-4 sm:px-5 py-3 rounded-2xl flex items-center gap-2 text-xs sm:text-base cursor-pointer border border-amber-300/60">
             <i data-lucide="key" class="w-4 h-4 sm:w-5 sm:h-5 -rotate-45 fill-slate-950"></i>
@@ -341,6 +336,49 @@
         </div>
       </div>
 
+      <!-- REAL LIVE DATA PAIR & 9-TIMEFRAME CONTROL BAR (1m 3m 5m 15m 30m 1h 4h 1d 1w) -->
+      <div id="porLiveControlBar" class="relative z-10 mb-5 p-3.5 rounded-2xl bg-[#0b111e]/95 border border-cyan-500/35 shadow-inner space-y-2.5">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs font-extrabold text-cyan-300">📊 Real Live Data Pair & TF៖</span>
+            <select id="livePairSelect" class="px-2.5 py-1 rounded-xl bg-[#131d31] border border-cyan-500/40 text-amber-300 text-xs font-extrabold focus:outline-none cursor-pointer">
+              <option value="AUTO">🔍 AUTO-DETECT PAIR</option>
+              <option value="XAU/USD">🪙 XAU/USD (Gold)</option>
+              <option value="BTC/USDT">₿ BTC/USDT</option>
+              <option value="ETH/USDT">💎 ETH/USDT</option>
+              <option value="EUR/USD">💶 EUR/USD</option>
+              <option value="GBP/USD">💷 GBP/USD</option>
+              <option value="USD/JPY">💴 USD/JPY</option>
+              <option value="GBP/JPY">🔥 GBP/JPY</option>
+              <option value="AUD/USD">🇦🇺 AUD/USD</option>
+              <option value="USD/CAD">🇨🇦 USD/CAD</option>
+              <option value="US30">📈 US30 (Dow Jones)</option>
+              <option value="NAS100">🚀 NAS100 (Nasdaq)</option>
+              <option value="USOIL">🛢️ USOIL (Crude Oil)</option>
+              <option value="XAG/USD">🥈 XAG/USD (Silver)</option>
+              <option value="SOL/USDT">⚡ SOL/USDT</option>
+              <option value="BNB/USDT">🟡 BNB/USDT</option>
+            </select>
+          </div>
+          <span id="liveFeedBadge" class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold">
+            ● LIVE DATA READY (1m–1w)
+          </span>
+        </div>
+
+        <div id="tfSelectorBar" class="grid grid-cols-5 sm:grid-cols-10 gap-1.5 text-xs font-extrabold">
+          <button type="button" data-tf="AUTO" class="tf-btn py-1.5 rounded-xl bg-cyan-500 text-slate-950 border border-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.4)] cursor-pointer">AUTO</button>
+          <button type="button" data-tf="1m" class="tf-btn py-1.5 rounded-xl bg-[#131d31] text-slate-300 border border-slate-700 hover:border-cyan-400 cursor-pointer">1m</button>
+          <button type="button" data-tf="3m" class="tf-btn py-1.5 rounded-xl bg-[#131d31] text-slate-300 border border-slate-700 hover:border-cyan-400 cursor-pointer">3m</button>
+          <button type="button" data-tf="5m" class="tf-btn py-1.5 rounded-xl bg-[#131d31] text-slate-300 border border-slate-700 hover:border-cyan-400 cursor-pointer">5m</button>
+          <button type="button" data-tf="15m" class="tf-btn py-1.5 rounded-xl bg-[#131d31] text-slate-300 border border-slate-700 hover:border-cyan-400 cursor-pointer">15m</button>
+          <button type="button" data-tf="30m" class="tf-btn py-1.5 rounded-xl bg-[#131d31] text-slate-300 border border-slate-700 hover:border-cyan-400 cursor-pointer">30m</button>
+          <button type="button" data-tf="1h" class="tf-btn py-1.5 rounded-xl bg-[#131d31] text-slate-300 border border-slate-700 hover:border-cyan-400 cursor-pointer">1h</button>
+          <button type="button" data-tf="4h" class="tf-btn py-1.5 rounded-xl bg-[#131d31] text-slate-300 border border-slate-700 hover:border-cyan-400 cursor-pointer">4h</button>
+          <button type="button" data-tf="1d" class="tf-btn py-1.5 rounded-xl bg-[#131d31] text-slate-300 border border-slate-700 hover:border-cyan-400 cursor-pointer">1d</button>
+          <button type="button" data-tf="1w" class="tf-btn py-1.5 rounded-xl bg-[#131d31] text-slate-300 border border-slate-700 hover:border-cyan-400 cursor-pointer">1w</button>
+        </div>
+      </div>
+
       <!-- Drop Zone -->
       <div id="dropZone" class="relative z-10 rounded-2xl border-2 border-dashed border-slate-800/80 hover:border-cyan-500/40 bg-[#0d121d]/70 transition-all p-6 sm:p-8 flex flex-col items-center justify-center text-center cursor-pointer">
         <input id="fileInput" type="file" accept="image/*" class="hidden" />
@@ -359,19 +397,89 @@
         </div>
 
         <div id="dropPreview" class="hidden w-full">
-          <div class="relative rounded-xl overflow-hidden border border-slate-700 bg-slate-950 max-h-72 flex items-center justify-center">
+          <div class="relative rounded-xl overflow-hidden border border-cyan-500/50 bg-slate-950 max-h-72 flex items-center justify-center shadow-[0_0_25px_rgba(6,182,212,0.18)]">
             <img id="previewImg" src="" alt="Chart" class="max-h-72 w-auto object-contain" />
+            <span class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-emerald-500/90 text-slate-950 font-extrabold text-[10px] tracking-wide flex items-center gap-1 shadow-lg">
+              <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+              <span>IMAGE READY</span>
+            </span>
             <button id="btnRemoveImg" type="button" class="absolute top-2.5 right-2.5 bg-slate-900/90 hover:bg-rose-600 text-white p-1.5 rounded-lg border border-slate-700 transition-colors">
               <i data-lucide="x" class="w-4 h-4"></i>
             </button>
           </div>
-          <p class="text-xs text-cyan-400 mt-3 flex items-center justify-center gap-1.5">
-            <i data-lucide="image" class="w-3.5 h-3.5"></i>
-            <span>រូបភាព Chart ត្រូវបានបញ្ចូលរួចរាល់ (ចុចដើម្បីប្តូររូបភាពថ្មី)</span>
+          <p class="text-xs sm:text-sm font-bold text-[#18ffff] mt-3 flex items-center justify-center gap-1.5 animate-pulse">
+            <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+            <span id="txtImgReadyNotice">✅ រូបភាព Chart រួចរាល់! សូមជ្រើសរើស Scalping ឬ Swing Trade ខាងក្រោម៖</span>
           </p>
         </div>
 
-        <div class="mt-7 w-full flex justify-center">
+        <!-- IMAGE READY: CHOOSE OPTION SCALPING OR SWING TRADE + WHAT YOU WANT TO TRADE -->
+        <div id="tradeStyleBox" class="w-full mt-5 p-4 rounded-2xl bg-[#090f1c]/95 border border-cyan-500/40 text-left transition-all">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span id="imgReadyStepBadge" class="hidden px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 text-[10px] font-extrabold uppercase">
+                ● IMAGE READY
+              </span>
+              <span id="txtChooseTradeStyle" class="text-xs sm:text-sm font-extrabold text-white flex items-center gap-1.5">
+                <span>🎯 ជ្រើសរើសទម្រង់ជួញដូរ (Choose Scalping or Swing Trade)៖</span>
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <label class="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-300 cursor-pointer select-none" title="ពេលដាក់រូបរួច ចុចជ្រើសរើស Scalping ឬ Swing នឹងស្កេនភ្លាមៗ">
+                <input id="chkInstantStyleScan" type="checkbox" checked class="accent-cyan-400 rounded cursor-pointer" />
+                <span id="txtInstantScanToggle">⚡ ស្កេនភ្លាមពេលជ្រើសរើស</span>
+              </label>
+              <span id="activeTradeStyleBadge" class="px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-[10px] font-extrabold uppercase">
+                ⚡ SCALPING MODE
+              </span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- Option 1: SCALPING TRADE -->
+            <button type="button" id="btnModeScalping" data-trade-style="SCALPING" class="trade-style-card active-scalp p-3.5 rounded-xl bg-[#111a2e] border border-cyan-400/60 text-left cursor-pointer flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-[#18ffff] shrink-0 mt-0.5">
+                <i data-lucide="zap" class="w-5 h-5"></i>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between">
+                  <span class="font-extrabold text-[#18ffff] text-xs sm:text-sm">⚡ SCALPING TRADE</span>
+                  <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-200">1m–15m</span>
+                </div>
+                <p id="txtScalpDesc" class="text-[11px] text-slate-300 mt-1 leading-snug">
+                  វាយខ្លីរហ័ស • Tight SL (1.2x ATR) • យកផលចំណេញលឿន (R:R 1:2.5)
+                </p>
+                <div class="mt-2 flex items-center justify-between text-[10px] font-bold text-cyan-300/90">
+                  <span>🎯 Fast Sniper Entry</span>
+                  <span id="scalpReadyActionHint" class="underline">ជ្រើសរើស Scalping →</span>
+                </div>
+              </div>
+            </button>
+
+            <!-- Option 2: SWING TRADE -->
+            <button type="button" id="btnModeSwing" data-trade-style="SWING" class="trade-style-card p-3.5 rounded-xl bg-[#111a2e] border border-slate-700 hover:border-amber-400/60 text-left cursor-pointer flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300 shrink-0 mt-0.5">
+                <i data-lucide="trending-up" class="w-5 h-5"></i>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between">
+                  <span class="font-extrabold text-amber-300 text-xs sm:text-sm">🌊 SWING TRADE</span>
+                  <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-200">30m–1w</span>
+                </div>
+                <p id="txtSwingDesc" class="text-[11px] text-slate-300 mt-1 leading-snug">
+                  កាន់វែងតាម Trend ធំ • Wide Structural SL • TP ធំ (R:R 1:4.5)
+                </p>
+                <div class="mt-2 flex items-center justify-between text-[10px] font-bold text-amber-300/90">
+                  <span>🚀 Big Wave Target</span>
+                  <span id="swingReadyActionHint" class="underline">ជ្រើសរើស Swing →</span>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-6 w-full flex justify-center">
           <button id="btnEnterKey" type="button" class="bg-[#262f3f] hover:bg-[#303b4f] active:scale-95 transition-all border border-slate-600/80 text-white font-semibold px-7 py-3.5 rounded-full flex items-center gap-2.5 text-sm sm:text-base shadow-lg cursor-pointer">
             <i data-lucide="lock" class="w-4 h-4 text-slate-200"></i>
             <span id="txtEnterKeyBtn">បញ្ចូល KEY ដើម្បីស្កេន</span>
@@ -406,15 +514,33 @@
             <i data-lucide="zap" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="font-bold text-white text-base sm:text-lg">
-              <span id="rPair"></span> <span id="rTimeframe" class="text-xs font-normal text-slate-400"></span>
-            </h3>
-            <p class="text-xs text-slate-400">និន្នាការទីផ្សារ៖ <span id="rTrend" class="text-cyan-300"></span> | តម្លៃបច្ចុប្បន្ន៖ <span id="rCur" class="text-amber-300"></span></p>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="font-bold text-white text-base sm:text-lg">
+                <span id="rPair"></span> <span id="rTimeframe" class="text-xs font-normal text-slate-400"></span>
+              </h3>
+              <span id="rTradeStyleBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-cyan-500/20 border border-cyan-400/50 text-cyan-300">
+                ⚡ SCALPING TRADE
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">និន្នាការទីផ្សារ៖ <span id="rTrend" class="text-cyan-300"></span> | តម្លៃបច្ចុប្បន្ន៖ <span id="rCur" class="text-amber-300"></span></p>
           </div>
         </div>
         <div id="rAction" class="px-4 py-1.5 rounded-xl font-bold text-sm flex items-center gap-1.5">
           <i data-lucide="trending-up"></i>
           <span>BUY SIGNAL</span>
+        </div>
+      </div>
+
+      <!-- Quick Switch Trade Style inside Result Card -->
+      <div class="mt-3 flex items-center justify-between flex-wrap gap-2 p-2.5 rounded-xl bg-[#0b1220] border border-slate-800 text-xs">
+        <span class="text-slate-300 font-bold">🔄 ប្តូរទម្រង់ជួញដូរលើរូបភាពនេះភ្លាមៗ៖</span>
+        <div class="flex items-center gap-1.5">
+          <button type="button" id="btnResSwitchScalp" class="px-3 py-1 rounded-lg bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 font-extrabold cursor-pointer hover:brightness-110">
+            ⚡ Scalping
+          </button>
+          <button type="button" id="btnResSwitchSwing" class="px-3 py-1 rounded-lg bg-amber-500/20 border border-amber-400/50 text-amber-300 font-extrabold cursor-pointer hover:brightness-110">
+            🌊 Swing Trade
+          </button>
         </div>
       </div>
 
@@ -466,9 +592,9 @@
           <i data-lucide="sparkles" class="w-5 h-5"></i>អត្ថប្រយោជន៍របស់ Por - SNR Scanner
         </h3>
         <ul class="space-y-2.5 text-xs sm:text-sm text-slate-300">
-          <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">រហ័ស និងងាយស្រួល៖</strong> ថត Chart → ទទួល Entry + SL + TP ភ្លាមៗ។</span></li>
+          <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">ជ្រើសរើសបានទាំង Scalping & Swing Trade៖</strong> ដាក់រូបភាពភ្លាម ជ្រើសរើសវាយខ្លី (Scalping) ឬកាន់វែង (Swing) តាមចិត្ត។</span></li>
+          <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">គាំទ្រគ្រប់ Timeframe (1m–1w) + Real Live Data៖</strong> ទាញតម្លៃពិតៗពីទីផ្សារផ្ទាល់។</span></li>
           <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">គាំទ្រការស្កេនម៉ោងព័ត៌មាន៖</strong> NON FARM (4H), CPI (1H), និង FOMC (15M-30M-1H)។</span></li>
-          <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">ជួយរក្សាវិន័យ និងសន្សំពេលវេលា៖</strong> មាន SL និង TP ជាប់ជានិច្ច។</span></li>
         </ul>
       </div>
 

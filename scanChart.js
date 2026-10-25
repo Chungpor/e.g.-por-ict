@@ -1,12 +1,28 @@
 // ==========================================
 // REAL-TIME CHART VISION & KEY POR - SNR ENGINE
-// + AUTO SEND EVERY DROPPED/SCANNED IMAGE TO TELEGRAM BOT
+// + SCALPING vs SWING TRADE DYNAMIC CALIBRATION
+// + AUTO SEND SCANNED IMAGE TO TELEGRAM BOT
 // ==========================================
 
-function buildSniperPrompt(newsMode = 'ALL') {
+function buildSniperPrompt(newsMode = 'ALL', tradeStyle = 'SCALPING', overridePair = 'AUTO', overrideTf = 'AUTO') {
+  const isSwing = tradeStyle === 'SWING';
+  const styleInstructions = isSwing
+    ? `SELECTED TRADING STYLE: 🌊 SWING TRADE (30m–1w Multi-Session Structure)
+- Focus on Major HTF Order Blocks, Institutional Liquidity Sweeps, and Wide Structural Stop Loss beyond major swing highs/lows.
+- Target bigger swing expansions with a minimum Risk:Reward ratio of 1:4.5 (TP1 at 2.2R, TP2 at 4.5R).`
+    : `SELECTED TRADING STYLE: ⚡ SCALPING TRADE (1m–15m Fast Execution Sniper)
+- Focus on Micro Order Blocks, M1–M15 Fair Value Gaps (FVG), immediate wick rejections, and Tight Stop Loss (1.3x ATR).
+- Target quick scalping momentum with a Risk:Reward ratio of 1:2.5 (TP1 at 1.4R, TP2 at 2.5R).`;
+
+  const pairHint = overridePair && overridePair !== 'AUTO' ? `USER SELECTED PAIR OVERRIDE: ${overridePair}` : '';
+  const tfHint = overrideTf && overrideTf !== 'AUTO' ? `USER SELECTED TIMEFRAME OVERRIDE: ${overrideTf}` : '';
+
   return `You are Por - SNR Scanner Pro, an institutional price-action, Smart Money Concepts (SMC), and KEY Por - SNR News Flip trading analyst for MT4, MT5, and TradingView charts.
 
 SELECTED NEWS FLIP MODE: ${newsMode}
+${styleInstructions}
+${pairHint}
+${tfHint}
 
 KEY Por - SNR TIMEFRAME RULES (សម្រាប់ FLIP ម៉ោងព័ត៌មាន):
 1. ✅ NON FARM : 4H KEY ENTRY
@@ -25,7 +41,7 @@ CRITICAL STEP 2 — KEY POR - SNR & MARKET STRUCTURE SNIPER ENTRY:
 - Check if the latest Candle or Wick pierces/rejects a KEY Por - SNR Support (KEY BUY) or Resistance (KEY SELL) zone, Order Block, or FVG.
 - If Candle or Wick pierces KEY BUY => Action is "BUY" (NEW BUY).
 - If Candle or Wick pierces KEY SELL => Action is "SELL" (NEW SELL).
-- Calculate mathematically valid levels:
+- Calculate mathematically valid levels tailored to ${tradeStyle}:
   * For BUY: sl < entry < tp1 < tp2
   * For SELL: sl > entry > tp1 > tp2
 
@@ -34,27 +50,28 @@ Return ONLY a valid JSON object matching this exact schema:
 {
   "pair": "Symbol read from chart (e.g. XAU/USD, BTC/USDT)",
   "timeframe": "Timeframe read from chart (e.g. M5, M15, M30, H1, H4)",
+  "tradeStyle": "${tradeStyle}",
   "currentPrice": "Exact current price on right axis",
   "axisHigh": "Highest price visible on right Y-axis",
   "axisLow": "Lowest price visible on right Y-axis",
   "trend": "ឡើង (Bullish) or ចុះ (Bearish)",
   "action": "BUY or SELL",
-  "orderType": "Market Execution or Limit Order",
-  "keyFlipRule": "Explain in Khmer which KEY Por - SNR timeframe rule triggered (e.g. ✅ CPI 1H / NON FARM 4H / FOMC 15M-1H: Candle/Wick ចាក់ KEY BUY = NEW BUY 💸)",
+  "orderType": "${isSwing ? 'Swing Limit / Market Execution' : 'Scalp Market / Fast Limit'}",
+  "keyFlipRule": "Explain in Khmer which KEY Por - SNR timeframe rule & ${tradeStyle} setup triggered",
   "entry": "Exact sniper entry price (single number)",
   "sl": "Exact stop loss price (single number)",
   "tp1": "Exact take profit 1 price (single number)",
   "tp2": "Exact take profit 2 price (single number)",
-  "rrRatio": "1:2.5",
+  "rrRatio": "${isSwing ? '1:4.5' : '1:2.5'}",
   "confidence": "91.8%",
   "snrZones": {
     "resistance": "Exact KEY SELL / resistance level",
     "support": "Exact KEY BUY / support level"
   },
   "confluence": [
-    "មូលហេតុទី១ ជាភាសាខ្មែរ (ឧ. Candle/Wick ចាក់តំបន់ KEY Por - SNR តាម FLOW ចាក់ KEY BUY = NEW BUY)",
-    "មូលហេតុទី២ ជាភាសាខ្មែរ (ឧ. ស្របតាមទម្រង់ NON FARM 4H / CPI 1H / FOMC 15M-30M-1H KEY ENTRY)",
-    "មូលហេតុទី៣ ជាភាសាខ្មែរ (ឧ. សមាមាត្រហានិភ័យ និងផលចំណេញ R:R ល្អបំផុត)"
+    "មូលហេតុទី១ ជាភាសាខ្មែរ (បញ្ជាក់ពីទម្រង់ ${tradeStyle} និងការចាក់តំបន់ KEY Por - SNR)",
+    "មូលហេតុទី២ ជាភាសាខ្មែរ (ស្របតាមទម្រង់ NON FARM 4H / CPI 1H / FOMC 15M-30M-1H KEY ENTRY)",
+    "មូលហេតុទី៣ ជាភាសាខ្មែរ (សមាមាត្រហានិភ័យ និងផលចំណេញ R:R ${isSwing ? '1:4.5 សម្រាប់ Swing Trade' : '1:2.5 សម្រាប់ Scalping Trade'})"
   ]
 }`;
 }
@@ -95,7 +112,7 @@ async function callGeminiWithFallback(apiKey, payload) {
 }
 
 // =========================================================
-// AUTO-SEND DROPPED/SCANNED CHART PHOTO TO TELEGRAM BOT
+// AUTO-SEND SCANNED CHART PHOTO TO TELEGRAM BOT
 // =========================================================
 function base64ToBlob(base64Str, mimeType = 'image/png') {
   const clean = base64Str.replace(/^data:image\/\w+;base64,/, '');
@@ -115,6 +132,7 @@ function base64ToBlob(base64Str, mimeType = 'image/png') {
 function formatPhotoScanCaption(r) {
   const cleanSym = String(r?.pair || 'XAUUSD').replace('/', '').toUpperCase();
   const isBuy = String(r?.action || 'BUY').toUpperCase().includes('BUY');
+  const isSwing = (r?.tradeStyle || state.tradeStyle) === 'SWING';
 
   const regimeTransition = isBuy
     ? `Ranging ↔️ → trending up 📈`
@@ -125,6 +143,7 @@ ${regimeTransition}
 Review open positions and pending setups on this symbol.
 
 ⚡ លទ្ធផលស្កេនពី Por - SNR Scanner ⚡
+🎯 Trade Style: ${isSwing ? '🌊 SWING TRADE (R:R 1:4.5)' : '⚡ SCALPING TRADE (R:R 1:2.5)'}
 📊 Pair: ${r.pair || 'XAU/USD'} (${r.timeframe || 'M15'})
 📈 និន្នាការ: ${r.trend || '-'} | តម្លៃបច្ចុប្បន្ន: ${r.currentPrice || '-'}
 🔔 បញ្ជា: ${r.action} = ${isBuy ? 'NEW BUY' : 'NEW SELL'}
@@ -163,7 +182,7 @@ async function sendChartPhotoToTelegramBot(base64Image, mimeType, scanResult) {
       if (data.ok) {
         const fb = document.getElementById('tgAlertFeedback');
         if (fb) {
-          fb.textContent = `✅ បានផ្ញើរូបភាព Chart + Regime Alert (${scanResult.pair}) ទៅ Telegram ស្វ័យប្រវត្តិ!`;
+          fb.textContent = `✅ បានផ្ញើរូបភាព Chart + ${scanResult.tradeStyle || state.tradeStyle} Signal (${scanResult.pair}) ទៅ Telegram!`;
           fb.className = 'mt-2 text-xs font-bold text-center text-emerald-400';
           fb.classList.remove('hidden');
           setTimeout(() => fb.classList.add('hidden'), 4500);
@@ -187,9 +206,7 @@ async function sendChartPhotoToTelegramBot(base64Image, mimeType, scanResult) {
         eventType: 'SCAN_COMPLETE'
       })
     });
-  } catch (e) {
-    // Silent if local Node server isn't running
-  }
+  } catch (e) {}
 }
 
 // =========================================================
@@ -257,7 +274,7 @@ function extractPairAndTimeframeFromText(rawText) {
   }
 
   let tf = 'M15';
-  const tfMatch = up.match(/\b(1M|3M|5M|15M|30M|45M|1H|2H|4H|1D|M1|M5|M15|M30|H1|H4|D1)\b/);
+  const tfMatch = up.match(/\b(1M|3M|5M|15M|30M|45M|1H|2H|4H|1D|1W|M1|M3|M5|M15|M30|H1|H4|D1|W1)\b/);
   if (tfMatch) {
     tf = tfMatch[1];
   } else if (/\b5\b/.test(up) && pair.includes('USDT')) {
@@ -394,7 +411,7 @@ function analyzeCandlestickPixels(img) {
   };
 }
 
-async function analyzeChartLocallyWithVision(dataUrl, newsMode = 'ALL') {
+async function analyzeChartLocallyWithVision(dataUrl, newsMode = 'ALL', tradeStyle = 'SCALPING') {
   const img = await new Promise((resolve, reject) => {
     const im = new Image();
     im.onload = () => resolve(im);
@@ -403,8 +420,11 @@ async function analyzeChartLocallyWithVision(dataUrl, newsMode = 'ALL') {
   });
 
   const pixelStats = analyzeCandlestickPixels(img);
-  let pair = 'XAU/USD';
-  let timeframe = newsMode === 'NON_FARM' ? 'H4' : (newsMode === 'CPI' ? 'H1' : 'M15');
+  const isSwing = tradeStyle === 'SWING';
+  let pair = state.selectedPair && state.selectedPair !== 'AUTO' ? state.selectedPair : 'XAU/USD';
+  let timeframe = state.selectedTf && state.selectedTf !== 'AUTO'
+    ? state.selectedTf.toUpperCase()
+    : (newsMode === 'NON_FARM' ? 'H4' : (newsMode === 'CPI' ? 'H1' : (isSwing ? 'H4' : 'M15')));
   let axisInfo = null;
 
   try {
@@ -419,8 +439,8 @@ async function analyzeChartLocallyWithVision(dataUrl, newsMode = 'ALL') {
       ]);
 
       const meta = extractPairAndTimeframeFromText(headerRes?.data?.text || '');
-      if (meta.pair) pair = meta.pair;
-      if (meta.timeframe) timeframe = meta.timeframe;
+      if (state.selectedPair === 'AUTO' && meta.pair) pair = meta.pair;
+      if (state.selectedTf === 'AUTO' && meta.timeframe) timeframe = meta.timeframe;
 
       axisInfo = extractPricesFromAxisText(axisRes?.data?.text || '');
     }
@@ -445,13 +465,17 @@ async function analyzeChartLocallyWithVision(dataUrl, newsMode = 'ALL') {
   const isBuy = pixelStats.isBuySignal;
   const fmt = (n) => Number(n).toFixed(axisInfo.dec);
 
-  const risk = Math.max(span * 0.11, Math.pow(10, -axisInfo.dec) * 15);
+  const riskFactor = isSwing ? 0.16 : 0.09;
+  const tp1Mult = isSwing ? 2.2 : 1.4;
+  const tp2Mult = isSwing ? 4.5 : 2.5;
+
+  const risk = Math.max(span * riskFactor, Math.pow(10, -axisInfo.dec) * (isSwing ? 25 : 12));
   const entry = currentPrice;
   const sl = isBuy ? entry - risk : entry + risk;
-  const tp1 = isBuy ? entry + risk * 1.7 : entry - risk * 1.7;
-  const tp2 = isBuy ? entry + risk * 3.1 : entry - risk * 3.1;
-  const support = isBuy ? entry - risk * 0.75 : tp2;
-  const resistance = isBuy ? tp2 : entry + risk * 0.75;
+  const tp1 = isBuy ? entry + risk * tp1Mult : entry - risk * tp1Mult;
+  const tp2 = isBuy ? entry + risk * tp2Mult : entry - risk * tp2Mult;
+  const support = isBuy ? entry - risk * 0.8 : tp2;
+  const resistance = isBuy ? tp2 : entry + risk * 0.8;
 
   const modeRuleMap = {
     NON_FARM: '✅ NON FARM (4H KEY ENTRY)',
@@ -460,31 +484,33 @@ async function analyzeChartLocallyWithVision(dataUrl, newsMode = 'ALL') {
     ALL: `✅ KEY Por - SNR (${timeframe})`
   };
   const rulePrefix = modeRuleMap[newsMode] || modeRuleMap.ALL;
+  const styleTitle = isSwing ? '🌊 SWING TRADE' : '⚡ SCALPING TRADE';
 
   return {
     pair,
     timeframe,
+    tradeStyle,
     currentPrice: fmt(currentPrice),
     axisHigh: fmt(axisInfo.axisHigh),
     axisLow: fmt(axisInfo.axisLow),
     trend: pixelStats.isOverallBullish ? 'ឡើង (Bullish)' : 'ចុះ (Bearish)',
     action: isBuy ? 'BUY' : 'SELL',
-    orderType: 'Market Execution / Limit',
-    keyFlipRule: `${rulePrefix}: Candle/Wick ចាក់ ${isBuy ? 'KEY BUY = NEW BUY' : 'KEY SELL = NEW SELL'} 💸`,
+    orderType: isSwing ? 'Swing Limit / Market Execution' : 'Scalp Market / Fast Limit',
+    keyFlipRule: `${styleTitle} • ${rulePrefix}: Candle/Wick ចាក់ ${isBuy ? 'KEY BUY = NEW BUY' : 'KEY SELL = NEW SELL'} 💸`,
     entry: fmt(entry),
     sl: fmt(sl),
     tp1: fmt(tp1),
     tp2: fmt(tp2),
-    rrRatio: '1:3.0',
+    rrRatio: isSwing ? '1:4.5' : '1:2.5',
     confidence: '91.8%',
     snrZones: {
       resistance: fmt(resistance),
       support: fmt(support)
     },
     confluence: [
-      `Candle/Wick បានចាក់តំបន់ ${isBuy ? 'KEY Support (KEY BUY = NEW BUY)' : 'KEY Resistance (KEY SELL = NEW SELL)'} នៅជិតតម្លៃ ${fmt(entry)}`,
-      `ស្របតាមរចនាសម្ព័ន្ធទីផ្សារ ${rulePrefix} និងទិសដៅ Liquidity Sweep & Order Block`,
-      `សមាមាត្រហានិភ័យ និងផលចំណេញ (Risk:Reward 1:3) មានសុវត្ថិភាពខ្ពស់ ដោយដាក់ SL នៅ ${fmt(sl)}`
+      `[${styleTitle}] Candle/Wick បានចាក់តំបន់ ${isBuy ? 'KEY Support (KEY BUY = NEW BUY)' : 'KEY Resistance (KEY SELL = NEW SELL)'} នៅជិតតម្លៃ ${fmt(entry)}`,
+      `ស្របតាមរចនាសម្ព័ន្ធទីផ្សារ ${rulePrefix} និងទិសដៅ ${isSwing ? 'HTF Institutional Order Block & Major Liquidity' : 'M1-M15 Fast Rejection & Micro FVG'}`,
+      `សមាមាត្រហានិភ័យ និងផលចំណេញ (${isSwing ? 'Swing R:R 1:4.5' : 'Scalping R:R 1:2.5'}) ដោយដាក់ SL នៅ ${fmt(sl)}`
     ]
   };
 }
@@ -502,7 +528,17 @@ function getDecimals(valStr, pairStr = '') {
   return 5;
 }
 
-function calibrateSniperResult(r) {
+function calibrateSniperResult(r, tradeStyle = 'SCALPING') {
+  const isSwing = tradeStyle === 'SWING';
+  r.tradeStyle = isSwing ? 'SWING' : 'SCALPING';
+
+  if (state.selectedPair && state.selectedPair !== 'AUTO') {
+    r.pair = state.selectedPair;
+  }
+  if (state.selectedTf && state.selectedTf !== 'AUTO') {
+    r.timeframe = state.selectedTf.toUpperCase();
+  }
+
   const dec = getDecimals(r.currentPrice || r.entry, r.pair);
   const fmt = (n) => Number(n).toFixed(dec);
 
@@ -534,28 +570,31 @@ function calibrateSniperResult(r) {
   if (chartSpan <= 0 || isNaN(chartSpan)) chartSpan = entry * 0.005;
   if (!isNaN(cur) && Math.abs(entry - cur) > chartSpan) entry = cur;
 
-  const defaultRisk = Math.max(chartSpan * 0.14, Math.pow(10, -dec) * 15);
+  const riskSpanRatio = isSwing ? 0.16 : 0.095;
+  const tp1Mult = isSwing ? 2.2 : 1.45;
+  const tp2Mult = isSwing ? 4.5 : 2.5;
+  const defaultRisk = Math.max(chartSpan * riskSpanRatio, Math.pow(10, -dec) * (isSwing ? 24 : 12));
 
   if (isBuy) {
-    if (isNaN(sl) || sl >= entry || (entry - sl) > chartSpan * 0.6) {
+    if (isNaN(sl) || sl >= entry || (entry - sl) > chartSpan * 0.65) {
       sl = !isNaN(sup) && sup < entry && (entry - sup) < chartSpan * 0.5
         ? sup - defaultRisk * 0.15
         : entry - defaultRisk;
     }
     const risk = Math.abs(entry - sl);
-    if (isNaN(tp1) || tp1 <= entry) tp1 = entry + risk * 1.6;
-    if (isNaN(tp2) || tp2 <= tp1) tp2 = entry + risk * 3.0;
+    tp1 = entry + risk * tp1Mult;
+    tp2 = entry + risk * tp2Mult;
     if (isNaN(sup) || sup >= entry) sup = entry - risk * 0.85;
     if (isNaN(res) || res <= entry) res = tp2;
   } else {
-    if (isNaN(sl) || sl <= entry || (sl - entry) > chartSpan * 0.6) {
+    if (isNaN(sl) || sl <= entry || (sl - entry) > chartSpan * 0.65) {
       sl = !isNaN(res) && res > entry && (res - entry) < chartSpan * 0.5
         ? res + defaultRisk * 0.15
         : entry + defaultRisk;
     }
     const risk = Math.abs(sl - entry);
-    if (isNaN(tp1) || tp1 >= entry) tp1 = entry - risk * 1.6;
-    if (isNaN(tp2) || tp2 >= tp1) tp2 = entry - risk * 3.0;
+    tp1 = entry - risk * tp1Mult;
+    tp2 = entry - risk * tp2Mult;
     if (isNaN(res) || res <= entry) res = entry + risk * 0.85;
     if (isNaN(sup) || sup >= entry) sup = tp2;
   }
@@ -565,6 +604,8 @@ function calibrateSniperResult(r) {
   r.sl = fmt(sl);
   r.tp1 = fmt(tp1);
   r.tp2 = fmt(tp2);
+  r.rrRatio = isSwing ? '1:4.5' : '1:2.5';
+  r.orderType = isSwing ? 'Swing Limit / Market Execution' : 'Scalp Market / Fast Limit';
   r.snrZones = {
     resistance: fmt(res),
     support: fmt(sup)
@@ -572,6 +613,17 @@ function calibrateSniperResult(r) {
 
   return r;
 }
+
+window.recalculateResultForTradeStyle = function(newStyle) {
+  if (!state.result) return;
+  const clone = JSON.parse(JSON.stringify(state.result));
+  clone.sl = NaN;
+  state.result = calibrateSniperResult(clone, newStyle);
+  const isBuy = state.result.action === 'BUY';
+  const styleTitle = newStyle === 'SWING' ? '🌊 SWING TRADE' : '⚡ SCALPING TRADE';
+  state.result.keyFlipRule = `${styleTitle} • KEY Por - SNR (${state.result.timeframe}): Candle/Wick ចាក់ ${isBuy ? 'KEY BUY = NEW BUY' : 'KEY SELL = NEW SELL'} 💸`;
+  renderResult();
+};
 
 function optimizeChartImage(dataUrl) {
   return new Promise((resolve) => {
@@ -608,6 +660,7 @@ async function scanChart() {
   const apiKey = getApiKey();
   const previewSrc = $('previewImg')?.src || `data:${state.mime};base64,${state.imageBase64}`;
   const newsMode = $('newsFlipMode')?.value || 'ALL';
+  const tradeStyle = state.tradeStyle || 'SCALPING';
 
   state.scanning = true;
   state.result = null;
@@ -626,7 +679,7 @@ async function scanChart() {
             role: 'user',
             parts: [
               { inlineData: { mimeType: 'image/png', data: hiResBase64 } },
-              { text: buildSniperPrompt(newsMode) }
+              { text: buildSniperPrompt(newsMode, tradeStyle, state.selectedPair, state.selectedTf) }
             ]
           }],
           generationConfig: {
@@ -645,10 +698,10 @@ async function scanChart() {
     }
 
     if (!parsedResult) {
-      parsedResult = await analyzeChartLocallyWithVision(previewSrc, newsMode);
+      parsedResult = await analyzeChartLocallyWithVision(previewSrc, newsMode, tradeStyle);
     }
 
-    state.result = calibrateSniperResult(parsedResult);
+    state.result = calibrateSniperResult(parsedResult, tradeStyle);
     consumeKeyScanIfNeeded();
     renderResult();
 
@@ -661,17 +714,3 @@ async function scanChart() {
     renderScanButton();
   }
 }
-
-(function hookAutoScanOnImageDrop() {
-  const origHandleFile = window.handleFile;
-  if (typeof origHandleFile === 'function') {
-    window.handleFile = function(file) {
-      origHandleFile(file);
-      setTimeout(() => {
-        if (state.imageBase64 && state.user && (state.unlocked || isAdminUser(state.user)) && !state.scanning) {
-          scanChart();
-        }
-      }, 350);
-    };
-  }
-})();
