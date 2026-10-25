@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Por - SNR Scanner - AI Chart Vision</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Real QR Code Generator & QR Decoder for ABA KHQR -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <!-- Google Font (Kantumruy Pro & Inter) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="scan.css">
+  <link rel="icon" type="image/jpeg" href="por.jpg" />
+  <link rel="apple-touch-icon" href="por.jpg" />
+</head>
+<body class="min-h-screen bg-[#050811] text-slate-100 flex flex-col items-center pb-12 select-none relative overflow-x-hidden">
+
+  <!-- 0. 4K DYNAMIC TRADING BACKGROUND CANVAS -->
+  <canvas id="bgTradeCanvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+  <!-- 1. TOP LIVE MARKET TICKER BAR -->
+  <div class="w-full bg-[#050811]/90 backdrop-blur-md border-b border-slate-800/80 overflow-hidden py-2 px-3 relative z-20">
+    <div id="tickerTrack" class="ticker-track flex items-center justify-around gap-6 text-xs font-bold tracking-wider whitespace-nowrap">
+      <span class="inline-flex items-center gap-1.5 text-slate-300">USDC <span class="text-slate-500">▬</span></span>
+      <span class="inline-flex items-center gap-1.5 text-emerald-400">SOL <span class="text-[10px]">▲</span></span>
+      <span class="inline-flex items-center gap-1.5 text-amber-400">BNB <span class="text-rose-500 text-[10px]">▼</span></span>
+      <span class="inline-flex items-center gap-1.5 text-slate-300">XRP <span class="text-emerald-400 text-[10px]">▲</span></span>
+      <span class="inline-flex items-center gap-1.5 text-cyan-300">XAUUSD <span class="text-emerald-400 text-[10px]">▲</span></span>
+      <span class="inline-flex items-center gap-1.5 text-cyan-300">XAGUSD <span class="text-rose-500 text-[10px]">▼</span></span>
+      <span class="inline-flex items-center gap-1.5 text-sky-400">USOIL <span class="text-emerald-400 text-[10px]">▲</span></span>
+      <span class="inline-flex items-center gap-1.5 text-purple-400">NASDAQ <span class="text-emerald-400 text-[10px]">▲</span></span>
+      <span class="inline-flex items-center gap-1.5 text-cyan-400">EURUSD <span class="text-rose-500 text-[10px]">▼</span></span>
+      <span class="inline-flex items-center gap-1.5 text-amber-300">BTCUSD <span class="text-emerald-400 text-[10px]">▲</span></span>
+    </div>
+  </div>
+
+  <!-- 2. TOP NAVIGATION BAR -->
+  <div class="max-w-4xl w-full px-4 pt-5 pb-2 flex items-center justify-between gap-3 relative z-30 flex-wrap">
+    <!-- Left: Back to Main Dashboard + Theme + Language + Telegram Icon -->
+    <div class="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+      <a href="index.html" id="btnBackToDashboardTop" class="aqua-back-btn px-3.5 sm:px-4 py-2 rounded-full bg-[#071a24]/95 hover:bg-[#0c2a3a] border border-[#00ffff]/60 text-[#00ffff] text-xs sm:text-sm font-extrabold flex items-center gap-2 transition-all active:scale-95 cursor-pointer shadow-[0_0_18px_rgba(0,255,255,0.28)] backdrop-blur-md">
+        <i data-lucide="arrow-left" class="w-4 h-4 text-[#00ffff]"></i>
+        <span id="txtBackDashboardTop">ត្រឡប់ទៅផ្ទាំងដើម Dashboard</span>
+      </a>
+
+      <button id="btnTheme" type="button" title="Toggle Theme" class="w-10 h-10 rounded-full bg-[#111827]/90 hover:bg-slate-800 border border-slate-700/80 flex items-center justify-center text-amber-400 transition-all cursor-pointer shadow-md backdrop-blur-md">
+        <span id="themeIcon" class="text-base">🌙</span>
+      </button>
+
+      <div class="relative">
+        <button id="btnLang" type="button" class="px-3.5 py-2 rounded-full bg-[#111827]/90 hover:bg-slate-800 border border-slate-700/80 text-slate-200 text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-md backdrop-blur-md">
+          <span id="langFlag" class="text-xs font-bold text-slate-300">KH</span>
+          <span id="langLabel">ភាសាខ្មែរ</span>
+          <i data-lucide="chevron-down" class="w-4 h-4 text-cyan-400"></i>
+        </button>
+        <div id="langMenu" class="hidden absolute left-0 mt-2 w-40 rounded-2xl bg-[#111827] border border-slate-700 shadow-2xl py-1.5 z-50">
+          <button type="button" data-lang="en" class="w-full px-4 py-2 text-left text-xs sm:text-sm hover:bg-slate-800 flex items-center gap-2.5 text-slate-200 cursor-pointer">
+            <span class="font-bold text-cyan-400">EN</span> <span>English</span>
+          </button>
+          <button type="button" data-lang="km" class="w-full px-4 py-2 text-left text-xs sm:text-sm hover:bg-slate-800 flex items-center gap-2.5 text-slate-200 cursor-pointer">
+            <span class="font-bold text-amber-400">KH</span> <span>ភាសាខ្មែរ</span>
+          </button>
+        </div>
+      </div>
+
+      <a href="https://t.me/KaingChungpor" target="_blank" rel="noopener noreferrer" title="Telegram Admin @KaingChungpor" class="tg-icon-btn w-11 h-11 rounded-2xl bg-[#0b1326] hover:bg-[#13203d] border border-slate-700/80 flex items-center justify-center transition-all shadow-lg group">
+        <span class="w-7 h-7 rounded-full bg-slate-400/85 group-hover:bg-[#22d3ee] transition-colors flex items-center justify-center">
+          <svg class="w-4 h-4 text-[#0b1326] -ml-0.5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21.9 4.4c.3-1.2-.8-2.1-1.9-1.6L2.6 10.1c-1.2.5-1.1 2.2.1 2.6l4.5 1.4 10.4-6.6c.5-.3.9.1.5.5l-8.4 7.6-.3 4.6c.4 0 .8-.2 1.1-.5l2.2-2.1 4.6 3.4c.9.5 2 .1 2.2-1l2.4-15.6z"/>
+          </svg>
+        </span>
+      </a>
+    </div>
+
+    <!-- Right: Guest Auth Buttons -->
+    <div id="authGuestBox" class="flex items-center gap-2.5">
+      <button id="btnOpenLogin" type="button" class="px-4 sm:px-5 py-2 rounded-xl bg-[#0b1324]/90 hover:bg-[#13203a] border border-cyan-500/40 text-cyan-400 font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.12)] backdrop-blur-md">
+        Login
+      </button>
+      <button id="btnOpenSignup" type="button" class="px-4 sm:px-5 py-2 rounded-xl bg-gradient-to-r from-[#00e5ff] via-[#2979ff] to-[#651fff] hover:brightness-110 text-white font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-[0_0_20px_rgba(41,121,255,0.4)]">
+        Sign-Up
+      </button>
+    </div>
+
+    <!-- Right: Logged-in User Profile Pill -->
+    <div id="authUserBox" class="hidden flex items-center gap-2">
+      <button id="btnOpenProfile" type="button" class="profile-pill pl-2 pr-4 py-1.5 rounded-full bg-[#0f1b2d]/95 hover:bg-[#162640] border border-cyan-500/35 flex items-center gap-3 transition-all cursor-pointer shadow-[0_0_20px_rgba(6,182,212,0.18)]">
+        <div class="relative w-10 h-10 rounded-full p-[2px] bg-gradient-to-tr from-cyan-400 via-teal-300 to-amber-300">
+          <div class="w-full h-full rounded-full bg-[#07101e] flex items-center justify-center overflow-hidden">
+            <img id="navAvatarImg" src="" alt="Avatar" class="hidden w-full h-full object-cover" />
+            <span id="navAvatarInitials" class="text-xs font-extrabold text-[#18ffff]">PO</span>
+          </div>
+          <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#07101e]"></span>
+        </div>
+        <div class="text-left leading-tight">
+          <div id="userDisplayName" class="font-extrabold text-white text-sm tracking-wide">porpor</div>
+          <div id="userRoleBadge" class="text-[10px] font-extrabold text-[#00e5ff] tracking-wider uppercase">K-SNR MEMBER</div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- 3. HERO HEADER -->
+  <div class="max-w-2xl w-full text-center px-4 mt-4 mb-6 relative z-10">
+    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold mb-3 backdrop-blur-sm">
+      <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+      <span>AI CHART VISION • MT4 / MT5 / TRADINGVIEW</span>
+    </div>
+
+    <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight flex items-center justify-center gap-3 flex-wrap">
+      <span class="text-white">Por - SNR</span>
+      <span class="text-[#18ffff] neon-cyan-text">Scanner</span>
+    </h1>
+
+    <div class="mt-3 flex flex-wrap items-center justify-center gap-2.5 text-sm sm:text-base">
+      <p id="heroSubtitle" class="text-slate-300 font-medium">
+        បំប្លែងភាពស្មុគស្មាញនៃទីផ្សារ ទៅជាចំណុចចូលដ៏ច្បាស់លាស់
+      </p>
+      <span class="inline-flex items-center gap-1 font-extrabold text-amber-400 tracking-wide">
+        ⚡ SIGNAL
+      </span>
+      <button id="btnWinrateAction" type="button" title="ចុចមើលស្ថិតិ Winrate ផ្ទាល់" class="winrate-pill inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#062822]/90 hover:bg-[#093830] border border-emerald-500/50 text-[#00e676] text-xs sm:text-sm font-extrabold shadow-[0_0_18px_rgba(16,185,129,0.22)] transition-all active:scale-95 cursor-pointer">
+        <span id="winrateText">Winrate 91.8%</span>
+        <svg class="w-11 h-3.5 stroke-[#00e676] fill-none overflow-visible" viewBox="0 0 44 12" stroke-width="2" stroke-linecap="round">
+          <path id="winrateWavePath" d="M1 7 C12 7, 20 9, 30 8 C35 7.5, 38 6.5, 41 6" />
+          <circle id="winrateDot" cx="41" cy="6" r="2.3" class="fill-[#00e676] animate-ping-slow" />
+          <circle cx="41" cy="6" r="2" class="fill-[#00e676]" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 4. KEY POR - SNR TIMEFRAME -->
+  <div class="max-w-xl w-full px-4 mb-5 relative z-10">
+    <div class="bg-[#111726] border border-cyan-500/35 rounded-[24px] p-4 sm:p-5 shadow-xl">
+      <div class="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">⏰</span>
+          <h2 class="font-extrabold text-amber-400 text-sm sm:text-base tracking-wide">
+            KEY Por - SNR TIMEFRAME <span class="text-cyan-300 font-semibold text-xs sm:text-sm">(-សម្រាប់ FLIP ម៉ោងព័ត៌មាន-)</span>
+          </h2>
+        </div>
+        <select id="newsFlipMode" class="px-3 py-1.5 rounded-xl bg-[#0b1220] border border-cyan-500/40 text-cyan-300 text-xs font-bold focus:outline-none cursor-pointer">
+          <option value="ALL">⚡ ស្កេនគ្រប់ទម្រង់ (Auto Flip Mode)</option>
+          <option value="NON_FARM">✅ NON FARM : 4H KEY ENTRY</option>
+          <option value="CPI">✅ CPI : 1H KEY ENTRY</option>
+          <option value="FOMC">✅ FOMC : LIMITE (15M-30M-1H)</option>
+        </select>
+      </div>
+
+      <div class="mt-3 space-y-2.5 text-xs sm:text-sm leading-relaxed">
+        <div class="p-3 rounded-xl bg-[#0b111e]/90 border border-emerald-500/30">
+          <div class="font-extrabold text-emerald-400 flex items-center justify-between">
+            <span>✅ NON FARM : 4H KEY ENTRY</span>
+            <span>💸</span>
+          </div>
+          <p class="text-slate-300 mt-1 text-xs">
+            ( បើ Candle ឬ WICK ចាក់ KEY Por - SNR ណាមួយហើយអាច BUY/SELL តាម FLOW នោះ បើចាក់ <span class="text-emerald-300 font-bold">KEY BUY = NEW BUY</span> ចាក់ <span class="text-rose-400 font-bold">KEY SELL = NEW SELL</span> )
+          </p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#0b111e]/90 border border-cyan-500/30">
+          <div class="font-extrabold text-cyan-300 flex items-center justify-between">
+            <span>✅ CPI : 1H KEY ENTRY</span>
+            <span>💸</span>
+          </div>
+          <p class="text-slate-300 mt-1 text-xs">
+            ( បើ Candle ឬ WICK ចាក់ KEY Por - SNR ណាមួយហើយអាច BUY/SELL តាម FLOW នោះ បើចាក់ <span class="text-emerald-300 font-bold">KEY BUY = NEW BUY</span> ចាក់ <span class="text-rose-400 font-bold">KEY SELL = NEW SELL</span> )
+          </p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#0b111e]/90 border border-amber-500/30">
+          <div class="font-extrabold text-amber-300 flex items-center justify-between">
+            <span>✅ FOMC : LIMITE ( 15M-30M-1H KEY ENTRY )</span>
+            <span>💸</span>
+          </div>
+          <p class="text-slate-300 mt-1 text-xs">
+            ( បើ Candle ឬ WICK ចាក់ KEY Por - SNR ណាមួយហើយអាច BUY/SELL តាម FLOW នោះ បើចាក់ <span class="text-emerald-300 font-bold">KEY BUY = NEW BUY</span> ចាក់ <span class="text-rose-400 font-bold">KEY SELL = NEW SELL</span> )
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4B. TELEGRAM BOT REGIME & PRICE ALERTS PANEL -->
+  <div class="max-w-xl w-full px-4 mb-5 relative z-10">
+    <div class="bg-[#111726] border border-cyan-500/40 rounded-[24px] p-4 sm:p-5 shadow-xl tg-glow-card">
+      <div class="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-cyan-500/15 border border-cyan-400/40 flex items-center justify-center text-cyan-400">
+            <i data-lucide="send" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-extrabold text-white text-sm sm:text-base flex items-center gap-2">
+              <span>🔀 Telegram Bot Regime & Price Alerts</span>
+              <span id="tgBotStatusBadge" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/20 border border-rose-500/40 text-rose-300">មិនទាន់ភ្ជាប់ Bot</span>
+            </h2>
+            <p class="text-[11px] text-slate-400">ផ្ញើសារផ្លាស់ប្តូរទម្រង់ទីផ្សារ (Regime Change) និងកំណត់តម្លៃ BTCUSDT & XAUUSD ទៅ Telegram ផ្ទាល់</p>
+          </div>
+        </div>
+        <button id="btnOpenTgConfig" type="button" class="px-3 py-1.5 rounded-xl bg-[#0b1326] hover:bg-[#162444] border border-cyan-400/50 text-cyan-300 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition-all">
+          <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+          <span>កំណត់ Bot Token</span>
+        </button>
+      </div>
+
+      <!-- Preset Regime Change Buttons (Including ETHUSDT, EURUSD, USOIL) -->
+      <div class="mt-3.5">
+        <div class="text-xs font-bold text-amber-300 mb-2 flex items-center justify-between">
+          <span>⚡ ចុចផ្ញើសារ Regime Change ទៅ Telegram ភ្លាមៗ (1-Click Alert)៖</span>
+          <label class="inline-flex items-center gap-1.5 text-[11px] text-cyan-300 cursor-pointer">
+            <input id="tgAutoMonitorToggle" type="checkbox" class="accent-cyan-400 rounded cursor-pointer" />
+            <span>Auto-Monitor Live</span>
+          </label>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <button type="button" data-regime-preset="BTC_DOWN_RANGE" class="p-3 rounded-xl bg-[#0b111e]/95 hover:bg-[#131e36] border border-amber-500/35 text-left transition-all active:scale-[0.99] cursor-pointer group">
+            <div class="flex items-center justify-between text-xs font-extrabold text-amber-300">
+              <span>🔀 Regime change — BTCUSDT</span>
+              <i data-lucide="send" class="w-3.5 h-3.5 text-slate-400 group-hover:text-cyan-400"></i>
+            </div>
+            <div class="text-xs font-bold text-white mt-1">Trending down 📉 → ranging ↔️</div>
+            <div class="text-[10px] text-slate-400 mt-0.5 truncate">Review open positions and pending setups on this symbol.</div>
+          </button>
+
+          <button type="button" data-regime-preset="XAU_DOWN_RANGE" class="p-3 rounded-xl bg-[#0b111e]/95 hover:bg-[#131e36] border border-cyan-500/35 text-left transition-all active:scale-[0.99] cursor-pointer group">
+            <div class="flex items-center justify-between text-xs font-extrabold text-cyan-300">
+              <span>🔀 Regime change — XAUUSD</span>
+              <i data-lucide="send" class="w-3.5 h-3.5 text-slate-400 group-hover:text-cyan-400"></i>
+            </div>
+            <div class="text-xs font-bold text-white mt-1">Trending down 📉 → ranging ↔️</div>
+            <div class="text-[10px] text-slate-400 mt-0.5 truncate">Review open positions and pending setups on this symbol.</div>
+          </button>
+
+          <button type="button" data-regime-preset="ETH_UP_RANGE" class="p-3 rounded-xl bg-[#0b111e]/95 hover:bg-[#131e36] border border-blue-500/35 text-left transition-all active:scale-[0.99] cursor-pointer group">
+            <div class="flex items-center justify-between text-xs font-extrabold text-blue-300">
+              <span>🔀 Regime change — ETHUSDT</span>
+              <i data-lucide="send" class="w-3.5 h-3.5 text-slate-400 group-hover:text-cyan-400"></i>
+            </div>
+            <div class="text-xs font-bold text-white mt-1">Trending up 📈 → ranging ↔️</div>
+            <div class="text-[10px] text-slate-400 mt-0.5 truncate">Review open positions and pending setups on this symbol.</div>
+          </button>
+
+          <button type="button" data-regime-preset="EUR_RANGE_UP" class="p-3 rounded-xl bg-[#0b111e]/95 hover:bg-[#131e36] border border-emerald-500/35 text-left transition-all active:scale-[0.99] cursor-pointer group">
+            <div class="flex items-center justify-between text-xs font-extrabold text-emerald-300">
+              <span>🔀 Regime change — EURUSD</span>
+              <i data-lucide="send" class="w-3.5 h-3.5 text-slate-400 group-hover:text-cyan-400"></i>
+            </div>
+            <div class="text-xs font-bold text-white mt-1">Ranging ↔️ → trending up 📈</div>
+            <div class="text-[10px] text-slate-400 mt-0.5 truncate">Review open positions and pending setups on this symbol.</div>
+          </button>
+
+          <button type="button" data-regime-preset="USOIL_DOWN_RANGE" class="p-3 rounded-xl bg-[#0b111e]/95 hover:bg-[#131e36] border border-rose-500/35 text-left transition-all active:scale-[0.99] cursor-pointer group">
+            <div class="flex items-center justify-between text-xs font-extrabold text-rose-300">
+              <span>🔀 Regime change — USOIL</span>
+              <i data-lucide="send" class="w-3.5 h-3.5 text-slate-400 group-hover:text-cyan-400"></i>
+            </div>
+            <div class="text-xs font-bold text-white mt-1">Trending down 📉 → ranging ↔️</div>
+            <div class="text-[10px] text-slate-400 mt-0.5 truncate">Review open positions and pending setups on this symbol.</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Custom Price & Regime Alert Builder -->
+      <div class="mt-3.5 pt-3 border-t border-slate-800/90">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <select id="tgCustomSymbol" class="px-2.5 py-2 rounded-xl bg-[#0b1220] border border-slate-700 text-white font-bold focus:outline-none">
+            <option value="BTCUSDT">BTCUSDT</option>
+            <option value="XAUUSD">XAUUSD</option>
+            <option value="ETHUSDT">ETHUSDT</option>
+            <option value="EURUSD">EURUSD</option>
+            <option value="USOIL">USOIL</option>
+          </select>
+          <select id="tgCustomFrom" class="px-2.5 py-2 rounded-xl bg-[#0b1220] border border-slate-700 text-slate-200 font-semibold focus:outline-none">
+            <option value="Trending down 📉">Trending down 📉</option>
+            <option value="Trending up 📈">Trending up 📈</option>
+            <option value="Ranging ↔️">Ranging ↔️</option>
+          </select>
+          <select id="tgCustomTo" class="px-2.5 py-2 rounded-xl bg-[#0b1220] border border-slate-700 text-slate-200 font-semibold focus:outline-none">
+            <option value="ranging ↔️">→ ranging ↔️</option>
+            <option value="trending up 📈">→ trending up 📈</option>
+            <option value="trending down 📉">→ trending down 📉</option>
+          </select>
+          <input id="tgTargetPrice" type="number" step="any" placeholder="Target Price (Optional)" class="px-2.5 py-2 rounded-xl bg-[#0b1220] border border-slate-700 text-amber-300 font-mono text-xs focus:outline-none" />
+        </div>
+
+        <div class="mt-2.5 flex items-center gap-2">
+          <button id="btnSendCustomRegime" type="button" class="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-pointer">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            <span>ផ្ញើ Regime Alert ឥឡូវនេះ</span>
+          </button>
+          <button id="btnSetPriceAlert" type="button" class="py-2.5 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/50 text-amber-300 font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-pointer">
+            <i data-lucide="bell-ring" class="w-3.5 h-3.5"></i>
+            <span>កំណត់ម៉ោងរោទ៍តម្លៃ</span>
+          </button>
+        </div>
+
+        <div id="tgAlertFeedback" class="hidden mt-2 text-xs font-bold text-emerald-400 text-center"></div>
+        <div id="tgActiveAlertsBox" class="mt-2 space-y-1.5 text-xs"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. MAIN SCANNER CARD -->
+  <div class="max-w-xl w-full px-4 relative z-10">
+    <div class="w-full bg-[#111726] border border-slate-800/90 rounded-[28px] p-5 sm:p-7 shadow-2xl relative overflow-hidden">
+      <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Top Action Bar -->
+      <div class="flex items-center justify-between gap-2.5 mb-8 relative z-10 flex-wrap">
+        <div class="flex items-center gap-2">
+          <button id="btnBuy" class="gold-glow bg-gradient-to-b from-[#fcd34d] via-[#f59e0b] to-[#d97706] hover:brightness-110 active:scale-95 transition-all text-slate-950 font-bold px-4 sm:px-5 py-3 rounded-2xl flex items-center gap-2 text-xs sm:text-base cursor-pointer border border-amber-300/60">
+            <i data-lucide="key" class="w-4 h-4 sm:w-5 sm:h-5 -rotate-45 fill-slate-950"></i>
+            <span id="txtBuyKey">ទិញ KEY</span>
+          </button>
+
+          <button id="btnOpenReceiveKey" type="button" class="bg-[#132038] hover:bg-[#192a4a] active:scale-95 transition-all border border-cyan-500/40 text-cyan-300 font-bold px-3.5 sm:px-4 py-3 rounded-2xl flex items-center gap-1.5 text-xs sm:text-sm cursor-pointer shadow-md">
+            <i data-lucide="inbox" class="w-4 h-4 text-amber-400"></i>
+            <span>កន្លែងទទួល KEY</span>
+          </button>
+        </div>
+
+        <button id="btnLocked" class="bg-[#2d1a24] hover:bg-[#39202d] transition-colors border border-[#e11d48]/70 text-[#fb7185] font-semibold px-4 sm:px-5 py-3 rounded-2xl flex items-center gap-2 text-xs sm:text-base cursor-pointer shadow-[0_0_15px_rgba(225,29,72,0.2)]">
+          <i data-lucide="lock" class="w-4 h-4 sm:w-5 sm:h-5 text-[#fb7185]"></i>
+          <span id="txtLocked">ជាប់សោរ អត់ KEY</span>
+        </button>
+
+        <div id="unlockedBox" class="hidden flex items-center gap-2">
+          <div class="bg-emerald-950/70 border border-emerald-500/60 text-emerald-300 font-semibold px-4 py-2.5 rounded-2xl flex items-center gap-2 text-xs sm:text-sm">
+            <i data-lucide="unlock" class="w-4 h-4 text-emerald-400"></i>
+            <span id="keyStatusText">បានដោះសោ</span>
+          </div>
+          <button id="btnLock" title="ចាក់សោរវិញ" class="p-2.5 rounded-xl bg-slate-800 hover:bg-rose-950/60 text-slate-400 hover:text-rose-400 border border-slate-700 transition-colors cursor-pointer">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Drop Zone -->
+      <div id="dropZone" class="relative z-10 rounded-2xl border-2 border-dashed border-slate-800/80 hover:border-cyan-500/40 bg-[#0d121d]/70 transition-all p-6 sm:p-8 flex flex-col items-center justify-center text-center cursor-pointer">
+        <input id="fileInput" type="file" accept="image/*" class="hidden" />
+
+        <div id="dropEmpty" class="w-full flex flex-col items-center">
+          <div class="my-3 cyan-cloud-glow">
+            <i data-lucide="cloud-upload" class="w-20 h-20 sm:w-24 sm:h-24 text-[#22d3ee]"></i>
+          </div>
+          <div class="flex items-center justify-center gap-2.5 mt-3 mb-2">
+            <span class="text-xl sm:text-2xl">🖼️</span>
+            <h2 id="txtDropTitle" class="text-xl sm:text-2xl font-bold text-white tracking-wide">ទាញរូបភាព Chart ទម្លាក់ទីនេះ</h2>
+          </div>
+          <p id="txtDropSub" class="text-slate-300 text-sm sm:text-base max-w-md leading-relaxed mt-1">
+            សមាជិកត្រូវ Login គណនី និងមាន <span class="text-[#facc15] font-bold">KEY ពិសេស</span> ដើម្បីស្កេន (Admin ស្កេនឥតដែនកំណត់)
+          </p>
+        </div>
+
+        <div id="dropPreview" class="hidden w-full">
+          <div class="relative rounded-xl overflow-hidden border border-slate-700 bg-slate-950 max-h-72 flex items-center justify-center">
+            <img id="previewImg" src="" alt="Chart" class="max-h-72 w-auto object-contain" />
+            <button id="btnRemoveImg" type="button" class="absolute top-2.5 right-2.5 bg-slate-900/90 hover:bg-rose-600 text-white p-1.5 rounded-lg border border-slate-700 transition-colors">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <p class="text-xs text-cyan-400 mt-3 flex items-center justify-center gap-1.5">
+            <i data-lucide="image" class="w-3.5 h-3.5"></i>
+            <span>រូបភាព Chart ត្រូវបានបញ្ចូលរួចរាល់ (ចុចដើម្បីប្តូររូបភាពថ្មី)</span>
+          </p>
+        </div>
+
+        <div class="mt-7 w-full flex justify-center">
+          <button id="btnEnterKey" type="button" class="bg-[#262f3f] hover:bg-[#303b4f] active:scale-95 transition-all border border-slate-600/80 text-white font-semibold px-7 py-3.5 rounded-full flex items-center gap-2.5 text-sm sm:text-base shadow-lg cursor-pointer">
+            <i data-lucide="lock" class="w-4 h-4 text-slate-200"></i>
+            <span id="txtEnterKeyBtn">បញ្ចូល KEY ដើម្បីស្កេន</span>
+          </button>
+
+          <button id="btnScan" type="button" class="hidden bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 active:scale-95 transition-all text-slate-950 font-bold px-8 py-3.5 rounded-full flex items-center gap-2.5 text-sm sm:text-base shadow-[0_0_25px_rgba(6,182,212,0.4)] cursor-pointer">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+            <span>⚡ ស្កេនរក Entry + SL + TP ឥឡូវនេះ</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Error Banner -->
+      <div id="scanError" class="hidden mt-4 p-3.5 rounded-xl bg-rose-950/50 border border-rose-500/40 text-rose-300 text-sm flex items-center gap-2.5">
+        <i data-lucide="octagon-alert" class="w-5 h-5 text-rose-400 shrink-0"></i>
+        <span id="scanErrorText"></span>
+      </div>
+
+      <div class="mt-5 pt-4 border-t border-slate-800/80 flex justify-center relative z-10">
+        <a href="index.html" id="btnBackToDashboardBottom" class="aqua-back-btn w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#071a24]/90 hover:bg-[#0c2a3a] border border-[#00ffff]/50 text-[#00ffff] font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 shadow-[0_0_20px_rgba(0,255,255,0.2)] cursor-pointer">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-[#00ffff]"></i>
+          <span id="txtBackDashboardBottom">← ត្រឡប់ទៅផ្ទាំងដើម (Back to Main Dashboard)</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Result Card -->
+    <div id="resultCard" class="hidden w-full mt-6 bg-[#111726] border border-cyan-500/40 rounded-[24px] p-5 sm:p-6 shadow-2xl animate-fadeIn">
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
+            <i data-lucide="zap" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-base sm:text-lg">
+              <span id="rPair"></span> <span id="rTimeframe" class="text-xs font-normal text-slate-400"></span>
+            </h3>
+            <p class="text-xs text-slate-400">និន្នាការទីផ្សារ៖ <span id="rTrend" class="text-cyan-300"></span> | តម្លៃបច្ចុប្បន្ន៖ <span id="rCur" class="text-amber-300"></span></p>
+          </div>
+        </div>
+        <div id="rAction" class="px-4 py-1.5 rounded-xl font-bold text-sm flex items-center gap-1.5">
+          <i data-lucide="trending-up"></i>
+          <span>BUY SIGNAL</span>
+        </div>
+      </div>
+
+      <div id="rFlipBanner" class="mt-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs sm:text-sm text-amber-300 font-semibold flex items-center gap-2">
+        <span>⏰</span>
+        <span id="rFlipText">KEY Por - SNR FLOW: ចាក់ KEY BUY = NEW BUY</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 my-4">
+        <div class="p-3.5 rounded-xl bg-slate-900/90 border border-amber-500/30 flex items-center justify-between">
+          <span class="text-xs sm:text-sm text-slate-400 flex items-center gap-2"><i data-lucide="target" class="w-4 h-4 text-amber-400"></i>🎯 Entry:</span>
+          <span id="rEntry" class="font-bold text-amber-300 text-sm sm:text-base"></span>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900/90 border border-rose-500/30 flex items-center justify-between">
+          <span class="text-xs sm:text-sm text-slate-400 flex items-center gap-2"><i data-lucide="octagon-alert" class="w-4 h-4 text-rose-400"></i>🛑 SL:</span>
+          <span id="rSl" class="font-bold text-rose-400 text-sm sm:text-base"></span>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900/90 border border-emerald-500/30 flex items-center justify-between">
+          <span class="text-xs sm:text-sm text-slate-400 flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>💰 TP 1:</span>
+          <span id="rTp1" class="font-bold text-emerald-300 text-sm sm:text-base"></span>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900/90 border border-emerald-500/30 flex items-center justify-between">
+          <span class="text-xs sm:text-sm text-slate-400 flex items-center gap-2"><i data-lucide="award" class="w-4 h-4 text-emerald-400"></i>💰 TP 2:</span>
+          <span id="rTp2" class="font-bold text-emerald-300 text-sm sm:text-base"></span>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs sm:text-sm mb-4 space-y-1.5">
+        <div class="font-semibold text-slate-300 mb-1">🧱 តំបន់ KEY Por - SNR សំខាន់ៗនៅលើ Chart៖</div>
+        <div class="flex justify-between text-slate-400"><span>• KEY Resistance (SELL ZONE):</span><span id="rRes" class="text-rose-300 font-medium"></span></div>
+        <div class="flex justify-between text-slate-400"><span>• KEY Support (BUY ZONE):</span><span id="rSup" class="text-emerald-300 font-medium"></span></div>
+      </div>
+
+      <div class="space-y-1.5 text-xs sm:text-sm text-slate-300 mb-5">
+        <div class="font-semibold text-cyan-300">💡 មូលហេតុបច្ចេកទេស (Confluence)៖</div>
+        <div id="rConfluence" class="space-y-1"></div>
+      </div>
+
+      <button id="btnCopySignal" class="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer">
+        <i data-lucide="copy" class="w-4 h-4"></i>
+        <span>ចម្លង Signal យកទៅផុស (Copy Signal)</span>
+      </button>
+    </div>
+
+    <!-- Info & Disclaimer -->
+    <div class="w-full mt-6 space-y-4">
+      <div class="bg-[#111726]/90 border border-slate-800 rounded-2xl p-5">
+        <h3 class="text-base sm:text-lg font-bold text-amber-400 mb-3 flex items-center gap-2">
+          <i data-lucide="sparkles" class="w-5 h-5"></i>អត្ថប្រយោជន៍របស់ Por - SNR Scanner
+        </h3>
+        <ul class="space-y-2.5 text-xs sm:text-sm text-slate-300">
+          <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">រហ័ស និងងាយស្រួល៖</strong> ថត Chart → ទទួល Entry + SL + TP ភ្លាមៗ។</span></li>
+          <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">គាំទ្រការស្កេនម៉ោងព័ត៌មាន៖</strong> NON FARM (4H), CPI (1H), និង FOMC (15M-30M-1H)។</span></li>
+          <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">ជួយរក្សាវិន័យ និងសន្សំពេលវេលា៖</strong> មាន SL និង TP ជាប់ជានិច្ច។</span></li>
+        </ul>
+      </div>
+
+      <div class="bg-amber-950/30 border border-amber-500/30 rounded-2xl p-4 sm:p-5 text-xs sm:text-sm text-slate-300 leading-relaxed backdrop-blur-md">
+        <div class="font-bold text-amber-400 flex items-center gap-2 mb-1.5">
+          <i data-lucide="shield-alert" class="w-4 h-4 shrink-0"></i>Disclaimer – Por - SNR Scanner
+        </div>
+        <p class="text-slate-400">
+          Por - SNR Scanner គឺជាឧបករណ៍ជំនួយដែលថត Chart ពី MT4/MT5/TradingView រួចបង្ហាញ Entry, SL និង TP។ វាមិនមែនជាដំបូន្មានហិរញ្ញវត្ថុ ឬការធានាលទ្ធផលណាមួយឡើយ។ ការជួញដូរមានហានិភ័យខ្ពស់ ជួញដូរដោយទំនួលខុសត្រូវ!
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer / Admin Link -->
+  <div class="mt-8 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500 relative z-10 px-4">
+    <a href="index.html" class="text-[#00ffff] hover:underline font-bold flex items-center gap-1">
+      <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Main Dashboard
+    </a>
+    <span>•</span>
+    <span>© 2026 Por - SNR Scanner</span>
+    <span>•</span>
+    <a href="https://t.me/KaingChungpor" target="_blank" class="text-cyan-400 hover:underline flex items-center gap-1">
+      <i data-lucide="send" class="w-3.5 h-3.5"></i>Telegram: @KaingChungpor
+    </a>
+    <span>•</span>
+    <button id="btnAdmin" class="hover:text-slate-300 flex items-center gap-1 transition-colors cursor-pointer">
+      <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i>Admin បង្កើត KEY
+    </button>
+    <span>•</span>
+    <button id="btnApi" class="hover:text-slate-300 flex items-center gap-1 transition-colors cursor-pointer">
+      <i data-lucide="key" class="w-3.5 h-3.5"></i>API Key
+    </button>
+  </div>
+
+  <!-- MODAL: PROFILE SETTINGS -->
+  <div id="profileModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-[#0e1626] border border-slate-700/80 rounded-[28px] max-w-md w-full p-6 sm:p-7 shadow-2xl relative animate-fadeIn">
+      <button data-close="profileModal" class="absolute top-5 right-5 text-slate-400 hover:text-white cursor-pointer">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+
+      <h3 class="text-center text-xl sm:text-2xl font-extrabold text-[#fde047] drop-shadow-[0_0_12px_rgba(250,204,21,0.45)] mb-5">
+        ការកំណត់ Profile
+      </h3>
+
+      <div class="flex flex-col items-center mb-6">
+        <label for="profileImgInput" class="relative w-24 h-24 rounded-full border-[3px] border-[#00e5ff] shadow-[0_0_25px_rgba(0,229,255,0.4)] bg-[#060c18] flex items-center justify-center cursor-pointer group overflow-hidden">
+          <img id="profileModalImg" src="" alt="Profile" class="hidden w-full h-full object-cover" />
+          <span id="profileModalInitials" class="text-3xl font-extrabold text-[#00e5ff]">PO</span>
+          <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-[10px] text-white font-bold">
+            <i data-lucide="camera" class="w-5 h-5 mb-0.5 text-cyan-300"></i>
+            <span>ប្តូររូបភាព</span>
+          </div>
+        </label>
+        <input id="profileImgInput" type="file" accept="image/*" class="hidden" />
+        <span id="profileAdminTag" class="hidden mt-2 px-3 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300 text-[11px] font-extrabold">
+          👑 ADMIN UNLIMITED SCAN
+        </span>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-[#131d31] border border-slate-700/70 mb-3.5">
+        <div class="flex items-center justify-between text-xs font-bold text-slate-400 mb-1">
+          <span>គណនី EMAIL / PHONE</span>
+          <button id="btnCopyAccount" type="button" class="text-[#00e5ff] hover:underline flex items-center gap-1 cursor-pointer">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Copy Account</span>
+          </button>
+        </div>
+        <div id="profileIdentifierText" class="font-mono text-sm sm:text-base font-bold text-[#00e5ff] break-all">
+          chungpor908@gmail.com
+        </div>
+      </div>
+
+      <button id="btnOpenHistory" type="button" class="w-full py-3.5 px-4 rounded-2xl bg-[#131d31] hover:bg-[#192640] border border-slate-700/80 text-white font-bold text-sm flex items-center justify-center gap-2.5 mb-5 transition-colors cursor-pointer">
+        <i data-lucide="history" class="w-4 h-4 text-[#00e5ff]"></i>
+        <span>ប្រវត្តិ (វិក្កយបត្រ, KEY, ការប្រើ)</span>
+      </button>
+
+      <div class="mb-5">
+        <label class="block text-xs font-bold text-slate-400 mb-2">ឈ្មោះរបស់អ្នក NICKNAME</label>
+        <div class="flex gap-2.5">
+          <input id="profileNicknameInput" type="text" placeholder="បញ្ចូលឈ្មោះ..." class="flex-1 px-4 py-3 rounded-2xl bg-[#131d31] border border-slate-700/80 text-white font-semibold text-sm focus:outline-none focus:border-[#00e5ff]" />
+          <button id="btnSaveProfile" type="button" class="px-6 py-3 rounded-2xl bg-[#00bcd4] hover:bg-[#00e5ff] text-slate-950 font-extrabold text-sm transition-all cursor-pointer shadow-[0_0_15px_rgba(0,229,255,0.3)]">
+            រក្សាទុក
+          </button>
+        </div>
+        <p id="profileSaveMsg" class="hidden text-xs text-emerald-400 mt-1.5"></p>
+      </div>
+
+      <button id="btnProfileLogout" type="button" class="w-full py-3.5 rounded-2xl bg-[#16121e] hover:bg-rose-950/50 border border-rose-500/50 text-[#fb7185] font-extrabold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer">
+        <i data-lucide="log-out" class="w-4 h-4"></i>
+        <span>ចាកចេញពីគណនី Logout</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: USER HISTORY -->
+  <div id="historyModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-[#0e1626] border border-slate-700 rounded-[26px] max-w-md w-full p-6 shadow-2xl relative max-h-[85vh] flex flex-col">
+      <button data-close="historyModal" class="absolute top-5 right-5 text-slate-400 hover:text-white cursor-pointer">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+      <div class="flex items-center gap-2.5 mb-4">
+        <i data-lucide="history" class="w-6 h-6 text-[#00e5ff]"></i>
+        <h3 class="text-lg font-extrabold text-white">ប្រវត្តិ (វិក្កយបត្រ, KEY, ការប្រើ)</h3>
+      </div>
+      <div id="historyContent" class="overflow-y-auto space-y-3 pr-1 text-xs sm:text-sm text-slate-300 flex-1"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: WINRATE LIVE ACTION STATS -->
+  <div id="winrateModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-[#0e1626] border border-emerald-500/40 rounded-[26px] max-w-md w-full p-6 shadow-2xl relative animate-fadeIn">
+      <button data-close="winrateModal" class="absolute top-5 right-5 text-slate-400 hover:text-white cursor-pointer">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400">
+          <i data-lucide="activity" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-extrabold text-white">ស្ថិតិ Winrate ផ្ទាល់ (Live Action)</h3>
+          <p class="text-xs text-emerald-400 font-bold" id="modalWinrateSub">អត្រាជោគជ័យបច្ចុប្បន្ន៖ 91.8%</p>
+        </div>
+      </div>
+
+      <div class="space-y-2.5 text-xs sm:text-sm mb-5">
+        <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between items-center">
+          <span class="font-bold text-amber-300">XAUUSD (Gold Sniper)</span>
+          <span class="text-emerald-400 font-extrabold">92.4% WIN</span>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between items-center">
+          <span class="font-bold text-cyan-300">BTCUSD (Crypto SMC)</span>
+          <span class="text-emerald-400 font-extrabold">91.2% WIN</span>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between items-center">
+          <span class="font-bold text-purple-300">NON FARM / CPI / FOMC FLIP</span>
+          <span class="text-emerald-400 font-extrabold">91.8% WIN</span>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-2xl bg-[#131d31] border border-slate-700 text-center">
+        <p class="text-xs text-slate-300 mb-2.5">កត់ត្រាលទ្ធផលជួញដូរចុងក្រោយរបស់អ្នក ដើម្បីធ្វើបច្ចុប្បន្នភាព Winrate៖</p>
+        <div class="flex gap-2.5">
+          <button id="btnRecordWin" type="button" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs cursor-pointer">
+            ✅ ឈ្នះ TP (+Win)
+          </button>
+          <button id="btnRecordLoss" type="button" class="flex-1 py-2.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 font-extrabold text-xs cursor-pointer">
+            🛑 ប៉ះ SL (-Loss)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL A: LOGIN -->
+  <div id="loginModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-[#0e1525] border border-slate-800 rounded-[28px] max-w-md w-full p-6 sm:p-8 shadow-2xl relative animate-fadeIn">
+      <button data-close="loginModal" class="absolute top-5 right-5 text-slate-400 hover:text-white cursor-pointer">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+
+      <div class="flex flex-col items-center text-center mb-6">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-b from-[#00e5ff] to-[#0091ea] flex items-center justify-center shadow-[0_0_25px_rgba(0,229,255,0.4)] mb-4">
+          <i data-lucide="log-in" class="w-8 h-8 text-white"></i>
+        </div>
+        <h3 class="text-2xl font-bold tracking-wide">
+          <span class="text-[#18ffff] neon-cyan-text">ចូលប្រើប្រាស់</span> <span class="text-white">Por - SNR</span>
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1.5">សូមបំពេញព័ត៌មានគណនីរបស់អ្នក (Admin ទទួលបាន Unlimited Scan)</p>
+      </div>
+
+      <form id="loginForm" class="space-y-4">
+        <div class="relative flex items-center">
+          <i data-lucide="user-check" class="w-5 h-5 text-[#00e5ff] absolute left-4 pointer-events-none"></i>
+          <input id="loginIdentifier" type="text" required placeholder="Gmail ឬ លេខទូរស័ព្ទ" class="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-[#151e30] border border-slate-700/80 text-white text-sm focus:outline-none focus:border-[#00e5ff] transition-colors" />
+        </div>
+
+        <div class="relative flex items-center">
+          <i data-lucide="key" class="w-5 h-5 text-[#00e5ff] absolute left-4 pointer-events-none"></i>
+          <input id="loginPassword" type="password" required placeholder="Password" class="w-full pl-12 pr-12 py-3.5 rounded-2xl bg-[#151e30] border border-slate-700/80 text-white text-sm focus:outline-none focus:border-[#00e5ff] transition-colors" />
+          <button type="button" data-toggle-pass="loginPassword" class="absolute right-4 text-slate-400 hover:text-white cursor-pointer">
+            <i data-lucide="eye" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <p id="loginError" class="hidden text-xs text-rose-400 text-center"></p>
+
+        <button type="submit" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#00e5ff] via-[#2979ff] to-[#536dfe] hover:brightness-110 active:scale-[0.99] transition-all text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,229,255,0.3)] cursor-pointer mt-2">
+          <i data-lucide="lock" class="w-4 h-4"></i>
+          <span>Login ចូលគណនី</span>
+        </button>
+      </form>
+
+      <div class="mt-6 text-center text-xs sm:text-sm text-slate-400">
+        <span>មិនទាន់មានគណនីមែនទេ?</span>
+        <button id="btnSwitchToSignup" type="button" class="text-[#18ffff] font-bold underline ml-1 hover:brightness-125 cursor-pointer">
+          ចុះឈ្មោះបង្កើតគណនីថ្មី
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL B: SIGN-UP -->
+  <div id="signupModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-[#0e1525] border border-slate-800 rounded-[28px] max-w-md w-full p-6 sm:p-8 shadow-2xl relative animate-fadeIn">
+      <button data-close="signupModal" class="absolute top-5 right-5 text-slate-400 hover:text-white cursor-pointer">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+
+      <div class="flex flex-col items-center text-center mb-6">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-b from-[#00b0ff] to-[#2962ff] flex items-center justify-center shadow-[0_0_25px_rgba(41,98,255,0.45)] mb-4">
+          <i data-lucide="user-plus" class="w-8 h-8 text-white"></i>
+        </div>
+        <h3 class="text-2xl font-bold tracking-wide">
+          <span class="text-[#18ffff] neon-cyan-text">ចុះឈ្មោះ</span> <span class="text-white">Por - SNR</span>
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1.5">ចូលរួមជាមួយបច្ចេកវិទ្យា Por - SNR Strategy</p>
+      </div>
+
+      <form id="signupForm" class="space-y-3.5">
+        <div class="relative flex items-center">
+          <i data-lucide="user" class="w-5 h-5 text-[#00e5ff] absolute left-4 pointer-events-none"></i>
+          <input id="signupUsername" type="text" required placeholder="Username របស់អ្នក" class="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-[#151e30] border border-slate-700/80 text-white text-sm focus:outline-none focus:border-[#00e5ff] transition-colors" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <select id="signupGender" class="w-full px-4 py-3.5 rounded-2xl bg-[#151e30] border border-slate-700/80 text-white text-sm font-semibold focus:outline-none focus:border-[#00e5ff] cursor-pointer">
+            <option value="ប្រុស">♂ ប្រុស</option>
+            <option value="ស្រី">♀ ស្រី</option>
+            <option value="ផ្សេងៗ">⚧ ផ្សេងៗ</option>
+          </select>
+          <input id="signupAge" type="number" min="10" max="100" required placeholder="អាយុ" class="w-full px-4 py-3.5 rounded-2xl bg-[#151e30] border border-slate-700/80 text-white text-sm focus:outline-none focus:border-[#00e5ff] transition-colors" />
+        </div>
+
+        <div class="relative flex items-center">
+          <i data-lucide="mail-check" class="w-5 h-5 text-[#00e5ff] absolute left-4 pointer-events-none"></i>
+          <input id="signupIdentifier" type="text" required placeholder="Gmail ឬ លេខទូរស័ព្ទ" class="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-[#151e30] border border-slate-700/80 text-white text-sm focus:outline-none focus:border-[#00e5ff] transition-colors" />
+        </div>
+
+        <div class="relative flex items-center">
+          <i data-lucide="lock" class="w-5 h-5 text-[#00e5ff] absolute left-4 pointer-events-none"></i>
+          <input id="signupPassword" type="password" required placeholder="Password" class="w-full pl-12 pr-12 py-3.5 rounded-2xl bg-[#151e30] border border-slate-700/80 text-white text-sm focus:outline-none focus:border-[#00e5ff] transition-colors" />
+          <button type="button" data-toggle-pass="signupPassword" class="absolute right-4 text-slate-400 hover:text-white cursor-pointer">
+            <i data-lucide="eye" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <p id="signupError" class="hidden text-xs text-rose-400 text-center"></p>
+
+        <button type="submit" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#00e5ff] via-[#2979ff] to-[#536dfe] hover:brightness-110 active:scale-[0.99] transition-all text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,229,255,0.3)] cursor-pointer mt-2">
+          <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+          <span>បង្កើតគណនីថ្មី</span>
+        </button>
+      </form>
+
+      <div class="mt-6 text-center text-xs sm:text-sm text-slate-400">
+        <span>មានគណនីរួចហើយមែនទេ?</span>
+        <button id="btnSwitchToLogin" type="button" class="text-[#18ffff] font-bold underline ml-1 hover:brightness-125 cursor-pointer">
+          ចូលប្រើប្រាស់ (Login)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 1: ENTER / PASTE KEY -->
+  <div id="keyModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#131b2e] border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl relative animate-fadeIn">
+      <button data-close="keyModal" class="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400"><i data-lucide="key" class="w-6 h-6"></i></div>
+        <div>
+          <h3 class="text-lg font-bold text-white">បញ្ចូល ឬ Paste KEY ដើម្បីស្កេន</h3>
+          <p class="text-xs text-slate-400">KEY នីមួយៗប្រើបានតាមកញ្ចប់តម្លៃដែលបានទូទាត់ (1-Time Redeem)</p>
+        </div>
+      </div>
+      <form id="keyForm" class="space-y-4">
+        <div class="relative">
+          <input id="keyInput" type="text" placeholder="ឧទាហរណ៍៖ 5GSR8Z" class="w-full px-4 py-3.5 pr-20 rounded-xl bg-slate-900 border border-amber-400/50 text-amber-300 font-mono font-extrabold text-base tracking-widest focus:outline-none focus:border-cyan-400 uppercase" />
+          <button id="btnPasteKeyInput" type="button" class="absolute right-2.5 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-bold cursor-pointer">
+            Paste
+          </button>
+        </div>
+        <p id="keyError" class="hidden text-xs text-rose-400 mt-1"></p>
+        <div class="flex gap-2.5">
+          <button type="submit" class="flex-1 bg-gradient-to-r from-amber-400 to-amber-500 hover:brightness-110 text-slate-950 font-extrabold py-3.5 rounded-xl text-sm cursor-pointer">🔓 ដោះសោរស្កេនឥឡូវនេះ</button>
+          <button id="btnKeyToBuy" type="button" class="px-4 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 text-sm font-semibold cursor-pointer">ទិញ KEY</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: BUY KEY PACKAGES -->
+  <div id="buyModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="buy-modal-4k-shell border border-cyan-500/40 rounded-[28px] max-w-md w-full p-5 sm:p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto animate-fadeIn">
+      <canvas id="buyKey4KCanvas"></canvas>
+
+      <button data-close="buyModal" class="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white cursor-pointer">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="relative z-10 flex items-center gap-2.5 mb-1.5">
+        <div class="p-2 rounded-xl bg-amber-400/15 border border-amber-400/40 text-amber-300 shadow-[0_0_20px_rgba(250,204,21,0.3)]">
+          <i data-lucide="key" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-lg sm:text-xl font-extrabold text-white drop-shadow">ជ្រើសរើសតម្លៃកញ្ចប់ KEY ស្កេន</h3>
+          <span class="text-[10px] font-extrabold tracking-widest uppercase text-cyan-300">⚡ 4K DYNAMIC SNIPER ACCESS • ABA KHQR</span>
+        </div>
+      </div>
+      <p class="relative z-10 text-xs text-slate-300 mb-4">
+        ជ្រើសរើសតម្លៃដែលអ្នកចង់បង់ → QR Code និង KEY នឹងបង្កើតតាមតម្លៃនោះដោយស្វ័យប្រវត្តិ (ប្រើបាន ១ ដង)
+      </p>
+
+      <div id="packageList" class="relative z-10 space-y-3">
+        <button type="button" data-pkg="1_SCAN" data-title="KEY ស្កេន 1-ដង" data-price="2.5" data-scans="1" data-hours="0" class="pkg-card w-full p-4 rounded-2xl bg-[#111927]/80 hover:bg-[#172235]/90 border border-slate-700/80 flex items-center justify-between text-left transition-all cursor-pointer">
+          <div>
+            <div class="font-extrabold text-white text-sm sm:text-base">KEY ស្កេន 1-ដង</div>
+            <div class="text-xs text-slate-300 mt-0.5">ប្រើស្កេនបាន 1 ដងគត់ (1-Time KEY)</div>
+          </div>
+          <div class="text-lg sm:text-xl font-extrabold text-[#00e5ff] drop-shadow-[0_0_10px_rgba(0,229,255,0.4)]">2.5$</div>
+        </button>
+
+        <button type="button" data-pkg="2_SCAN" data-title="KEY ស្កេន 2-ដង" data-price="4.5" data-scans="2" data-hours="0" class="pkg-card w-full p-4 rounded-2xl bg-[#111927]/80 hover:bg-[#172235]/90 border border-cyan-500/40 flex items-center justify-between text-left transition-all cursor-pointer">
+          <div>
+            <div class="font-extrabold text-white text-sm sm:text-base">KEY ស្កេន 2-ដង</div>
+            <div class="text-xs text-slate-300 mt-0.5">ប្រើស្កេនបាន 2 ដង (1-Time KEY)</div>
+          </div>
+          <div class="text-lg sm:text-xl font-extrabold text-[#00e5ff] drop-shadow-[0_0_10px_rgba(0,229,255,0.4)]">4.5$</div>
+        </button>
+
+        <button type="button" data-pkg="5_SCAN" data-title="KEY ស្កេន 5-ដង" data-price="8.5" data-scans="5" data-hours="0" class="pkg-card w-full p-4 rounded-2xl bg-[#111927]/80 hover:bg-[#172235]/90 border border-slate-700/80 flex items-center justify-between text-left transition-all cursor-pointer">
+          <div>
+            <div class="font-extrabold text-white text-sm sm:text-base">KEY ស្កេន 5-ដង</div>
+            <div class="text-xs text-slate-300 mt-0.5">ប្រើស្កេនបាន 5 ដង (1-Time KEY)</div>
+          </div>
+          <div class="text-lg sm:text-xl font-extrabold text-[#00e5ff] drop-shadow-[0_0_10px_rgba(0,229,255,0.4)]">8.5$</div>
+        </button>
+
+        <button type="button" data-pkg="24H" data-title="KEY ស្កេន 1-DAY/24H Unlimited" data-price="10" data-scans="0" data-hours="24" class="pkg-card w-full p-4 rounded-2xl bg-[#1f1d14]/80 hover:brightness-110 border border-amber-400/75 flex items-center justify-between text-left transition-all cursor-pointer">
+          <div>
+            <div class="font-extrabold text-amber-300 text-sm sm:text-base">KEY ស្កេន 1-DAY/24H Unlimited</div>
+            <div class="text-xs text-slate-200 mt-0.5">ប្រើមិនកំណត់ក្នុង 24 ម៉ោង</div>
+          </div>
+          <div class="text-lg sm:text-xl font-extrabold text-amber-300 drop-shadow-[0_0_12px_rgba(251,191,36,0.5)]">10$</div>
+        </button>
+
+        <button type="button" data-pkg="168H" data-title="KEY ស្កេន 1-សប្តាហ៍/168H Unlimited" data-price="25" data-scans="0" data-hours="168" class="pkg-card w-full p-4 rounded-2xl bg-[#0c2231]/80 hover:brightness-110 border border-cyan-400/65 flex items-center justify-between text-left transition-all cursor-pointer">
+          <div>
+            <div class="font-extrabold text-[#22d3ee] text-sm sm:text-base">KEY ស្កេន 1-សប្តាហ៍/168H Unlimited</div>
+            <div class="text-xs text-slate-200 mt-0.5">កម្រិតស្កេន <span class="text-[#22d3ee] font-bold">Pro</span></div>
+          </div>
+          <div class="text-lg sm:text-xl font-extrabold text-[#22d3ee] drop-shadow-[0_0_12px_rgba(34,211,238,0.5)]">25$</div>
+        </button>
+
+        <button type="button" data-pkg="720H" data-title="KEY ស្កេន 1-ខែ/720H Unlimited" data-price="35" data-scans="0" data-hours="720" class="pkg-card w-full p-4 rounded-2xl bg-[#1c1632]/80 hover:brightness-110 border border-purple-400/65 flex items-center justify-between text-left transition-all cursor-pointer">
+          <div>
+            <div class="font-extrabold text-purple-300 text-sm sm:text-base">KEY ស្កេន 1-ខែ/720H Unlimited</div>
+            <div class="text-xs text-slate-200 mt-0.5">កម្រិតស្កេន <span class="text-purple-300 font-bold">Epic</span></div>
+          </div>
+          <div class="text-lg sm:text-xl font-extrabold text-purple-300 drop-shadow-[0_0_12px_rgba(192,132,252,0.5)]">35$</div>
+        </button>
+
+        <button type="button" data-pkg="2880H" data-title="KEY ស្កេន 3-ខែ ថែម 1 ខែ / 2880H" data-price="50" data-scans="0" data-hours="2880" class="pkg-card w-full p-4 rounded-2xl bg-[#0b2420]/80 hover:brightness-110 border border-emerald-400/65 flex items-center justify-between text-left transition-all cursor-pointer">
+          <div>
+            <div class="font-extrabold text-emerald-400 text-sm sm:text-base">KEY ស្កេន 3-ខែ ថែម 1 ខែ / 2880H</div>
+            <div class="text-xs text-slate-200 mt-0.5">កម្រិតស្កេន <span class="text-emerald-400 font-bold">Make Profit recover</span></div>
+          </div>
+          <div class="text-lg sm:text-xl font-extrabold text-emerald-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.5)]">50$</div>
+        </button>
+
+        <button type="button" data-pkg="12240H" data-title="KEY ស្កេន 1-ឆ្នាំ ថែម 5 ខែ / 12240H" data-price="80" data-scans="0" data-hours="12240" class="pkg-card w-full p-4 rounded-2xl bg-[#271520]/80 hover:brightness-110 border border-rose-400/65 flex items-center justify-between text-left transition-all cursor-pointer">
+          <div>
+            <div class="font-extrabold text-rose-400 text-sm sm:text-base">KEY ស្កេន 1-ឆ្នាំ ថែម 5 ខែ / 12240H</div>
+            <div class="text-xs text-slate-200 mt-0.5">កម្រិតស្កេន <span class="text-rose-400 font-bold">Profitable Scalping-Swing</span></div>
+          </div>
+          <div class="text-lg sm:text-xl font-extrabold text-rose-400 drop-shadow-[0_0_12px_rgba(251,113,133,0.5)]">80$</div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2B: REAL 1-TIME ABA KHQR PAYMENT -->
+  <div id="khqrModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-[#090f1d] border border-slate-800 rounded-[26px] max-w-md w-full overflow-hidden shadow-2xl relative animate-fadeIn my-auto">
+      <div class="bg-gradient-to-r from-[#0e3368] via-[#0b4870] to-[#0a3c5f] p-4 sm:p-5 text-center relative">
+        <button data-close="khqrModal" class="absolute top-4 right-4 text-slate-200 hover:text-white cursor-pointer">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+        <h3 class="text-lg sm:text-xl font-extrabold text-white tracking-wide">ទូទាត់ប្រាក់ទិញ KEY (1-Time KHQR)</h3>
+        <p id="khqrPkgTitle" class="text-amber-300 font-extrabold text-sm sm:text-base mt-1">
+          KEY ស្កេន 1-ដង - តម្លៃ 2.5$
+        </p>
+      </div>
+
+      <div class="flex border-b border-slate-800 bg-[#0b1322] text-xs sm:text-sm">
+        <button id="tabKhqrDynamic" type="button" class="flex-1 py-2.5 text-center font-extrabold text-[#00e5ff] border-b-2 border-[#00e5ff] cursor-pointer">
+          ⚡ Auto Amount ($)
+        </button>
+        <button id="tabKhqrOriginal" type="button" class="flex-1 py-2.5 text-center font-bold text-slate-400 hover:text-white cursor-pointer">
+          🏦 ABA QR ដើម
+        </button>
+        <a href="https://t.me/KaingChungpor" target="_blank" class="flex-1 py-2.5 text-center font-bold text-slate-400 hover:text-white flex items-center justify-center gap-1">
+          <span>Telegram</span>
+        </a>
+      </div>
+
+      <div class="p-4 sm:p-5 flex flex-col items-center text-center">
+        <div class="w-full mb-3">
+          <div class="text-[11px] text-slate-400 font-semibold mb-1.5">ប្តូរតម្លៃកញ្ចប់ភ្លាមៗ (Choose Price You Pay)៖</div>
+          <div id="quickPriceBtns" class="grid grid-cols-4 gap-1.5 text-xs">
+            <button type="button" data-qpkg="1_SCAN" class="py-1.5 rounded-lg bg-[#131d31] border border-slate-700 text-slate-300 font-bold cursor-pointer">2.5$ (1x)</button>
+            <button type="button" data-qpkg="2_SCAN" class="py-1.5 rounded-lg bg-[#131d31] border border-slate-700 text-slate-300 font-bold cursor-pointer">4.5$ (2x)</button>
+            <button type="button" data-qpkg="5_SCAN" class="py-1.5 rounded-lg bg-[#131d31] border border-slate-700 text-slate-300 font-bold cursor-pointer">8.5$ (5x)</button>
+            <button type="button" data-qpkg="24H" class="py-1.5 rounded-lg bg-[#131d31] border border-slate-700 text-amber-300 font-bold cursor-pointer">10$ (24H)</button>
+            <button type="button" data-qpkg="168H" class="py-1.5 rounded-lg bg-[#131d31] border border-slate-700 text-cyan-300 font-bold cursor-pointer">25$ (7D)</button>
+            <button type="button" data-qpkg="720H" class="py-1.5 rounded-lg bg-[#131d31] border border-slate-700 text-purple-300 font-bold cursor-pointer">35$ (1M)</button>
+            <button type="button" data-qpkg="2880H" class="py-1.5 rounded-lg bg-[#131d31] border border-slate-700 text-emerald-300 font-bold cursor-pointer">50$ (4M)</button>
+            <button type="button" data-qpkg="12240H" class="py-1.5 rounded-lg bg-[#131d31] border border-slate-700 text-rose-300 font-bold cursor-pointer">80$ (17M)</button>
+          </div>
+        </div>
+
+        <div class="bg-white p-3 rounded-2xl shadow-2xl mb-3 relative flex flex-col items-center">
+          <canvas id="khqrCanvas" width="340" height="430" class="w-[235px] sm:w-[255px] h-auto rounded-xl"></canvas>
+          <img id="khqrOriginalImg" src="image_6229bd.jpg" alt="ABA KHQR CHUNG POR KAING" class="hidden w-[235px] sm:w-[255px] h-auto rounded-xl object-contain" />
+          <div id="khqrUsedOverlay" class="hidden absolute inset-0 bg-slate-950/90 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center p-4 text-center">
+            <i data-lucide="check-circle-2" class="w-12 h-12 text-emerald-400 mb-2"></i>
+            <div class="text-white font-extrabold text-sm">KHQR នេះត្រូវបានទូទាត់រួចហើយ!</div>
+            <div class="text-amber-300 text-xs mt-1">QR ប្រើបានតែ ១ ដងគត់</div>
+          </div>
+        </div>
+
+        <div class="w-full grid grid-cols-2 gap-2 mb-3 text-left">
+          <button id="btnCopyUsdAcc" type="button" class="p-2 rounded-xl bg-[#111a2e] hover:bg-[#16223b] border border-cyan-500/30 flex items-center justify-between transition-all cursor-pointer">
+            <div>
+              <div class="text-[10px] text-slate-400 font-bold">$ USD ACCOUNT</div>
+              <div class="text-xs sm:text-sm font-mono font-extrabold text-[#00e5ff]">086 375 171</div>
+            </div>
+            <i data-lucide="copy" class="w-3.5 h-3.5 text-cyan-400"></i>
+          </button>
+
+          <button id="btnCopyKhrAcc" type="button" class="p-2 rounded-xl bg-[#111a2e] hover:bg-[#16223b] border border-amber-500/30 flex items-center justify-between transition-all cursor-pointer">
+            <div>
+              <div class="text-[10px] text-slate-400 font-bold">៛ KHR ACCOUNT</div>
+              <div class="text-xs sm:text-sm font-mono font-extrabold text-amber-300">003 823 710</div>
+            </div>
+            <i data-lucide="copy" class="w-3.5 h-3.5 text-amber-400"></i>
+          </button>
+        </div>
+
+        <p id="khqrStatusText" class="text-xs sm:text-sm text-slate-300 mb-3 font-semibold">
+          រង់ចាំការទូទាត់... (1-Time KHQR)
+        </p>
+
+        <div class="flex items-center justify-center gap-2 w-full mb-3">
+          <button id="btnSaveKhqr" type="button" class="flex-1 py-2.5 px-3 rounded-full bg-[#07263b] hover:bg-[#0b3552] border border-[#00b0ff]/60 text-[#00e5ff] font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>Save KHQR</span>
+          </button>
+
+          <label for="receiptUploadInput" class="flex-1 py-2.5 px-3 rounded-full bg-[#1e293b] hover:bg-[#334155] border border-amber-400/50 text-amber-300 font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+            <i data-lucide="receipt" class="w-4 h-4"></i>
+            <span>ដាក់វិក្កយបត្រ</span>
+          </label>
+          <input id="receiptUploadInput" type="file" accept="image/*" class="hidden" />
+
+          <button id="btnVerifyKhqr" type="button" class="flex-1 py-2.5 px-3 rounded-full bg-[#062e22] hover:bg-[#0a4131] border border-emerald-500/60 text-emerald-400 font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+            <span>ពិនិត្យការបង់</span>
+          </button>
+        </div>
+
+        <div class="w-full flex items-center justify-between text-[11px] text-slate-400 bg-[#0d1526] border border-slate-800 rounded-xl px-3 py-2 mb-3">
+          <span>ឈ្មោះគណនី៖ <strong class="text-white">CHUNG POR KAING</strong></span>
+          <label for="uploadOriginalQrInput" class="text-cyan-400 hover:underline font-bold cursor-pointer flex items-center gap-1">
+            <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
+            <span>ដាក់រូប QR ដើម</span>
+          </label>
+          <input id="uploadOriginalQrInput" type="file" accept="image/*" class="hidden" />
+        </div>
+
+        <div class="w-full p-3 rounded-xl bg-[#191c24] border border-amber-500/40 text-amber-300 text-xs leading-relaxed">
+          ⚠️ KHQR នេះប្រើបានតែម្ដងទេ នឹងផុតកំណត់នៅពេលទូទាត់រួច!<br/>
+          ពេលបង់ប្រាក់រួច ប្រព័ន្ធនឹងបើកផ្ទាំង <strong class="text-white">«កន្លែងទទួលបាន KEY»</strong> ដោយស្វ័យប្រវត្តិ!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2C: កន្លែងទទួលបាន KEY -->
+  <div id="receiveKeyModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-[#0e1525] border border-slate-800/90 rounded-[28px] max-w-md w-full p-6 sm:p-7 shadow-2xl relative animate-fadeIn text-center">
+      <button data-close="receiveKeyModal" class="absolute top-5 right-5 text-slate-400 hover:text-white cursor-pointer">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+
+      <div class="flex justify-center mb-3">
+        <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-400/30 flex items-center justify-center shadow-[0_0_25px_rgba(250,204,21,0.25)]">
+          <i data-lucide="key-round" class="w-9 h-9 text-[#facc15] -rotate-45"></i>
+        </div>
+      </div>
+
+      <h3 class="text-xl sm:text-2xl font-extrabold text-white tracking-wide">
+        កន្លែងទទួលបាន KEY
+      </h3>
+      <p id="receiveKeySubText" class="text-xs sm:text-sm text-slate-400 mt-1.5">
+        ចុច Refresh Key ដើម្បីទាញយក KEY ដែល Admin បាន Approve
+      </p>
+
+      <div id="receiveKeyPkgBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-bold mt-2.5">
+        <span>⚡ កញ្ចប់៖ KEY ស្កេន 1-ដង (2.5$) • ប្រើបាន ១ ដង</span>
+      </div>
+
+      <div class="my-5 p-6 rounded-2xl bg-[#090d18] border-2 border-dashed border-[#eab308]/75 flex flex-col items-center justify-center shadow-inner">
+        <div id="receivedKeyCode" class="font-mono text-2xl sm:text-3xl font-extrabold text-[#facc15] tracking-[0.25em] drop-shadow-[0_0_14px_rgba(250,204,21,0.45)] select-all">
+          5GSR8Z
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-3.5">
+        <button id="btnCopyReceivedKey" type="button" class="py-3.5 px-4 rounded-2xl bg-gradient-to-b from-[#facc15] to-[#d97706] hover:brightness-110 active:scale-95 transition-all text-slate-950 font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(234,179,8,0.35)] cursor-pointer">
+          <i data-lucide="copy" class="w-4 h-4"></i>
+          <span>Copy KEY</span>
+        </button>
+
+        <button id="btnRefreshReceivedKey" type="button" class="py-3.5 px-4 rounded-2xl bg-gradient-to-b from-[#2dd4bf] to-[#0284c7] hover:brightness-110 active:scale-95 transition-all text-white font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.35)] cursor-pointer">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          <span>Refresh Key</span>
+        </button>
+      </div>
+
+      <button id="btnGoToPasteKey" type="button" class="w-full py-3.5 px-4 rounded-2xl bg-[#1c2436] hover:bg-[#263149] active:scale-[0.99] transition-all border border-slate-700/80 text-white font-extrabold text-sm sm:text-base cursor-pointer">
+        ទៅកាន់កន្លែង Paste KEY ដើម្បីស្កេន
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL 3: ADMIN PANEL -->
+  <div id="adminModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#131b2e] border border-cyan-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+      <button data-close="adminModal" class="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="flex items-center gap-2.5 mb-4">
+        <i data-lucide="shield-check" class="w-6 h-6 text-cyan-400"></i>
+        <h3 class="text-lg font-bold text-white">ផ្ទាំង Admin បង្កើត KEY ឱ្យភ្ញៀវ</h3>
+      </div>
+      <form id="adminLoginForm" class="space-y-4">
+        <p class="text-xs text-slate-400">សូមបញ្ចូលលេខកូដសម្ងាត់ Admin (លំនាំដើម៖ <code class="text-cyan-300">9999</code>) ឬ Login គណនី Admin</p>
+        <input id="adminPinInput" type="password" placeholder="បញ្ចូល Admin PIN..." class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm" />
+        <button type="submit" class="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm cursor-pointer">ចូលផ្ទាំងបង្កើត KEY</button>
+      </form>
+      <div id="adminPanel" class="hidden space-y-4">
+        <div>
+          <label class="text-xs text-slate-400 block mb-2 flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 text-cyan-400"></i><span>ជ្រើសរើសប្រភេទ KEY ៦ ខ្ទង់ (1-Time KEY)៖</span></label>
+          <div id="durationBtns" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <button type="button" data-mode="S1" class="py-2 px-2.5 rounded-xl text-xs font-semibold border bg-cyan-500/20 border-cyan-400 text-cyan-300 cursor-pointer">2.5$ (1-ដង)</button>
+            <button type="button" data-mode="S2" class="py-2 px-2.5 rounded-xl text-xs font-semibold border bg-slate-900 border-slate-700 text-slate-300 cursor-pointer">4.5$ (2-ដង)</button>
+            <button type="button" data-mode="S5" class="py-2 px-2.5 rounded-xl text-xs font-semibold border bg-slate-900 border-slate-700 text-slate-300 cursor-pointer">8.5$ (5-ដង)</button>
+            <button type="button" data-mode="H24" class="py-2 px-2.5 rounded-xl text-xs font-semibold border bg-slate-900 border-slate-700 text-amber-300 cursor-pointer">10$ (24H)</button>
+            <button type="button" data-mode="H168" class="py-2 px-2.5 rounded-xl text-xs font-semibold border bg-slate-900 border-slate-700 text-cyan-300 cursor-pointer">25$ (7 ថ្ងៃ)</button>
+            <button type="button" data-mode="H720" class="py-2 px-2.5 rounded-xl text-xs font-semibold border bg-slate-900 border-slate-700 text-purple-300 cursor-pointer">35$ (1 ខែ)</button>
+            <button type="button" data-mode="H2880" class="py-2 px-2.5 rounded-xl text-xs font-semibold border bg-slate-900 border-slate-700 text-emerald-300 cursor-pointer">50$ (4 ខែ)</button>
+            <button type="button" data-mode="H12240" class="py-2 px-2.5 rounded-xl text-xs font-semibold border bg-slate-900 border-slate-700 text-rose-300 cursor-pointer">80$ (17 ខែ)</button>
+          </div>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-950 border border-amber-400/50 text-center">
+          <div class="text-xs text-slate-400 mb-1">លេខ KEY ៦ ខ្ទង់ថ្មី (ប្រើបានតែ ១ ដង)៖</div>
+          <div id="generatedKey" class="font-mono text-2xl font-extrabold text-amber-400 tracking-[0.25em] select-all"></div>
+        </div>
+        <div class="flex gap-2">
+          <button id="btnNewKey" type="button" class="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"><i data-lucide="plus-circle" class="w-4 h-4"></i><span>បង្កើតថ្មី</span></button>
+          <button id="btnCopyMsg" type="button" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"><i data-lucide="copy" class="w-4 h-4"></i><span>Approve & ចម្លង KEY ឱ្យភ្ញៀវ</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: API KEY CONFIG -->
+  <div id="apiModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#131b2e] border border-cyan-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+      <button data-close="apiModal" class="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="flex items-center gap-2.5 mb-4">
+        <i data-lucide="key" class="w-6 h-6 text-cyan-400"></i>
+        <h3 class="text-lg font-bold text-white">កំណត់ Gemini API Key</h3>
+      </div>
+      <form id="apiForm" class="space-y-4">
+        <p class="text-xs text-slate-400">សូមបញ្ចូល Gemini API Key របស់អ្នក (ផ្តើមដោយ <code class="text-cyan-300">AIzaSy...</code>) ឬទុកទទេដើម្បីប្រើប្រព័ន្ធ Auto AI Chart Vision៖</p>
+        <input id="apiInput" type="password" placeholder="AIzaSy..." class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono text-sm" />
+        <button type="submit" class="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm cursor-pointer">រក្សាទុក API Key</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 5: TELEGRAM BOT CONFIGURATION -->
+  <div id="tgBotModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#131b2e] border border-cyan-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl relative animate-fadeIn">
+      <button data-close="tgBotModal" class="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div class="flex items-center gap-2.5 mb-4">
+        <div class="p-2.5 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
+          <i data-lucide="bot" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-white">ភ្ជាប់ Telegram Bot Alerts</h3>
+          <p class="text-xs text-slate-400">សម្រាប់ផ្ញើសារ 🔀 Regime Change និង Signal ស្វ័យប្រវត្តិ</p>
+        </div>
+      </div>
+
+      <form id="tgBotForm" class="space-y-3.5">
+        <div>
+          <label class="text-xs font-bold text-slate-300 block mb-1">1. Telegram Bot Token (ពី @BotFather)</label>
+          <input id="tgBotTokenInput" type="password" placeholder="123456789:AAH..." class="w-full px-3.5 py-3 rounded-xl bg-slate-900 border border-slate-700 text-cyan-300 font-mono text-xs focus:outline-none focus:border-cyan-400" />
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-xs font-bold text-slate-300">2. Telegram Chat ID / Channel ID</label>
+            <button id="btnAutoDetectChatId" type="button" class="text-[11px] font-extrabold text-amber-400 hover:underline cursor-pointer">
+              🔍 ទាញយក Chat ID ស្វ័យប្រវត្តិ
+            </button>
+          </div>
+          <input id="tgChatIdInput" type="text" placeholder="ឧ. 123456789 ឬ -100123456789" class="w-full px-3.5 py-3 rounded-xl bg-slate-900 border border-slate-700 text-amber-300 font-mono text-xs focus:outline-none focus:border-cyan-400" />
+          <p class="text-[11px] text-slate-400 mt-1">💡 ចូលទៅចុច <b>Start</b> ក្នុង Bot របស់អ្នក រួចចុច «ទាញយក Chat ID ស្វ័យប្រវត្តិ»</p>
+        </div>
+
+        <p id="tgModalStatus" class="hidden text-xs font-bold text-center"></p>
+
+        <div class="flex gap-2 pt-1">
+          <button id="btnTestTgBot" type="button" class="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs cursor-pointer">
+            🔔 ផ្ញើសារសាកល្បង
+          </button>
+          <button type="submit" class="flex-1 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs cursor-pointer">
+            រក្សាទុកការកំណត់ Bot
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="scan.js"></script>
+  <script src="scanChart.js"></script>
+</body>
+</html>

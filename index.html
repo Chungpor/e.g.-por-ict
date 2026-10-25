@@ -26,7 +26,21 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
+<!-- 1. TOP LIVE MARKET TICKER BAR -->
+  <div class="w-full bg-[#050811]/90 backdrop-blur-md border-b border-slate-800/80 overflow-hidden py-2 px-3 relative z-20">
+    <div id="tickerTrack" class="ticker-track flex items-center justify-around gap-6 text-xs font-bold tracking-wider whitespace-nowrap">
+      <span class="inline-flex items-center gap-1.5 text-slate-300">USDC <span class="text-slate-500">▬</span></span>
+      <span class="inline-flex items-center gap-1.5 text-emerald-400">SOL <span class="text-[10px]">▲</span></span>
+      <span class="inline-flex items-center gap-1.5 text-amber-400">BNB <span class="text-rose-500 text-[10px]">▼</span></span>
+      <span class="inline-flex items-center gap-1.5 text-slate-300">XRP <span class="text-emerald-400 text-[10px]">▲</span></span>
+      <span class="inline-flex items-center gap-1.5 text-cyan-300">XAUUSD <span class="text-emerald-400 text-[10px]">▲</span></span>
+      <span class="inline-flex items-center gap-1.5 text-cyan-300">XAGUSD <span class="text-rose-500 text-[10px]">▼</span></span>
+      <span class="inline-flex items-center gap-1.5 text-sky-400">USOIL <span class="text-emerald-400 text-[10px]">▲</span></span>
+      <span class="inline-flex items-center gap-1.5 text-purple-400">NASDAQ <span class="text-emerald-400 text-[10px]">▲</span></span>
+      <span class="inline-flex items-center gap-1.5 text-cyan-400">EURUSD <span class="text-rose-500 text-[10px]">▼</span></span>
+      <span class="inline-flex items-center gap-1.5 text-amber-300">BTCUSD <span class="text-emerald-400 text-[10px]">▲</span></span>
+    </div>
+  </div>
   <!-- ==========================================
        DYNAMIC 4K VIDEO BACKGROUND
        ========================================== -->
@@ -74,6 +88,9 @@
 
         <!-- Por AI Chat (Aquamarine #7FFFD4) -->
         <a href="por-ai-chat.html" id="navAiChatLink" class="nav-link nav-link-aquamarine" data-i18n="nav_aichat">Por AI Chat</a>
+
+        <!-- Por - SNR Scanner (Aqua #00FFFF) -->
+        <a href="scan.html" id="navScanLink" class="nav-link nav-link-aqua" data-i18n="nav_scan">Por - SNR Scanner</a>
 
         <!-- Goal Future (Yellow) -->
         <a href="goal.html" id="navTradesLink" class="nav-link nav-link-yellow">Goal Future</a>
@@ -259,6 +276,7 @@
         <a href="triumm-delta.html" id="mobileTerminalLink" class="mobile-nav-link-item nav-terminal-accent" data-i18n="nav_terminal">Triumm Delta</a>
         <a href="chart-analysis.html" id="mobileAnalysisLink" class="mobile-nav-link-item" data-i18n="nav_analysis">Analysis</a>
         <a href="por-ai-chat.html" id="mobileAiChatLink" class="mobile-nav-link-item nav-link-aquamarine" data-i18n="nav_aichat">Por AI Chat</a>
+        <a href="scan.html" id="mobileScanLink" class="mobile-nav-link-item nav-link-aqua" data-i18n="nav_scan">Por - SNR Scanner</a>
         <a href="goal.html" id="mobileTradesLink" class="mobile-nav-link-item nav-link-yellow">Goal Future</a>
         <a href="Preview%20-recent%20signals.html" id="mobilePreviewLink" class="mobile-nav-link-item nav-link-red">Preview - recent signals</a>
         <a href="#membership" id="mobileMembershipLink" class="mobile-nav-link-item" data-i18n="nav_membership">Membership</a>
@@ -580,7 +598,7 @@
       </header>
 
       <!-- ========================================================
-           SECTION: PRODUCTS GRID (7 UNIFIED FEATURE CARDS & BUTTONS)
+           SECTION: PRODUCTS GRID (8 UNIFIED FEATURE CARDS & BUTTONS)
            ======================================================== -->
       <section class="products-dual-grid products-tri-grid">
 
@@ -701,6 +719,27 @@
           </div>
           <p class="promo-card-desc" data-i18n="aichat_desc">Your 24/7 AI trading mentor (POR1.0). Upload chart screenshots with Chart Snap, ask about SMC/ICT concepts, risk sizing, and live setups.</p>
           <a href="por-ai-chat.html" id="openAiChatBtn" class="product-chart-btn btn-aquamarine-action" data-i18n="aichat_btn" onclick="event.stopPropagation();">OPEN POR AI CHAT ➔</a>
+        </div>
+
+        <!-- Feature Card 8: Por - SNR Scanner (Aqua #00FFFF) -->
+        <div class="product-feature-card por-scan-promo-card" onclick="location.href='scan.html'" style="cursor:pointer;">
+          <div class="product-card-badge badge-aqua">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+              <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+              <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+              <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+              <line x1="7" y1="12" x2="17" y2="12"></line>
+              <polyline points="10 9 12 7 14 9"></polyline>
+              <polyline points="10 15 12 17 14 15"></polyline>
+            </svg>
+          </div>
+          <div>
+            <span class="promo-sub-label" data-i18n="scan_sub">AI CHART VISION · MT4 / MT5 / TRADINGVIEW</span>
+            <h3 class="product-card-title" data-i18n="scan_title">Por - SNR Scanner</h3>
+          </div>
+          <p class="promo-card-desc" data-i18n="scan_desc">Drop any chart screenshot to scan KEY Por - SNR zones, NON FARM (4H), CPI (1H) &amp; FOMC Flip setups with exact Entry, SL, TP1 &amp; TP2.</p>
+          <a href="scan.html" id="openScanBtn" class="product-chart-btn btn-aqua-action" data-i18n="scan_btn" onclick="event.stopPropagation();">OPEN POR - SNR SCANNER ➔</a>
         </div>
 
       </section>

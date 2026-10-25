@@ -4316,3 +4316,61 @@ button.product-chart-btn {
   .lc-council-banner-top { align-items: flex-start; flex-direction: column; }
   .lc-chart-levels-strip { align-items: flex-start; flex-direction: column; }
 }
+/* ========================================================
+   AQUA ACCENT (#00FFFF - POR - SNR SCANNER CARD & NAV)
+   ======================================================== */
+:root {
+  --aqua: #00FFFF;
+  --aqua-accent: #00FFFF;
+  --aqua-hover: #00e5ff;
+  --aqua-soft: rgba(0, 255, 255, 0.16);
+  --aqua-border: rgba(0, 255, 255, 0.48);
+  --aqua-glow: rgba(0, 255, 255, 0.42);
+}
+
+[data-theme="light"] {
+  --aqua: #0097a7;
+  --aqua-accent: #0097a7;
+  --aqua-hover: #00838f;
+  --aqua-soft: rgba(0, 151, 167, 0.14);
+  --aqua-border: rgba(0, 151, 167, 0.45);
+  --aqua-glow: rgba(0, 151, 167, 0.28);
+}
+
+.nav-link-aqua {
+  color: var(--aqua) !important;
+  font-weight: 700 !important;
+}
+
+.nav-link-aqua:hover,
+.nav-link-aqua.active {
+  color: #80ffff !important;
+  text-shadow: 0 0 12px var(--aqua-glow);
+}
+
+/* Feature Card 8: Por - SNR Scanner (Aqua #00FFFF) */
+.por-scan-promo-card {
+  --card-accent: #00FFFF;
+  --card-accent-rgb: 0, 255, 255;
+  --card-eyebrow-color: #00FFFF;
+  --card-title-color: #00FFFF;
+}
+
+.por-scan-promo-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--card-accent);
+  opacity: 0.95;
+  z-index: 2;
+}
+
+[data-theme="light"] .por-scan-promo-card {
+  --card-accent: #0097a7;
+  --card-accent-rgb: 0, 151, 167;
+  --card-eyebrow-color: #00838f;
+  --card-title-color: #006064;
+}

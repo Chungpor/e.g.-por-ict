@@ -48,13 +48,14 @@ const FALLBACK_DICT = {
 
 let currentLang = localStorage.getItem("por_lang") || "EN";
 
-// Updated strings including Telegram bot signal (Tomato #ff6347)
+// Updated strings including Por - SNR Scanner (Aqua #00FFFF) & Telegram bot signal (Tomato #ff6347)
 const EXTRA_DICT = {
   EN: {
     nav_terminal: "Triumm Delta",
     nav_analysis: "Analysis",
     nav_indicators: "Indicators",
     nav_aichat: "Por AI Chat",
+    nav_scan: "Por - SNR Scanner",
     nav_tgbot: "Telegram Bot Signal",
     ca_sub: "SIGNAL GENERATOR",
     ca_title: "Chart Analysis",
@@ -69,6 +70,14 @@ const EXTRA_DICT = {
     pac_title: "Por AI Chat",
     pac_desc: "Interactive AI trading command center for XAUUSD, BTCUSDT & NAS100 with Chart Snap vision, live setups, and position sizing.",
     pac_btn: "OPEN POR AI CHAT ➔",
+    aichat_sub: "AI TRADING MENTOR & CHART SNAP",
+    aichat_title: "Por AI Chat",
+    aichat_desc: "Your 24/7 AI trading mentor (POR1.0). Upload chart screenshots with Chart Snap, ask about SMC/ICT concepts, risk sizing, and live setups.",
+    aichat_btn: "OPEN POR AI CHAT ➔",
+    scan_sub: "AI CHART VISION · MT4 / MT5 / TRADINGVIEW",
+    scan_title: "Por - SNR Scanner",
+    scan_desc: "Drop any chart screenshot to scan KEY Por - SNR zones, NON FARM (4H), CPI (1H) & FOMC Flip setups with exact Entry, SL, TP1 & TP2.",
+    scan_btn: "OPEN POR - SNR SCANNER ➔",
     tgbot_sub: "OANDA XAUUSD · US100 · BITCOIN",
     tgbot_title: "Telegram bot signal",
     tgbot_desc: "Real TradingView charts, live EMA/RSI/ATR engine, and interactive Telegram Bot buttons for XAUUSD, US100, and BITCOIN.",
@@ -89,6 +98,7 @@ const EXTRA_DICT = {
     nav_analysis: "វិភាគ",
     nav_indicators: "សូចនាករ (Indicators)",
     nav_aichat: "Por AI Chat",
+    nav_scan: "Por - SNR ស្កេនក្រាហ្វ",
     nav_tgbot: "សញ្ញា Telegram Bot",
     ca_sub: "ឧបករណ៍បង្កើតសញ្ញា",
     ca_title: "វិភាគក្រាហ្វ",
@@ -103,6 +113,14 @@ const EXTRA_DICT = {
     pac_title: "Por AI Chat",
     pac_desc: "មជ្ឈមណ្ឌលជំនួយការជួញដូរ AI សម្រាប់ XAUUSD, BTCUSDT និង NAS100 ជាមួយការវិភាគរូបភាពក្រាហ្វ Chart Snap និងការគណនាហានិភ័យ 1%។",
     pac_btn: "បើក POR AI CHAT ➔",
+    aichat_sub: "ជំនួយការជួញដូរ AI និង CHART SNAP",
+    aichat_title: "Por AI Chat",
+    aichat_desc: "ជំនួយការជួញដូរ AI 24/7 របស់អ្នក (POR1.0)។ បង្ហោះរូបថតក្រាហ្វជាមួយ Chart Snap សួរអំពី SMC/ICT ការគណនាហានិភ័យ និងការរៀបចំជួញដូរផ្ទាល់។",
+    aichat_btn: "បើក POR AI CHAT ➔",
+    scan_sub: "AI ស្កេនក្រាហ្វ · MT4 / MT5 / TRADINGVIEW",
+    scan_title: "Por - SNR Scanner",
+    scan_desc: "ទម្លាក់រូបភាពក្រាហ្វដើម្បីស្កេនរកតំបន់ KEY Por - SNR, ម៉ោងព័ត៌មាន NON FARM (4H), CPI (1H) និង FOMC ជាមួយ Entry, SL, TP1 និង TP2 ភ្លាមៗ។",
+    scan_btn: "បើក POR - SNR SCANNER ➔",
     tgbot_sub: "សញ្ញាជួញដូរផ្ទាល់ · OANDA & BITSTAMP",
     tgbot_title: "Telegram bot signal",
     tgbot_desc: "ក្រាហ្វ TradingView ផ្ទាល់ ប្រព័ន្ធ EMA/RSI/ATR និងប៊ូតុង Telegram Bot សម្រាប់ XAUUSD, US100 និង BITCOIN។",
@@ -229,7 +247,8 @@ const navHomeLink = $("navHomeLink");
 const navNewsLink = $("navNewsLink");
 const navLiveChartLink = $("navLiveChartLink");
 const navIndicatorsLink = $("navIndicatorsLink");
-const navPorAiChatLink = $("navPorAiChatLink");
+const navPorAiChatLink = $("navPorAiChatLink") || $("navAiChatLink");
+const navScanLink = $("navScanLink");
 const navTgBotLink = $("navTgBotLink");
 const navMembershipLink = $("navMembershipLink");
 const navContactLink = $("navContactLink");
@@ -242,7 +261,8 @@ const mobileHomeLink = $("mobileHomeLink");
 const mobileNewsLink = $("mobileNewsLink");
 const mobileLiveChartLink = $("mobileLiveChartLink");
 const mobileIndicatorsLink = $("mobileIndicatorsLink");
-const mobilePorAiChatLink = $("mobilePorAiChatLink");
+const mobilePorAiChatLink = $("mobilePorAiChatLink") || $("mobileAiChatLink");
+const mobileScanLink = $("mobileScanLink");
 const mobileTgBotLink = $("mobileTgBotLink");
 const mobileMembershipLink = $("mobileMembershipLink");
 const mobileContactLink = $("mobileContactLink");
@@ -1264,10 +1284,10 @@ on(mobileMenuBtn, "click", () => { if (mobileMenuDrawer) mobileMenuDrawer.classL
 on(mobileDrawerBackdrop, "click", closeMobileDrawer);
 
 function updateNavActiveLink(activeEl, mobileActiveEl) {
-  [navHomeLink, navNewsLink, navLiveChartLink, navIndicatorsLink, navPorAiChatLink, navTgBotLink, navMembershipLink, navContactLink]
+  [navHomeLink, navNewsLink, navLiveChartLink, navIndicatorsLink, navPorAiChatLink, navScanLink, navTgBotLink, navMembershipLink, navContactLink]
     .forEach((l) => l && l.classList.remove("active"));
   if (activeEl) activeEl.classList.add("active");
-  [mobileHomeLink, mobileNewsLink, mobileLiveChartLink, mobileIndicatorsLink, mobilePorAiChatLink, mobileTgBotLink, mobileMembershipLink, mobileContactLink]
+  [mobileHomeLink, mobileNewsLink, mobileLiveChartLink, mobileIndicatorsLink, mobilePorAiChatLink, mobileScanLink, mobileTgBotLink, mobileMembershipLink, mobileContactLink]
     .forEach((l) => l && l.classList.remove("active"));
   if (mobileActiveEl) mobileActiveEl.classList.add("active");
 }

@@ -1,0 +1,275 @@
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#050811;--card:#111726;--modal:#0e1525;--line:#1e293b;
+  --text:#f1f5f9;--muted:#94a3b8;--soft:#cbd5e1;
+  --cyan:#18ffff;--aqua:#00ffff;--amber:#fbbf24;--rose:#fb7185;--green:#6ee7b7;
+}
+html,body{background:var(--bg);transition:background-color .25s ease,color .25s ease}
+body{
+  font-family:'Inter','Kantumruy Pro','Noto Sans Khmer',sans-serif;
+  color:var(--text);min-height:100vh;-webkit-user-select:none;user-select:none;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select{font-family:inherit}
+a{text-decoration:none}
+svg.lucide{width:1em;height:1em;flex-shrink:0}
+.hidden{display:none!important}
+
+/* Neon Cyan Glow for Title & Auth Modals */
+.neon-cyan-text{
+  color:#18ffff;
+  text-shadow:0 0 18px rgba(24,255,255,.55),0 0 35px rgba(6,182,212,.3);
+}
+
+/* Aqua Back to Main Dashboard Button Glow */
+.aqua-back-btn {
+  box-shadow: 0 0 18px rgba(0, 255, 255, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+.aqua-back-btn:hover {
+  transform: translateY(-1px);
+  border-color: #00ffff;
+  box-shadow: 0 0 28px rgba(0, 255, 255, 0.48), inset 0 1px 2px rgba(255, 255, 255, 0.25);
+}
+
+/* 4K Dynamic Gold Button Glow + Shimmer Sweep (ប៊ូតុង ទិញ KEY) */
+.gold-glow{
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 0 28px rgba(250,204,21,.55),0 0 55px rgba(245,158,11,.25),inset 0 1px 2px rgba(255,255,255,.65);
+  animation:goldPulse4K 3s ease-in-out infinite;
+}
+.gold-glow::after{
+  content:"";
+  position:absolute;
+  top:-50%;left:-120%;
+  width:70%;height:200%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);
+  transform:skewX(-25deg);
+  animation:goldSweep4K 3.2s cubic-bezier(.4,0,.2,1) infinite;
+  pointer-events:none;
+}
+@keyframes goldSweep4K{
+  0%{left:-120%}
+  45%,100%{left:160%}
+}
+@keyframes goldPulse4K{
+  0%,100%{box-shadow:0 0 25px rgba(250,204,21,.5),0 0 45px rgba(245,158,11,.2),inset 0 1px 2px rgba(255,255,255,.6)}
+  50%{box-shadow:0 0 36px rgba(250,204,21,.8),0 0 70px rgba(18,255,255,.28),inset 0 1px 2px rgba(255,255,255,.85)}
+}
+
+/* Cloud Icon Glow */
+.cyan-cloud-glow{
+  filter:drop-shadow(0 0 22px rgba(6,182,212,.65));
+}
+
+/* Telegram Icon Button */
+.tg-icon-btn{
+  box-shadow:0 6px 20px rgba(0,0,0,.6),inset 0 1px 1px rgba(255,255,255,.08);
+}
+
+/* Profile Pill & Winrate Pill */
+.profile-pill{
+  box-shadow:0 8px 25px rgba(0,0,0,.65),0 0 18px rgba(0,229,255,.15);
+}
+.winrate-pill{
+  box-shadow:0 0 20px rgba(0,230,118,.18),inset 0 1px 1px rgba(255,255,255,.12);
+}
+
+@keyframes pingSlow{
+  0%{transform:scale(1);opacity:.85}
+  70%{transform:scale(2.2);opacity:0}
+  100%{transform:scale(2.2);opacity:0}
+}
+.animate-ping-slow{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:pingSlow 2s cubic-bezier(0,0,.2,1) infinite;
+}
+
+/* Live Ticker Animation */
+.ticker-track{
+  animation:tickerSlide 28s linear infinite;
+}
+.ticker-track:hover{
+  animation-play-state:paused;
+}
+@keyframes tickerSlide{
+  0%{transform:translateX(0)}
+  50%{transform:translateX(-8%)}
+  100%{transform:translateX(0)}
+}
+
+/* 4K DYNAMIC TRADING BACKGROUND & GLASSMORPHISM */
+#bgTradeCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(0, 229, 255, 0.14) 0%, transparent 45%),
+    radial-gradient(circle at 82% 25%, rgba(250, 204, 21, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.10) 0%, transparent 50%),
+    linear-gradient(180deg, #03060d 0%, #070d1b 55%, #040710 100%);
+}
+
+/* 4K DYNAMIC BUY KEY MODAL SHELL & CARDS */
+.buy-modal-4k-shell {
+  position: relative;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(250, 204, 21, 0.16) 0%, transparent 42%),
+    radial-gradient(circle at 88% 22%, rgba(0, 229, 255, 0.18) 0%, transparent 46%),
+    radial-gradient(circle at 50% 92%, rgba(139, 92, 246, 0.16) 0%, transparent 50%),
+    rgba(8, 13, 26, 0.88) !important;
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  box-shadow:
+    0 25px 70px -10px rgba(0, 0, 0, 0.88),
+    0 0 45px rgba(0, 229, 255, 0.18),
+    0 0 80px rgba(250, 204, 21, 0.10),
+    inset 0 1px 1px rgba(255, 255, 255, 0.16);
+}
+
+#buyKey4KCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.92;
+}
+
+#packageList .pkg-card {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.22s ease, border-color 0.22s ease;
+  box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.10);
+}
+
+#packageList .pkg-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -110%;
+  width: 65%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+  transform: skewX(-25deg);
+  transition: left 0.55s ease;
+  pointer-events: none;
+}
+
+#packageList .pkg-card:hover {
+  transform: translateY(-3px) scale(1.012);
+  box-shadow:
+    0 16px 35px -8px rgba(0, 0, 0, 0.8),
+    0 0 28px rgba(0, 229, 255, 0.28),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.25);
+}
+
+#packageList .pkg-card:hover::before {
+  left: 140%;
+}
+
+body > *:not(#bgTradeCanvas):not(.fixed) {
+  position: relative;
+  z-index: 10;
+}
+
+.bg-\[\#111726\] {
+  background: rgba(15, 22, 38, 0.72) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.75), 0 0 35px rgba(6, 182, 212, 0.06);
+}
+
+body.light-mode{
+  --bg:#0f172a;
+}
+body.light-mode #bgTradeCanvas {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(6, 182, 212, 0.22) 0%, transparent 50%),
+    radial-gradient(circle at 80% 30%, rgba(59, 130, 246, 0.22) 0%, transparent 50%),
+    linear-gradient(180deg, #0b1325 0%, #111c35 55%, #090f1d 100%);
+}
+
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.animate-fadeIn{animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Action Tags in Result Card */
+.action-tag{padding:.4rem 1rem;border-radius:12px;font-weight:700;font-size:.875rem;display:flex;align-items:center;gap:.4rem}
+.action-tag.buy{background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.5);color:#6ee7b7}
+.action-tag.sell{background:rgba(244,63,94,.2);border:1px solid rgba(244,63,94,.5);color:#fda4af}
+
+.conf-item{display:flex;gap:.5rem;margin-top:.4rem}
+.conf-item span:first-child{color:#22d3ee}
+
+/* Dropzone Drag State */
+#dropZone.dragging{border-color:#22d3ee;background:rgba(8,51,68,.25)}
+#dropZone.has-image{border-color:rgba(6,182,212,.45);background:#0d1320}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ========================================================= */
+/* CUSTOM TELEGRAM BOT & REGIME ALERT GLOW & PULSE EFFECTS   */
+/* ========================================================= */
+
+/* Keyframe: Soft Breathing Halo Glow Pulse */
+@keyframes tgPulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    border-color: rgba(6, 182, 212, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(6, 182, 212, 0.65), 0 0 50px rgba(59, 130, 246, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+    border-color: rgba(6, 182, 212, 0.9);
+  }
+}
+
+/* Keyframe: Amber Warning / Notification Pulse */
+@keyframes tgAmberPulse {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 32px rgba(251, 191, 36, 0.65), 0 0 55px rgba(245, 158, 11, 0.3);
+  }
+}
+
+/* Utility Classes for Telegram Alert Buttons & Preset Cards */
+.tg-glow-card {
+  animation: tgPulseGlow 3s ease-in-out infinite;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tg-glow-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 35px rgba(6, 182, 212, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.35);
+}
+
+.tg-amber-glow-btn {
+  position: relative;
+  overflow: hidden;
+  animation: tgAmberPulse 3.2s ease-in-out infinite;
+}
+
+.tg-amber-glow-btn::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -120%;
+  width: 70%;
+  height: 200%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transform: skewX(-25deg);
+  animation: goldSweep4K 3.5s cubic-bezier(.4, 0, .2, 1) infinite;
+  pointer-events: none;
+}
