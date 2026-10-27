@@ -4,14 +4,10 @@
 const ADMIN_PIN = '9999';
 const SECRET_SALT = 73;
 const TELEGRAM_URL = 'https://t.me/KaingChungpor';
-
-// បញ្ចូល Gemini API Key ពិតប្រាកដដែលផ្តើមដោយ "AIzaSy..." (បង្កើតហ្វ្រីនៅ https://aistudio.google.com/app/apikey)
-// បើទុកទទេ វានឹងប្រើប្រព័ន្ធ Auto AI Chart Vision & OCR ស្វ័យប្រវត្តិដោយមិនលោត Error 401
-const DEFAULT_GEMINI_API_KEY = '';
+const DEFAULT_GEMINI_API_KEY = 'AQ.Ab8RN6JIGppUKXo3-t3leC0YlcItaQOmsqonxRvfKlAxKV3Mng';
 
 const getApiKey = () => {
   const saved = (localStorage.getItem('ksnr_gemini_key') || '').trim();
-  // សម្អាត Key ចាស់ដែលខុសទម្រង់ (ឧ. AQ.Ab8...) ចេញពី localStorage ដោយស្វ័យប្រវត្តិ
   if (saved && !saved.startsWith('AIza')) {
     localStorage.removeItem('ksnr_gemini_key');
     return DEFAULT_GEMINI_API_KEY;
@@ -19,7 +15,6 @@ const getApiKey = () => {
   return saved || DEFAULT_GEMINI_API_KEY;
 };
 
-// ព័ត៌មានគណនី ABA Bank ពិតប្រាកដរបស់អ្នក (ពីរូបភាព ABA KHQR)
 const ABA_MERCHANT_INFO = {
   bakongId: 'abaakhppxxx@abaa',
   bankName: 'ABA Bank',
@@ -31,7 +26,6 @@ const ABA_MERCHANT_INFO = {
   khrAccountDisplay: '003 823 710'
 };
 
-// តារាងកញ្ចប់តម្លៃទាំង 8 (Choose Price You Pay)
 const PACKAGES_MAP = {
   '1_SCAN':  { code: '1_SCAN',  mode: 'S1',     title: 'KEY ស្កេន 1-ដង',                  price: '2.5', scans: 1, hours: 0 },
   '2_SCAN':  { code: '2_SCAN',  mode: 'S2',     title: 'KEY ស្កេន 2-ដង',                  price: '4.5', scans: 2, hours: 0 },
@@ -43,12 +37,7 @@ const PACKAGES_MAP = {
   '12240H':  { code: '12240H',  mode: 'H12240', title: 'KEY ស្កេន 1-ឆ្នាំ ថែម 5 ខែ / 12240H', price: '80', scans: 0, hours: 12240 }
 };
 
-// គណនី Admin ទាំងពីរដែលមានសិទ្ធិស្កេនឥតដែនកំណត់ (Unlimited Scan)
-const ADMIN_EMAILS = [
-  'chungpor908@gmail.com',
-  'yutagoma908@gmail.com'
-];
-
+const ADMIN_EMAILS = ['chungpor908@gmail.com', 'yutagoma908@gmail.com'];
 const MASTER_KEYS = ['KSNR-VIP', 'KSNR-2026', 'ADMIN-999', 'KSNR-UNLIMITED'];
 
 function isAdminUser(user) {
@@ -57,33 +46,25 @@ function isAdminUser(user) {
 }
 
 // ==========================================
-// 2. 6-CHAR ONE-TIME KEY GENERATOR & VERIFIER (e.g. 5GSR8Z)
+// 2. 6-CHAR ONE-TIME KEY GENERATOR & VERIFIER
 // ==========================================
 const KEY_CHARSET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
 
 const MODE_TO_PREFIX = {
-  S1: '5',     // 2.5$ (1 Scan)
-  S2: '2',     // 4.5$ (2 Scans)
-  S5: '8',     // 8.5$ (5 Scans)
-  H24: 'D',    // 10$ (24 Hours)
-  H168: 'W',   // 25$ (168 Hours)
-  H720: 'M',   // 35$ (720 Hours)
-  H2880: 'Q',  // 50$ (2880 Hours)
-  H12240: 'Y', // 80$ (12240 Hours)
-  VIP: 'V'     // VIP
+  S1: '5', S2: '2', S5: '8', H24: 'D', H168: 'W', H720: 'M', H2880: 'Q', H12240: 'Y', VIP: 'V'
 };
 
 const PREFIX_TO_SPEC = {
-  '5': { mode: 'S1',     scans: 1, hours: 0,     price: '2.5', label: 'ស្កេន 1-ដង (2.5$)' },
-  '1': { mode: 'S1',     scans: 1, hours: 0,     price: '2.5', label: 'ស្កេន 1-ដង (2.5$)' },
-  '2': { mode: 'S2',     scans: 2, hours: 0,     price: '4.5', label: 'ស្កេន 2-ដង (4.5$)' },
-  '8': { mode: 'S5',     scans: 5, hours: 0,     price: '8.5', label: 'ស្កេន 5-ដង (8.5$)' },
-  'D': { mode: 'H24',    scans: 0, hours: 24,    price: '10',  label: '24 ម៉ោង (10$)' },
-  'W': { mode: 'H168',   scans: 0, hours: 168,   price: '25',  label: '1 សប្តាហ៍ (25$)' },
-  'M': { mode: 'H720',   scans: 0, hours: 720,   price: '35',  label: '1 ខែ (35$)' },
-  'Q': { mode: 'H2880',  scans: 0, hours: 2880,  price: '50',  label: '4 ខែ (50$)' },
-  'Y': { mode: 'H12240', scans: 0, hours: 12240, price: '80',  label: '1 ឆ្នាំ ថែម 5 ខែ (80$)' },
-  'V': { mode: 'VIP',    scans: 0, hours: 999999,price: 'VIP', label: 'VIP Unlimited' }
+  '5': { mode: 'S1',     scans: 1, hours: 0,      price: '2.5', label: 'ស្កេន 1-ដង (2.5$)' },
+  '1': { mode: 'S1',     scans: 1, hours: 0,      price: '2.5', label: 'ស្កេន 1-ដង (2.5$)' },
+  '2': { mode: 'S2',     scans: 2, hours: 0,      price: '4.5', label: 'ស្កេន 2-ដង (4.5$)' },
+  '8': { mode: 'S5',     scans: 5, hours: 0,      price: '8.5', label: 'ស្កេន 5-ដង (8.5$)' },
+  'D': { mode: 'H24',    scans: 0, hours: 24,     price: '10',  label: '24 ម៉ោង (10$)' },
+  'W': { mode: 'H168',   scans: 0, hours: 168,    price: '25',  label: '1 សប្តាហ៍ (25$)' },
+  'M': { mode: 'H720',   scans: 0, hours: 720,    price: '35',  label: '1 ខែ (35$)' },
+  'Q': { mode: 'H2880',  scans: 0, hours: 2880,   price: '50',  label: '4 ខែ (50$)' },
+  'Y': { mode: 'H12240', scans: 0, hours: 12240,  price: '80',  label: '1 ឆ្នាំ ថែម 5 ខែ (80$)' },
+  'V': { mode: 'VIP',    scans: 0, hours: 999999, price: 'VIP', label: 'VIP Unlimited' }
 };
 
 function compute6CharChecksum(prefix4) {
@@ -91,23 +72,18 @@ function compute6CharChecksum(prefix4) {
   for (let i = 0; i < prefix4.length; i++) {
     sum = (sum * 37 + prefix4.charCodeAt(i) * (i + 3)) % 1024;
   }
-  const c1 = KEY_CHARSET[sum % KEY_CHARSET.length];
-  const c2 = KEY_CHARSET[Math.floor(sum / KEY_CHARSET.length) % KEY_CHARSET.length];
-  return `${c1}${c2}`;
+  return `${KEY_CHARSET[sum % KEY_CHARSET.length]}${KEY_CHARSET[Math.floor(sum / KEY_CHARSET.length) % KEY_CHARSET.length]}`;
 }
 
 function getKeyRegistry() {
   try { return JSON.parse(localStorage.getItem('ksnr_issued_keys') || '{}'); } catch (e) { return {}; }
 }
-
 function saveKeyRegistry(reg) {
   localStorage.setItem('ksnr_issued_keys', JSON.stringify(reg));
 }
-
 function getKeyUsageMap() {
   try { return JSON.parse(localStorage.getItem('ksnr_key_usage') || '{}'); } catch (e) { return {}; }
 }
-
 function saveKeyUsageMap(map) {
   localStorage.setItem('ksnr_key_usage', JSON.stringify(map));
 }
@@ -115,27 +91,15 @@ function saveKeyUsageMap(map) {
 function generateSmartKey(mode = 'S1', qrSessionId = '') {
   const prefix = MODE_TO_PREFIX[mode] || '5';
   let body = '';
-  for (let i = 0; i < 3; i++) {
-    body += KEY_CHARSET[Math.floor(Math.random() * KEY_CHARSET.length)];
-  }
+  for (let i = 0; i < 3; i++) body += KEY_CHARSET[Math.floor(Math.random() * KEY_CHARSET.length)];
   const first4 = `${prefix}${body}`;
-  const check2 = compute6CharChecksum(first4);
-  const key = `${first4}${check2}`;
+  const key = `${first4}${compute6CharChecksum(first4)}`;
 
   const spec = PREFIX_TO_SPEC[prefix] || PREFIX_TO_SPEC['5'];
   const reg = getKeyRegistry();
   reg[key] = {
-    key,
-    mode: spec.mode,
-    scans: spec.scans,
-    hours: spec.hours,
-    price: spec.price,
-    label: spec.label,
-    qrSessionId: qrSessionId || `QR-${Date.now()}`,
-    createdAt: Date.now(),
-    activatedAt: null,
-    redeemedBy: null,
-    exhausted: false
+    key, mode: spec.mode, scans: spec.scans, hours: spec.hours, price: spec.price, label: spec.label,
+    qrSessionId: qrSessionId || `QR-${Date.now()}`, createdAt: Date.now(), activatedAt: null, redeemedBy: null, exhausted: false
   };
   saveKeyRegistry(reg);
   localStorage.setItem('ksnr_latest_approved_key', key);
@@ -145,74 +109,41 @@ function generateSmartKey(mode = 'S1', qrSessionId = '') {
 function verifySmartKey(inputKey, currentUserIdentifier = '') {
   if (!inputKey) return { valid: false, reason: 'សូមបញ្ចូលលេខ KEY!' };
   const clean = inputKey.trim().toUpperCase();
-
-  if (MASTER_KEYS.includes(clean)) {
-    return { valid: true, type: 'VIP Unlimited Lifetime', unlimited: true };
-  }
+  if (MASTER_KEYS.includes(clean)) return { valid: true, type: 'VIP Unlimited Lifetime', unlimited: true };
 
   const reg = getKeyRegistry();
   const usage = getKeyUsageMap();
 
   if (clean.length === 6 && !clean.includes('-')) {
-    const prefix = clean[0];
-    const spec = PREFIX_TO_SPEC[prefix];
-    const expectedCheck = compute6CharChecksum(clean.slice(0, 4));
-
-    if (!spec || clean.slice(4, 6) !== expectedCheck) {
+    const spec = PREFIX_TO_SPEC[clean[0]];
+    if (!spec || clean.slice(4, 6) !== compute6CharChecksum(clean.slice(0, 4))) {
       return { valid: false, reason: 'លេខ KEY មិនត្រឹមត្រូវទេ! សូមពិនិត្យម្ដងទៀត។' };
     }
-
     const record = reg[clean] || {
-      key: clean,
-      mode: spec.mode,
-      scans: spec.scans,
-      hours: spec.hours,
-      price: spec.price,
-      label: spec.label,
-      createdAt: Date.now(),
-      activatedAt: null,
-      redeemedBy: null,
-      exhausted: false
+      key: clean, mode: spec.mode, scans: spec.scans, hours: spec.hours, price: spec.price, label: spec.label,
+      createdAt: Date.now(), activatedAt: null, redeemedBy: null, exhausted: false
     };
-
-    if (record.exhausted) {
-      return { valid: false, reason: '⚠️ KEY នេះត្រូវបានប្រើរួចហើយ (ប្រើបានតែ ១ ដងគត់)! សូមទិញ KEY ថ្មី។' };
-    }
-
+    if (record.exhausted) return { valid: false, reason: '⚠️ KEY នេះត្រូវបានប្រើរួចហើយ (1-Time KEY)! សូមទិញ KEY ថ្មី។' };
     if (record.redeemedBy && currentUserIdentifier && record.redeemedBy !== currentUserIdentifier) {
-      return { valid: false, reason: '⚠️ KEY នេះត្រូវបានដោះសោរប្រើប្រាស់រួចហើយ! មិនអាចប្រើស្ទួនបានទេ។' };
+      return { valid: false, reason: '⚠️ KEY នេះត្រូវបានដោះសោរប្រើប្រាស់រួចហើយ!' };
     }
-
     if (spec.scans > 0) {
       const used = usage[clean] || 0;
       const left = spec.scans - used;
       if (left <= 0) {
-        record.exhausted = true;
-        reg[clean] = record;
-        saveKeyRegistry(reg);
-        return { valid: false, reason: '⚠️ KEY នេះប្រើអស់ចំនួនដងហើយ (1-Time KEY)! សូមទិញ KEY ថ្មី។' };
+        record.exhausted = true; reg[clean] = record; saveKeyRegistry(reg);
+        return { valid: false, reason: '⚠️ KEY នេះប្រើអស់ចំនួនដងហើយ! សូមទិញ KEY ថ្មី។' };
       }
-      return {
-        valid: true,
-        type: `${spec.label} • នៅសល់ ${left}/${spec.scans} ដង`,
-        scansLeft: left,
-        maxScans: spec.scans
-      };
+      return { valid: true, type: `${spec.label} • នៅសល់ ${left}/${spec.scans} ដង`, scansLeft: left, maxScans: spec.scans };
     }
-
-    if (spec.hours >= 999999) {
-      return { valid: true, type: 'VIP Unlimited', unlimited: true };
-    }
+    if (spec.hours >= 999999) return { valid: true, type: 'VIP Unlimited', unlimited: true };
 
     const startMs = record.activatedAt || Date.now();
     const expMs = startMs + spec.hours * 3600000;
     if (Date.now() > expMs) {
-      record.exhausted = true;
-      reg[clean] = record;
-      saveKeyRegistry(reg);
+      record.exhausted = true; reg[clean] = record; saveKeyRegistry(reg);
       return { valid: false, reason: '⚠️ KEY នេះផុតកំណត់ម៉ោងប្រើប្រាស់ហើយ! សូមទិញ KEY ថ្មី។' };
     }
-
     const hoursLeft = Math.max(1, Math.ceil((expMs - Date.now()) / 3600000));
     const timeLabel = hoursLeft >= 48 ? `នៅសល់ ${Math.ceil(hoursLeft / 24)} ថ្ងៃ` : `នៅសល់ ${hoursLeft} ម៉ោង`;
     return { valid: true, type: `${spec.label} (${timeLabel})` };
@@ -229,9 +160,7 @@ function verifySmartKey(inputKey, currentUserIdentifier = '') {
     }
     const used = usage[clean] || 0;
     const left = maxScans - used;
-    if (left <= 0) {
-      return { valid: false, reason: 'លេខ KEY នេះប្រើអស់ចំនួនដងហើយ! សូមទិញ KEY ថ្មី។' };
-    }
+    if (left <= 0) return { valid: false, reason: 'លេខ KEY នេះប្រើអស់ចំនួនដងហើយ! សូមទិញ KEY ថ្មី។' };
     return { valid: true, type: `នៅសល់ ${left}/${maxScans} ដង`, scansLeft: left, maxScans };
   }
 
@@ -244,10 +173,7 @@ function consumeKeyScanIfNeeded() {
   if (!savedKey) return false;
   const userId = state.user ? state.user.identifier : '';
   const check = verifySmartKey(savedKey, userId);
-  if (!check.valid) {
-    lock();
-    return false;
-  }
+  if (!check.valid) { lock(); return false; }
 
   if (typeof check.scansLeft === 'number') {
     const usage = getKeyUsageMap();
@@ -259,7 +185,6 @@ function consumeKeyScanIfNeeded() {
       reg[savedKey].exhausted = true;
       saveKeyRegistry(reg);
     }
-
     addHistoryLog('SCAN', `បានប្រើ KEY (${savedKey}) ស្កេន Chart ១ ដង (${state.tradeStyle})`);
     const after = verifySmartKey(savedKey, userId);
     if (after.valid) {
@@ -277,7 +202,7 @@ function consumeKeyScanIfNeeded() {
 }
 
 // ==========================================
-// 3. STATE + HELPERS (WITH SCALPING vs SWING TRADE)
+// 3. STATE + HELPERS
 // ==========================================
 const $ = (id) => document.getElementById(id);
 const state = {
@@ -286,7 +211,9 @@ const state = {
   mime: 'image/png',
   scanning: false,
   result: null,
-  tradeStyle: localStorage.getItem('ksnr_trade_style') || 'SCALPING', // 'SCALPING' | 'SWING'
+  activeLobbyItemId: null,
+  lobbyFilter: 'ALL',
+  tradeStyle: localStorage.getItem('ksnr_trade_style') || 'SCALPING',
   selectedPair: 'AUTO',
   selectedTf: 'AUTO',
   adminAuth: false,
@@ -298,7 +225,15 @@ const state = {
   khqrMode: 'dynamic',
   rawAbaKhqrPayload: localStorage.getItem('ksnr_raw_aba_khqr') || '',
   customAbaQrImg: localStorage.getItem('ksnr_custom_aba_qr_img') || '',
-  winrate: parseFloat(localStorage.getItem('ksnr_winrate') || '91.8'),
+  winrate: parseFloat(localStorage.getItem('ksnr_winrate') || '91.9'),
+  winrateTrendUp: true,
+  pairWinrates: {
+    XAUUSD:  { label: 'XAUUSD (Gold Sniper)',       color: 'text-amber-300',  rate: 92.4, trendUp: true },
+    BTCUSD:  { label: 'BTCUSD (Crypto SMC)',        color: 'text-cyan-300',   rate: 91.2, trendUp: true },
+    ETHUSDT: { label: 'ETHUSDT (Ethereum Sniper)',  color: 'text-blue-300',   rate: 91.5, trendUp: true },
+    USOIL:   { label: 'USOIL (Crude Oil Sniper)',   color: 'text-rose-300',   rate: 90.9, trendUp: true },
+    NEWS:    { label: 'NON FARM / CPI / FOMC FLIP', color: 'text-purple-300', rate: 91.8, trendUp: true }
+  },
   lang: localStorage.getItem('ksnr_lang') || 'km',
   user: JSON.parse(localStorage.getItem('ksnr_current_user') || 'null')
 };
@@ -312,22 +247,21 @@ function flashButton(btn, doneHtml, originalHtml) {
   if (!btn) return;
   btn.innerHTML = doneHtml;
   icons();
-  setTimeout(() => {
-    btn.innerHTML = originalHtml;
-    icons();
-  }, 2200);
+  setTimeout(() => { btn.innerHTML = originalHtml; icons(); }, 2200);
 }
 
 // ==========================================
 // 3B. SCALPING vs SWING TRADE MODE SELECTOR & 9-TF CONTROL BAR
 // ==========================================
-function setTradeStyle(style, autoRescanIfResult = false) {
+function setTradeStyle(style, userClickedChoice = false) {
   state.tradeStyle = style === 'SWING' ? 'SWING' : 'SCALPING';
   localStorage.setItem('ksnr_trade_style', state.tradeStyle);
 
   const btnScalp = $('btnModeScalping');
   const btnSwing = $('btnModeSwing');
   const badge = $('activeTradeStyleBadge');
+  const resScalp = $('btnResSwitchScalp');
+  const resSwing = $('btnResSwitchSwing');
 
   if (btnScalp && btnSwing) {
     if (state.tradeStyle === 'SCALPING') {
@@ -343,56 +277,52 @@ function setTradeStyle(style, autoRescanIfResult = false) {
     }
   }
 
-  if (badge) {
+  if (resScalp && resSwing) {
     if (state.tradeStyle === 'SCALPING') {
-      badge.textContent = '⚡ SCALPING MODE';
-      badge.className = 'px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-[10px] font-extrabold uppercase';
+      resScalp.className = 'px-3 py-1 rounded-lg bg-cyan-500 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(6,182,212,0.45)]';
+      resSwing.className = 'px-3 py-1 rounded-lg bg-amber-500/20 border border-amber-400/50 text-amber-300 font-extrabold cursor-pointer hover:brightness-110';
     } else {
-      badge.textContent = '🌊 SWING TRADE MODE';
-      badge.className = 'px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300 text-[10px] font-extrabold uppercase';
+      resSwing.className = 'px-3 py-1 rounded-lg bg-amber-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(251,191,36,0.45)]';
+      resScalp.className = 'px-3 py-1 rounded-lg bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 font-extrabold cursor-pointer hover:brightness-110';
     }
+  }
+
+  if (badge) {
+    badge.textContent = state.tradeStyle === 'SCALPING' ? '⚡ SCALPING MODE' : '🌊 SWING TRADE MODE';
+    badge.className = state.tradeStyle === 'SCALPING'
+      ? 'px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-[10px] font-extrabold uppercase'
+      : 'px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300 text-[10px] font-extrabold uppercase';
   }
 
   renderScanButton();
 
-  if (autoRescanIfResult && state.imageBase64 && state.result && !state.scanning && typeof window.recalculateResultForTradeStyle === 'function') {
-    window.recalculateResultForTradeStyle(state.tradeStyle);
+  if (userClickedChoice && state.imageBase64 && !state.scanning) {
+    if (state.result && typeof window.recalculateResultForTradeStyle === 'function') {
+      window.recalculateResultForTradeStyle(state.tradeStyle);
+    } else if ($('chkInstantStyleScan')?.checked && typeof window.scanChart === 'function') {
+      window.scanChart();
+    }
   }
 }
 
-$('btnModeScalping')?.addEventListener('click', (e) => {
-  e.stopPropagation();
-  setTradeStyle('SCALPING', true);
-});
-
-$('btnModeSwing')?.addEventListener('click', (e) => {
-  e.stopPropagation();
-  setTradeStyle('SWING', true);
-});
-
+$('btnModeScalping')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('SCALPING', true); });
+$('btnModeSwing')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('SWING', true); });
+$('btnResSwitchScalp')?.addEventListener('click', () => setTradeStyle('SCALPING', true));
+$('btnResSwitchSwing')?.addEventListener('click', () => setTradeStyle('SWING', true));
 $('tradeStyleBox')?.addEventListener('click', (e) => e.stopPropagation());
-
-$('livePairSelect')?.addEventListener('change', (e) => {
-  state.selectedPair = e.target.value || 'AUTO';
-});
+$('livePairSelect')?.addEventListener('change', (e) => { state.selectedPair = e.target.value || 'AUTO'; });
 
 document.querySelectorAll('#tfSelectorBar .tf-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
     const tf = btn.dataset.tf || 'AUTO';
     state.selectedTf = tf;
-
     document.querySelectorAll('#tfSelectorBar .tf-btn').forEach((b) => {
-      const isActive = b.dataset.tf === tf;
-      b.className = isActive
+      b.className = b.dataset.tf === tf
         ? 'tf-btn py-1.5 rounded-xl bg-cyan-500 text-slate-950 border border-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.4)] cursor-pointer'
         : 'tf-btn py-1.5 rounded-xl bg-[#131d31] text-slate-300 border border-slate-700 hover:border-cyan-400 cursor-pointer';
     });
-
-    if (['1m', '3m', '5m', '15m'].includes(tf)) {
-      setTradeStyle('SCALPING', true);
-    } else if (['30m', '1h', '4h', '1d', '1w'].includes(tf)) {
-      setTradeStyle('SWING', true);
-    }
+    if (['1m', '3m', '5m', '15m'].includes(tf)) setTradeStyle('SCALPING', true);
+    else if (['30m', '1h', '4h', '1d', '1w'].includes(tf)) setTradeStyle('SWING', true);
   });
 });
 
@@ -423,13 +353,112 @@ function saveUsers(list) {
 })();
 
 // ==========================================
-// 5. WINRATE LIVE ACTION ENGINE (91.8%)
+// 5. WINRATE LIVE ACTION ENGINE (DYNAMIC GREEN & CORAL-RED + ETHUSDT & USOIL)
 // ==========================================
+function ensureLiveWinrateModalList() {
+  const modal = $('winrateModal');
+  if (!modal) return null;
+  let listEl = $('winrateLivePairsList');
+  if (!listEl) {
+    listEl = modal.querySelector('.space-y-2\\.5.text-xs.sm\\:text-sm.mb-5');
+    if (listEl) listEl.id = 'winrateLivePairsList';
+  }
+  return listEl;
+}
+
+function renderLiveWinrateModalRows() {
+  const listEl = ensureLiveWinrateModalList();
+  if (!listEl) return;
+
+  const order = ['XAUUSD', 'BTCUSD', 'ETHUSDT', 'USOIL', 'NEWS'];
+  listEl.innerHTML = order.map((key) => {
+    const item = state.pairWinrates[key];
+    const isGreen = item.rate >= 90.0 && item.trendUp;
+    const rateNumColor = isGreen ? 'text-[#00e676]' : 'text-[#ff686b]';
+    const waveHex = isGreen ? '#00e676' : '#ff5252';
+    const yEnd = isGreen ? '4.8' : '8.6';
+    const yMid = isGreen ? '7.6' : '6.2';
+
+    return `
+      <div class="p-3 rounded-xl bg-slate-900/85 backdrop-blur-md border ${isGreen ? 'border-slate-800' : 'border-rose-500/40'} flex justify-between items-center transition-all relative z-10">
+        <span class="font-bold ${item.color}">${item.label}</span>
+        <div class="flex items-center gap-2.5">
+          <span class="font-extrabold">
+            <span class="${rateNumColor} transition-colors duration-300">${item.rate.toFixed(1)}</span><span class="text-[#00e676]">% WIN</span>
+          </span>
+          <svg class="w-9 h-3 overflow-visible fill-none" style="stroke:${waveHex}" viewBox="0 0 36 12" stroke-width="2" stroke-linecap="round">
+            <path d="M1 7 C11 7, 19 ${yMid}, 33 ${yEnd}" />
+            <circle cx="33" cy="${yEnd}" r="2" style="fill:${waveHex}" />
+          </svg>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
 function updateWinrateUI() {
-  const formatted = state.winrate.toFixed(1) + '%';
-  if ($('winrateText')) $('winrateText').textContent = `Winrate ${formatted}`;
-  if ($('modalWinrateSub')) $('modalWinrateSub').textContent = `អត្រាជោគជ័យបច្ចុប្បន្ន៖ ${formatted}`;
-  localStorage.setItem('ksnr_winrate', state.winrate.toFixed(1));
+  const numStr = state.winrate.toFixed(1);
+  const isGreenState = state.winrate >= 90.0 && state.winrateTrendUp;
+
+  const pillText = $('winrateText');
+  const wavePath = $('winrateWavePath');
+  const waveDot = $('winrateDot');
+  const svgEl = wavePath?.closest('svg');
+
+  if (pillText) {
+    if (isGreenState) {
+      pillText.innerHTML = `Winrate <span class="text-[#00e676] transition-colors duration-300">${numStr}</span>%`;
+    } else {
+      pillText.innerHTML = `Winrate <span class="text-[#ff686b] transition-colors duration-300">${numStr}</span>%`;
+    }
+  }
+
+  const waveHex = isGreenState ? '#00e676' : '#ff5252';
+  if (svgEl) svgEl.style.stroke = waveHex;
+  if (waveDot) {
+    waveDot.style.fill = waveHex;
+    if (waveDot.nextElementSibling) waveDot.nextElementSibling.style.fill = waveHex;
+  }
+
+  if ($('modalWinrateSub')) {
+    $('modalWinrateSub').innerHTML = `អត្រាជោគជ័យបច្ចុប្បន្ន៖ <span class="${isGreenState ? 'text-[#00e676]' : 'text-[#ff686b]'} font-extrabold">${numStr}%</span>`;
+  }
+
+  renderLiveWinrateModalRows();
+  localStorage.setItem('ksnr_winrate', numStr);
+}
+
+function tickLiveWinrateAction() {
+  const keys = Object.keys(state.pairWinrates);
+  let sum = 0;
+
+  keys.forEach((k) => {
+    const item = state.pairWinrates[k];
+    const roll = Math.random();
+    let nextRate;
+    if (roll < 0.24) {
+      nextRate = +(89.2 + Math.random() * 1.9).toFixed(1);
+      item.trendUp = false;
+    } else {
+      const delta = (Math.random() - 0.45) * 0.5;
+      nextRate = Math.max(90.2, Math.min(94.6, +(item.rate + delta).toFixed(1)));
+      item.trendUp = nextRate >= item.rate;
+    }
+    item.rate = nextRate;
+    sum += nextRate;
+  });
+
+  const mainRoll = Math.random();
+  if (mainRoll < 0.28) {
+    state.winrate = +(89.3 + Math.random() * 0.6).toFixed(1);
+    state.winrateTrendUp = false;
+  } else {
+    const avg = sum / keys.length;
+    state.winrate = Math.max(90.4, Math.min(94.2, +(avg + (Math.random() - 0.45) * 0.4).toFixed(1)));
+    state.winrateTrendUp = true;
+  }
+
+  updateWinrateUI();
 }
 
 $('btnWinrateAction')?.addEventListener('click', () => {
@@ -438,12 +467,22 @@ $('btnWinrateAction')?.addEventListener('click', () => {
 });
 
 $('btnRecordWin')?.addEventListener('click', () => {
-  state.winrate = Math.min(98.9, +(state.winrate + 0.1).toFixed(1));
+  state.winrate = Math.min(98.9, +(state.winrate + 0.3).toFixed(1));
+  state.winrateTrendUp = true;
+  Object.keys(state.pairWinrates).forEach((k) => {
+    state.pairWinrates[k].rate = Math.min(96.8, +(state.pairWinrates[k].rate + 0.3).toFixed(1));
+    state.pairWinrates[k].trendUp = true;
+  });
   updateWinrateUI();
 });
 
 $('btnRecordLoss')?.addEventListener('click', () => {
-  state.winrate = Math.max(85.0, +(state.winrate - 0.1).toFixed(1));
+  state.winrate = +(89.5 + Math.random() * 0.4).toFixed(1);
+  state.winrateTrendUp = false;
+  Object.keys(state.pairWinrates).forEach((k) => {
+    state.pairWinrates[k].rate = Math.max(88.9, +(state.pairWinrates[k].rate - 0.4).toFixed(1));
+    state.pairWinrates[k].trendUp = false;
+  });
   updateWinrateUI();
 });
 
@@ -451,24 +490,35 @@ setInterval(() => {
   const path = $('winrateWavePath');
   const dot = $('winrateDot');
   if (!path || !dot) return;
-  const y = (5.2 + Math.sin(Date.now() / 600) * 1.4).toFixed(1);
-  path.setAttribute('d', `M1 7 C12 7, 20 9, 30 8 C35 7.5, 38 6.5, 41 ${y}`);
-  dot.setAttribute('cy', y);
-  dot.nextElementSibling?.setAttribute('cy', y);
+
+  const isGreenState = state.winrate >= 90.0 && state.winrateTrendUp;
+  const wave = Math.sin(Date.now() / 420) * 0.9;
+
+  if (isGreenState) {
+    const y = (5.5 + wave).toFixed(1);
+    path.setAttribute('d', `M1 7.5 C12 7.5, 22 8.3, 31 7.4 C36 6.8, 38.5 6.0, 41 ${y}`);
+    dot.setAttribute('cy', y);
+    dot.nextElementSibling?.setAttribute('cy', y);
+  } else {
+    const y = (8.2 + wave * 0.5).toFixed(1);
+    path.setAttribute('d', `M1 7.0 C12 7.0, 22 6.5, 31 7.3 C36 7.7, 38.5 8.0, 41 ${y}`);
+    dot.setAttribute('cy', y);
+    dot.nextElementSibling?.setAttribute('cy', y);
+  }
 }, 250);
+
+setInterval(tickLiveWinrateAction, 1800);
 
 // ==========================================
 // 6. LANGUAGE SWITCHER & THEME
 // ==========================================
 const I18N = {
   en: {
-    flag: 'GB',
-    label: 'English',
+    flag: 'GB', label: 'English',
     backDashboardTop: 'Back to Main Dashboard',
     backDashboardBottom: '← Back to Main Dashboard',
     subtitle: 'Transform market complexity into precise entry points',
-    buyKey: 'BUY KEY',
-    locked: 'Locked • No KEY',
+    buyKey: 'BUY KEY', locked: 'Locked • No KEY',
     dropTitle: 'Drop your Chart image here',
     dropSub: 'Members must Login and activate a <span class="text-[#facc15] font-bold">Special KEY</span> to scan (Admin Unlimited Scan)',
     enterKeyBtn: 'Enter KEY to Scan',
@@ -478,13 +528,11 @@ const I18N = {
     swingDesc: 'Hold bigger trend moves • Wide Structural SL • Big TP targets (R:R 1:4.5)'
   },
   km: {
-    flag: 'KH',
-    label: 'ភាសាខ្មែរ',
+    flag: 'KH', label: 'ភាសាខ្មែរ',
     backDashboardTop: 'ត្រឡប់ទៅផ្ទាំងដើម Dashboard',
     backDashboardBottom: '← ត្រឡប់ទៅផ្ទាំងដើម (Back to Main Dashboard)',
     subtitle: 'បំប្លែងភាពស្មុគស្មាញនៃទីផ្សារ ទៅជាចំណុចចូលដ៏ច្បាស់លាស់',
-    buyKey: 'ទិញ KEY',
-    locked: 'ជាប់សោរ អត់ KEY',
+    buyKey: 'ទិញ KEY', locked: 'ជាប់សោរ អត់ KEY',
     dropTitle: 'ទាញរូបភាព Chart ទម្លាក់ទីនេះ',
     dropSub: 'សមាជិកត្រូវ Login គណនី និងមាន <span class="text-[#facc15] font-bold">KEY ពិសេស</span> ដើម្បីស្កេន (Admin ស្កេនឥតដែនកំណត់)',
     enterKeyBtn: 'បញ្ចូល KEY ដើម្បីស្កេន',
@@ -516,41 +564,29 @@ function applyLanguage(lang) {
   renderScanButton();
 }
 
-$('btnLang')?.addEventListener('click', (e) => {
-  e.stopPropagation();
-  $('langMenu').classList.toggle('hidden');
-});
+$('btnLang')?.addEventListener('click', (e) => { e.stopPropagation(); $('langMenu').classList.toggle('hidden'); });
 document.querySelectorAll('#langMenu [data-lang]').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    applyLanguage(btn.dataset.lang);
-    show($('langMenu'), false);
-  });
+  btn.addEventListener('click', () => { applyLanguage(btn.dataset.lang); show($('langMenu'), false); });
 });
 window.addEventListener('click', () => show($('langMenu'), false));
 
 $('btnTheme')?.addEventListener('click', () => {
   document.body.classList.toggle('light-mode');
-  const isLight = document.body.classList.contains('light-mode');
-  $('themeIcon').textContent = isLight ? '☀️' : '🌙';
+  $('themeIcon').textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
 });
 
 // ==========================================
 // 7. USER AUTH, PROFILE & ADMIN UNLIMITED
 // ==========================================
 function getInitials(name) {
-  const clean = String(name || 'PO').trim();
-  return clean.slice(0, 2).toUpperCase();
+  return String(name || 'PO').trim().slice(0, 2).toUpperCase();
 }
 
 function addHistoryLog(type, detail) {
   if (!state.user) return;
   const key = `ksnr_hist_${state.user.identifier}`;
   const list = JSON.parse(localStorage.getItem(key) || '[]');
-  list.unshift({
-    type,
-    detail,
-    time: new Date().toLocaleString('km-KH')
-  });
+  list.unshift({ type, detail, time: new Date().toLocaleString('km-KH') });
   localStorage.setItem(key, JSON.stringify(list.slice(0, 40)));
 }
 
@@ -618,6 +654,7 @@ function applyAuthUI() {
   }
 
   applyLockUI();
+  renderScanHistoryLobby();
   icons();
 }
 
@@ -637,15 +674,11 @@ $('profileImgInput')?.addEventListener('change', (e) => {
     img.onload = () => {
       const canvas = document.createElement('canvas');
       const size = 220;
-      canvas.width = size;
-      canvas.height = size;
+      canvas.width = size; canvas.height = size;
       const ctx = canvas.getContext('2d');
       const minSide = Math.min(img.width, img.height);
-      const sx = (img.width - minSide) / 2;
-      const sy = (img.height - minSide) / 2;
-      ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-      syncUserRecord({ avatar: dataUrl });
+      ctx.drawImage(img, (img.width - minSide) / 2, (img.height - minSide) / 2, minSide, minSide, 0, 0, size, size);
+      syncUserRecord({ avatar: canvas.toDataURL('image/jpeg', 0.85) });
       applyAuthUI();
       $('profileSaveMsg').textContent = '✅ បានបង្ហោះរូបភាព Profile រួចរាល់!';
       show($('profileSaveMsg'), true);
@@ -673,11 +706,10 @@ $('btnSaveProfile')?.addEventListener('click', () => {
 
 $('btnOpenHistory')?.addEventListener('click', () => {
   if (!state.user) return;
-  const key = `ksnr_hist_${state.user.identifier}`;
-  const list = JSON.parse(localStorage.getItem(key) || '[]');
+  const list = JSON.parse(localStorage.getItem(`ksnr_hist_${state.user.identifier}`) || '[]');
   const box = $('historyContent');
   box.innerHTML = '';
-  if (list.length === 0) {
+  if (!list.length) {
     box.innerHTML = '<div class="p-4 rounded-xl bg-slate-900 text-center text-slate-400">មិនទាន់មានប្រវត្តិប្រើប្រាស់ ឬវិក្កយបត្រនៅឡើយទេ។</div>';
   } else {
     list.forEach((item) => {
@@ -703,24 +735,10 @@ $('btnProfileLogout')?.addEventListener('click', () => {
   applyAuthUI();
 });
 
-$('btnOpenLogin')?.addEventListener('click', () => {
-  show($('loginError'), false);
-  openModal('loginModal');
-});
-$('btnOpenSignup')?.addEventListener('click', () => {
-  show($('signupError'), false);
-  openModal('signupModal');
-});
-$('btnSwitchToSignup')?.addEventListener('click', () => {
-  closeModal('loginModal');
-  show($('signupError'), false);
-  openModal('signupModal');
-});
-$('btnSwitchToLogin')?.addEventListener('click', () => {
-  closeModal('signupModal');
-  show($('loginError'), false);
-  openModal('loginModal');
-});
+$('btnOpenLogin')?.addEventListener('click', () => { show($('loginError'), false); openModal('loginModal'); });
+$('btnOpenSignup')?.addEventListener('click', () => { show($('signupError'), false); openModal('signupModal'); });
+$('btnSwitchToSignup')?.addEventListener('click', () => { closeModal('loginModal'); show($('signupError'), false); openModal('signupModal'); });
+$('btnSwitchToLogin')?.addEventListener('click', () => { closeModal('signupModal'); show($('loginError'), false); openModal('loginModal'); });
 
 document.querySelectorAll('[data-toggle-pass]').forEach((btn) => {
   btn.addEventListener('click', () => {
@@ -745,14 +763,12 @@ $('signupForm')?.addEventListener('submit', (e) => {
     $('signupError').textContent = 'Password ត្រូវមានយ៉ាងតិច 4 ខ្ទង់!';
     return show($('signupError'), true);
   }
-
   const users = getUsers();
   const existingIdx = users.findIndex((u) => u.identifier === identifier);
   if (existingIdx !== -1 && !ADMIN_EMAILS.includes(identifier)) {
     $('signupError').textContent = 'គណនី ឬ Gmail/លេខទូរស័ព្ទនេះ មានរួចហើយ!';
     return show($('signupError'), true);
   }
-
   const newUser = { username, gender, age, identifier, password, avatar: '', createdAt: Date.now() };
   if (existingIdx !== -1) users[existingIdx] = newUser;
   else users.push(newUser);
@@ -771,25 +787,16 @@ $('loginForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
   const identifier = $('loginIdentifier').value.trim().toLowerCase();
   const password = $('loginPassword').value;
-
   const users = getUsers();
-  let matched = users.find(
-    (u) => (u.identifier === identifier || u.username.toLowerCase() === identifier) && u.password === password
-  );
-
+  let matched = users.find((u) => (u.identifier === identifier || u.username.toLowerCase() === identifier) && u.password === password);
   if (!matched && ADMIN_EMAILS.includes(identifier)) {
     matched = users.find((u) => u.identifier === identifier);
-    if (matched) {
-      matched.password = password;
-      saveUsers(users);
-    }
+    if (matched) { matched.password = password; saveUsers(users); }
   }
-
   if (!matched) {
     $('loginError').textContent = 'Gmail/លេខទូរស័ព្ទ ឬ Password មិនត្រឹមត្រូវទេ!';
     return show($('loginError'), true);
   }
-
   state.user = matched;
   localStorage.setItem('ksnr_current_user', JSON.stringify(state.user));
   $('loginForm').reset();
@@ -799,7 +806,7 @@ $('loginForm')?.addEventListener('submit', (e) => {
 });
 
 // ==========================================
-// 8. REAL 1-TIME ABA KHQR + AUTO "កន្លែងទទួលបាន KEY" ENGINE
+// 8. REAL 1-TIME ABA KHQR + RECEIVE KEY ENGINE
 // ==========================================
 function applyLockUI() {
   show($('btnLocked'), !state.unlocked);
@@ -814,12 +821,9 @@ function unlock(key, typeText) {
   const reg = getKeyRegistry();
   if (reg[clean]) {
     if (!reg[clean].activatedAt) reg[clean].activatedAt = Date.now();
-    if (state.user && !reg[clean].redeemedBy) {
-      reg[clean].redeemedBy = state.user.identifier;
-    }
+    if (state.user && !reg[clean].redeemedBy) reg[clean].redeemedBy = state.user.identifier;
     saveKeyRegistry(reg);
   }
-
   state.unlocked = true;
   $('keyStatusText').textContent = `បានដោះសោ (${typeText})`;
   localStorage.setItem('ksnr_saved_key', clean);
@@ -862,8 +866,7 @@ function renderScanButton() {
 
 function tlv(tag, value) {
   const str = String(value ?? '');
-  const len = String(str.length).padStart(2, '0');
-  return `${tag}${len}${str}`;
+  return `${tag}${String(str.length).padStart(2, '0')}${str}`;
 }
 
 function crc16Khqr(payloadWithoutCrcValue) {
@@ -871,11 +874,7 @@ function crc16Khqr(payloadWithoutCrcValue) {
   for (let i = 0; i < payloadWithoutCrcValue.length; i++) {
     crc ^= (payloadWithoutCrcValue.charCodeAt(i) & 0xFF) << 8;
     for (let j = 0; j < 8; j++) {
-      if ((crc & 0x8000) !== 0) {
-        crc = ((crc << 1) ^ 0x1021) & 0xFFFF;
-      } else {
-        crc = (crc << 1) & 0xFFFF;
-      }
+      crc = (crc & 0x8000) !== 0 ? ((crc << 1) ^ 0x1021) & 0xFFFF : (crc << 1) & 0xFFFF;
     }
   }
   return crc.toString(16).toUpperCase().padStart(4, '0');
@@ -888,8 +887,7 @@ function parseEmvTags(rawQr) {
     const tag = rawQr.slice(i, i + 2);
     const len = parseInt(rawQr.slice(i + 2, i + 4), 10);
     if (isNaN(len) || i + 4 + len > rawQr.length) break;
-    const val = rawQr.slice(i + 4, i + 4 + len);
-    map[tag] = val;
+    map[tag] = rawQr.slice(i + 4, i + 4 + len);
     i += 4 + len;
     if (tag === '63') break;
   }
@@ -899,60 +897,32 @@ function parseEmvTags(rawQr) {
 function buildAbaKhqrPayload(pkg, isDynamicAmount = true, sessionId = '') {
   const amountNum = pkg && pkg.price ? parseFloat(pkg.price) : 0;
   const useAmount = isDynamicAmount && amountNum > 0;
-  const amountStr = Number.isInteger(amountNum)
-    ? String(amountNum)
-    : amountNum.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
+  const amountStr = Number.isInteger(amountNum) ? String(amountNum) : amountNum.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
   const billRef = sessionId || `OT${Date.now().toString().slice(-6)}`;
 
   if (state.rawAbaKhqrPayload && state.rawAbaKhqrPayload.startsWith('000201')) {
-    if (!useAmount) {
-      return state.rawAbaKhqrPayload;
-    }
+    if (!useAmount) return state.rawAbaKhqrPayload;
     const tags = parseEmvTags(state.rawAbaKhqrPayload);
     const acctTag = tags['29'] ? '29' : (tags['30'] ? '30' : null);
     if (acctTag && tags[acctTag]) {
       const nowMs = String(Date.now());
       const expMs = String(Date.now() + 15 * 60 * 1000);
-      let body = '';
-      body += tlv('00', '01');
-      body += tlv('01', '12');
-      body += tlv(acctTag, tags[acctTag]);
-      body += tlv('52', tags['52'] || '5999');
-      body += tlv('53', '840');
-      body += tlv('54', amountStr);
-      body += tlv('58', 'KH');
-      body += tlv('59', tags['59'] || ABA_MERCHANT_INFO.merchantName);
-      body += tlv('60', tags['60'] || ABA_MERCHANT_INFO.merchantCity);
-      body += tlv('62', tlv('01', billRef));
-      body += tlv('99', tlv('00', nowMs) + tlv('01', expMs));
-      body += '6304';
+      let body = tlv('00', '01') + tlv('01', '12') + tlv(acctTag, tags[acctTag]) +
+        tlv('52', tags['52'] || '5999') + tlv('53', '840') + tlv('54', amountStr) +
+        tlv('58', 'KH') + tlv('59', tags['59'] || ABA_MERCHANT_INFO.merchantName) +
+        tlv('60', tags['60'] || ABA_MERCHANT_INFO.merchantCity) + tlv('62', tlv('01', billRef)) +
+        tlv('99', tlv('00', nowMs) + tlv('01', expMs)) + '6304';
       return body + crc16Khqr(body);
     }
   }
 
-  const subTag00 = tlv('00', ABA_MERCHANT_INFO.bakongId);
-  const subTag01 = tlv('01', ABA_MERCHANT_INFO.usdAccount);
-  const subTag02 = tlv('02', ABA_MERCHANT_INFO.bankName);
-  const tag29Value = subTag00 + subTag01 + subTag02;
-
+  const tag29Value = tlv('00', ABA_MERCHANT_INFO.bakongId) + tlv('01', ABA_MERCHANT_INFO.usdAccount) + tlv('02', ABA_MERCHANT_INFO.bankName);
   const nowMs = String(Date.now());
   const expMs = String(Date.now() + 15 * 60 * 1000);
-
-  let payload = '';
-  payload += tlv('00', '01');
-  payload += tlv('01', useAmount ? '12' : '11');
-  payload += tlv('29', tag29Value);
-  payload += tlv('52', '5999');
-  payload += tlv('53', '840');
-  if (useAmount) {
-    payload += tlv('54', amountStr);
-  }
-  payload += tlv('58', 'KH');
-  payload += tlv('59', ABA_MERCHANT_INFO.merchantName);
-  payload += tlv('60', ABA_MERCHANT_INFO.merchantCity);
-  payload += tlv('62', tlv('01', billRef));
-  payload += tlv('99', tlv('00', nowMs) + tlv('01', expMs));
-  payload += '6304';
+  let payload = tlv('00', '01') + tlv('01', useAmount ? '12' : '11') + tlv('29', tag29Value) +
+    tlv('52', '5999') + tlv('53', '840') + (useAmount ? tlv('54', amountStr) : '') +
+    tlv('58', 'KH') + tlv('59', ABA_MERCHANT_INFO.merchantName) + tlv('60', ABA_MERCHANT_INFO.merchantCity) +
+    tlv('62', tlv('01', billRef)) + tlv('99', tlv('00', nowMs) + tlv('01', expMs)) + '6304';
   return payload + crc16Khqr(payload);
 }
 
@@ -979,11 +949,7 @@ function tryDecodeAbaQrFromImageSrc(src) {
   img.src = src;
 }
 
-if (state.customAbaQrImg) {
-  tryDecodeAbaQrFromImageSrc(state.customAbaQrImg);
-} else {
-  tryDecodeAbaQrFromImageSrc('image_6229bd.jpg');
-}
+tryDecodeAbaQrFromImageSrc(state.customAbaQrImg || 'image_6229bd.jpg');
 
 function startOneTimeKhqrSession(pkg) {
   state.selectedPkg = pkg;
@@ -991,13 +957,8 @@ function startOneTimeKhqrSession(pkg) {
     id: `OT${Math.floor(100000 + Math.random() * 900000)}`,
     pkgCode: pkg.code,
     mode: pkg.mode || (pkg.scans > 0 ? `S${pkg.scans}` : `H${pkg.hours}`),
-    title: pkg.title,
-    price: pkg.price,
-    scans: pkg.scans,
-    hours: pkg.hours,
-    used: false,
-    issuedKey: null,
-    createdAt: Date.now()
+    title: pkg.title, price: pkg.price, scans: pkg.scans, hours: pkg.hours,
+    used: false, issuedKey: null, createdAt: Date.now()
   };
 
   show($('khqrUsedOverlay'), false);
@@ -1006,12 +967,10 @@ function startOneTimeKhqrSession(pkg) {
   $('khqrStatusText').className = 'text-xs sm:text-sm text-cyan-300 mb-3 font-semibold';
 
   document.querySelectorAll('#quickPriceBtns button').forEach((b) => {
-    const active = b.dataset.qpkg === pkg.code;
-    b.className = active
+    b.className = b.dataset.qpkg === pkg.code
       ? 'py-1.5 rounded-lg bg-cyan-500/25 border border-cyan-400 text-white font-extrabold cursor-pointer shadow-[0_0_10px_rgba(0,229,255,0.3)]'
       : 'py-1.5 rounded-lg bg-[#131d31] border border-slate-700 text-slate-300 font-bold cursor-pointer hover:border-slate-500';
   });
-
   drawKhqrCanvas(pkg);
 }
 
@@ -1020,156 +979,79 @@ function drawKhqrCanvas(pkg) {
   const origImg = $('khqrOriginalImg');
   if (!canvas || !pkg) return;
 
-  if (state.customAbaQrImg && origImg) {
-    origImg.src = state.customAbaQrImg;
-  }
-
+  if (state.customAbaQrImg && origImg) origImg.src = state.customAbaQrImg;
   if (state.khqrMode === 'original' && origImg && origImg.complete && origImg.naturalWidth > 0) {
-    show(canvas, false);
-    show(origImg, true);
-    return;
+    show(canvas, false); show(origImg, true); return;
   }
-  show(origImg, false);
-  show(canvas, true);
+  show(origImg, false); show(canvas, true);
 
   const ctx = canvas.getContext('2d');
-  const w = canvas.width;
-  const h = canvas.height;
-
+  const w = canvas.width, h = canvas.height;
   ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);
 
   ctx.fillStyle = '#e11d27';
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(w, 0);
-  ctx.lineTo(w, 64);
-  ctx.lineTo(w - 26, 46);
-  ctx.lineTo(0, 46);
-  ctx.closePath();
-  ctx.fill();
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(w, 0); ctx.lineTo(w, 64); ctx.lineTo(w - 26, 46); ctx.lineTo(0, 46); ctx.closePath(); ctx.fill();
 
-  ctx.fillStyle = '#ffffff';
-  ctx.font = '800 20px Inter, sans-serif';
-  ctx.textAlign = 'center';
+  ctx.fillStyle = '#ffffff'; ctx.font = '800 20px Inter, sans-serif'; ctx.textAlign = 'center';
   ctx.fillText('KHQR', w / 2, 31);
 
-  ctx.textAlign = 'left';
-  ctx.fillStyle = '#0f172a';
-  ctx.font = '800 14px Inter, sans-serif';
+  ctx.textAlign = 'left'; ctx.fillStyle = '#0f172a'; ctx.font = '800 14px Inter, sans-serif';
   ctx.fillText(ABA_MERCHANT_INFO.merchantName, 24, 72);
 
-  ctx.textAlign = 'right';
-  ctx.fillStyle = '#0284c7';
-  ctx.font = '800 16px Inter, sans-serif';
+  ctx.textAlign = 'right'; ctx.fillStyle = '#0284c7'; ctx.font = '800 16px Inter, sans-serif';
   ctx.fillText(`$${pkg.price} USD`, w - 24, 72);
 
   ctx.save();
   ctx.setLineDash([4, 4]);
   ctx.strokeStyle = '#cbd5e1';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(20, 86);
-  ctx.lineTo(w - 20, 86);
-  ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(20, 86); ctx.lineTo(w - 20, 86); ctx.stroke();
   ctx.restore();
 
   const sessionId = state.currentQrSession ? state.currentQrSession.id : `OT${Date.now().toString().slice(-6)}`;
   const khqrString = buildAbaKhqrPayload(pkg, state.khqrMode === 'dynamic', sessionId);
-  const qrSize = 236;
-  const startX = Math.floor((w - qrSize) / 2);
-  const startY = 98;
+  const qrSize = 236, startX = Math.floor((w - qrSize) / 2), startY = 98;
 
   if (typeof window.qrcode === 'function') {
     const qr = window.qrcode(0, 'M');
-    qr.addData(khqrString);
-    qr.make();
-    const count = qr.getModuleCount();
-    const cellSize = qrSize / count;
-
+    qr.addData(khqrString); qr.make();
+    const count = qr.getModuleCount(), cellSize = qrSize / count;
     ctx.fillStyle = '#000000';
     for (let r = 0; r < count; r++) {
       for (let c = 0; c < count; c++) {
         if (qr.isDark(r, c)) {
-          const rx = Math.floor(startX + c * cellSize);
-          const ry = Math.floor(startY + r * cellSize);
-          const rw = Math.ceil((c + 1) * cellSize) - Math.floor(c * cellSize);
-          const rh = Math.ceil((r + 1) * cellSize) - Math.floor(r * cellSize);
-          ctx.fillRect(rx, ry, rw, rh);
+          ctx.fillRect(
+            Math.floor(startX + c * cellSize),
+            Math.floor(startY + r * cellSize),
+            Math.ceil((c + 1) * cellSize) - Math.floor(c * cellSize),
+            Math.ceil((r + 1) * cellSize) - Math.floor(r * cellSize)
+          );
         }
       }
     }
 
-    const cx = startX + qrSize / 2;
-    const cy = startY + qrSize / 2;
-    ctx.beginPath();
-    ctx.arc(cx, cy, 20, 0, Math.PI * 2);
-    ctx.fillStyle = '#ffffff';
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(cx, cy, 17, 0, Math.PI * 2);
-    ctx.fillStyle = '#e11d27';
-    ctx.fill();
-
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 1.8;
-    ctx.beginPath();
-    ctx.arc(cx, cy, 9, 0, Math.PI * 2);
-    ctx.stroke();
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '800 10px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('៛', cx, cy + 0.5);
+    const cx = startX + qrSize / 2, cy = startY + qrSize / 2;
+    ctx.beginPath(); ctx.arc(cx, cy, 20, 0, Math.PI * 2); ctx.fillStyle = '#ffffff'; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, 17, 0, Math.PI * 2); ctx.fillStyle = '#e11d27'; ctx.fill();
+    ctx.fillStyle = '#ffffff'; ctx.font = '800 11px Inter, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('៛', cx, cy + 0.5);
     ctx.textBaseline = 'alphabetic';
   }
 
   const footerTop = 348;
-  ctx.strokeStyle = '#e2e8f0';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(22, footerTop);
-  ctx.lineTo(w - 22, footerTop);
-  ctx.stroke();
-
-  ctx.textAlign = 'left';
-  ctx.fillStyle = '#0f172a';
-  ctx.font = '700 12.5px Inter, sans-serif';
+  ctx.textAlign = 'left'; ctx.fillStyle = '#0f172a'; ctx.font = '700 12.5px Inter, sans-serif';
   ctx.fillText('៛  KHR account:', 24, footerTop + 26);
-  ctx.textAlign = 'right';
-  ctx.font = '800 13px Inter, monospace';
+  ctx.textAlign = 'right'; ctx.font = '800 13px Inter, monospace';
   ctx.fillText(ABA_MERCHANT_INFO.khrAccountDisplay, w - 24, footerTop + 26);
 
-  ctx.textAlign = 'left';
-  ctx.font = '700 12.5px Inter, sans-serif';
+  ctx.textAlign = 'left'; ctx.font = '700 12.5px Inter, sans-serif';
   ctx.fillText('$  USD account:', 24, footerTop + 52);
-  ctx.textAlign = 'right';
-  ctx.fillStyle = '#0284c7';
-  ctx.font = '800 13.5px Inter, monospace';
+  ctx.textAlign = 'right'; ctx.fillStyle = '#0284c7'; ctx.font = '800 13.5px Inter, monospace';
   ctx.fillText(ABA_MERCHANT_INFO.usdAccountDisplay, w - 24, footerTop + 52);
-
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#94a3b8';
-  ctx.font = '700 10px Inter, sans-serif';
-  ctx.fillText(`1-TIME KHQR #${sessionId} • ${pkg.title} (${pkg.price}$)`, w / 2, h - 8);
 }
 
 function setKhqrMode(mode) {
   state.khqrMode = mode;
-  const tabDyn = $('tabKhqrDynamic');
-  const tabOrig = $('tabKhqrOriginal');
-  if (tabDyn && tabOrig) {
-    if (mode === 'dynamic') {
-      tabDyn.className = 'flex-1 py-2.5 text-center font-extrabold text-[#00e5ff] border-b-2 border-[#00e5ff] cursor-pointer';
-      tabOrig.className = 'flex-1 py-2.5 text-center font-bold text-slate-400 hover:text-white cursor-pointer';
-    } else {
-      tabOrig.className = 'flex-1 py-2.5 text-center font-extrabold text-[#00e5ff] border-b-2 border-[#00e5ff] cursor-pointer';
-      tabDyn.className = 'flex-1 py-2.5 text-center font-bold text-slate-400 hover:text-white cursor-pointer';
-    }
-  }
   if (state.selectedPkg) drawKhqrCanvas(state.selectedPkg);
 }
 
@@ -1186,46 +1068,17 @@ document.querySelectorAll('#quickPriceBtns button').forEach((btn) => {
 $('btnCopyUsdAcc')?.addEventListener('click', () => {
   navigator.clipboard.writeText(ABA_MERCHANT_INFO.usdAccount);
   $('khqrStatusText').textContent = '✅ បានចម្លងលេខគណនី USD: 086 375 171 (CHUNG POR KAING)';
-  $('khqrStatusText').className = 'text-xs sm:text-sm text-cyan-400 mb-3 font-bold';
 });
 
 $('btnCopyKhrAcc')?.addEventListener('click', () => {
   navigator.clipboard.writeText(ABA_MERCHANT_INFO.khrAccount);
   $('khqrStatusText').textContent = '✅ បានចម្លងលេខគណនី KHR: 003 823 710 (CHUNG POR KAING)';
-  $('khqrStatusText').className = 'text-xs sm:text-sm text-amber-300 mb-3 font-bold';
-});
-
-$('uploadOriginalQrInput')?.addEventListener('change', (e) => {
-  const file = e.target.files && e.target.files[0];
-  if (!file || !file.type.startsWith('image/')) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    const dataUrl = ev.target.result;
-    state.customAbaQrImg = dataUrl;
-    localStorage.setItem('ksnr_custom_aba_qr_img', dataUrl);
-    if ($('khqrOriginalImg')) $('khqrOriginalImg').src = dataUrl;
-    tryDecodeAbaQrFromImageSrc(dataUrl);
-    $('khqrStatusText').textContent = '✅ បានភ្ជាប់រូប ABA KHQR ដើមរួចរាល់!';
-    $('khqrStatusText').className = 'text-xs sm:text-sm text-emerald-400 mb-3 font-bold';
-    setKhqrMode('original');
-  };
-  reader.readAsDataURL(file);
 });
 
 document.querySelectorAll('#packageList .pkg-card').forEach((card) => {
   card.addEventListener('click', () => {
-    if (!state.user) {
-      closeModal('buyModal');
-      return openModal('loginModal');
-    }
-    const pkg = PACKAGES_MAP[card.dataset.pkg] || {
-      code: card.dataset.pkg,
-      mode: Number(card.dataset.scans || 0) > 0 ? `S${card.dataset.scans}` : `H${card.dataset.hours}`,
-      title: card.dataset.title,
-      price: card.dataset.price,
-      scans: Number(card.dataset.scans || 0),
-      hours: Number(card.dataset.hours || 0)
-    };
+    if (!state.user) { closeModal('buyModal'); return openModal('loginModal'); }
+    const pkg = PACKAGES_MAP[card.dataset.pkg] || PACKAGES_MAP['1_SCAN'];
     startOneTimeKhqrSession(pkg);
     closeModal('buyModal');
     openModal('khqrModal');
@@ -1236,36 +1089,19 @@ document.querySelectorAll('#packageList .pkg-card').forEach((card) => {
 $('btnSaveKhqr')?.addEventListener('click', () => {
   const canvas = $('khqrCanvas');
   if (!canvas || !state.selectedPkg) return;
-  const prevMode = state.khqrMode;
-  if (prevMode === 'original') {
-    state.khqrMode = 'dynamic';
-    drawKhqrCanvas(state.selectedPkg);
-  }
   const link = document.createElement('a');
   link.download = `ABA-KHQR-CHUNG-POR-KAING-${state.selectedPkg.price}USD.png`;
   link.href = canvas.toDataURL('image/png');
   link.click();
-  if (prevMode === 'original') setKhqrMode('original');
 });
 
 function openReceiveKeyModalWithKey(keyCode, pkg) {
   const cleanKey = (keyCode || state.latestIssuedKey || localStorage.getItem('ksnr_latest_approved_key') || '').trim().toUpperCase();
   const reg = getKeyRegistry();
   const info = reg[cleanKey];
-
-  if (cleanKey) {
-    $('receivedKeyCode').textContent = cleanKey;
-    state.latestIssuedKey = cleanKey;
-  } else {
-    $('receivedKeyCode').textContent = 'មិនទាន់មាន KEY';
-  }
-
-  if (pkg) {
-    $('receiveKeyPkgBadge').innerHTML = `<span>⚡ កញ្ចប់៖ ${pkg.title} (${pkg.price}$) • ប្រើបានតែ ១ ដង</span>`;
-  } else if (info) {
-    $('receiveKeyPkgBadge').innerHTML = `<span>⚡ កញ្ចប់៖ ${info.label} • ប្រើបានតែ ១ ដង</span>`;
-  }
-
+  $('receivedKeyCode').textContent = cleanKey || 'មិនទាន់មាន KEY';
+  if (pkg) $('receiveKeyPkgBadge').innerHTML = `<span>⚡ កញ្ចប់៖ ${pkg.title} (${pkg.price}$) • ប្រើបានតែ ១ ដង</span>`;
+  else if (info) $('receiveKeyPkgBadge').innerHTML = `<span>⚡ កញ្ចប់៖ ${info.label} • ប្រើបានតែ ១ ដង</span>`;
   openModal('receiveKeyModal');
   icons();
 }
@@ -1277,13 +1113,6 @@ $('btnOpenReceiveKey')?.addEventListener('click', () => {
 
 function completeOneTimePaymentAndShowKey(pkg, sourceLabel = 'ABA KHQR') {
   if (!pkg) return;
-
-  if (state.currentQrSession && state.currentQrSession.used && state.currentQrSession.issuedKey) {
-    closeModal('khqrModal');
-    openReceiveKeyModalWithKey(state.currentQrSession.issuedKey, pkg);
-    return;
-  }
-
   const mode = pkg.mode || (pkg.scans > 0 ? `S${pkg.scans}` : `H${pkg.hours}`);
   const qrId = state.currentQrSession ? state.currentQrSession.id : `OT${Date.now().toString().slice(-6)}`;
   const generatedKey = generateSmartKey(mode, qrId);
@@ -1294,38 +1123,15 @@ function completeOneTimePaymentAndShowKey(pkg, sourceLabel = 'ABA KHQR') {
   }
   state.latestIssuedKey = generatedKey;
   show($('khqrUsedOverlay'), true);
-
   addHistoryLog('ABA KHQR PAID', `បានទូទាត់ ${pkg.title} (${pkg.price}$) តាម ${sourceLabel} • ទទួលបាន KEY: ${generatedKey}`);
-  $('khqrStatusText').innerHTML = `✅ ទូទាត់ជោគជ័យ! កំពុងបើកផ្ទាំងទទួល KEY (${generatedKey})...`;
-  $('khqrStatusText').className = 'text-xs sm:text-sm text-emerald-400 mb-3 font-extrabold';
-
-  setTimeout(() => {
-    closeModal('khqrModal');
-    openReceiveKeyModalWithKey(generatedKey, pkg);
-  }, 650);
+  setTimeout(() => { closeModal('khqrModal'); openReceiveKeyModalWithKey(generatedKey, pkg); }, 600);
 }
 
 $('receiptUploadInput')?.addEventListener('change', (e) => {
-  const file = e.target.files && e.target.files[0];
-  const pkg = state.selectedPkg;
-  if (!file || !pkg) return;
-  $('khqrStatusText').textContent = '⏳ កំពុងពិនិត្យវិក្កយបត្រ ABA Mobile របស់អ្នក...';
-  $('khqrStatusText').className = 'text-xs sm:text-sm text-cyan-400 mb-3 font-bold';
-  setTimeout(() => {
-    completeOneTimePaymentAndShowKey(pkg, 'វិក្កយបត្រ ABA');
-    e.target.value = '';
-  }, 700);
+  if (e.target.files?.[0] && state.selectedPkg) completeOneTimePaymentAndShowKey(state.selectedPkg, 'វិក្កយបត្រ ABA');
 });
-
 $('btnVerifyKhqr')?.addEventListener('click', () => {
-  const pkg = state.selectedPkg;
-  if (!pkg) return;
-  $('khqrStatusText').textContent = `⏳ កំពុងពិនិត្យការទូទាត់ ${pkg.price}$ ជាមួយ ABA (086 375 171)...`;
-  $('khqrStatusText').className = 'text-xs sm:text-sm text-cyan-400 mb-3 font-bold';
-
-  setTimeout(() => {
-    completeOneTimePaymentAndShowKey(pkg, 'ABA KHQR');
-  }, 750);
+  if (state.selectedPkg) completeOneTimePaymentAndShowKey(state.selectedPkg, 'ABA KHQR');
 });
 
 const COPY_RECEIVED_KEY_HTML = '<i data-lucide="copy" class="w-4 h-4"></i><span>Copy KEY</span>';
@@ -1333,49 +1139,13 @@ $('btnCopyReceivedKey')?.addEventListener('click', () => {
   const code = ($('receivedKeyCode')?.textContent || '').trim();
   if (!code || code === 'មិនទាន់មាន KEY') return;
   navigator.clipboard.writeText(code);
-  flashButton(
-    $('btnCopyReceivedKey'),
-    '<i data-lucide="check" class="w-4 h-4"></i><span>Copied!</span>',
-    COPY_RECEIVED_KEY_HTML
-  );
-});
-
-const REFRESH_KEY_HTML = '<i data-lucide="refresh-cw" class="w-4 h-4"></i><span>Refresh Key</span>';
-$('btnRefreshReceivedKey')?.addEventListener('click', () => {
-  const btn = $('btnRefreshReceivedKey');
-  btn.innerHTML = '<i data-lucide="refresh-cw" class="w-4 h-4 spin"></i><span>កំពុងទាញយក...</span>';
-  icons();
-
-  setTimeout(() => {
-    let latest = localStorage.getItem('ksnr_latest_approved_key') || state.latestIssuedKey;
-    const reg = getKeyRegistry();
-    if (!latest || (reg[latest] && reg[latest].exhausted)) {
-      const unused = Object.values(reg).reverse().find((k) => !k.exhausted);
-      if (unused) latest = unused.key;
-    }
-    if (latest) {
-      $('receivedKeyCode').textContent = latest;
-      state.latestIssuedKey = latest;
-      if (reg[latest]) {
-        $('receiveKeyPkgBadge').innerHTML = `<span>✅ Approved៖ ${reg[latest].label} • ប្រើបានតែ ១ ដង</span>`;
-      }
-      $('receiveKeySubText').textContent = '✅ ទាញយក KEY ដែលបាន Approve ជោគជ័យ!';
-      $('receiveKeySubText').className = 'text-xs sm:text-sm text-emerald-400 mt-1.5 font-bold';
-    } else {
-      $('receiveKeySubText').textContent = 'មិនទាន់មាន KEY ថ្មីទេ សូមទិញកញ្ចប់ KEY ជាមុនសិន!';
-      $('receiveKeySubText').className = 'text-xs sm:text-sm text-amber-300 mt-1.5 font-semibold';
-    }
-    btn.innerHTML = REFRESH_KEY_HTML;
-    icons();
-  }, 500);
+  flashButton($('btnCopyReceivedKey'), '<i data-lucide="check" class="w-4 h-4"></i><span>Copied!</span>', COPY_RECEIVED_KEY_HTML);
 });
 
 $('btnGoToPasteKey')?.addEventListener('click', () => {
   const code = ($('receivedKeyCode')?.textContent || '').trim();
   closeModal('receiveKeyModal');
-  if (code && code !== 'មិនទាន់មាន KEY' && $('keyInput')) {
-    $('keyInput').value = code;
-  }
+  if (code && code !== 'មិនទាន់មាន KEY' && $('keyInput')) $('keyInput').value = code;
   show($('keyError'), false);
   openModal('keyModal');
 });
@@ -1383,18 +1153,14 @@ $('btnGoToPasteKey')?.addEventListener('click', () => {
 $('btnPasteKeyInput')?.addEventListener('click', async () => {
   try {
     const text = await navigator.clipboard.readText();
-    if (text && $('keyInput')) {
-      $('keyInput').value = text.trim().toUpperCase();
-    }
+    if (text && $('keyInput')) $('keyInput').value = text.trim().toUpperCase();
   } catch (e) {
-    if (state.latestIssuedKey && $('keyInput')) {
-      $('keyInput').value = state.latestIssuedKey;
-    }
+    if (state.latestIssuedKey && $('keyInput')) $('keyInput').value = state.latestIssuedKey;
   }
 });
 
 // ==========================================
-// 9. IMAGE HANDLING (READY FOR SCALPING OR SWING SELECTION)
+// 9. IMAGE HANDLING
 // ==========================================
 function showError(msg) {
   $('scanErrorText').textContent = msg;
@@ -1403,11 +1169,11 @@ function showError(msg) {
 
 function handleFile(file) {
   if (!file || !file.type.startsWith('image/')) {
-    showError('សូមជ្រើសរើសប្រភេទឯកសារជារូបភាព (PNG, JPG, WebP) ប៉ុណ្ណោះ!');
-    return;
+    return showError('សូមជ្រើសរើសប្រភេទឯកសារជារូបភាព (PNG, JPG, WebP) ប៉ុណ្ណោះ!');
   }
   showError('');
   state.result = null;
+  state.activeLobbyItemId = null;
   show($('resultCard'), false);
   state.mime = file.type;
 
@@ -1418,14 +1184,9 @@ function handleFile(file) {
     state.imageBase64 = dataUrl.split(',')[1];
     show($('dropEmpty'), false);
     show($('dropPreview'), true);
+    show($('imgReadyStepBadge'), true);
     $('dropZone').classList.add('has-image');
-
-    const styleBox = $('tradeStyleBox');
-    if (styleBox) {
-      styleBox.classList.add('ring-2', 'ring-cyan-400/70');
-      setTimeout(() => styleBox.classList.remove('ring-2', 'ring-cyan-400/70'), 2200);
-    }
-
+    $('tradeStyleBox')?.classList.add('image-ready-glow');
     renderScanButton();
   };
   reader.readAsDataURL(file);
@@ -1434,24 +1195,24 @@ function handleFile(file) {
 function clearImage() {
   state.imageBase64 = null;
   state.result = null;
+  state.activeLobbyItemId = null;
   $('previewImg').src = '';
   $('fileInput').value = '';
   show($('dropPreview'), false);
   show($('dropEmpty'), true);
+  show($('imgReadyStepBadge'), false);
   show($('resultCard'), false);
   $('dropZone').classList.remove('has-image');
+  $('tradeStyleBox')?.classList.remove('image-ready-glow');
   renderScanButton();
 }
 
 window.addEventListener('paste', (e) => {
   if (!state.unlocked) return;
-  const items = e.clipboardData && e.clipboardData.items;
+  const items = e.clipboardData?.items;
   if (!items) return;
   for (const item of items) {
-    if (item.type.indexOf('image') !== -1) {
-      const file = item.getAsFile();
-      if (file) handleFile(file);
-    }
+    if (item.type.indexOf('image') !== -1) handleFile(item.getAsFile());
   }
 });
 
@@ -1463,8 +1224,7 @@ dz?.addEventListener('drop', (e) => {
   dz.classList.remove('dragging');
   if (!state.user) return openModal('loginModal');
   if (!state.unlocked) return openModal('keyModal');
-  const file = e.dataTransfer.files && e.dataTransfer.files[0];
-  if (file) handleFile(file);
+  if (e.dataTransfer.files?.[0]) handleFile(e.dataTransfer.files[0]);
 });
 dz?.addEventListener('click', (e) => {
   if (e.target.closest('#tradeStyleBox') || e.target.closest('#btnScan') || e.target.closest('#btnEnterKey')) return;
@@ -1473,18 +1233,38 @@ dz?.addEventListener('click', (e) => {
   $('fileInput').click();
 });
 $('fileInput')?.addEventListener('click', (e) => e.stopPropagation());
-$('fileInput')?.addEventListener('change', (e) => {
-  const file = e.target.files && e.target.files[0];
-  if (file) handleFile(file);
-});
+$('fileInput')?.addEventListener('change', (e) => { if (e.target.files?.[0]) handleFile(e.target.files[0]); });
 $('btnRemoveImg')?.addEventListener('click', (e) => { e.stopPropagation(); clearImage(); });
 
 // ==========================================
-// 10. RENDER RESULT & COPY SIGNAL (WITH SCALPING / SWING BADGE)
+// 10. RENDER RESULT & AFTER-SCAN HISTORY LOBBY
 // ==========================================
 function parseNum(v) {
   const m = String(v || '').replace(/,/g, '').match(/-?\d+(\.\d+)?/);
   return m ? parseFloat(m[0]) : NaN;
+}
+
+function buildSignalCopyText(r) {
+  const isBuy = (r.action || '').toUpperCase().includes('BUY');
+  const isSwing = (r.tradeStyle || state.tradeStyle) === 'SWING';
+  const styleText = isSwing ? '🌊 SWING TRADE (Hold Trend • R:R 1:4.5)' : '⚡ SCALPING TRADE (Fast Execution • R:R 1:2.5)';
+
+  return `⚡ លទ្ធផលស្កេនពី Por - SNR Scanner ⚡
+🎯 Trade Style: ${styleText}
+📊 Pair: ${r.pair} (${r.timeframe})
+📈 និន្នាការ (Trend): ${r.trend}
+🔔 ប្រភេទបញ្ជា: ${r.action} = ${isBuy ? 'NEW BUY' : 'NEW SELL'} (${r.orderType})
+
+🎯 Entry: ${r.entry}
+🛑 SL: ${r.sl}
+💰 TP 1: ${r.tp1}
+💰 TP 2: ${r.tp2}
+
+🧱 តំបន់ KEY Por - SNR:
+- KEY Resistance: ${r.snrZones?.resistance}
+- KEY Support: ${r.snrZones?.support}
+
+📲 Telegram Admin: @KaingChungpor`;
 }
 
 function renderResult() {
@@ -1513,8 +1293,7 @@ function renderResult() {
   const isBuy = (r.action || '').toUpperCase().includes('BUY');
   const tag = $('rAction');
   tag.className = 'action-tag ' + (isBuy ? 'buy' : 'sell');
-  tag.innerHTML = `<i data-lucide="${isBuy ? 'trending-up' : 'trending-down'}"></i><span></span>`;
-  tag.querySelector('span').textContent = `${r.action} (${isBuy ? 'NEW BUY' : 'NEW SELL'})`;
+  tag.innerHTML = `<i data-lucide="${isBuy ? 'trending-up' : 'trending-down'}"></i><span>${r.action} (${isBuy ? 'NEW BUY' : 'NEW SELL'})</span>`;
 
   if ($('rFlipText')) {
     $('rFlipText').textContent = r.keyFlipRule || (isBuy
@@ -1532,50 +1311,306 @@ function renderResult() {
     box.appendChild(row);
   });
 
+  setTradeStyle(r.tradeStyle || state.tradeStyle, false);
   show($('resultCard'), true);
   icons();
 }
 
 const COPY_SIGNAL_HTML = '<i data-lucide="copy"></i><span>ចម្លង Signal យកទៅផុស (Copy Signal)</span>';
 $('btnCopySignal')?.addEventListener('click', () => {
-  const r = state.result;
-  if (!r) return;
-  const isBuy = (r.action || '').toUpperCase().includes('BUY');
-  const isSwing = (r.tradeStyle || state.tradeStyle) === 'SWING';
-  const styleText = isSwing ? '🌊 SWING TRADE (Hold Trend)' : '⚡ SCALPING TRADE (Fast Execution)';
+  if (!state.result) return;
+  navigator.clipboard.writeText(buildSignalCopyText(state.result));
+  flashButton($('btnCopySignal'), '<i data-lucide="check"></i><span>បានចម្លងទម្រង់ Signal រួចរាល់!</span>', COPY_SIGNAL_HTML);
+});
 
-  const text = `⚡ លទ្ធផលស្កេនពី Por - SNR Scanner ⚡
-🎯 Trade Style: ${styleText}
-📊 Pair: ${r.pair} (${r.timeframe})
-📈 និន្នាការ (Trend): ${r.trend}
-🔔 ប្រភេទបញ្ជា: ${r.action} = ${isBuy ? 'NEW BUY' : 'NEW SELL'} (${r.orderType})
+// =========================================================
+// 10B. AFTER-SCAN HISTORY LOBBY ENGINE (#scanHistoryLobby)
+// =========================================================
+function getLobbyStorageKey() {
+  return `ksnr_scan_lobby_${state.user?.identifier || 'guest'}`;
+}
 
-🎯 Entry (ចំណុចចូល): ${r.entry}
-🛑 SL (កាត់ខាត): ${r.sl}
-💰 TP 1 (គោលដៅទី១): ${r.tp1}
-💰 TP 2 (គោលដៅទី២): ${r.tp2}
+function getScanLobbyList() {
+  try { return JSON.parse(localStorage.getItem(getLobbyStorageKey()) || '[]'); } catch (e) { return []; }
+}
 
-🧱 តំបន់ KEY Por - SNR សំខាន់ៗ:
-- KEY Resistance: ${r.snrZones?.resistance}
-- KEY Support: ${r.snrZones?.support}
+function saveScanLobbyList(list) {
+  try { localStorage.setItem(getLobbyStorageKey(), JSON.stringify(list.slice(0, 25))); } catch (e) {}
+}
 
-💡 មូលហេតុបច្ចេកទេស:
-${(r.confluence || []).map((c) => `- ${c}`).join('\n')}
+function createChartThumbnailDataUrl(sourceDataUrl, maxW = 360) {
+  return new Promise((resolve) => {
+    if (!sourceDataUrl) return resolve('');
+    const img = new Image();
+    img.onload = () => {
+      const ratio = (img.height || 180) / Math.max(1, img.width || 320);
+      const w = Math.min(maxW, img.width || maxW);
+      const h = Math.max(90, Math.round(w * ratio));
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', 0.72));
+    };
+    img.onerror = () => resolve('');
+    img.src = sourceDataUrl;
+  });
+}
 
-📲 Telegram Admin: @KaingChungpor`;
-  navigator.clipboard.writeText(text);
-  flashButton($('btnCopySignal'),
-    '<i data-lucide="check"></i><span>បានចម្លងទម្រង់ Signal រួចរាល់!</span>', COPY_SIGNAL_HTML);
+window.saveScanToHistoryLobby = async function(scanResult, previewDataUrl) {
+  if (!scanResult) return null;
+  const thumb = await createChartThumbnailDataUrl(previewDataUrl);
+  const list = getScanLobbyList();
+
+  const newEntry = {
+    id: `SCN-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
+    timestamp: Date.now(),
+    timeText: new Date().toLocaleString('km-KH'),
+    outcome: 'PENDING',
+    thumbDataUrl: thumb,
+    result: JSON.parse(JSON.stringify(scanResult))
+  };
+
+  list.unshift(newEntry);
+  saveScanLobbyList(list);
+  state.activeLobbyItemId = newEntry.id;
+  renderScanHistoryLobby();
+  return newEntry;
+};
+
+window.updateActiveLobbyItemResult = function(updatedResult) {
+  if (!updatedResult || !state.activeLobbyItemId) return;
+  const list = getScanLobbyList();
+  const idx = list.findIndex((item) => item.id === state.activeLobbyItemId);
+  if (idx !== -1) {
+    list[idx].result = JSON.parse(JSON.stringify(updatedResult));
+    list[idx].timeText = new Date().toLocaleString('km-KH');
+    saveScanLobbyList(list);
+    renderScanHistoryLobby();
+  }
+};
+
+function renderScanHistoryLobby() {
+  const lobbyEl = $('scanHistoryLobby');
+  if (!lobbyEl) return;
+
+  const list = getScanLobbyList();
+  const total = list.length;
+  const scalpCount = list.filter((i) => (i.result?.tradeStyle || 'SCALPING') === 'SCALPING').length;
+  const swingCount = list.filter((i) => i.result?.tradeStyle === 'SWING').length;
+  const winCount = list.filter((i) => i.outcome === 'WIN').length;
+  const lossCount = list.filter((i) => i.outcome === 'LOSS').length;
+
+  if ($('topLobbyCountBadge')) $('topLobbyCountBadge').textContent = String(total);
+  if ($('lobbyCountBadge')) $('lobbyCountBadge').textContent = `${total} Scans`;
+  if ($('lobbyStatTotal')) $('lobbyStatTotal').textContent = String(total);
+  if ($('lobbyStatScalp')) $('lobbyStatScalp').textContent = String(scalpCount);
+  if ($('lobbyStatSwing')) $('lobbyStatSwing').textContent = String(swingCount);
+  if ($('lobbyStatWin')) $('lobbyStatWin').textContent = String(winCount);
+  if ($('lobbyStatWL')) $('lobbyStatWL').textContent = `(${winCount}W / ${lossCount}L)`;
+
+  lobbyEl.querySelectorAll('[data-lobby-filter]').forEach((b) => {
+    const active = b.dataset.lobbyFilter === state.lobbyFilter;
+    b.className = active
+      ? 'lobby-filter-btn active px-3.5 py-1.5 rounded-xl bg-cyan-500 text-slate-950 font-extrabold border border-cyan-300 cursor-pointer shrink-0 shadow-[0_0_12px_rgba(6,182,212,0.35)]'
+      : 'lobby-filter-btn px-3.5 py-1.5 rounded-xl bg-[#0b1220] text-slate-300 border border-slate-700 hover:border-cyan-400 font-bold cursor-pointer shrink-0';
+  });
+
+  const filtered = list.filter((item) => {
+    const r = item.result || {};
+    const style = (r.tradeStyle || 'SCALPING').toUpperCase();
+    const act = (r.action || 'BUY').toUpperCase();
+    if (state.lobbyFilter === 'SCALPING') return style === 'SCALPING';
+    if (state.lobbyFilter === 'SWING') return style === 'SWING';
+    if (state.lobbyFilter === 'BUY') return act.includes('BUY');
+    if (state.lobbyFilter === 'SELL') return act.includes('SELL');
+    if (state.lobbyFilter === 'WIN') return item.outcome === 'WIN';
+    return true;
+  });
+
+  const container = $('scanLobbyList') || $('scanLobbyCards');
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (!filtered.length) {
+    container.innerHTML = `
+      <div class="p-6 rounded-2xl bg-[#0b111e] border border-dashed border-slate-800 text-center text-slate-400 text-xs sm:text-sm">
+        <div class="text-2xl mb-1.5">📭</div>
+        <div class="font-bold text-slate-300">មិនទាន់មានប្រវត្តិស្កេនក្នុង History Lobby នៅឡើយទេ</div>
+        <div class="text-xs text-slate-500 mt-1">រាល់ពេលអ្នកស្កេនរូបភាព Chart រួច លទ្ធផលនឹងលោតចូលក្នុងបន្ទប់ Lobby នេះដោយស្វ័យប្រវត្តិ!</div>
+      </div>
+    `;
+    icons();
+    return;
+  }
+
+  filtered.forEach((item, index) => {
+    const r = item.result || {};
+    const isBuy = String(r.action || '').toUpperCase().includes('BUY');
+    const isSwing = (r.tradeStyle || 'SCALPING') === 'SWING';
+    const isActive = item.id === state.activeLobbyItemId;
+
+    let outcomeBadge = `<span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-[10px] font-bold">⏳ កំពុងរង់ចាំ</span>`;
+    if (item.outcome === 'WIN') outcomeBadge = `<span class="px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 text-[10px] font-extrabold">✅ ឈ្នះ TP (WIN)</span>`;
+    else if (item.outcome === 'LOSS') outcomeBadge = `<span class="px-2 py-0.5 rounded-md bg-rose-500/20 border border-rose-400/50 text-rose-300 text-[10px] font-extrabold">🛑 ប៉ះ SL (LOSS)</span>`;
+
+    const card = document.createElement('div');
+    card.className = `scan-lobby-card p-3.5 sm:p-4 ${isActive ? 'latest-scan-highlight' : ''}`;
+    card.innerHTML = `
+      <div class="flex flex-col sm:flex-row gap-3.5 items-start sm:items-center justify-between">
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          ${item.thumbDataUrl
+            ? `<img src="${item.thumbDataUrl}" alt="Chart" class="w-20 h-16 sm:w-24 sm:h-16 rounded-xl object-cover border border-slate-700 shrink-0 cursor-pointer" data-lobby-view="${item.id}" />`
+            : `<div class="w-20 h-16 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan-400 shrink-0"><i data-lucide="image" class="w-5 h-5"></i></div>`}
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-[10px] font-mono font-bold text-slate-400">#${filtered.length - index}</span>
+              <span class="font-extrabold text-white text-sm sm:text-base">${r.pair || 'XAU/USD'}</span>
+              <span class="text-xs font-bold text-cyan-300">(${r.timeframe || 'M15'})</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${isSwing ? 'bg-amber-500/20 border border-amber-400/50 text-amber-300' : 'bg-cyan-500/20 border border-cyan-400/50 text-cyan-300'}">${isSwing ? '🌊 SWING' : '⚡ SCALPING'}</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${isBuy ? 'bg-emerald-500/20 border border-emerald-400/50 text-emerald-300' : 'bg-rose-500/20 border border-rose-400/50 text-rose-300'}">${isBuy ? '🟢 BUY' : '🔴 SELL'}</span>
+              ${outcomeBadge}
+            </div>
+            <div class="text-[11px] text-slate-400 mt-1">🕒 ${item.timeText || ''} • Trend: <strong class="text-slate-200">${r.trend || '-'}</strong></div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 self-end sm:self-center flex-wrap">
+          <button type="button" data-lobby-view="${item.id}" class="px-2.5 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 text-cyan-300 text-xs font-extrabold flex items-center gap-1 cursor-pointer">
+            <i data-lucide="eye" class="w-3.5 h-3.5"></i><span>មើលឡើងវិញ</span>
+          </button>
+          <button type="button" data-lobby-copy="${item.id}" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1 cursor-pointer">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i><span>Copy</span>
+          </button>
+          <button type="button" data-lobby-tg="${item.id}" class="px-2.5 py-1.5 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/40 text-blue-300 text-xs font-bold flex items-center gap-1 cursor-pointer">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i><span>TG</span>
+          </button>
+          <button type="button" data-lobby-win="${item.id}" class="px-2 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 text-[11px] font-extrabold cursor-pointer">✅ TP</button>
+          <button type="button" data-lobby-loss="${item.id}" class="px-2 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/40 text-rose-300 text-[11px] font-extrabold cursor-pointer">🛑 SL</button>
+          <button type="button" data-lobby-del="${item.id}" class="p-1.5 rounded-xl bg-slate-900 hover:bg-rose-950/70 text-slate-400 hover:text-rose-300 border border-slate-800 cursor-pointer"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 pt-2.5 border-t border-slate-800/80 text-xs">
+        <div class="px-2.5 py-1.5 rounded-lg bg-slate-900/90 border border-amber-500/25 flex justify-between"><span class="text-slate-400">🎯 Entry:</span><span class="font-extrabold text-amber-300">${r.entry || '-'}</span></div>
+        <div class="px-2.5 py-1.5 rounded-lg bg-slate-900/90 border border-rose-500/25 flex justify-between"><span class="text-slate-400">🛑 SL:</span><span class="font-extrabold text-rose-400">${r.sl || '-'}</span></div>
+        <div class="px-2.5 py-1.5 rounded-lg bg-slate-900/90 border border-emerald-500/25 flex justify-between"><span class="text-slate-400">💰 TP1:</span><span class="font-extrabold text-emerald-300">${r.tp1 || '-'}</span></div>
+        <div class="px-2.5 py-1.5 rounded-lg bg-slate-900/90 border border-emerald-500/25 flex justify-between"><span class="text-slate-400">💰 TP2:</span><span class="font-extrabold text-emerald-300">${r.tp2 || '-'}</span></div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  container.querySelectorAll('[data-lobby-view]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const found = getScanLobbyList().find((x) => x.id === btn.dataset.lobbyView);
+      if (!found?.result) return;
+      state.activeLobbyItemId = found.id;
+      state.result = JSON.parse(JSON.stringify(found.result));
+      if (found.thumbDataUrl) {
+        $('previewImg').src = found.thumbDataUrl;
+        state.imageBase64 = found.thumbDataUrl.split(',')[1];
+        state.mime = 'image/jpeg';
+        show($('dropEmpty'), false); show($('dropPreview'), true); show($('imgReadyStepBadge'), true);
+        $('dropZone')?.classList.add('has-image');
+      }
+      renderResult();
+      renderScanHistoryLobby();
+      $('resultCard')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+
+  container.querySelectorAll('[data-lobby-copy]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const found = getScanLobbyList().find((x) => x.id === btn.dataset.lobbyCopy);
+      if (!found?.result) return;
+      navigator.clipboard.writeText(buildSignalCopyText(found.result));
+      flashButton(btn, '<i data-lucide="check" class="w-3.5 h-3.5"></i><span>Copied</span>', '<i data-lucide="copy" class="w-3.5 h-3.5"></i><span>Copy</span>');
+    });
+  });
+
+  container.querySelectorAll('[data-lobby-tg]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const found = getScanLobbyList().find((x) => x.id === btn.dataset.lobbyTg);
+      if (!found?.result) return;
+      const b64 = found.thumbDataUrl ? found.thumbDataUrl.split(',')[1] : state.imageBase64;
+      if (typeof window.sendChartPhotoToTelegramBot === 'function' && b64) {
+        await window.sendChartPhotoToTelegramBot(b64, 'image/jpeg', found.result);
+      }
+    });
+  });
+
+  container.querySelectorAll('[data-lobby-win]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const listNow = getScanLobbyList();
+      const idx = listNow.findIndex((x) => x.id === btn.dataset.lobbyWin);
+      if (idx !== -1) {
+        listNow[idx].outcome = 'WIN';
+        state.winrate = Math.min(98.9, +(state.winrate + 0.3).toFixed(1));
+        state.winrateTrendUp = true;
+        updateWinrateUI();
+        saveScanLobbyList(listNow);
+        renderScanHistoryLobby();
+      }
+    });
+  });
+
+  container.querySelectorAll('[data-lobby-loss]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const listNow = getScanLobbyList();
+      const idx = listNow.findIndex((x) => x.id === btn.dataset.lobbyLoss);
+      if (idx !== -1) {
+        listNow[idx].outcome = 'LOSS';
+        state.winrate = +(89.4 + Math.random() * 0.5).toFixed(1);
+        state.winrateTrendUp = false;
+        updateWinrateUI();
+        saveScanLobbyList(listNow);
+        renderScanHistoryLobby();
+      }
+    });
+  });
+
+  container.querySelectorAll('[data-lobby-del]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      saveScanLobbyList(getScanLobbyList().filter((x) => x.id !== btn.dataset.lobbyDel));
+      renderScanHistoryLobby();
+    });
+  });
+
+  icons();
+}
+
+document.querySelectorAll('#lobbyFilterBar [data-lobby-filter]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    state.lobbyFilter = btn.dataset.lobbyFilter || 'ALL';
+    renderScanHistoryLobby();
+  });
+});
+
+$('btnJumpHistoryLobby')?.addEventListener('click', () => {
+  $('scanHistoryLobby')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+$('btnResultToLobby')?.addEventListener('click', () => {
+  $('scanHistoryLobby')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+$('btnNewScanFromLobby')?.addEventListener('click', () => {
+  $('dropZone')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if (state.unlocked) $('fileInput')?.click();
+});
+$('btnClearScanLobby')?.addEventListener('click', () => {
+  if (!getScanLobbyList().length) return;
+  if (confirm('តើអ្នកពិតជាចង់សម្អាតប្រវត្តិស្កេនទាំងអស់ក្នុង History Lobby មែនទេ?')) {
+    saveScanLobbyList([]);
+    renderScanHistoryLobby();
+  }
 });
 
 // ==========================================
-// 11. ADMIN PANEL: GENERATE & APPROVE 6-CHAR KEYS
+// 11. ADMIN PANEL & EVENT WIRING
 // ==========================================
 function setAdminKeyMode(mode) {
   state.adminKeyMode = mode;
   document.querySelectorAll('#durationBtns button').forEach((b) => {
-    const active = b.dataset.mode === mode;
-    b.className = active
+    b.className = b.dataset.mode === mode
       ? 'py-2 px-2.5 rounded-xl text-xs font-semibold border bg-cyan-500/20 border-cyan-400 text-cyan-300 cursor-pointer'
       : 'py-2 px-2.5 rounded-xl text-xs font-semibold border bg-slate-900 border-slate-700 text-slate-300 cursor-pointer';
   });
@@ -1590,10 +1625,7 @@ function newKey() {
 
 $('btnAdmin')?.addEventListener('click', () => {
   if (isAdminUser(state.user)) {
-    state.adminAuth = true;
-    show($('adminLoginForm'), false);
-    show($('adminPanel'), true);
-    newKey();
+    state.adminAuth = true; show($('adminLoginForm'), false); show($('adminPanel'), true); newKey();
   }
   openModal('adminModal');
 });
@@ -1601,18 +1633,11 @@ $('btnAdmin')?.addEventListener('click', () => {
 $('adminLoginForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
   if ($('adminPinInput').value === ADMIN_PIN || isAdminUser(state.user)) {
-    state.adminAuth = true;
-    show($('adminLoginForm'), false);
-    show($('adminPanel'), true);
-    newKey();
-    icons();
-  } else {
-    alert('លេខកូដសម្ងាត់ Admin មិនត្រឹមត្រូវទេ!');
-  }
+    state.adminAuth = true; show($('adminLoginForm'), false); show($('adminPanel'), true); newKey(); icons();
+  } else alert('លេខកូដសម្ងាត់ Admin មិនត្រឹមត្រូវទេ!');
 });
 
-document.querySelectorAll('#durationBtns button').forEach((b) =>
-  b.addEventListener('click', () => setAdminKeyMode(b.dataset.mode)));
+document.querySelectorAll('#durationBtns button').forEach((b) => b.addEventListener('click', () => setAdminKeyMode(b.dataset.mode)));
 $('btnNewKey')?.addEventListener('click', newKey);
 
 const COPY_MSG_HTML = '<i data-lucide="copy"></i><span>Approve & ចម្លង KEY ឱ្យភ្ញៀវ</span>';
@@ -1621,22 +1646,11 @@ $('btnCopyMsg')?.addEventListener('click', () => {
   localStorage.setItem('ksnr_latest_approved_key', state.genKey);
   state.latestIssuedKey = state.genKey;
   const check = verifySmartKey(state.genKey);
-  const msg = `🎉 អរគុណសម្រាប់ការជាវ Por - SNR Scanner!
-
-🔑 លេខ KEY ពិសេសរបស់អ្នកគឺ៖ ${state.genKey}
-⏳ កម្រិតសុពលភាព៖ ${check.type || '1-Time KEY'}
-📲 Telegram Admin៖ @KaingChungpor`;
-  navigator.clipboard.writeText(msg);
+  navigator.clipboard.writeText(`🎉 អរគុណសម្រាប់ការជាវ Por - SNR Scanner!\n🔑 KEY៖ ${state.genKey}\n⏳ សុពលភាព៖ ${check.type || '1-Time KEY'}`);
   flashButton($('btnCopyMsg'), '<i data-lucide="check"></i><span>Approved & បានចម្លង KEY!</span>', COPY_MSG_HTML);
 });
 
-// ==========================================
-// 12. EVENT WIRING
-// ==========================================
-$('btnApi')?.addEventListener('click', () => {
-  $('apiInput').value = getApiKey();
-  openModal('apiModal');
-});
+$('btnApi')?.addEventListener('click', () => { $('apiInput').value = getApiKey(); openModal('apiModal'); });
 $('apiForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
   const v = $('apiInput').value.trim();
@@ -1646,18 +1660,10 @@ $('apiForm')?.addEventListener('submit', (e) => {
   showError('');
 });
 $('btnBuy')?.addEventListener('click', () => openModal('buyModal'));
-$('btnLocked')?.addEventListener('click', () => {
-  if (!state.user) return openModal('loginModal');
-  openModal('keyModal');
-});
+$('btnLocked')?.addEventListener('click', () => { if (!state.user) return openModal('loginModal'); openModal('keyModal'); });
 $('btnLock')?.addEventListener('click', lock);
 $('btnKeyToBuy')?.addEventListener('click', () => { closeModal('keyModal'); openModal('buyModal'); });
-
-$('btnEnterKey')?.addEventListener('click', (e) => {
-  e.stopPropagation();
-  if (!state.user) return openModal('loginModal');
-  openModal('keyModal');
-});
+$('btnEnterKey')?.addEventListener('click', (e) => { e.stopPropagation(); if (!state.user) return openModal('loginModal'); openModal('keyModal'); });
 $('btnScan')?.addEventListener('click', (e) => {
   e.stopPropagation();
   if (!state.user) return openModal('loginModal');
@@ -1673,19 +1679,13 @@ document.querySelectorAll('[data-close]').forEach((b) =>
 
 $('keyForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
-  if (!state.user) {
-    closeModal('keyModal');
-    return openModal('loginModal');
-  }
+  if (!state.user) { closeModal('keyModal'); return openModal('loginModal'); }
   const inputVal = $('keyInput').value.trim().toUpperCase();
   const result = verifySmartKey(inputVal, state.user.identifier);
   if (result.valid) {
-    unlock(inputVal, result.type);
-    show($('keyError'), false);
-    closeModal('keyModal');
+    unlock(inputVal, result.type); show($('keyError'), false); closeModal('keyModal');
   } else {
-    $('keyError').textContent = result.reason;
-    show($('keyError'), true);
+    $('keyError').textContent = result.reason; show($('keyError'), true);
   }
 });
 
@@ -1693,10 +1693,11 @@ setTradeStyle(state.tradeStyle, false);
 updateWinrateUI();
 applyLanguage(state.lang);
 applyAuthUI();
+renderScanHistoryLobby();
 icons();
 
 // =========================================================
-// 13. 4K DYNAMIC TRADING BACKGROUND ENGINE (CANVAS)
+// 12. FULL 4K DYNAMIC TRADING BACKGROUND ENGINE (#bgTradeCanvas)
 // =========================================================
 (function init4KTradingBackground() {
   const canvas = document.getElementById('bgTradeCanvas');
@@ -1725,18 +1726,18 @@ icons();
   }
 
   const TAGS = [
-    'XAUUSD ▲', 'BTCUSD ▲', 'SCALPING 1M-15M', 'SWING 30M-1W', 'FOMC 15M-1H',
-    'KEY BUY=NEW BUY', 'KEY SELL=NEW SELL', 'LIQUIDITY', 'WINRATE 91.8%'
+    'XAUUSD ▲', 'BTCUSD ▲', 'ETHUSDT ▲', 'USOIL ▲', 'SCALPING 1M-15M',
+    'SWING 30M-1W', 'KEY BUY=NEW BUY', 'KEY SELL=NEW SELL', 'WINRATE 91.9%'
   ];
-  const nodes = Array.from({ length: 20 }, (_, i) => ({
+  const nodes = Array.from({ length: 22 }, (_, i) => ({
     x: Math.random(),
     y: Math.random(),
     vx: (Math.random() - 0.5) * 0.00035,
     vy: -0.00025 - Math.random() * 0.0004,
-    size: 1.5 + Math.random() * 2.2,
-    alpha: 0.18 + Math.random() * 0.35,
+    size: 1.6 + Math.random() * 2.2,
+    alpha: 0.2 + Math.random() * 0.38,
     tag: i < TAGS.length ? TAGS[i] : null,
-    isBull: Math.random() > 0.35
+    isBull: Math.random() > 0.32
   }));
 
   function resizeCanvas() {
@@ -1756,7 +1757,7 @@ icons();
     const offsetY = (parallaxY * 25) % gridH;
     ctx.save();
     ctx.lineWidth = 1;
-    ctx.strokeStyle = 'rgba(30, 58, 95, 0.18)';
+    ctx.strokeStyle = 'rgba(30, 58, 95, 0.20)';
     for (let x = offsetX; x < width; x += gridW) {
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
     }
@@ -1798,7 +1799,7 @@ icons();
         const yc = (emaPoints[i].y + emaPoints[i + 1].y) / 2;
         ctx.quadraticCurveTo(emaPoints[i].x, emaPoints[i].y, xc, yc);
       }
-      ctx.strokeStyle = 'rgba(24, 255, 255, 0.55)';
+      ctx.strokeStyle = 'rgba(24, 255, 255, 0.60)';
       ctx.lineWidth = 2.2;
       ctx.stroke();
     }
@@ -1807,7 +1808,7 @@ icons();
 
   function drawFloatingNodes() {
     ctx.save();
-    ctx.font = '600 10px Inter, monospace';
+    ctx.font = '700 10px Inter, monospace';
     nodes.forEach((n) => {
       n.x += n.vx; n.y += n.vy;
       if (n.y < -0.05) { n.y = 1.05; n.x = Math.random(); }
@@ -1817,7 +1818,7 @@ icons();
       ctx.fillStyle = n.isBull ? `rgba(52, 211, 153, ${n.alpha})` : `rgba(34, 211, 238, ${n.alpha})`;
       ctx.beginPath(); ctx.arc(px, py, n.size, 0, Math.PI * 2); ctx.fill();
       if (n.tag) {
-        ctx.fillStyle = `rgba(148, 163, 184, ${n.alpha * 0.75})`;
+        ctx.fillStyle = `rgba(148, 163, 184, ${n.alpha * 0.8})`;
         ctx.fillText(n.tag, px + 7, py + 3);
       }
     });
@@ -1838,89 +1839,81 @@ icons();
 })();
 
 // =========================================================
-// 14. 4K DYNAMIC BUY KEY MODAL BACKGROUND ENGINE (#buyKey4KCanvas)
+// 13. 4K DYNAMIC MODAL BACKGROUNDS (BUY MODAL & WINRATE MODAL)
 // =========================================================
-(function initBuyKey4KModalBackground() {
-  const canvas = document.getElementById('buyKey4KCanvas');
-  const modal = document.getElementById('buyModal');
-  if (!canvas || !modal) return;
-  const ctx = canvas.getContext('2d');
+function attach4KCanvasToModal(modalId, canvasId, labelsList) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
+  const shell = modal.firstElementChild;
+  if (!shell) return;
 
+  shell.classList.add('buy-modal-4k-shell');
+  let canvas = document.getElementById(canvasId);
+  if (!canvas) {
+    canvas = document.createElement('canvas');
+    canvas.id = canvasId;
+    canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.9;';
+    shell.insertBefore(canvas, shell.firstChild);
+    Array.from(shell.children).forEach((ch) => {
+      if (ch !== canvas && !ch.classList.contains('absolute')) {
+        ch.classList.add('relative', 'z-10');
+      }
+    });
+  }
+
+  const ctx = canvas.getContext('2d');
   let w = 0, h = 0, dpr = 1, t = 0;
 
-  const orbs = Array.from({ length: 24 }, (_, i) => ({
+  const orbs = Array.from({ length: 20 }, (_, i) => ({
     x: Math.random(),
     y: Math.random(),
     vx: (Math.random() - 0.5) * 0.0008,
-    vy: -0.0006 - Math.random() * 0.0009,
-    r: 1.5 + Math.random() * 2.8,
+    vy: -0.0006 - Math.random() * 0.0008,
+    r: 1.5 + Math.random() * 2.5,
     gold: i % 2 === 0,
     alpha: 0.25 + Math.random() * 0.45,
-    label: i < 8 ? ['🔑 2.5$', '🔑 4.5$', '🔑 8.5$', '⚡ 10$', '💎 25$', '👑 35$', '🚀 50$', '🔥 80$'][i] : null
+    label: i < labelsList.length ? labelsList[i] : null
   }));
 
-  const miniCandles = Array.from({ length: 18 }, (_, i) => ({
-    base: 0.3 + Math.sin(i * 0.5) * 0.18 + Math.random() * 0.1,
+  const miniCandles = Array.from({ length: 16 }, (_, i) => ({
+    base: 0.32 + Math.sin(i * 0.5) * 0.16 + Math.random() * 0.08,
     range: 0.05 + Math.random() * 0.06,
     phase: Math.random() * Math.PI * 2,
     speed: 0.02 + Math.random() * 0.02
   }));
 
-  function resizeBuyCanvas() {
-    const shell = canvas.parentElement;
-    if (!shell) return;
+  function resize() {
     dpr = Math.min(window.devicePixelRatio || 2, 3);
     w = Math.max(320, shell.clientWidth || 420);
-    h = Math.max(520, shell.scrollHeight || shell.clientHeight || 680);
+    h = Math.max(460, shell.scrollHeight || shell.clientHeight || 560);
     canvas.width = Math.floor(w * dpr);
     canvas.height = Math.floor(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
+  window.addEventListener('resize', resize);
 
-  window.addEventListener('resize', resizeBuyCanvas);
-  document.getElementById('btnBuy')?.addEventListener('click', () => {
-    setTimeout(resizeBuyCanvas, 30);
-  });
-  document.getElementById('btnKeyToBuy')?.addEventListener('click', () => {
-    setTimeout(resizeBuyCanvas, 30);
-  });
-
-  function renderBuyKey4K() {
+  function render() {
     if (!modal.classList.contains('hidden')) {
-      if (w === 0 || h === 0) resizeBuyCanvas();
+      if (w === 0 || h === 0) resize();
       t += 1;
       ctx.clearRect(0, 0, w, h);
 
       const g1 = ctx.createRadialGradient(
         w * (0.25 + Math.sin(t * 0.015) * 0.15),
         h * (0.2 + Math.cos(t * 0.012) * 0.1),
-        10,
-        w * 0.3,
-        h * 0.25,
-        w * 0.75
+        10, w * 0.3, h * 0.25, w * 0.8
       );
-      g1.addColorStop(0, 'rgba(250, 204, 21, 0.16)');
-      g1.addColorStop(0.5, 'rgba(0, 229, 255, 0.08)');
+      g1.addColorStop(0, 'rgba(0, 230, 118, 0.14)');
+      g1.addColorStop(0.5, 'rgba(0, 229, 255, 0.09)');
       g1.addColorStop(1, 'transparent');
       ctx.fillStyle = g1;
       ctx.fillRect(0, 0, w, h);
 
-      const step = 42;
-      const offY = (t * 0.4) % step;
+      const step = 40, offY = (t * 0.4) % step;
       ctx.strokeStyle = 'rgba(56, 189, 248, 0.10)';
       ctx.lineWidth = 0.8;
-      for (let x = 0; x < w; x += step) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
-      }
-      for (let y = offY; y < h; y += step) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
-      }
+      for (let x = 0; x < w; x += step) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+      for (let y = offY; y < h; y += step) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
 
       const cStep = w / miniCandles.length;
       ctx.beginPath();
@@ -1930,60 +1923,50 @@ icons();
         const x = i * cStep + cStep * 0.5;
         const openY = (1 - mc.base) * h;
         const closeY = (1 - (mc.base + wave)) * h;
-        const highY = Math.min(openY, closeY) - 14;
-        const lowY = Math.max(openY, closeY) + 14;
         const bull = closeY <= openY;
 
         ctx.save();
-        ctx.strokeStyle = bull ? 'rgba(16, 185, 129, 0.32)' : 'rgba(244, 63, 94, 0.28)';
-        ctx.fillStyle = bull ? 'rgba(16, 185, 129, 0.20)' : 'rgba(244, 63, 94, 0.18)';
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.moveTo(x, highY);
-        ctx.lineTo(x, lowY);
-        ctx.stroke();
+        ctx.strokeStyle = bull ? 'rgba(16, 185, 129, 0.34)' : 'rgba(244, 63, 94, 0.30)';
+        ctx.fillStyle = bull ? 'rgba(16, 185, 129, 0.22)' : 'rgba(244, 63, 94, 0.20)';
+        ctx.beginPath(); ctx.moveTo(x, Math.min(openY, closeY) - 12); ctx.lineTo(x, Math.max(openY, closeY) + 12); ctx.stroke();
         ctx.fillRect(x - 4, Math.min(openY, closeY), 8, Math.max(4, Math.abs(closeY - openY)));
         ctx.restore();
 
         if (i === 0) ctx.moveTo(x, closeY);
         else ctx.lineTo(x, closeY);
       }
-      ctx.strokeStyle = 'rgba(250, 204, 21, 0.42)';
+      ctx.strokeStyle = 'rgba(24, 255, 255, 0.45)';
       ctx.lineWidth = 1.8;
       ctx.stroke();
 
       ctx.font = '700 9.5px Inter, sans-serif';
       orbs.forEach((o) => {
-        o.x += o.vx;
-        o.y += o.vy;
+        o.x += o.vx; o.y += o.vy;
         if (o.y < -0.05) { o.y = 1.05; o.x = Math.random(); }
         if (o.x < -0.05) o.x = 1.05;
         if (o.x > 1.05) o.x = -0.05;
-
-        const px = o.x * w;
-        const py = o.y * h;
-        ctx.beginPath();
-        ctx.arc(px, py, o.r, 0, Math.PI * 2);
-        ctx.fillStyle = o.gold
-          ? `rgba(250, 204, 21, ${o.alpha})`
-          : `rgba(24, 255, 255, ${o.alpha})`;
+        const px = o.x * w, py = o.y * h;
+        ctx.beginPath(); ctx.arc(px, py, o.r, 0, Math.PI * 2);
+        ctx.fillStyle = o.gold ? `rgba(250, 204, 21, ${o.alpha})` : `rgba(0, 230, 118, ${o.alpha})`;
         ctx.fill();
-
         if (o.label) {
-          ctx.fillStyle = `rgba(254, 240, 138, ${o.alpha * 0.75})`;
+          ctx.fillStyle = `rgba(203, 213, 225, ${o.alpha * 0.8})`;
           ctx.fillText(o.label, px + 6, py + 3);
         }
       });
     }
-    requestAnimationFrame(renderBuyKey4K);
+    requestAnimationFrame(render);
   }
 
-  resizeBuyCanvas();
-  renderBuyKey4K();
-})();
+  resize();
+  render();
+}
+
+attach4KCanvasToModal('buyModal', 'buyKey4KCanvas', ['🔑 2.5$', '🔑 4.5$', '🔑 8.5$', '⚡ 10$', '💎 25$', '👑 35$', '🚀 50$', '🔥 80$']);
+attach4KCanvasToModal('winrateModal', 'winrate4KCanvas', ['XAUUSD ▲', 'BTCUSD ▲', 'ETHUSDT ▲', 'USOIL ▲', '91.9% WIN', 'SNIPER']);
 
 // =========================================================
-// 15. TELEGRAM BOT REGIME & PRICE ALERTS ENGINE (CLEAN & UNIFIED)
+// 14. TELEGRAM BOT REGIME & PRICE ALERTS ENGINE (UNIFIED)
 // =========================================================
 function playTelegramSuccessBeep() {
   try {
@@ -2163,8 +2146,7 @@ function playTelegramSuccessBeep() {
 
   document.querySelectorAll('[data-regime-preset]').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      const key = btn.dataset.regimePreset;
-      const preset = TG_PRESETS[key];
+      const preset = TG_PRESETS[btn.dataset.regimePreset];
       if (!preset) return;
       const msg = formatRegimeAlertMessage(preset.symbol, preset.from, preset.to);
       try {
@@ -2230,98 +2212,11 @@ function playTelegramSuccessBeep() {
       return showTgFeedback('⚠️ សូមបញ្ចូលតម្លៃគោលដៅ (Target Price) ដើម្បីកំណត់ម៉ោងរោទ៍!', true);
     }
 
-    activePriceAlerts.push({
-      symbol: sym,
-      from,
-      to,
-      targetPrice,
-      createdAt: Date.now()
-    });
+    activePriceAlerts.push({ symbol: sym, from, to, targetPrice, createdAt: Date.now() });
     savePriceAlerts();
     document.getElementById('tgTargetPrice').value = '';
     showTgFeedback(`✅ បានដាក់ម៉ោងរោទ៍ ${sym} នៅតម្លៃ ${targetPrice}!`);
   });
-
-  const lastRegimeState = { BTCUSDT: null, XAUUSD: null, ETHUSDT: null, EURUSD: null, USOIL: null };
-  const lastPriceMemory = { BTCUSDT: null, XAUUSD: null, ETHUSDT: null, EURUSD: null, USOIL: null };
-
-  async function fetchLivePriceAndKlines(symbol) {
-    let binanceSym = 'BTCUSDT';
-    if (symbol === 'XAUUSD') binanceSym = 'PAXGUSDT';
-    else if (symbol === 'ETHUSDT') binanceSym = 'ETHUSDT';
-    else if (symbol === 'EURUSD') binanceSym = 'EURUSDT';
-    else if (symbol === 'USOIL') binanceSym = 'USDCUSDT';
-
-    try {
-      const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${binanceSym}&interval=15m&limit=30`);
-      const klines = await res.json();
-      if (!Array.isArray(klines) || klines.length < 20) return null;
-
-      const closes = klines.map((k) => parseFloat(k[4]));
-      const livePrice = closes[closes.length - 1];
-
-      const ema = (arr, len) => {
-        const k = 2 / (len + 1);
-        let val = arr[0];
-        for (let i = 1; i < arr.length; i++) val = arr[i] * k + val * (1 - k);
-        return val;
-      };
-      const emaFast = ema(closes.slice(-15), 7);
-      const emaSlow = ema(closes, 21);
-      const diffPct = Math.abs(emaFast - emaSlow) / emaSlow;
-
-      let regime = 'ranging ↔️';
-      if (diffPct >= 0.0018) {
-        regime = emaFast > emaSlow ? 'trending up 📈' : 'trending down 📉';
-      }
-      return { livePrice, regime };
-    } catch (e) {
-      return null;
-    }
-  }
-
-  setInterval(async () => {
-    const autoMonitor = document.getElementById('tgAutoMonitorToggle')?.checked;
-    if (!autoMonitor && activePriceAlerts.length === 0) return;
-
-    for (const sym of ['BTCUSDT', 'XAUUSD', 'ETHUSDT', 'EURUSD', 'USOIL']) {
-      try {
-        const info = await fetchLivePriceAndKlines(sym);
-        if (!info) continue;
-
-        const prevPrice = lastPriceMemory[sym];
-        lastPriceMemory[sym] = info.livePrice;
-
-        for (let i = activePriceAlerts.length - 1; i >= 0; i--) {
-          const al = activePriceAlerts[i];
-          if (al.symbol !== sym) continue;
-          const crossed =
-            prevPrice !== null &&
-            ((prevPrice < al.targetPrice && info.livePrice >= al.targetPrice) ||
-              (prevPrice > al.targetPrice && info.livePrice <= al.targetPrice));
-
-          if (crossed) {
-            const msg = formatRegimeAlertMessage(sym, al.from, al.to, info.livePrice.toFixed(2));
-            await sendTelegramMessage(msg);
-            playTelegramSuccessBeep();
-            activePriceAlerts.splice(i, 1);
-            savePriceAlerts();
-          }
-        }
-
-        if (autoMonitor) {
-          const prevRegime = lastRegimeState[sym];
-          if (prevRegime && prevRegime !== info.regime) {
-            const fromFormatted = prevRegime.charAt(0).toUpperCase() + prevRegime.slice(1);
-            const msg = formatRegimeAlertMessage(sym, fromFormatted, info.regime, info.livePrice.toFixed(2));
-            await sendTelegramMessage(msg);
-            playTelegramSuccessBeep();
-          }
-          lastRegimeState[sym] = info.regime;
-        }
-      } catch (e) {}
-    }
-  }, 15000);
 
   const copyBtn = document.getElementById('btnCopySignal');
   if (copyBtn && !document.getElementById('btnSendSignalToTg')) {
@@ -2337,9 +2232,7 @@ function playTelegramSuccessBeep() {
       if (!r) return;
       const isBuy = (r.action || '').toUpperCase().includes('BUY');
       const isSwing = (r.tradeStyle || state.tradeStyle) === 'SWING';
-      const regimeText = isBuy
-        ? `Ranging ↔️ → trending up 📈`
-        : `Trending up 📈 → ranging ↔️`;
+      const regimeText = isBuy ? `Ranging ↔️ → trending up 📈` : `Trending up 📈 → ranging ↔️`;
       const msg = `🔀 Regime change — ${(r.pair || 'XAUUSD').replace('/', '')}
 ${regimeText}
 Review open positions and pending setups on this symbol.

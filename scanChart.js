@@ -1,6 +1,7 @@
 // ==========================================
 // REAL-TIME CHART VISION & KEY POR - SNR ENGINE
 // + SCALPING vs SWING TRADE DYNAMIC CALIBRATION
+// + AUTO SAVE TO AFTER-SCAN HISTORY LOBBY
 // + AUTO SEND SCANNED IMAGE TO TELEGRAM BOT
 // ==========================================
 
@@ -180,6 +181,7 @@ async function sendChartPhotoToTelegramBot(base64Image, mimeType, scanResult) {
       });
       const data = await res.json();
       if (data.ok) {
+        if (typeof playTelegramSuccessBeep === 'function') playTelegramSuccessBeep();
         const fb = document.getElementById('tgAlertFeedback');
         if (fb) {
           fb.textContent = `✅ បានផ្ញើរូបភាព Chart + ${scanResult.tradeStyle || state.tradeStyle} Signal (${scanResult.pair}) ទៅ Telegram!`;
@@ -208,6 +210,8 @@ async function sendChartPhotoToTelegramBot(base64Image, mimeType, scanResult) {
     });
   } catch (e) {}
 }
+
+window.sendChartPhotoToTelegramBot = sendChartPhotoToTelegramBot;
 
 // =========================================================
 // BUILT-IN LOCAL AI VISION & OCR ENGINE (NO API KEY NEEDED)
@@ -623,6 +627,10 @@ window.recalculateResultForTradeStyle = function(newStyle) {
   const styleTitle = newStyle === 'SWING' ? '🌊 SWING TRADE' : '⚡ SCALPING TRADE';
   state.result.keyFlipRule = `${styleTitle} • KEY Por - SNR (${state.result.timeframe}): Candle/Wick ចាក់ ${isBuy ? 'KEY BUY = NEW BUY' : 'KEY SELL = NEW SELL'} 💸`;
   renderResult();
+
+  if (typeof window.updateActiveLobbyItemResult === 'function') {
+    window.updateActiveLobbyItemResult(state.result);
+  }
 };
 
 function optimizeChartImage(dataUrl) {
@@ -705,6 +713,11 @@ async function scanChart() {
     consumeKeyScanIfNeeded();
     renderResult();
 
+    // Auto-save scan result + chart thumbnail into After-Scan History Lobby
+    if (typeof window.saveScanToHistoryLobby === 'function') {
+      await window.saveScanToHistoryLobby(state.result, previewSrc);
+    }
+
     await sendChartPhotoToTelegramBot(state.imageBase64, state.mime, state.result);
   } catch (err) {
     console.error(err);
@@ -714,3 +727,5 @@ async function scanChart() {
     renderScanButton();
   }
 }
+
+window.scanChart = scanChart;

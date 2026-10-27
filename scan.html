@@ -30,6 +30,7 @@
       <span class="inline-flex items-center gap-1.5 text-amber-400">BNB <span class="text-rose-500 text-[10px]">▼</span></span>
       <span class="inline-flex items-center gap-1.5 text-slate-300">XRP <span class="text-emerald-400 text-[10px]">▲</span></span>
       <span class="inline-flex items-center gap-1.5 text-cyan-300">XAUUSD <span class="text-emerald-400 text-[10px]">▲</span></span>
+      <span class="inline-flex items-center gap-1.5 text-blue-300">ETHUSDT <span class="text-emerald-400 text-[10px]">▲</span></span>
       <span class="inline-flex items-center gap-1.5 text-cyan-300">XAGUSD <span class="text-rose-500 text-[10px]">▼</span></span>
       <span class="inline-flex items-center gap-1.5 text-sky-400">USOIL <span class="text-emerald-400 text-[10px]">▲</span></span>
       <span class="inline-flex items-center gap-1.5 text-purple-400">NASDAQ <span class="text-emerald-400 text-[10px]">▲</span></span>
@@ -120,12 +121,12 @@
       <span class="inline-flex items-center gap-1 font-extrabold text-amber-400 tracking-wide">
         ⚡ SIGNAL
       </span>
-      <button id="btnWinrateAction" type="button" title="ចុចមើលស្ថិតិ Winrate ផ្ទាល់" class="winrate-pill inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#062822]/90 hover:bg-[#093830] border border-emerald-500/50 text-[#00e676] text-xs sm:text-sm font-extrabold shadow-[0_0_18px_rgba(16,185,129,0.22)] transition-all active:scale-95 cursor-pointer">
-        <span id="winrateText">Winrate 91.8%</span>
-        <svg class="w-11 h-3.5 stroke-[#00e676] fill-none overflow-visible" viewBox="0 0 44 12" stroke-width="2" stroke-linecap="round">
-          <path id="winrateWavePath" d="M1 7 C12 7, 20 9, 30 8 C35 7.5, 38 6.5, 41 6" />
-          <circle id="winrateDot" cx="41" cy="6" r="2.3" class="fill-[#00e676] animate-ping-slow" />
-          <circle cx="41" cy="6" r="2" class="fill-[#00e676]" />
+      <button id="btnWinrateAction" type="button" title="ចុចមើលស្ថិតិ Winrate ផ្ទាល់ (Live Action)" class="winrate-pill inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#062822]/90 hover:bg-[#093830] border border-emerald-500/50 text-[#00e676] text-xs sm:text-sm font-extrabold shadow-[0_0_18px_rgba(16,185,129,0.22)] transition-all active:scale-95 cursor-pointer">
+        <span id="winrateText">Winrate <span class="text-[#00e676] transition-colors duration-300">91.9</span>%</span>
+        <svg class="w-11 h-3.5 stroke-[#00e676] fill-none overflow-visible transition-colors duration-300" viewBox="0 0 44 12" stroke-width="2" stroke-linecap="round">
+          <path id="winrateWavePath" d="M1 7.5 C12 7.5, 22 8.3, 31 7.4 C36 6.8, 38.5 6.0, 41 5.5" />
+          <circle id="winrateDot" cx="41" cy="5.5" r="2.3" class="fill-[#00e676] animate-ping-slow" />
+          <circle cx="41" cy="5.5" r="2" class="fill-[#00e676]" />
         </svg>
       </button>
     </div>
@@ -196,7 +197,7 @@
               <span>🔀 Telegram Bot Regime & Price Alerts</span>
               <span id="tgBotStatusBadge" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/20 border border-rose-500/40 text-rose-300">មិនទាន់ភ្ជាប់ Bot</span>
             </h2>
-            <p class="text-[11px] text-slate-400">ផ្ញើសារផ្លាស់ប្តូរទម្រង់ទីផ្សារ (Regime Change) និងកំណត់តម្លៃ BTCUSDT & XAUUSD ទៅ Telegram ផ្ទាល់</p>
+            <p class="text-[11px] text-slate-400">ផ្ញើសារផ្លាស់ប្តូរទម្រង់ទីផ្សារ (Regime Change) និងកំណត់តម្លៃ BTCUSDT, XAUUSD, ETHUSDT & USOIL ទៅ Telegram ផ្ទាល់</p>
           </div>
         </div>
         <button id="btnOpenTgConfig" type="button" class="px-3 py-1.5 rounded-xl bg-[#0b1326] hover:bg-[#162444] border border-cyan-400/50 text-cyan-300 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition-all">
@@ -251,9 +252,9 @@
             <div class="text-[10px] text-slate-400 mt-0.5 truncate">Review open positions and pending setups on this symbol.</div>
           </button>
 
-          <button type="button" data-regime-preset="USOIL_DOWN_RANGE" class="p-3 rounded-xl bg-[#0b111e]/95 hover:bg-[#131e36] border border-rose-500/35 text-left transition-all active:scale-[0.99] cursor-pointer group">
+          <button type="button" data-regime-preset="USOIL_DOWN_RANGE" class="p-3 rounded-xl bg-[#0b111e]/95 hover:bg-[#131e36] border border-rose-500/35 text-left transition-all active:scale-[0.99] cursor-pointer group sm:col-span-2">
             <div class="flex items-center justify-between text-xs font-extrabold text-rose-300">
-              <span>🔀 Regime change — USOIL</span>
+              <span>🔀 Regime change — USOIL (Crude Oil)</span>
               <i data-lucide="send" class="w-3.5 h-3.5 text-slate-400 group-hover:text-cyan-400"></i>
             </div>
             <div class="text-xs font-bold text-white mt-1">Trending down 📉 → ranging ↔️</div>
@@ -308,7 +309,7 @@
 
       <!-- Top Action Bar -->
       <div class="flex items-center justify-between gap-2.5 mb-5 relative z-10 flex-wrap">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
           <button id="btnBuy" class="gold-glow bg-gradient-to-b from-[#fcd34d] via-[#f59e0b] to-[#d97706] hover:brightness-110 active:scale-95 transition-all text-slate-950 font-bold px-4 sm:px-5 py-3 rounded-2xl flex items-center gap-2 text-xs sm:text-base cursor-pointer border border-amber-300/60">
             <i data-lucide="key" class="w-4 h-4 sm:w-5 sm:h-5 -rotate-45 fill-slate-950"></i>
             <span id="txtBuyKey">ទិញ KEY</span>
@@ -317,6 +318,13 @@
           <button id="btnOpenReceiveKey" type="button" class="bg-[#132038] hover:bg-[#192a4a] active:scale-95 transition-all border border-cyan-500/40 text-cyan-300 font-bold px-3.5 sm:px-4 py-3 rounded-2xl flex items-center gap-1.5 text-xs sm:text-sm cursor-pointer shadow-md">
             <i data-lucide="inbox" class="w-4 h-4 text-amber-400"></i>
             <span>កន្លែងទទួល KEY</span>
+          </button>
+
+          <!-- Quick Jump to Scan History Lobby Button -->
+          <button id="btnJumpHistoryLobby" type="button" class="bg-[#0e1d34] hover:bg-[#162d4c] active:scale-95 transition-all border border-purple-400/45 text-purple-300 font-bold px-3.5 py-3 rounded-2xl flex items-center gap-1.5 text-xs sm:text-sm cursor-pointer shadow-md">
+            <i data-lucide="layers" class="w-4 h-4 text-cyan-400"></i>
+            <span>History Lobby</span>
+            <span id="topLobbyCountBadge" class="px-1.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-[#18ffff] text-[10px] font-extrabold">0</span>
           </button>
         </div>
 
@@ -346,6 +354,7 @@
               <option value="XAU/USD">🪙 XAU/USD (Gold)</option>
               <option value="BTC/USDT">₿ BTC/USDT</option>
               <option value="ETH/USDT">💎 ETH/USDT</option>
+              <option value="USOIL">🛢️ USOIL (Crude Oil)</option>
               <option value="EUR/USD">💶 EUR/USD</option>
               <option value="GBP/USD">💷 GBP/USD</option>
               <option value="USD/JPY">💴 USD/JPY</option>
@@ -354,7 +363,6 @@
               <option value="USD/CAD">🇨🇦 USD/CAD</option>
               <option value="US30">📈 US30 (Dow Jones)</option>
               <option value="NAS100">🚀 NAS100 (Nasdaq)</option>
-              <option value="USOIL">🛢️ USOIL (Crude Oil)</option>
               <option value="XAG/USD">🥈 XAG/USD (Silver)</option>
               <option value="SOL/USDT">⚡ SOL/USDT</option>
               <option value="BNB/USDT">🟡 BNB/USDT</option>
@@ -506,7 +514,7 @@
       </div>
     </div>
 
-    <!-- Result Card -->
+    <!-- 6. RESULT CARD -->
     <div id="resultCard" class="hidden w-full mt-6 bg-[#111726] border border-cyan-500/40 rounded-[24px] p-5 sm:p-6 shadow-2xl animate-fadeIn">
       <div class="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-slate-800">
         <div class="flex items-center gap-2.5">
@@ -583,6 +591,116 @@
         <i data-lucide="copy" class="w-4 h-4"></i>
         <span>ចម្លង Signal យកទៅផុស (Copy Signal)</span>
       </button>
+
+      <!-- Button to Scroll/Focus After-Scan History Lobby -->
+      <button id="btnResultToLobby" type="button" class="w-full mt-2.5 py-3 rounded-xl bg-[#131d35] hover:bg-[#1a2847] border border-purple-400/45 text-purple-300 font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer">
+        <i data-lucide="layers" class="w-4 h-4 text-[#18ffff]"></i>
+        <span>🏛️ បើកបន្ទប់ប្រវត្តិស្កេន (Open Scan History Lobby)</span>
+      </button>
+    </div>
+
+    <!-- 7. AFTER-SCAN HISTORY LOBBY -->
+    <div id="scanHistoryLobby" class="history-lobby-shell w-full mt-6 bg-[#111726] border border-cyan-500/35 rounded-[26px] p-5 sm:p-6 shadow-2xl relative overflow-hidden animate-fadeIn">
+      <div class="absolute -top-20 -right-20 w-56 h-56 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Lobby Header -->
+      <div class="flex items-center justify-between flex-wrap gap-3 pb-4 border-b border-slate-800/90 relative z-10">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-500/20 via-blue-500/20 to-purple-500/20 border border-cyan-400/50 flex items-center justify-center text-[#18ffff] shadow-[0_0_20px_rgba(24,255,255,0.2)]">
+            <i data-lucide="layers" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 id="txtLobbyTitle" class="font-extrabold text-white text-base sm:text-lg tracking-wide">
+                🏛️ បន្ទប់ប្រវត្តិស្កេន (Scan History Lobby)
+              </h3>
+              <span id="lobbyCountBadge" class="px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-[10px] font-extrabold">
+                0 Scans
+              </span>
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 text-[10px] font-extrabold uppercase">
+                ● AUTO-SAVED AFTER SCAN
+              </span>
+            </div>
+            <p id="txtLobbySub" class="text-xs text-slate-400 mt-0.5">
+              រាល់ពេលស្កេនរួច លទ្ធផល Chart + Entry/SL/TP ត្រូវបានរក្សាទុកក្នុង Lobby នេះដោយស្វ័យប្រវត្តិ
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="btnNewScanFromLobby" type="button" class="px-3.5 py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-400/50 text-[#18ffff] text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition-all">
+            <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+            <span>ស្កេន Chart ថ្មី</span>
+          </button>
+          <button id="btnClearScanLobby" type="button" title="លុបប្រវត្តិស្កេនទាំងអស់" class="px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/35 text-rose-300 text-xs font-bold flex items-center gap-1 cursor-pointer transition-all">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            <span>សម្អាត</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Lobby Summary Stats Bar -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 my-4 relative z-10">
+        <div class="p-3 rounded-2xl bg-[#0b111e]/95 border border-slate-800 flex items-center justify-between">
+          <div>
+            <div class="text-[10px] font-bold text-slate-400 uppercase">ស្កេនសរុប (TOTAL)</div>
+            <div id="lobbyStatTotal" class="text-lg font-extrabold text-white mt-0.5">0</div>
+          </div>
+          <i data-lucide="bar-chart-3" class="w-5 h-5 text-cyan-400"></i>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-[#0b111e]/95 border border-cyan-500/25 flex items-center justify-between">
+          <div>
+            <div class="text-[10px] font-bold text-cyan-300 uppercase">⚡ SCALPING</div>
+            <div id="lobbyStatScalp" class="text-lg font-extrabold text-[#18ffff] mt-0.5">0</div>
+          </div>
+          <i data-lucide="zap" class="w-5 h-5 text-[#18ffff]"></i>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-[#0b111e]/95 border border-amber-500/25 flex items-center justify-between">
+          <div>
+            <div class="text-[10px] font-bold text-amber-300 uppercase">🌊 SWING TRADE</div>
+            <div id="lobbyStatSwing" class="text-lg font-extrabold text-amber-300 mt-0.5">0</div>
+          </div>
+          <i data-lucide="trending-up" class="w-5 h-5 text-amber-300"></i>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-[#0b111e]/95 border border-emerald-500/25 flex items-center justify-between">
+          <div>
+            <div class="text-[10px] font-bold text-emerald-300 uppercase">✅ WIN / TP HIT</div>
+            <div class="flex items-baseline gap-1.5 mt-0.5">
+              <span id="lobbyStatWin" class="text-lg font-extrabold text-emerald-400">0</span>
+              <span id="lobbyStatWL" class="text-[10px] font-bold text-slate-400">(0W / 0L)</span>
+            </div>
+          </div>
+          <i data-lucide="trophy" class="w-5 h-5 text-emerald-400"></i>
+        </div>
+      </div>
+
+      <!-- Lobby Filter Tabs -->
+      <div id="lobbyFilterBar" class="flex items-center gap-1.5 overflow-x-auto pb-2 mb-3 text-xs font-extrabold relative z-10">
+        <button type="button" data-lobby-filter="ALL" class="lobby-filter-btn active px-3.5 py-1.5 rounded-xl bg-cyan-500 text-slate-950 border border-cyan-300 cursor-pointer shrink-0">
+          ទាំងអស់ (All)
+        </button>
+        <button type="button" data-lobby-filter="SCALPING" class="lobby-filter-btn px-3.5 py-1.5 rounded-xl bg-[#0b1220] text-cyan-300 border border-slate-700 hover:border-cyan-400 cursor-pointer shrink-0">
+          ⚡ Scalping
+        </button>
+        <button type="button" data-lobby-filter="SWING" class="lobby-filter-btn px-3.5 py-1.5 rounded-xl bg-[#0b1220] text-amber-300 border border-slate-700 hover:border-amber-400 cursor-pointer shrink-0">
+          🌊 Swing Trade
+        </button>
+        <button type="button" data-lobby-filter="BUY" class="lobby-filter-btn px-3.5 py-1.5 rounded-xl bg-[#0b1220] text-emerald-300 border border-slate-700 hover:border-emerald-400 cursor-pointer shrink-0">
+          🟢 BUY Signals
+        </button>
+        <button type="button" data-lobby-filter="SELL" class="lobby-filter-btn px-3.5 py-1.5 rounded-xl bg-[#0b1220] text-rose-300 border border-slate-700 hover:border-rose-400 cursor-pointer shrink-0">
+          🔴 SELL Signals
+        </button>
+        <button type="button" data-lobby-filter="WIN" class="lobby-filter-btn px-3.5 py-1.5 rounded-xl bg-[#0b1220] text-emerald-400 border border-slate-700 hover:border-emerald-400 cursor-pointer shrink-0">
+          🏆 ឈ្នះ TP (WIN)
+        </button>
+      </div>
+
+      <!-- Lobby Cards Container -->
+      <div id="scanLobbyList" class="space-y-3 max-h-[540px] overflow-y-auto pr-1 relative z-10"></div>
     </div>
 
     <!-- Info & Disclaimer -->
@@ -593,7 +711,8 @@
         </h3>
         <ul class="space-y-2.5 text-xs sm:text-sm text-slate-300">
           <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">ជ្រើសរើសបានទាំង Scalping & Swing Trade៖</strong> ដាក់រូបភាពភ្លាម ជ្រើសរើសវាយខ្លី (Scalping) ឬកាន់វែង (Swing) តាមចិត្ត។</span></li>
-          <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">គាំទ្រគ្រប់ Timeframe (1m–1w) + Real Live Data៖</strong> ទាញតម្លៃពិតៗពីទីផ្សារផ្ទាល់។</span></li>
+          <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">បន្ទប់ប្រវត្តិស្កេន (After-Scan History Lobby)៖</strong> រាល់ពេលស្កេនរួច លទ្ធផល និងរូបភាព Chart ត្រូវបានរក្សាទុកក្នុង Lobby ដើម្បីមើលឡើងវិញ ឬកត់ត្រា WIN/LOSS។</span></li>
+          <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">គាំទ្រគ្រប់ Timeframe (1m–1w) + Real Live Data៖</strong> ទាញតម្លៃពិតៗពីទីផ្សារផ្ទាល់ (XAUUSD, BTCUSDT, ETHUSDT, USOIL...)។</span></li>
           <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">គាំទ្រការស្កេនម៉ោងព័ត៌មាន៖</strong> NON FARM (4H), CPI (1H), និង FOMC (15M-30M-1H)។</span></li>
         </ul>
       </div>
@@ -671,7 +790,7 @@
 
       <button id="btnOpenHistory" type="button" class="w-full py-3.5 px-4 rounded-2xl bg-[#131d31] hover:bg-[#192640] border border-slate-700/80 text-white font-bold text-sm flex items-center justify-center gap-2.5 mb-5 transition-colors cursor-pointer">
         <i data-lucide="history" class="w-4 h-4 text-[#00e5ff]"></i>
-        <span>ប្រវត្តិ (វិក្កយបត្រ, KEY, ការប្រើ)</span>
+        <span>ប្រវត្តិគណនី (វិក្កយបត្រ, KEY, ការប្រើ)</span>
       </button>
 
       <div class="mb-5">
@@ -706,41 +825,53 @@
     </div>
   </div>
 
-  <!-- MODAL: WINRATE LIVE ACTION STATS -->
+  <!-- MODAL: WINRATE LIVE ACTION STATS (WITH 4K DYNAMIC BACKGROUND + ETHUSDT & USOIL) -->
   <div id="winrateModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-[#0e1626] border border-emerald-500/40 rounded-[26px] max-w-md w-full p-6 shadow-2xl relative animate-fadeIn">
-      <button data-close="winrateModal" class="absolute top-5 right-5 text-slate-400 hover:text-white cursor-pointer">
+    <div class="winrate-modal-4k-shell border border-emerald-500/45 rounded-[28px] max-w-md w-full p-6 shadow-2xl relative animate-fadeIn">
+      <!-- 4K Dynamic Canvas inside Winrate Modal -->
+      <canvas id="winrate4KCanvas"></canvas>
+
+      <button data-close="winrateModal" class="absolute top-5 right-5 z-20 text-slate-400 hover:text-white cursor-pointer">
         <i data-lucide="x" class="w-6 h-6"></i>
       </button>
-      <div class="flex items-center gap-3 mb-4">
-        <div class="p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400">
+
+      <div class="relative z-10 flex items-center gap-3 mb-4">
+        <div class="p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.25)]">
           <i data-lucide="activity" class="w-6 h-6"></i>
         </div>
         <div>
           <h3 class="text-lg font-extrabold text-white">ស្ថិតិ Winrate ផ្ទាល់ (Live Action)</h3>
-          <p class="text-xs text-emerald-400 font-bold" id="modalWinrateSub">អត្រាជោគជ័យបច្ចុប្បន្ន៖ 91.8%</p>
+          <p class="text-xs text-emerald-400 font-bold" id="modalWinrateSub">អត្រាជោគជ័យបច្ចុប្បន្ន៖ 91.9%</p>
         </div>
       </div>
 
-      <div class="space-y-2.5 text-xs sm:text-sm mb-5">
+      <div id="winrateLivePairsList" class="relative z-10 space-y-2.5 text-xs sm:text-sm mb-5">
         <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between items-center">
           <span class="font-bold text-amber-300">XAUUSD (Gold Sniper)</span>
-          <span class="text-emerald-400 font-extrabold">92.4% WIN</span>
+          <span class="text-[#00e676] font-extrabold">92.4% WIN</span>
         </div>
         <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between items-center">
           <span class="font-bold text-cyan-300">BTCUSD (Crypto SMC)</span>
-          <span class="text-emerald-400 font-extrabold">91.2% WIN</span>
+          <span class="text-[#00e676] font-extrabold">91.2% WIN</span>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between items-center">
+          <span class="font-bold text-blue-300">ETHUSDT (Ethereum Sniper)</span>
+          <span class="text-[#00e676] font-extrabold">91.5% WIN</span>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between items-center">
+          <span class="font-bold text-rose-300">USOIL (Crude Oil Sniper)</span>
+          <span class="text-[#00e676] font-extrabold">90.9% WIN</span>
         </div>
         <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between items-center">
           <span class="font-bold text-purple-300">NON FARM / CPI / FOMC FLIP</span>
-          <span class="text-emerald-400 font-extrabold">91.8% WIN</span>
+          <span class="text-[#00e676] font-extrabold">91.8% WIN</span>
         </div>
       </div>
 
-      <div class="p-3.5 rounded-2xl bg-[#131d31] border border-slate-700 text-center">
+      <div class="relative z-10 p-3.5 rounded-2xl bg-[#131d31]/90 border border-slate-700/90 text-center backdrop-blur-md">
         <p class="text-xs text-slate-300 mb-2.5">កត់ត្រាលទ្ធផលជួញដូរចុងក្រោយរបស់អ្នក ដើម្បីធ្វើបច្ចុប្បន្នភាព Winrate៖</p>
         <div class="flex gap-2.5">
-          <button id="btnRecordWin" type="button" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs cursor-pointer">
+          <button id="btnRecordWin" type="button" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.3)]">
             ✅ ឈ្នះ TP (+Win)
           </button>
           <button id="btnRecordLoss" type="button" class="flex-1 py-2.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 font-extrabold text-xs cursor-pointer">

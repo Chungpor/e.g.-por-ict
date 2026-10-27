@@ -109,10 +109,51 @@ svg.lucide{width:1em;height:1em;flex-shrink:0}
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 18% 20%, rgba(0, 229, 255, 0.14) 0%, transparent 45%),
-    radial-gradient(circle at 82% 25%, rgba(250, 204, 21, 0.12) 0%, transparent 45%),
-    radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.10) 0%, transparent 50%),
+    radial-gradient(circle at 18% 20%, rgba(0, 229, 255, 0.16) 0%, transparent 45%),
+    radial-gradient(circle at 82% 25%, rgba(250, 204, 21, 0.13) 0%, transparent 45%),
+    radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.12) 0%, transparent 50%),
     linear-gradient(180deg, #03060d 0%, #070d1b 55%, #040710 100%);
+}
+
+/* 4K DYNAMIC WINRATE LIVE ACTION MODAL SHELL & CANVAS */
+.winrate-modal-4k-shell {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 15% 15%, rgba(0, 230, 118, 0.18) 0%, transparent 45%),
+    radial-gradient(circle at 85% 20%, rgba(0, 229, 255, 0.18) 0%, transparent 48%),
+    radial-gradient(circle at 50% 90%, rgba(244, 63, 94, 0.14) 0%, transparent 52%),
+    rgba(10, 16, 30, 0.88) !important;
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  box-shadow:
+    0 25px 70px -10px rgba(0, 0, 0, 0.9),
+    0 0 45px rgba(16, 185, 129, 0.22),
+    0 0 80px rgba(0, 229, 255, 0.14),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.18);
+}
+
+#winrate4KCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.95;
+}
+
+.winrate-live-row {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: transform 0.2s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.winrate-live-row:hover {
+  transform: translateY(-1.5px) scale(1.008);
+  box-shadow: 0 10px 24px -6px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 230, 118, 0.16);
 }
 
 /* 4K DYNAMIC BUY KEY MODAL SHELL & CARDS */
@@ -252,6 +293,38 @@ body.light-mode #bgTradeCanvas {
   50% {
     box-shadow: 0 0 36px rgba(24, 255, 255, 0.52), 0 0 60px rgba(251, 191, 36, 0.22), inset 0 1px 2px rgba(255, 255, 255, 0.25);
   }
+}
+
+/* ========================================================= */
+/* AFTER-SCAN HISTORY LOBBY STYLES                           */
+/* ========================================================= */
+.history-lobby-shell {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.history-lobby-shell.lobby-new-flash {
+  border-color: #18ffff !important;
+  box-shadow: 0 0 40px rgba(24, 255, 255, 0.45), 0 0 70px rgba(250, 204, 21, 0.2) !important;
+}
+
+.scan-lobby-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(11, 17, 30, 0.92);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  border-radius: 18px;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.scan-lobby-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(24, 255, 255, 0.55);
+  box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.75), 0 0 22px rgba(6, 182, 212, 0.18);
+}
+
+.scan-lobby-card.latest-scan-highlight {
+  border-color: rgba(24, 255, 255, 0.75);
+  box-shadow: 0 0 25px rgba(24, 255, 255, 0.22);
 }
 
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
