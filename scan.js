@@ -213,7 +213,8 @@ const state = {
   result: null,
   activeLobbyItemId: null,
   lobbyFilter: 'ALL',
-  tradeStyle: localStorage.getItem('ksnr_trade_style') || 'SCALPING',
+  tradeStyle: localStorage.getItem('ksnr_trade_style') || 'SCALPING', // SCALPING | SWING | APLUS_ICT
+  ictConfluenceFilter: 'ALL_APLUS',
   selectedPair: 'AUTO',
   selectedTf: 'AUTO',
   adminAuth: false,
@@ -251,47 +252,89 @@ function flashButton(btn, doneHtml, originalHtml) {
 }
 
 // ==========================================
-// 3B. SCALPING vs SWING TRADE MODE SELECTOR & 9-TF CONTROL BAR
+// 3B. SCALPING vs SWING vs A+ ICT SETUP MODE SELECTOR & 9-TF CONTROL BAR
 // ==========================================
+function getStyleDisplayMeta(style) {
+  if (style === 'SWING') {
+    return {
+      code: 'SWING',
+      badgeText: '🌊 SWING TRADE MODE',
+      badgeClass: 'px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300 text-[10px] font-extrabold uppercase',
+      resBadgeText: '🌊 SWING TRADE (R:R 1:4.5)',
+      resBadgeClass: 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 border border-amber-400/50 text-amber-300',
+      scanBtnLabel: '🌊 SWING TRADE'
+    };
+  }
+  if (style === 'APLUS_ICT') {
+    return {
+      code: 'APLUS_ICT',
+      badgeText: '🏆 A+ ICT LIQUIDITY (MIN 1:3 RR)',
+      badgeClass: 'px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 text-[10px] font-extrabold uppercase',
+      resBadgeText: '🏆 A+ ICT SETUP (R:R 1:3.5)',
+      resBadgeClass: 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 border border-emerald-400/50 text-emerald-300',
+      scanBtnLabel: '🏆 A+ ICT SETUP'
+    };
+  }
+  return {
+    code: 'SCALPING',
+    badgeText: '⚡ SCALPING MODE',
+    badgeClass: 'px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-[10px] font-extrabold uppercase',
+    resBadgeText: '⚡ SCALPING TRADE (R:R 1:2.5)',
+    resBadgeClass: 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-cyan-500/20 border border-cyan-400/50 text-cyan-300',
+    scanBtnLabel: '⚡ SCALPING TRADE'
+  };
+}
+
 function setTradeStyle(style, userClickedChoice = false) {
-  state.tradeStyle = style === 'SWING' ? 'SWING' : 'SCALPING';
+  const validStyles = ['SCALPING', 'SWING', 'APLUS_ICT'];
+  state.tradeStyle = validStyles.includes(style) ? style : 'SCALPING';
   localStorage.setItem('ksnr_trade_style', state.tradeStyle);
 
   const btnScalp = $('btnModeScalping');
   const btnSwing = $('btnModeSwing');
+  const btnAPlus = $('btnModeAPlus');
   const badge = $('activeTradeStyleBadge');
   const resScalp = $('btnResSwitchScalp');
   const resSwing = $('btnResSwitchSwing');
+  const resAPlus = $('btnResSwitchAPlus');
 
-  if (btnScalp && btnSwing) {
-    if (state.tradeStyle === 'SCALPING') {
-      btnScalp.classList.add('active-scalp');
-      btnScalp.classList.remove('border-slate-700');
-      btnSwing.classList.remove('active-swing');
-      btnSwing.classList.add('border-slate-700');
-    } else {
-      btnSwing.classList.add('active-swing');
-      btnSwing.classList.remove('border-slate-700');
-      btnScalp.classList.remove('active-scalp');
-      btnScalp.classList.add('border-slate-700');
-    }
+  [btnScalp, btnSwing, btnAPlus].forEach((b) => {
+    if (!b) return;
+    b.classList.remove('active-scalp', 'active-swing', 'active-aplus');
+    b.classList.add('border-slate-700');
+  });
+
+  if (state.tradeStyle === 'SCALPING' && btnScalp) {
+    btnScalp.classList.add('active-scalp');
+    btnScalp.classList.remove('border-slate-700');
+  } else if (state.tradeStyle === 'SWING' && btnSwing) {
+    btnSwing.classList.add('active-swing');
+    btnSwing.classList.remove('border-slate-700');
+  } else if (state.tradeStyle === 'APLUS_ICT' && btnAPlus) {
+    btnAPlus.classList.add('active-aplus');
+    btnAPlus.classList.remove('border-slate-700');
   }
 
   if (resScalp && resSwing) {
-    if (state.tradeStyle === 'SCALPING') {
-      resScalp.className = 'px-3 py-1 rounded-lg bg-cyan-500 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(6,182,212,0.45)]';
-      resSwing.className = 'px-3 py-1 rounded-lg bg-amber-500/20 border border-amber-400/50 text-amber-300 font-extrabold cursor-pointer hover:brightness-110';
-    } else {
-      resSwing.className = 'px-3 py-1 rounded-lg bg-amber-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(251,191,36,0.45)]';
-      resScalp.className = 'px-3 py-1 rounded-lg bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 font-extrabold cursor-pointer hover:brightness-110';
+    resScalp.className = state.tradeStyle === 'SCALPING'
+      ? 'px-3 py-1 rounded-lg bg-cyan-500 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(6,182,212,0.45)]'
+      : 'px-3 py-1 rounded-lg bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 font-extrabold cursor-pointer hover:brightness-110';
+
+    resSwing.className = state.tradeStyle === 'SWING'
+      ? 'px-3 py-1 rounded-lg bg-amber-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(251,191,36,0.45)]'
+      : 'px-3 py-1 rounded-lg bg-amber-500/20 border border-amber-400/50 text-amber-300 font-extrabold cursor-pointer hover:brightness-110';
+
+    if (resAPlus) {
+      resAPlus.className = state.tradeStyle === 'APLUS_ICT'
+        ? 'px-3 py-1 rounded-lg bg-emerald-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(52,211,153,0.45)]'
+        : 'px-3 py-1 rounded-lg bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 font-extrabold cursor-pointer hover:brightness-110';
     }
   }
 
+  const meta = getStyleDisplayMeta(state.tradeStyle);
   if (badge) {
-    badge.textContent = state.tradeStyle === 'SCALPING' ? '⚡ SCALPING MODE' : '🌊 SWING TRADE MODE';
-    badge.className = state.tradeStyle === 'SCALPING'
-      ? 'px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-[10px] font-extrabold uppercase'
-      : 'px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300 text-[10px] font-extrabold uppercase';
+    badge.textContent = meta.badgeText;
+    badge.className = meta.badgeClass;
   }
 
   renderScanButton();
@@ -307,10 +350,29 @@ function setTradeStyle(style, userClickedChoice = false) {
 
 $('btnModeScalping')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('SCALPING', true); });
 $('btnModeSwing')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('SWING', true); });
+$('btnModeAPlus')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('APLUS_ICT', true); });
+
 $('btnResSwitchScalp')?.addEventListener('click', () => setTradeStyle('SCALPING', true));
 $('btnResSwitchSwing')?.addEventListener('click', () => setTradeStyle('SWING', true));
+$('btnResSwitchAPlus')?.addEventListener('click', () => setTradeStyle('APLUS_ICT', true));
+
 $('tradeStyleBox')?.addEventListener('click', (e) => e.stopPropagation());
 $('livePairSelect')?.addEventListener('change', (e) => { state.selectedPair = e.target.value || 'AUTO'; });
+
+$('ictConfluenceFilter')?.addEventListener('change', (e) => {
+  state.ictConfluenceFilter = e.target.value || 'ALL_APLUS';
+  if (state.result && typeof window.recalculateResultForTradeStyle === 'function') {
+    window.recalculateResultForTradeStyle(state.tradeStyle);
+  }
+});
+
+['chkConfSweep', 'chkConfSmt', 'chkConfDisplacement'].forEach((chkId) => {
+  $(chkId)?.addEventListener('change', () => {
+    if (state.result && typeof window.recalculateResultForTradeStyle === 'function') {
+      window.recalculateResultForTradeStyle(state.tradeStyle);
+    }
+  });
+});
 
 document.querySelectorAll('#tfSelectorBar .tf-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
@@ -321,9 +383,20 @@ document.querySelectorAll('#tfSelectorBar .tf-btn').forEach((btn) => {
         ? 'tf-btn py-1.5 rounded-xl bg-cyan-500 text-slate-950 border border-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.4)] cursor-pointer'
         : 'tf-btn py-1.5 rounded-xl bg-[#131d31] text-slate-300 border border-slate-700 hover:border-cyan-400 cursor-pointer';
     });
-    if (['1m', '3m', '5m', '15m'].includes(tf)) setTradeStyle('SCALPING', true);
-    else if (['30m', '1h', '4h', '1d', '1w'].includes(tf)) setTradeStyle('SWING', true);
+    if (state.tradeStyle !== 'APLUS_ICT') {
+      if (['1m', '3m', '5m', '15m'].includes(tf)) setTradeStyle('SCALPING', true);
+      else if (['30m', '1h', '4h', '1d', '1w'].includes(tf)) setTradeStyle('SWING', true);
+    } else if (state.result && typeof window.recalculateResultForTradeStyle === 'function') {
+      window.recalculateResultForTradeStyle('APLUS_ICT');
+    }
   });
+});
+
+// Self-Buy KEY Guide Modal ("របៀបទិញ KEY ដោយខ្លួនឯង")
+$('btnBuySelfGuide')?.addEventListener('click', () => openModal('selfBuyGuideModal'));
+$('btnGuideOpenBuyNow')?.addEventListener('click', () => {
+  closeModal('selfBuyGuideModal');
+  openModal('buyModal');
 });
 
 // ==========================================
@@ -380,7 +453,7 @@ function renderLiveWinrateModalRows() {
     const yMid = isGreen ? '7.6' : '6.2';
 
     return `
-      <div class="p-3 rounded-xl bg-slate-900/85 backdrop-blur-md border ${isGreen ? 'border-slate-800' : 'border-rose-500/40'} flex justify-between items-center transition-all relative z-10">
+      <div class="winrate-live-row p-3 rounded-xl bg-slate-900/85 backdrop-blur-md border ${isGreen ? 'border-slate-800' : 'border-rose-500/40'} flex justify-between items-center transition-all relative z-10">
         <span class="font-bold ${item.color}">${item.label}</span>
         <div class="flex items-center gap-2.5">
           <span class="font-extrabold">
@@ -519,13 +592,16 @@ const I18N = {
     backDashboardBottom: '← Back to Main Dashboard',
     subtitle: 'Transform market complexity into precise entry points',
     buyKey: 'BUY KEY', locked: 'Locked • No KEY',
+    buyWithSupport: 'How to buy KEY with support',
+    buySelfGuide: 'How to buy KEY by yourself',
     dropTitle: 'Drop your Chart image here',
     dropSub: 'Members must Login and activate a <span class="text-[#facc15] font-bold">Special KEY</span> to scan (Admin Unlimited Scan)',
     enterKeyBtn: 'Enter KEY to Scan',
-    imgReadyNotice: '✅ Chart Image Ready! Choose Scalping or Swing Trade below:',
-    chooseTradeStyle: '🎯 Choose What You Want To Trade (Scalping or Swing):',
-    scalpDesc: 'Fast execution • Tight SL (1.3x ATR) • Quick profit targets (R:R 1:2.5)',
-    swingDesc: 'Hold bigger trend moves • Wide Structural SL • Big TP targets (R:R 1:4.5)'
+    imgReadyNotice: '✅ Chart Image Ready! Choose Scalping, Swing, or A+ ICT Setup below:',
+    chooseTradeStyle: '🎯 Choose What You Want To Trade (Scalping / Swing / A+ ICT Setup):',
+    scalpDesc: 'Fast execution • Tight SL (1.2x ATR) • Quick profit targets (R:R 1:2.5)',
+    swingDesc: 'Hold bigger trend moves • Wide Structural SL • Big TP targets (R:R 1:4.5)',
+    aplusDesc: 'HTF Liquidity Sweep (BSL/SSL) + SMT Divergence + Displacement FVG (IRL) in Discount/Premium → Straight to TP (R:R 1:3.5)'
   },
   km: {
     flag: 'KH', label: 'ភាសាខ្មែរ',
@@ -533,13 +609,16 @@ const I18N = {
     backDashboardBottom: '← ត្រឡប់ទៅផ្ទាំងដើម (Back to Main Dashboard)',
     subtitle: 'បំប្លែងភាពស្មុគស្មាញនៃទីផ្សារ ទៅជាចំណុចចូលដ៏ច្បាស់លាស់',
     buyKey: 'ទិញ KEY', locked: 'ជាប់សោរ អត់ KEY',
+    buyWithSupport: 'របៀបទិញ KEY ជាមួយ support',
+    buySelfGuide: 'របៀបទិញ KEY ដោយខ្លួនឯង',
     dropTitle: 'ទាញរូបភាព Chart ទម្លាក់ទីនេះ',
     dropSub: 'សមាជិកត្រូវ Login គណនី និងមាន <span class="text-[#facc15] font-bold">KEY ពិសេស</span> ដើម្បីស្កេន (Admin ស្កេនឥតដែនកំណត់)',
     enterKeyBtn: 'បញ្ចូល KEY ដើម្បីស្កេន',
-    imgReadyNotice: '✅ រូបភាព Chart បញ្ចូលរួចរាល់! សូមជ្រើសរើស Scalping ឬ Swing Trade ខាងក្រោម៖',
-    chooseTradeStyle: '🎯 ជ្រើសរើសទម្រង់ជួញដូរ (Choose What You Want To Trade)៖',
-    scalpDesc: 'វាយខ្លីរហ័ស • Tight SL (1.3x ATR) • យកផលចំណេញលឿន (R:R 1:2.5)',
-    swingDesc: 'កាន់វែងតាម Trend ធំ • Wide Structural SL • TP ធំ (R:R 1:4.5)'
+    imgReadyNotice: '✅ រូបភាព Chart រួចរាល់! សូមជ្រើសរើស Scalping, Swing ឬ A+ ICT Setup ខាងក្រោម៖',
+    chooseTradeStyle: '🎯 ជ្រើសរើសទម្រង់ជួញដូរ (Scalping / Swing / A+ ICT Setup)៖',
+    scalpDesc: 'វាយខ្លីរហ័ស • Tight SL (1.2x ATR) • យកផលចំណេញលឿន (R:R 1:2.5)',
+    swingDesc: 'កាន់វែងតាម Trend ធំ • Wide Structural SL • TP ធំ (R:R 1:4.5)',
+    aplusDesc: 'បោសសម្អាត HTF Liquidity (BSL/SSL) + SMT Divergence + Displacement បង្កើត FVG (IRL) ក្នុងតំបន់ Discount/Premium → គោលដៅ Straight to TP (R:R 1:3.5)'
   }
 };
 
@@ -554,6 +633,8 @@ function applyLanguage(lang) {
   if ($('heroSubtitle')) $('heroSubtitle').textContent = t.subtitle;
   if ($('txtBuyKey')) $('txtBuyKey').textContent = t.buyKey;
   if ($('txtLocked')) $('txtLocked').textContent = t.locked;
+  if ($('txtBuyWithSupport')) $('txtBuyWithSupport').textContent = t.buyWithSupport;
+  if ($('txtBuySelfGuide')) $('txtBuySelfGuide').textContent = t.buySelfGuide;
   if ($('txtDropTitle')) $('txtDropTitle').textContent = t.dropTitle;
   if ($('txtDropSub')) $('txtDropSub').innerHTML = t.dropSub;
   if ($('txtEnterKeyBtn')) $('txtEnterKeyBtn').textContent = t.enterKeyBtn;
@@ -561,6 +642,7 @@ function applyLanguage(lang) {
   if ($('txtChooseTradeStyle')) $('txtChooseTradeStyle').innerHTML = `<span>${t.chooseTradeStyle}</span>`;
   if ($('txtScalpDesc')) $('txtScalpDesc').textContent = t.scalpDesc;
   if ($('txtSwingDesc')) $('txtSwingDesc').textContent = t.swingDesc;
+  if ($('txtAplusDesc')) $('txtAplusDesc').textContent = t.aplusDesc;
   renderScanButton();
 }
 
@@ -852,7 +934,8 @@ function renderScanButton() {
   const btn = $('btnScan');
   if (!btn) return;
   btn.disabled = state.scanning;
-  const styleLabel = state.tradeStyle === 'SWING' ? '🌊 SWING TRADE' : '⚡ SCALPING TRADE';
+  const meta = getStyleDisplayMeta(state.tradeStyle);
+  const styleLabel = meta.scanBtnLabel;
 
   if (state.scanning) {
     btn.innerHTML = `<i data-lucide="refresh-cw" class="spin"></i><span>កំពុងវិភាគ ${styleLabel} និងរក Entry + SL + TP...</span>`;
@@ -1058,6 +1141,21 @@ function setKhqrMode(mode) {
 $('tabKhqrDynamic')?.addEventListener('click', () => setKhqrMode('dynamic'));
 $('tabKhqrOriginal')?.addEventListener('click', () => setKhqrMode('original'));
 
+$('uploadOriginalQrInput')?.addEventListener('change', (e) => {
+  const file = e.target.files?.[0];
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const dataUrl = ev.target.result;
+    state.customAbaQrImg = dataUrl;
+    localStorage.setItem('ksnr_custom_aba_qr_img', dataUrl);
+    if ($('khqrOriginalImg')) $('khqrOriginalImg').src = dataUrl;
+    tryDecodeAbaQrFromImageSrc(dataUrl);
+    setKhqrMode('original');
+  };
+  reader.readAsDataURL(file);
+});
+
 document.querySelectorAll('#quickPriceBtns button').forEach((btn) => {
   btn.addEventListener('click', () => {
     const pkg = PACKAGES_MAP[btn.dataset.qpkg];
@@ -1109,6 +1207,14 @@ function openReceiveKeyModalWithKey(keyCode, pkg) {
 $('btnOpenReceiveKey')?.addEventListener('click', () => {
   if (!state.user) return openModal('loginModal');
   openReceiveKeyModalWithKey(state.latestIssuedKey, state.selectedPkg);
+});
+
+$('btnRefreshReceivedKey')?.addEventListener('click', () => {
+  const latest = localStorage.getItem('ksnr_latest_approved_key') || state.latestIssuedKey;
+  if (latest) {
+    state.latestIssuedKey = latest;
+    openReceiveKeyModalWithKey(latest, state.selectedPkg);
+  }
 });
 
 function completeOneTimePaymentAndShowKey(pkg, sourceLabel = 'ABA KHQR') {
@@ -1237,7 +1343,7 @@ $('fileInput')?.addEventListener('change', (e) => { if (e.target.files?.[0]) han
 $('btnRemoveImg')?.addEventListener('click', (e) => { e.stopPropagation(); clearImage(); });
 
 // ==========================================
-// 10. RENDER RESULT & AFTER-SCAN HISTORY LOBBY
+// 10. RENDER RESULT (WITH HIGH PROBABILITY SETUP HERO + ICT ERL/IRL) & HISTORY LOBBY
 // ==========================================
 function parseNum(v) {
   const m = String(v || '').replace(/,/g, '').match(/-?\d+(\.\d+)?/);
@@ -1246,19 +1352,27 @@ function parseNum(v) {
 
 function buildSignalCopyText(r) {
   const isBuy = (r.action || '').toUpperCase().includes('BUY');
-  const isSwing = (r.tradeStyle || state.tradeStyle) === 'SWING';
-  const styleText = isSwing ? '🌊 SWING TRADE (Hold Trend • R:R 1:4.5)' : '⚡ SCALPING TRADE (Fast Execution • R:R 1:2.5)';
+  const styleCode = r.tradeStyle || state.tradeStyle;
+  let styleText = '⚡ SCALPING TRADE (Fast Execution • R:R 1:2.5)';
+  if (styleCode === 'SWING') styleText = '🌊 SWING TRADE (Hold Trend • R:R 1:4.5)';
+  else if (styleCode === 'APLUS_ICT') styleText = '🏆 A+ ICT LIQUIDITY SETUP (Sweep + SMT + FVG • Min 1:3 RR)';
 
-  return `⚡ លទ្ធផលស្កេនពី Por - SNR Scanner ⚡
-🎯 Trade Style: ${styleText}
-📊 Pair: ${r.pair} (${r.timeframe})
+  const ict = r.ictLiquidity || {};
+  return `🔥 លទ្ធផលស្កេន High Probability Setup (Por - SNR Scanner) 🔥
+📈 ${isBuy ? 'ENTRY BUY NOW' : 'ENTRY SELL NOW'}: ${r.entry}
+🎯 TAKE PROFIT (TP1): ${r.tp1} | TP2 (ERL): ${r.tp2}
+🛑 STOP LOSS (SL): ${r.sl}
+
+📊 Pair: ${r.pair} (${r.timeframe}) | Style: ${styleText}
 📈 និន្នាការ (Trend): ${r.trend}
-🔔 ប្រភេទបញ្ជា: ${r.action} = ${isBuy ? 'NEW BUY' : 'NEW SELL'} (${r.orderType})
+📝 ការវិភាគលម្អិត: ${r.detailedAnalysis || ''}
 
-🎯 Entry: ${r.entry}
-🛑 SL: ${r.sl}
-💰 TP 1: ${r.tp1}
-💰 TP 2: ${r.tp2}
+🧲 ICT Liquidity & Dealing Range:
+- Dealing Range Zone: ${ict.pdZone || (isBuy ? 'DISCOUNT (< 0.5 Fib)' : 'PREMIUM (> 0.5 Fib)')}
+- 0.5 Equilibrium: ${ict.equilibrium50 || '-'}
+- Buy-Side Liquidity (BSL / ERL): ${ict.bsl || r.snrZones?.resistance || '-'}
+- Internal Liquidity (IRL - FVG): ${ict.irlFvg || r.entry || '-'}
+- Sell-Side Liquidity (SSL / ERL): ${ict.ssl || r.snrZones?.support || '-'}
 
 🧱 តំបន់ KEY Por - SNR:
 - KEY Resistance: ${r.snrZones?.resistance}
@@ -1270,6 +1384,52 @@ function buildSignalCopyText(r) {
 function renderResult() {
   const r = state.result;
   if (!r) return;
+
+  const isBuy = (r.action || '').toUpperCase().includes('BUY');
+
+  // 1. Update High Probability Setup Hero Block (Matching Screenshot)
+  const hpBanner = $('hpActionBanner');
+  if (hpBanner) {
+    hpBanner.className = `${isBuy ? 'hp-banner-buy' : 'hp-banner-sell'} w-full py-3.5 px-5 rounded-2xl font-extrabold text-sm sm:text-base tracking-wider uppercase flex items-center justify-center gap-2.5 mb-4`;
+    hpBanner.innerHTML = `<i data-lucide="${isBuy ? 'trending-up' : 'trending-down'}" class="w-5 h-5"></i><span>${isBuy ? 'ENTRY BUY NOW' : 'ENTRY SELL NOW'}</span>`;
+  }
+
+  const hpEntryCard = $('hpEntryPriceCard');
+  if (hpEntryCard) {
+    hpEntryCard.className = `hp-entry-box ${isBuy ? '' : 'sell-mode'} w-full py-5 px-4 rounded-2xl text-center mb-3.5`;
+  }
+  if ($('hpEntryBoxLabel')) {
+    $('hpEntryBoxLabel').textContent = isBuy ? 'ENTRY BUY NOW' : 'ENTRY SELL NOW';
+    $('hpEntryBoxLabel').className = isBuy ? 'text-emerald-400 font-extrabold' : 'text-rose-400 font-extrabold';
+  }
+  if ($('hpEntryBigPrice')) {
+    $('hpEntryBigPrice').textContent = r.entry || '-';
+    $('hpEntryBigPrice').className = 'hp-entry-price text-3xl sm:text-5xl font-extrabold tracking-tight';
+  }
+
+  const tpCard = $('hpTpBigPrice')?.parentElement;
+  if (tpCard) tpCard.className = 'hp-tp-box py-4 px-3 sm:px-4 rounded-2xl text-center';
+  if ($('hpTpBigPrice')) {
+    $('hpTpBigPrice').textContent = r.tp2 || r.tp1 || '-';
+    $('hpTpBigPrice').className = 'hp-tp-price text-2xl sm:text-3xl font-extrabold tracking-tight';
+  }
+
+  const slCard = $('hpSlBigPrice')?.parentElement;
+  if (slCard) slCard.className = 'hp-sl-box py-4 px-3 sm:px-4 rounded-2xl text-center';
+  if ($('hpSlBigPrice')) {
+    $('hpSlBigPrice').textContent = r.sl || '-';
+    $('hpSlBigPrice').className = 'hp-sl-price text-2xl sm:text-3xl font-extrabold tracking-tight';
+  }
+
+  const analysisBox = $('hpAnalysisSummaryText')?.parentElement;
+  if (analysisBox) analysisBox.className = 'hp-reason-box p-4 rounded-2xl text-xs sm:text-sm leading-relaxed text-slate-200 mb-5';
+  if ($('hpAnalysisSummaryText')) {
+    $('hpAnalysisSummaryText').textContent = r.detailedAnalysis || (isBuy
+      ? `ទីផ្សារមានទំនោរកើនឡើងបន្ទាប់ពីតម្លៃបានប៉ះតំបន់ Support (${r.snrZones?.support || r.sl}) និងបោសសម្អាត Sell-Side Liquidity (SSL)។ Entry ត្រូវបានកំណត់នៅចំណុច ${r.entry} ដើម្បីចូលតាមទិសដៅកើនឡើង។ TP នៅក្បែរតំបន់ខ្ពស់ចាស់ (${r.tp2 || r.tp1}) និង SL នៅក្រោមតំបន់ទាបចុងក្រោយ (${r.sl}) ដើម្បីការពារហានិភ័យ។`
+      : `ទីផ្សារមានទំនោរថយចុះបន្ទាប់ពីតម្លៃបានប៉ះតំបន់ Resistance (${r.snrZones?.resistance || r.sl}) និងបោសសម្អាត Buy-Side Liquidity (BSL)។ Entry ត្រូវបានកំណត់នៅចំណុច ${r.entry} ដើម្បីចូលតាមទិសដៅថយចុះ។ TP នៅក្បែរតំបន់ទាបចាស់ (${r.tp2 || r.tp1}) និង SL នៅលើតំបន់ខ្ពស់ចុងក្រោយ (${r.sl}) ដើម្បីការពារហានិភ័យ។`);
+  }
+
+  // 2. Update Detailed ICT & KEY Por-SNR Breakdown
   $('rPair').textContent = r.pair || '';
   $('rTimeframe').textContent = r.timeframe ? `(${r.timeframe})` : '';
   $('rTrend').textContent = r.trend || '';
@@ -1281,16 +1441,19 @@ function renderResult() {
   $('rRes').textContent = r.snrZones?.resistance || '';
   $('rSup').textContent = r.snrZones?.support || '';
 
+  const styleCode = r.tradeStyle || state.tradeStyle;
+  const meta = getStyleDisplayMeta(styleCode);
   const styleBadge = $('rTradeStyleBadge');
   if (styleBadge) {
-    const isSwing = (r.tradeStyle || state.tradeStyle) === 'SWING';
-    styleBadge.textContent = isSwing ? '🌊 SWING TRADE (R:R 1:4.5)' : '⚡ SCALPING TRADE (R:R 1:2.5)';
-    styleBadge.className = isSwing
-      ? 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 border border-amber-400/50 text-amber-300'
-      : 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-cyan-500/20 border border-cyan-400/50 text-cyan-300';
+    styleBadge.textContent = meta.resBadgeText;
+    styleBadge.className = meta.resBadgeClass;
   }
 
-  const isBuy = (r.action || '').toUpperCase().includes('BUY');
+  const gradeBadge = $('rSetupGradeBadge');
+  if (gradeBadge) {
+    gradeBadge.textContent = r.setupGrade || (styleCode === 'APLUS_ICT' ? '🏆 A+ ICT (MIN 1:3 RR)' : '🏆 A+ CONFLUENCE');
+  }
+
   const tag = $('rAction');
   tag.className = 'action-tag ' + (isBuy ? 'buy' : 'sell');
   tag.innerHTML = `<i data-lucide="${isBuy ? 'trending-up' : 'trending-down'}"></i><span>${r.action} (${isBuy ? 'NEW BUY' : 'NEW SELL'})</span>`;
@@ -1299,6 +1462,32 @@ function renderResult() {
     $('rFlipText').textContent = r.keyFlipRule || (isBuy
       ? 'KEY Por - SNR FLOW: Candle/Wick ចាក់ KEY BUY = NEW BUY 💸'
       : 'KEY Por - SNR FLOW: Candle/Wick ចាក់ KEY SELL = NEW SELL 💸');
+  }
+
+  // Render ICT Dealing Range (Premium / 0.5 Equilibrium / Discount) & ERL/IRL Map
+  const ict = r.ictLiquidity || {};
+  if ($('rPdZoneBadge')) {
+    const isDiscount = ict.isDiscount !== undefined ? ict.isDiscount : isBuy;
+    $('rPdZoneBadge').textContent = isDiscount
+      ? '🟢 DISCOUNT ZONE (< 0.5 FIB • BUY)'
+      : '🔴 PREMIUM ZONE (> 0.5 FIB • SELL)';
+    $('rPdZoneBadge').className = isDiscount
+      ? 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 border border-emerald-400/50 text-emerald-300'
+      : 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/20 border border-rose-400/50 text-rose-300';
+  }
+  if ($('rIctFib50')) $('rIctFib50').textContent = ict.equilibrium50 || r.currentPrice || '-';
+  if ($('rIctBsl')) $('rIctBsl').textContent = ict.bsl || r.snrZones?.resistance || '-';
+  if ($('rIctIrlFvg')) $('rIctIrlFvg').textContent = ict.irlFvg || `${r.entry}` || '-';
+  if ($('rIctSsl')) $('rIctSsl').textContent = ict.ssl || r.snrZones?.support || '-';
+
+  if ($('rConfSweepText')) {
+    $('rConfSweepText').textContent = ict.confSweep || (isBuy ? '#1 SSL Swept (HTF LQ)' : '#1 BSL Swept (HTF LQ)');
+  }
+  if ($('rConfSmtText')) {
+    $('rConfSmtText').textContent = ict.confSmt || '#2 SMT Divergence Confirmed';
+  }
+  if ($('rConfDispText')) {
+    $('rConfDispText').textContent = ict.confDisp || '#3 Displacement + FVG Entry';
   }
 
   const box = $('rConfluence');
@@ -1311,7 +1500,7 @@ function renderResult() {
     box.appendChild(row);
   });
 
-  setTradeStyle(r.tradeStyle || state.tradeStyle, false);
+  setTradeStyle(styleCode, false);
   show($('resultCard'), true);
   icons();
 }
@@ -1374,6 +1563,12 @@ window.saveScanToHistoryLobby = async function(scanResult, previewDataUrl) {
   saveScanLobbyList(list);
   state.activeLobbyItemId = newEntry.id;
   renderScanHistoryLobby();
+
+  const lobbyShell = $('scanHistoryLobby');
+  if (lobbyShell) {
+    lobbyShell.classList.add('lobby-new-flash');
+    setTimeout(() => lobbyShell.classList.remove('lobby-new-flash'), 1800);
+  }
   return newEntry;
 };
 
@@ -1396,7 +1591,7 @@ function renderScanHistoryLobby() {
   const list = getScanLobbyList();
   const total = list.length;
   const scalpCount = list.filter((i) => (i.result?.tradeStyle || 'SCALPING') === 'SCALPING').length;
-  const swingCount = list.filter((i) => i.result?.tradeStyle === 'SWING').length;
+  const swingOrAplusCount = list.filter((i) => ['SWING', 'APLUS_ICT'].includes(i.result?.tradeStyle)).length;
   const winCount = list.filter((i) => i.outcome === 'WIN').length;
   const lossCount = list.filter((i) => i.outcome === 'LOSS').length;
 
@@ -1404,7 +1599,7 @@ function renderScanHistoryLobby() {
   if ($('lobbyCountBadge')) $('lobbyCountBadge').textContent = `${total} Scans`;
   if ($('lobbyStatTotal')) $('lobbyStatTotal').textContent = String(total);
   if ($('lobbyStatScalp')) $('lobbyStatScalp').textContent = String(scalpCount);
-  if ($('lobbyStatSwing')) $('lobbyStatSwing').textContent = String(swingCount);
+  if ($('lobbyStatSwing')) $('lobbyStatSwing').textContent = String(swingOrAplusCount);
   if ($('lobbyStatWin')) $('lobbyStatWin').textContent = String(winCount);
   if ($('lobbyStatWL')) $('lobbyStatWL').textContent = `(${winCount}W / ${lossCount}L)`;
 
@@ -1421,6 +1616,7 @@ function renderScanHistoryLobby() {
     const act = (r.action || 'BUY').toUpperCase();
     if (state.lobbyFilter === 'SCALPING') return style === 'SCALPING';
     if (state.lobbyFilter === 'SWING') return style === 'SWING';
+    if (state.lobbyFilter === 'APLUS_ICT') return style === 'APLUS_ICT';
     if (state.lobbyFilter === 'BUY') return act.includes('BUY');
     if (state.lobbyFilter === 'SELL') return act.includes('SELL');
     if (state.lobbyFilter === 'WIN') return item.outcome === 'WIN';
@@ -1446,8 +1642,15 @@ function renderScanHistoryLobby() {
   filtered.forEach((item, index) => {
     const r = item.result || {};
     const isBuy = String(r.action || '').toUpperCase().includes('BUY');
-    const isSwing = (r.tradeStyle || 'SCALPING') === 'SWING';
+    const styleCode = (r.tradeStyle || 'SCALPING').toUpperCase();
     const isActive = item.id === state.activeLobbyItemId;
+
+    let stylePill = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-cyan-500/20 border border-cyan-400/50 text-cyan-300">⚡ SCALPING</span>`;
+    if (styleCode === 'SWING') {
+      stylePill = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 border border-amber-400/50 text-amber-300">🌊 SWING</span>`;
+    } else if (styleCode === 'APLUS_ICT') {
+      stylePill = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 border border-emerald-400/50 text-emerald-300">🏆 A+ ICT</span>`;
+    }
 
     let outcomeBadge = `<span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-[10px] font-bold">⏳ កំពុងរង់ចាំ</span>`;
     if (item.outcome === 'WIN') outcomeBadge = `<span class="px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 text-[10px] font-extrabold">✅ ឈ្នះ TP (WIN)</span>`;
@@ -1466,11 +1669,11 @@ function renderScanHistoryLobby() {
               <span class="text-[10px] font-mono font-bold text-slate-400">#${filtered.length - index}</span>
               <span class="font-extrabold text-white text-sm sm:text-base">${r.pair || 'XAU/USD'}</span>
               <span class="text-xs font-bold text-cyan-300">(${r.timeframe || 'M15'})</span>
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${isSwing ? 'bg-amber-500/20 border border-amber-400/50 text-amber-300' : 'bg-cyan-500/20 border border-cyan-400/50 text-cyan-300'}">${isSwing ? '🌊 SWING' : '⚡ SCALPING'}</span>
+              ${stylePill}
               <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${isBuy ? 'bg-emerald-500/20 border border-emerald-400/50 text-emerald-300' : 'bg-rose-500/20 border border-rose-400/50 text-rose-300'}">${isBuy ? '🟢 BUY' : '🔴 SELL'}</span>
               ${outcomeBadge}
             </div>
-            <div class="text-[11px] text-slate-400 mt-1">🕒 ${item.timeText || ''} • Trend: <strong class="text-slate-200">${r.trend || '-'}</strong></div>
+            <div class="text-[11px] text-slate-400 mt-1">🕒 ${item.timeText || ''} • Trend: <strong class="text-slate-200">${r.trend || '-'}</strong> • R:R <strong class="text-amber-300">${r.rrRatio || '1:3.0'}</strong></div>
           </div>
         </div>
 
@@ -1689,6 +1892,22 @@ $('keyForm')?.addEventListener('submit', (e) => {
   }
 });
 
+// Floating Bot Assistant FAB (Bottom Right matching screenshot)
+(function injectFloatingBotFab() {
+  if (document.getElementById('floatingBotFab')) return;
+  const fab = document.createElement('button');
+  fab.id = 'floatingBotFab';
+  fab.type = 'button';
+  fab.title = 'ភ្ជាប់ Telegram Bot / ជំនួយការ AI';
+  fab.className = 'floating-bot-fab cursor-pointer';
+  fab.innerHTML = `
+    <i data-lucide="bot" class="w-6 h-6 text-white"></i>
+    <span class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-rose-500 border-2 border-[#050811]"></span>
+  `;
+  fab.addEventListener('click', () => openModal('tgBotModal'));
+  document.body.appendChild(fab);
+})();
+
 setTradeStyle(state.tradeStyle, false);
 updateWinrateUI();
 applyLanguage(state.lang);
@@ -1726,8 +1945,8 @@ icons();
   }
 
   const TAGS = [
-    'XAUUSD ▲', 'BTCUSD ▲', 'ETHUSDT ▲', 'USOIL ▲', 'SCALPING 1M-15M',
-    'SWING 30M-1W', 'KEY BUY=NEW BUY', 'KEY SELL=NEW SELL', 'WINRATE 91.9%'
+    'XAUUSD ▲', 'BTCUSD ▲', 'ETHUSDT ▲', 'USOIL ▲', 'ICT ERL/IRL',
+    'A+ MIN 1:3 RR', 'LIQUIDITY SWEEP', 'SMT + FVG', 'WINRATE 91.9%'
   ];
   const nodes = Array.from({ length: 22 }, (_, i) => ({
     x: Math.random(),
@@ -2230,25 +2449,10 @@ function playTelegramSuccessBeep() {
     tgBtn.addEventListener('click', async () => {
       const r = state.result;
       if (!r) return;
-      const isBuy = (r.action || '').toUpperCase().includes('BUY');
-      const isSwing = (r.tradeStyle || state.tradeStyle) === 'SWING';
-      const regimeText = isBuy ? `Ranging ↔️ → trending up 📈` : `Trending up 📈 → ranging ↔️`;
-      const msg = `🔀 Regime change — ${(r.pair || 'XAUUSD').replace('/', '')}
-${regimeText}
-Review open positions and pending setups on this symbol.
-
-⚡ Por - SNR Scanner Signal (${r.timeframe || 'M15'})
-🎯 Trade Style: ${isSwing ? '🌊 SWING TRADE (R:R 1:4.5)' : '⚡ SCALPING TRADE (R:R 1:2.5)'}
-🔔 Action: ${r.action} (${isBuy ? 'NEW BUY' : 'NEW SELL'})
-🎯 Entry: ${r.entry}
-🛑 SL: ${r.sl}
-💰 TP 1: ${r.tp1}
-💰 TP 2: ${r.tp2}`;
-
       try {
-        await sendTelegramMessage(msg);
+        await sendTelegramMessage(buildSignalCopyText(r));
         playTelegramSuccessBeep();
-        showTgFeedback('✅ បានផ្ញើ Signal + Regime Alert ទៅ Telegram រួចរាល់!');
+        showTgFeedback('✅ បានផ្ញើ Signal + ICT ERL/IRL ទៅ Telegram រួចរាល់!');
       } catch (err) {
         showTgFeedback(`❌ ${err.message}`, true);
       }
