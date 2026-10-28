@@ -1,6 +1,6 @@
 :root {
   /* Height of the top live market ticker bar */
-  --ticker-bar-height: 34px;
+  --ticker-bar-height: 36px;
 
   /* DARK THEME (DEFAULT) */
   --bg-primary: #07090e;
@@ -212,7 +212,7 @@ body {
 }
 
 /* ========================================================
-   1. TOP LIVE MARKET MARQUEE TICKER BAR (VIBRANT & SMOOTH)
+   1. TOP LIVE MARKET MARQUEE TICKER BAR (UPTREND & DOWNTREND)
    ======================================================== */
 .top-marquee-bar,
 .top-ticker-bar,
@@ -283,7 +283,7 @@ body > div:first-of-type {
   width: max-content;
   min-width: max-content;
   white-space: nowrap;
-  animation: marqueeScroll 30s linear infinite;
+  animation: marqueeScroll 34s linear infinite;
   will-change: transform;
   transform: translate3d(0, 0, 0);
 }
@@ -292,14 +292,14 @@ body > div:first-of-type {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  gap: 44px;
-  padding-right: 44px;
+  gap: 26px;
+  padding-right: 26px;
   min-width: max-content;
   white-space: nowrap;
   font-family: 'Plus Jakarta Sans', 'JetBrains Mono', sans-serif;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 800;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.5px;
 }
 
 .top-marquee-bar:hover .ticker-track,
@@ -325,15 +325,15 @@ body > div:first-of-type:hover #tickerTrack {
 .marquee-content > span {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
+  gap: 7px;
+  font-size: 11.5px;
   font-weight: 800;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.5px;
   line-height: 1;
-  padding: 4px 10px;
+  padding: 4px 11px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   cursor: pointer;
   transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
               background-color 0.25s ease,
@@ -344,10 +344,90 @@ body > div:first-of-type:hover #tickerTrack {
 .ticker-item:hover,
 .marquee-item:hover,
 .marquee-content > span:hover {
-  transform: translateY(-1px) scale(1.06);
+  transform: translateY(-1px) scale(1.04);
   background: rgba(56, 189, 248, 0.12);
-  border-color: rgba(56, 189, 248, 0.38);
+  border-color: rgba(56, 189, 248, 0.4);
   box-shadow: 0 0 14px rgba(56, 189, 248, 0.25);
+}
+
+/* New Live Ticker Sub-elements (Symbol, Price, % Change, Uptrend/Downtrend Badge) */
+.t-sym {
+  font-weight: 800;
+  letter-spacing: 0.6px;
+}
+
+.t-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.t-chg {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+.t-trend-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.t-trend-badge.trend-up {
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.48);
+  color: #34d399 !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+}
+
+.t-trend-badge.trend-down {
+  background: rgba(244, 63, 94, 0.18);
+  border: 1px solid rgba(244, 63, 94, 0.48);
+  color: #fb7185 !important;
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.25);
+}
+
+/* Live Tick Flash Animations on Marquee Pills */
+.ticker-item.tick-flash-up {
+  animation: marqueeFlashUp 0.7s ease-out;
+}
+
+.ticker-item.tick-flash-down {
+  animation: marqueeFlashDown 0.7s ease-out;
+}
+
+@keyframes marqueeFlashUp {
+  0% {
+    background: rgba(16, 185, 129, 0.32);
+    border-color: rgba(16, 185, 129, 0.85);
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.45);
+  }
+  100% {
+    background: rgba(255, 255, 255, 0.035);
+    border-color: rgba(255, 255, 255, 0.07);
+    box-shadow: none;
+  }
+}
+
+@keyframes marqueeFlashDown {
+  0% {
+    background: rgba(244, 63, 94, 0.32);
+    border-color: rgba(244, 63, 94, 0.85);
+    box-shadow: 0 0 16px rgba(244, 63, 94, 0.45);
+  }
+  100% {
+    background: rgba(255, 255, 255, 0.035);
+    border-color: rgba(255, 255, 255, 0.07);
+    box-shadow: none;
+  }
 }
 
 /* Vibrant Symbol Color Classes (Matching index.html) */
@@ -398,7 +478,7 @@ body > div:first-of-type:hover #tickerTrack {
 
 /* Directional Arrows with Smooth Pulse */
 .t-arrow {
-  font-size: 10px;
+  font-size: 9.5px;
   line-height: 1;
   display: inline-block;
   transition: transform 0.25s ease;
@@ -1118,6 +1198,296 @@ button.product-chart-btn {
   border-color: var(--card-accent) !important;
   color: #ffffff !important;
   box-shadow: 0 6px 20px rgba(var(--card-accent-rgb), 0.35) !important;
+}
+
+/* ========================================================
+   LIVE MARKET PULSE: UPTREND & DOWNTREND MONITOR SECTION
+   ======================================================== */
+.market-trend-pulse-section {
+  background: var(--bg-card);
+  border: 1px solid var(--card-border);
+  border-radius: 22px;
+  padding: 22px 24px;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.trend-pulse-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--card-border);
+  padding-bottom: 14px;
+}
+
+.trend-pulse-kicker {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: var(--emerald-green);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.trend-filter-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.trend-filter-btn {
+  background: var(--input-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-sub);
+  padding: 6px 13px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+
+.trend-filter-btn:hover {
+  color: var(--text-main);
+  transform: translateY(-1px);
+}
+
+.trend-filter-btn.active {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: var(--sky-blue);
+  color: var(--sky-blue);
+}
+
+.trend-filter-btn.up-btn.active {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: var(--emerald-green);
+  color: var(--emerald-green);
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
+}
+
+.trend-filter-btn.down-btn.active {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: var(--danger-red);
+  color: var(--danger-soft);
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.25);
+}
+
+.trend-sim-flip-btn {
+  background: linear-gradient(135deg, rgba(157, 114, 255, 0.2) 0%, rgba(56, 189, 248, 0.2) 100%);
+  border: 1px solid rgba(157, 114, 255, 0.5);
+  color: var(--text-main);
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+
+.trend-sim-flip-btn:hover {
+  border-color: var(--lavender-purple);
+  box-shadow: 0 0 16px var(--lavender-purple-glow);
+  transform: translateY(-1px);
+}
+
+.market-trend-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.trend-pulse-card {
+  position: relative;
+  border-radius: 18px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.25s ease,
+              box-shadow 0.25s ease;
+  overflow: hidden;
+}
+
+.trend-pulse-card:hover {
+  transform: translateY(-3px);
+}
+
+.trend-pulse-card.is-uptrend-card {
+  background: linear-gradient(160deg, rgba(16, 185, 129, 0.12) 0%, rgba(15, 20, 30, 0.95) 70%);
+  border: 1.5px solid rgba(16, 185, 129, 0.42);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(16, 185, 129, 0.2);
+}
+
+.trend-pulse-card.is-uptrend-card:hover {
+  border-color: #10b981;
+  box-shadow: 0 12px 28px rgba(16, 185, 129, 0.22);
+}
+
+.trend-pulse-card.is-downtrend-card {
+  background: linear-gradient(160deg, rgba(239, 68, 68, 0.12) 0%, rgba(22, 15, 24, 0.95) 70%);
+  border: 1.5px solid rgba(239, 68, 68, 0.42);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(239, 68, 68, 0.2);
+}
+
+.trend-pulse-card.is-downtrend-card:hover {
+  border-color: #ef4444;
+  box-shadow: 0 12px 28px rgba(239, 68, 68, 0.22);
+}
+
+[data-theme="light"] .trend-pulse-card.is-uptrend-card {
+  background: linear-gradient(160deg, rgba(209, 250, 229, 0.7) 0%, #ffffff 75%);
+  border-color: rgba(16, 185, 129, 0.45);
+}
+
+[data-theme="light"] .trend-pulse-card.is-downtrend-card {
+  background: linear-gradient(160deg, rgba(254, 226, 226, 0.7) 0%, #ffffff 75%);
+  border-color: rgba(239, 68, 68, 0.45);
+}
+
+.trend-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.trend-sym-title {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.2px;
+}
+
+.trend-sym-sub {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.trend-direction-pill {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.trend-direction-pill.pill-up {
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  color: var(--emerald-soft);
+}
+
+.trend-direction-pill.pill-down {
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: var(--danger-soft);
+}
+
+.trend-price-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.trend-live-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.5px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  margin-left: -6px;
+}
+
+.trend-live-price.price-flash-up {
+  animation: cardPriceFlashUp 0.65s ease-out;
+}
+
+.trend-live-price.price-flash-down {
+  animation: cardPriceFlashDown 0.65s ease-out;
+}
+
+@keyframes cardPriceFlashUp {
+  0% { background: rgba(16, 185, 129, 0.28); color: #34d399; }
+  100% { background: transparent; color: var(--text-main); }
+}
+
+@keyframes cardPriceFlashDown {
+  0% { background: rgba(239, 68, 68, 0.28); color: #f87171; }
+  100% { background: transparent; color: var(--text-main); }
+}
+
+.trend-pct-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 8px;
+}
+
+.trend-pct-badge.pct-up {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--emerald-green);
+}
+
+.trend-pct-badge.pct-down {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger-red);
+}
+
+.trend-mini-svg {
+  width: 100%;
+  height: 36px;
+  margin: 2px 0;
+}
+
+.trend-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.trend-struct-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-sub);
+}
+
+.trend-card-toggle-btn {
+  background: var(--input-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-sub);
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 4px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.trend-card-toggle-btn:hover {
+  border-color: var(--sky-blue);
+  color: var(--sky-blue);
 }
 
 /* Hide duplicate center-nav music button on desktop */
@@ -3885,7 +4255,7 @@ button.product-chart-btn {
 }
 
 /* ========================================================
-   LIVE MARKET CHART: CLEAN SMOOTH UI
+   LIVE MARKET CHART: CLEAN SMOOTH UI & UPTREND/DOWNTREND CONTROLS
    ======================================================== */
 .lc-top-breadcrumb-flex {
   display: flex;
@@ -3940,6 +4310,67 @@ button.product-chart-btn {
   padding: 3px 11px;
   border-radius: 9px;
   letter-spacing: 0;
+}
+
+/* Live Chart Header Uptrend / Downtrend Status Pill */
+.lc-trend-mode-pill {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lc-trend-mode-pill.is-uptrend {
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.55);
+  color: #34d399;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.28);
+}
+
+.lc-trend-mode-pill.is-downtrend {
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  color: #f87171;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.28);
+}
+
+/* Live Chart Action Bar Uptrend (BUY) / Downtrend (SELL) Switcher Buttons */
+.lc-trend-switch-btn {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  background: var(--input-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-sub);
+  transition: all 0.22s ease;
+}
+
+.lc-trend-switch-btn.up:hover,
+.lc-trend-switch-btn.up.active {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  color: #34d399;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.3);
+  transform: translateY(-1px);
+}
+
+.lc-trend-switch-btn.down:hover,
+.lc-trend-switch-btn.down.active {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #f87171;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.3);
+  transform: translateY(-1px);
 }
 
 .lc-primary-actions-bar {
@@ -4574,10 +5005,12 @@ button.product-chart-btn {
   .pnl-value { font-size: 10.5px; }
   .symbol-name { font-size: 8px; }
   .products-dual-grid { grid-template-columns: 1fr; }
+  .market-trend-cards-grid { grid-template-columns: 1fr; }
+  .market-trend-pulse-section { padding: 16px 14px; }
 
   .lc-header-flex { align-items: flex-start; flex-direction: column; }
   .lc-primary-actions-bar { width: 100%; }
-  .lc-analyze-btn, .lc-best-setup-btn, .lc-run-council-btn { flex: 1 1 auto; height: 40px; }
+  .lc-trend-switch-btn, .lc-analyze-btn, .lc-best-setup-btn, .lc-run-council-btn { flex: 1 1 auto; height: 40px; }
   .live-chart-controls-bar { padding: 14px 12px; }
   .controls-pill-group { flex-direction: column; align-items: flex-start; gap: 8px; }
   .pills-scroll-track { width: 100%; padding-bottom: 2px; }
