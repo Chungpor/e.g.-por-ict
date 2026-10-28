@@ -1343,8 +1343,13 @@ $('fileInput')?.addEventListener('change', (e) => { if (e.target.files?.[0]) han
 $('btnRemoveImg')?.addEventListener('click', (e) => { e.stopPropagation(); clearImage(); });
 
 // ==========================================
-// 10. RENDER RESULT (HIGH PROBABILITY SETUP + ICT ERL/IRL)
+// 10. RENDER RESULT (WITH HIGH PROBABILITY SETUP HERO + ICT ERL/IRL) & HISTORY LOBBY
 // ==========================================
+function parseNum(v) {
+  const m = String(v || '').replace(/,/g, '').match(/-?\d+(\.\d+)?/);
+  return m ? parseFloat(m[0]) : NaN;
+}
+
 function buildSignalCopyText(r) {
   const isBuy = (r.action || '').toUpperCase().includes('BUY');
   const styleCode = r.tradeStyle || state.tradeStyle;
@@ -1382,7 +1387,7 @@ function renderResult() {
 
   const isBuy = (r.action || '').toUpperCase().includes('BUY');
 
-  // 1. Update High Probability Setup Hero Block
+  // 1. Update High Probability Setup Hero Block (Matching Screenshot)
   const hpBanner = $('hpActionBanner');
   if (hpBanner) {
     hpBanner.className = `${isBuy ? 'hp-banner-buy' : 'hp-banner-sell'} w-full py-3.5 px-5 rounded-2xl font-extrabold text-sm sm:text-base tracking-wider uppercase flex items-center justify-center gap-2.5 mb-4`;
@@ -1508,12 +1513,8 @@ $('btnCopySignal')?.addEventListener('click', () => {
 });
 
 // =========================================================
-// 10B. AFTER-SCAN HISTORY LOBBY ENGINE + SMOOTH DELETE & UNDO
+// 10B. AFTER-SCAN HISTORY LOBBY ENGINE (#scanHistoryLobby)
 // =========================================================
-let lastDeletedLobbyBackup = null;
-let undoToastTimer = null;
-let pendingConfirmAction = null;
-
 function getLobbyStorageKey() {
   return `ksnr_scan_lobby_${state.user?.identifier || 'guest'}`;
 }
@@ -1525,56 +1526,6 @@ function getScanLobbyList() {
 function saveScanLobbyList(list) {
   try { localStorage.setItem(getLobbyStorageKey(), JSON.stringify(list.slice(0, 25))); } catch (e) {}
 }
-
-function showDeleteUndoToast(message, backupList) {
-  lastDeletedLobbyBackup = backupList;
-  const toast = $('deleteUndoToast');
-  const txt = $('deleteUndoToastText');
-  if (!toast || !txt) return;
-
-  txt.textContent = message;
-  show(toast, true);
-  icons();
-
-  if (undoToastTimer) clearTimeout(undoToastTimer);
-  undoToastTimer = setTimeout(() => {
-    show(toast, false);
-    lastDeletedLobbyBackup = null;
-  }, 5000);
-}
-
-$('btnUndoDeleteLobby')?.addEventListener('click', () => {
-  if (!lastDeletedLobbyBackup) return;
-  saveScanLobbyList(lastDeletedLobbyBackup);
-  lastDeletedLobbyBackup = null;
-  show($('deleteUndoToast'), false);
-  renderScanHistoryLobby();
-});
-
-function openSmoothConfirmModal({ title, desc, onConfirm }) {
-  if ($('confirmDeleteTitle')) $('confirmDeleteTitle').textContent = title;
-  if ($('confirmDeleteDesc')) $('confirmDeleteDesc').innerHTML = desc;
-  pendingConfirmAction = onConfirm;
-  openModal('confirmDeleteModal');
-  icons();
-}
-
-function closeSmoothConfirmModal() {
-  pendingConfirmAction = null;
-  closeModal('confirmDeleteModal');
-}
-
-$('btnCancelDeleteModal')?.addEventListener('click', closeSmoothConfirmModal);
-$('btnCancelDeleteTop')?.addEventListener('click', closeSmoothConfirmModal);
-$('confirmDeleteModal')?.addEventListener('click', (e) => {
-  if (e.target.id === 'confirmDeleteModal') closeSmoothConfirmModal();
-});
-
-$('btnConfirmDeleteModal')?.addEventListener('click', () => {
-  const fn = pendingConfirmAction;
-  closeSmoothConfirmModal();
-  if (typeof fn === 'function') fn();
-});
 
 function createChartThumbnailDataUrl(sourceDataUrl, maxW = 360) {
   return new Promise((resolve) => {
@@ -1752,7 +1703,6 @@ function renderScanHistoryLobby() {
     container.appendChild(card);
   });
 
-  // View Card
   container.querySelectorAll('[data-lobby-view]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const found = getScanLobbyList().find((x) => x.id === btn.dataset.lobbyView);
@@ -1772,7 +1722,6 @@ function renderScanHistoryLobby() {
     });
   });
 
-  // Copy Signal
   container.querySelectorAll('[data-lobby-copy]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const found = getScanLobbyList().find((x) => x.id === btn.dataset.lobbyCopy);
@@ -1782,19 +1731,17 @@ function renderScanHistoryLobby() {
     });
   });
 
-  // Send to Telegram Bot
   container.querySelectorAll('[data-lobby-tg]').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const found = getScanLobbyList().find((x) => x.id === btn.dataset.lobbyTg);
       if (!found?.result) return;
       const b64 = found.thumbDataUrl ? found.thumbDataUrl.split(',')[1] : state.imageBase64;
-      if (typeof window.sendChartPhotoToTelegramBot === 'function') {
+      if (typeof window.sendChartPhotoToTelegramBot === 'function' && b64) {
         await window.sendChartPhotoToTelegramBot(b64, 'image/jpeg', found.result);
       }
     });
   });
 
-  // Mark Win
   container.querySelectorAll('[data-lobby-win]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const listNow = getScanLobbyList();
@@ -1810,7 +1757,6 @@ function renderScanHistoryLobby() {
     });
   });
 
-  // Mark Loss
   container.querySelectorAll('[data-lobby-loss]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const listNow = getScanLobbyList();
@@ -1826,26 +1772,10 @@ function renderScanHistoryLobby() {
     });
   });
 
-  // Smooth Single Card Delete with Undo Toast
   container.querySelectorAll('[data-lobby-del]').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const targetId = btn.dataset.lobbyDel;
-      const cardEl = btn.closest('.scan-lobby-card');
-      const backupList = getScanLobbyList();
-
-      if (cardEl) {
-        cardEl.classList.add('deleting-smooth');
-        setTimeout(() => {
-          saveScanLobbyList(backupList.filter((x) => x.id !== targetId));
-          renderScanHistoryLobby();
-          showDeleteUndoToast('🗑️ បានលុបប្រវត្តិស្កេន ១ ដោយជោគជ័យ!', backupList);
-        }, 350);
-      } else {
-        saveScanLobbyList(backupList.filter((x) => x.id !== targetId));
-        renderScanHistoryLobby();
-        showDeleteUndoToast('🗑️ បានលុបប្រវត្តិស្កេន ១ ដោយជោគជ័យ!', backupList);
-      }
+    btn.addEventListener('click', () => {
+      saveScanLobbyList(getScanLobbyList().filter((x) => x.id !== btn.dataset.lobbyDel));
+      renderScanHistoryLobby();
     });
   });
 
@@ -1869,31 +1799,12 @@ $('btnNewScanFromLobby')?.addEventListener('click', () => {
   $('dropZone')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   if (state.unlocked) $('fileInput')?.click();
 });
-
-// Smooth Clear All History Lobby Button (Uses Custom Confirm Modal + Staggered Animation + Undo)
 $('btnClearScanLobby')?.addEventListener('click', () => {
-  const currentList = getScanLobbyList();
-  if (!currentList.length) return;
-
-  openSmoothConfirmModal({
-    title: 'សម្អាតប្រវត្តិស្កេនទាំងអស់?',
-    desc: `តើអ្នកពិតជាចង់សម្អាតប្រវត្តិស្កេនទាំងអស់ (<span class="text-rose-400 font-extrabold">${currentList.length} Scans</span>) ក្នុង <span class="text-cyan-300 font-bold">History Lobby</span> មែនទេ?`,
-    onConfirm: () => {
-      const container = $('scanLobbyList');
-      const cards = container ? Array.from(container.querySelectorAll('.scan-lobby-card')) : [];
-
-      cards.forEach((card, idx) => {
-        setTimeout(() => card.classList.add('deleting-smooth'), idx * 45);
-      });
-
-      const totalWait = Math.min(600, cards.length * 45 + 340);
-      setTimeout(() => {
-        saveScanLobbyList([]);
-        renderScanHistoryLobby();
-        showDeleteUndoToast(`✨ បានសម្អាតប្រវត្តិស្កេនទាំងអស់ (${currentList.length} Scans)!`, currentList);
-      }, totalWait);
-    }
-  });
+  if (!getScanLobbyList().length) return;
+  if (confirm('តើអ្នកពិតជាចង់សម្អាតប្រវត្តិស្កេនទាំងអស់ក្នុង History Lobby មែនទេ?')) {
+    saveScanLobbyList([]);
+    renderScanHistoryLobby();
+  }
 });
 
 // ==========================================
@@ -1981,7 +1892,7 @@ $('keyForm')?.addEventListener('submit', (e) => {
   }
 });
 
-// Floating Bot Assistant FAB (Bottom Right)
+// Floating Bot Assistant FAB (Bottom Right matching screenshot)
 (function injectFloatingBotFab() {
   if (document.getElementById('floatingBotFab')) return;
   const fab = document.createElement('button');
@@ -2274,7 +2185,7 @@ attach4KCanvasToModal('buyModal', 'buyKey4KCanvas', ['🔑 2.5$', '🔑 4.5$', '
 attach4KCanvasToModal('winrateModal', 'winrate4KCanvas', ['XAUUSD ▲', 'BTCUSD ▲', 'ETHUSDT ▲', 'USOIL ▲', '91.9% WIN', 'SNIPER']);
 
 // =========================================================
-// 14. TELEGRAM BOT REGIME, PHOTO & PRICE ALERTS ENGINE (UNIFIED)
+// 14. TELEGRAM BOT REGIME & PRICE ALERTS ENGINE (UNIFIED)
 // =========================================================
 function playTelegramSuccessBeep() {
   try {
@@ -2307,10 +2218,6 @@ function playTelegramSuccessBeep() {
 
   const getBotToken = () => (localStorage.getItem('ksnr_tg_bot_token') || '').trim();
   const getChatId = () => (localStorage.getItem('ksnr_tg_chat_id') || '').trim();
-
-  // Apply Amber Shimmer Glow to the "Set Price Alert" button from scan.css
-  const priceAlertBtn = document.getElementById('btnSetPriceAlert');
-  if (priceAlertBtn) priceAlertBtn.classList.add('tg-amber-glow-btn');
 
   let activePriceAlerts = [];
   try {
@@ -2373,46 +2280,6 @@ function playTelegramSuccessBeep() {
     }
     return data;
   }
-
-  // Expose helper to send Chart Photo + Signal Caption directly to Telegram Bot
-  window.sendChartPhotoToTelegramBot = async function(base64Data, mimeType = 'image/jpeg', resultObj = null) {
-    const token = getBotToken();
-    const chatId = getChatId();
-    if (!token || !chatId) {
-      openModal('tgBotModal');
-      showTgFeedback('⚠️ សូមភ្ជាប់ Telegram Bot Token និង Chat ID ជាមុនសិន!', true);
-      return;
-    }
-
-    const captionText = resultObj ? buildSignalCopyText(resultObj) : '📊 Por - SNR Scanner Signal';
-    try {
-      showTgFeedback('⏳ កំពុងផ្ញើរូបភាព Chart និង Signal ទៅ Telegram Bot...');
-      if (!base64Data) {
-        await sendTelegramMessage(captionText);
-      } else {
-        const byteChars = atob(base64Data);
-        const byteNumbers = new Array(byteChars.length);
-        for (let i = 0; i < byteChars.length; i++) byteNumbers[i] = byteChars.charCodeAt(i);
-        const blob = new Blob([new Uint8Array(byteNumbers)], { type: mimeType || 'image/jpeg' });
-
-        const formData = new FormData();
-        formData.append('chat_id', chatId);
-        formData.append('photo', blob, 'por-snr-setup.jpg');
-        formData.append('caption', captionText.slice(0, 1020));
-
-        const res = await fetch(`https://api.telegram.org/bot${encodeURIComponent(token)}/sendPhoto`, {
-          method: 'POST',
-          body: formData
-        });
-        const data = await res.json();
-        if (!res.ok || !data.ok) throw new Error(data.description || 'បរាជ័យក្នុងការផ្ញើរូបភាពទៅ Telegram');
-      }
-      playTelegramSuccessBeep();
-      showTgFeedback('✅ បានផ្ញើរូបភាព Chart + Signal ទៅ Telegram Bot ជោគជ័យ!');
-    } catch (err) {
-      showTgFeedback(`❌ ${err.message}`, true);
-    }
-  };
 
   document.getElementById('btnOpenTgConfig')?.addEventListener('click', () => {
     const tokenInput = document.getElementById('tgBotTokenInput');
@@ -2582,16 +2449,12 @@ function playTelegramSuccessBeep() {
     tgBtn.addEventListener('click', async () => {
       const r = state.result;
       if (!r) return;
-      if (state.imageBase64 && typeof window.sendChartPhotoToTelegramBot === 'function') {
-        await window.sendChartPhotoToTelegramBot(state.imageBase64, state.mime, r);
-      } else {
-        try {
-          await sendTelegramMessage(buildSignalCopyText(r));
-          playTelegramSuccessBeep();
-          showTgFeedback('✅ បានផ្ញើ Signal + ICT ERL/IRL ទៅ Telegram រួចរាល់!');
-        } catch (err) {
-          showTgFeedback(`❌ ${err.message}`, true);
-        }
+      try {
+        await sendTelegramMessage(buildSignalCopyText(r));
+        playTelegramSuccessBeep();
+        showTgFeedback('✅ បានផ្ញើ Signal + ICT ERL/IRL ទៅ Telegram រួចរាល់!');
+      } catch (err) {
+        showTgFeedback(`❌ ${err.message}`, true);
       }
     });
   }
@@ -2600,3 +2463,110 @@ function playTelegramSuccessBeep() {
   renderActivePriceAlerts();
   icons();
 })();
+// =========================================================
+// SMOOTH DELETE & CLEAR HISTORY LOBBY ENGINE (WITH UNDO)
+// =========================================================
+let lastDeletedLobbyBackup = null;
+let undoToastTimer = null;
+let pendingConfirmAction = null;
+
+function showDeleteUndoToast(message, backupList) {
+  lastDeletedLobbyBackup = backupList;
+  const toast = $('deleteUndoToast');
+  const txt = $('deleteUndoToastText');
+  if (!toast || !txt) return;
+
+  txt.textContent = message;
+  show(toast, true);
+  icons();
+
+  if (undoToastTimer) clearTimeout(undoToastTimer);
+  undoToastTimer = setTimeout(() => {
+    show(toast, false);
+    lastDeletedLobbyBackup = null;
+  }, 5000);
+}
+
+$('btnUndoDeleteLobby')?.addEventListener('click', () => {
+  if (!lastDeletedLobbyBackup) return;
+  saveScanLobbyList(lastDeletedLobbyBackup);
+  lastDeletedLobbyBackup = null;
+  show($('deleteUndoToast'), false);
+  renderScanHistoryLobby();
+});
+
+function openSmoothConfirmModal({ title, desc, onConfirm }) {
+  if ($('confirmDeleteTitle')) $('confirmDeleteTitle').textContent = title;
+  if ($('confirmDeleteDesc')) $('confirmDeleteDesc').innerHTML = desc;
+  pendingConfirmAction = onConfirm;
+  openModal('confirmDeleteModal');
+  icons();
+}
+
+function closeSmoothConfirmModal() {
+  pendingConfirmAction = null;
+  closeModal('confirmDeleteModal');
+}
+
+$('btnCancelDeleteModal')?.addEventListener('click', closeSmoothConfirmModal);
+$('btnCancelDeleteTop')?.addEventListener('click', closeSmoothConfirmModal);
+$('confirmDeleteModal')?.addEventListener('click', (e) => {
+  if (e.target.id === 'confirmDeleteModal') closeSmoothConfirmModal();
+});
+
+$('btnConfirmDeleteModal')?.addEventListener('click', () => {
+  const fn = pendingConfirmAction;
+  closeSmoothConfirmModal();
+  if (typeof fn === 'function') fn();
+});
+
+// Smooth Single Card Delete (Call inside renderScanHistoryLobby)
+function bindSmoothCardDeleteButtons(container) {
+  container.querySelectorAll('[data-lobby-del]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const targetId = btn.dataset.lobbyDel;
+      const cardEl = btn.closest('.scan-lobby-card');
+      const backupList = getScanLobbyList();
+
+      if (cardEl) {
+        cardEl.classList.add('deleting-smooth');
+        setTimeout(() => {
+          saveScanLobbyList(backupList.filter((x) => x.id !== targetId));
+          renderScanHistoryLobby();
+          showDeleteUndoToast('🗑️ បានលុបប្រវត្តិស្កេន ១ ដោយជោគជ័យ!', backupList);
+        }, 350);
+      } else {
+        saveScanLobbyList(backupList.filter((x) => x.id !== targetId));
+        renderScanHistoryLobby();
+        showDeleteUndoToast('🗑️ បានលុបប្រវត្តិស្កេន ១ ដោយជោគជ័យ!', backupList);
+      }
+    });
+  });
+}
+
+// Smooth Clear All History Lobby Button
+$('btnClearScanLobby')?.addEventListener('click', () => {
+  const currentList = getScanLobbyList();
+  if (!currentList.length) return;
+
+  openSmoothConfirmModal({
+    title: 'សម្អាតប្រវត្តិស្កេនទាំងអស់?',
+    desc: `តើអ្នកពិតជាចង់សម្អាតប្រវត្តិស្កេនទាំងអស់ (<span class="text-rose-400 font-extrabold">${currentList.length} Scans</span>) ក្នុង <span class="text-cyan-300 font-bold">History Lobby</span> មែនទេ?`,
+    onConfirm: () => {
+      const container = $('scanLobbyList');
+      const cards = container ? Array.from(container.querySelectorAll('.scan-lobby-card')) : [];
+
+      cards.forEach((card, idx) => {
+        setTimeout(() => card.classList.add('deleting-smooth'), idx * 45);
+      });
+
+      const totalWait = Math.min(600, cards.length * 45 + 340);
+      setTimeout(() => {
+        saveScanLobbyList([]);
+        renderScanHistoryLobby();
+        showDeleteUndoToast(`✨ បានសម្អាតប្រវត្តិស្កេនទាំងអស់ (${currentList.length} Scans)!`, currentList);
+      }, totalWait);
+    }
+  });
+});

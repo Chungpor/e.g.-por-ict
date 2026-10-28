@@ -440,7 +440,7 @@
         </div>
       </div>
 
-      <!-- 2 GUIDE BUTTONS ROW -->
+      <!-- 2 GUIDE BUTTONS ROW (MATCHING SCREENSHOT: របៀបទិញ KEY ជាមួយ support & របៀបទិញ KEY ដោយខ្លួនឯង) -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-5 relative z-10">
         <a href="https://t.me/KaingChungpor" target="_blank" rel="noopener noreferrer" id="btnBuyWithSupport" class="hp-guide-btn py-3 px-4 rounded-2xl text-cyan-300 font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer">
           <span class="w-5 h-5 rounded-full bg-cyan-400/20 border border-cyan-400/50 flex items-center justify-center text-[#18ffff]">
@@ -457,7 +457,7 @@
         </button>
       </div>
 
-      <!-- REAL LIVE DATA PAIR & 9-TIMEFRAME CONTROL BAR -->
+      <!-- REAL LIVE DATA PAIR & 9-TIMEFRAME CONTROL BAR (1m 3m 5m 15m 30m 1h 4h 1d 1w) -->
       <div id="porLiveControlBar" class="relative z-10 mb-5 p-3.5 rounded-2xl bg-[#0b111e]/95 border border-cyan-500/35 shadow-inner space-y-2.5">
         <div class="flex items-center justify-between flex-wrap gap-2">
           <div class="flex items-center gap-2 flex-wrap">
@@ -598,7 +598,7 @@
               </div>
             </button>
 
-            <!-- Option 3: A+ ICT LIQUIDITY SETUP -->
+            <!-- Option 3: A+ ICT LIQUIDITY SETUP (SWEEP + SMT + FVG • MIN 1:3 RR) -->
             <button type="button" id="btnModeAPlus" data-trade-style="APLUS_ICT" class="trade-style-card p-3.5 rounded-xl bg-[#111a2e] border border-slate-700 hover:border-emerald-400/60 text-left cursor-pointer flex items-start gap-3 sm:col-span-2">
               <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/50 flex items-center justify-center text-emerald-300 shrink-0 mt-0.5">
                 <i data-lucide="award" class="w-5 h-5"></i>
@@ -647,10 +647,10 @@
       </div>
     </div>
 
-    <!-- 6. RESULT CARD -->
+    <!-- 6. RESULT CARD (UPDATED WITH EXACT "🔥 លទ្ធផលស្កេន High Probability Setup" LAYOUT FROM SCREENSHOT) -->
     <div id="resultCard" class="hidden w-full mt-6 hp-setup-shell rounded-[28px] p-5 sm:p-6 shadow-2xl animate-fadeIn">
 
-      <!-- 6A. HIGH PROBABILITY SETUP HERO BLOCK -->
+      <!-- 6A. HIGH PROBABILITY SETUP HERO BLOCK (MATCHING SCREENSHOT) -->
       <div class="text-center mb-4">
         <h3 class="text-xl sm:text-2xl font-extrabold flex items-center justify-center gap-2 tracking-wide">
           <span class="text-2xl">🔥</span>
@@ -658,44 +658,48 @@
         </h3>
       </div>
 
-      <div id="hpActionBanner" class="hp-banner-buy w-full py-3.5 px-5 rounded-2xl font-extrabold text-sm sm:text-base tracking-wider uppercase flex items-center justify-center gap-2.5 mb-4">
+      <!-- Full-Width Green/Red Action Banner ("📈 ENTRY BUY NOW" / "📉 ENTRY SELL NOW") -->
+      <div id="hpActionBanner" class="hp-entry-banner-buy w-full py-3.5 px-5 rounded-2xl font-extrabold text-sm sm:text-base tracking-wider uppercase flex items-center justify-center gap-2.5 mb-4">
         <i id="hpActionBannerIcon" data-lucide="trending-up" class="w-5 h-5"></i>
         <span id="hpActionBannerText">ENTRY BUY NOW</span>
       </div>
 
-      <div id="hpEntryPriceCard" class="hp-entry-box w-full py-5 px-4 rounded-2xl text-center mb-3.5">
+      <!-- Large Centered ENTRY BUY NOW / ENTRY SELL NOW Price Box -->
+      <div id="hpEntryPriceCard" class="hp-entry-price-card w-full py-5 px-4 rounded-2xl text-center mb-3.5">
         <div class="flex items-center justify-center gap-2 text-xs sm:text-sm font-extrabold tracking-wider text-slate-300 uppercase mb-1">
           <span class="w-2.5 h-2.5 rounded-full bg-sky-400 inline-block shadow-[0_0_10px_#38bdf8]"></span>
           <span id="hpEntryBoxLabel">ENTRY BUY NOW</span>
         </div>
-        <div id="hpEntryBigPrice" class="hp-entry-price text-3xl sm:text-5xl font-extrabold tracking-tight">
+        <div id="hpEntryBigPrice" class="hp-entry-price-num text-3xl sm:text-5xl font-extrabold tracking-tight">
           3996.5
         </div>
       </div>
 
+      <!-- 2-Column Grid: TAKE PROFIT (TP) & STOP LOSS (SL) -->
       <div class="grid grid-cols-2 gap-3.5 mb-4">
-        <div class="hp-tp-box py-4 px-3 sm:px-4 rounded-2xl text-center">
+        <div class="hp-tp-card py-4 px-3 sm:px-4 rounded-2xl text-center">
           <div class="flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-extrabold text-emerald-400 uppercase tracking-wider mb-1">
             <i data-lucide="target" class="w-3.5 h-3.5"></i>
             <span>TAKE PROFIT (TP)</span>
           </div>
-          <div id="hpTpBigPrice" class="hp-tp-price text-2xl sm:text-3xl font-extrabold tracking-tight">
+          <div id="hpTpBigPrice" class="hp-tp-num text-2xl sm:text-3xl font-extrabold tracking-tight">
             4010
           </div>
         </div>
 
-        <div class="hp-sl-box py-4 px-3 sm:px-4 rounded-2xl text-center">
+        <div class="hp-sl-card py-4 px-3 sm:px-4 rounded-2xl text-center">
           <div class="flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-extrabold text-rose-400 uppercase tracking-wider mb-1">
             <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
             <span>STOP LOSS (SL)</span>
           </div>
-          <div id="hpSlBigPrice" class="hp-sl-price text-2xl sm:text-3xl font-extrabold tracking-tight">
+          <div id="hpSlBigPrice" class="hp-sl-num text-2xl sm:text-3xl font-extrabold tracking-tight">
             3990
           </div>
         </div>
       </div>
 
-      <div class="hp-reason-box p-4 rounded-2xl text-xs sm:text-sm leading-relaxed text-slate-200 mb-5">
+      <!-- Analysis Summary Paragraph Box ("ការវិភាគលម្អិត:") -->
+      <div class="hp-analysis-box p-4 rounded-2xl text-xs sm:text-sm leading-relaxed text-slate-200 mb-5">
         <span class="font-extrabold text-amber-400 underline mr-1.5">ការវិភាគលម្អិត:</span>
         <span id="hpAnalysisSummaryText">
           ទីផ្សារមានទំនោរកើនឡើងបន្ទាប់ពីតម្លៃបានប៉ះតំបន់ Support សំខាន់។ Entry ត្រូវបានកំណត់នៅចំណុចបច្ចុប្បន្ន ដើម្បីចូលតាមទិសដៅកើនឡើង។ TP នៅក្បែរតំបន់ខ្ពស់ចាស់ និង SL នៅក្រោមតំបន់ទាបចុងក្រោយ ដើម្បីការពារហានិភ័យ។
@@ -769,7 +773,7 @@
         </div>
       </div>
 
-      <!-- ICT DEALING RANGE & LIQUIDITY MAP -->
+      <!-- ICT DEALING RANGE (PREMIUM / 0.5 EQUILIBRIUM / DISCOUNT) & LIQUIDITY MAP -->
       <div class="p-3.5 rounded-2xl bg-[#0b1220] border border-emerald-500/35 text-xs sm:text-sm mb-4 space-y-2.5">
         <div class="flex items-center justify-between flex-wrap gap-2">
           <span class="font-extrabold text-emerald-300 flex items-center gap-1.5">
@@ -803,6 +807,7 @@
           </div>
         </div>
 
+        <!-- Top 3 A+ Setup Confluences Status Pills -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1.5 text-[11px]">
           <div class="px-2.5 py-2 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-emerald-200 font-bold flex items-center gap-1.5">
             <span>✅</span>
@@ -835,6 +840,7 @@
         <span>ចម្លង Signal យកទៅផុស (Copy Signal)</span>
       </button>
 
+      <!-- Button to Scroll/Focus After-Scan History Lobby -->
       <button id="btnResultToLobby" type="button" class="w-full mt-2.5 py-3 rounded-xl bg-[#131d35] hover:bg-[#1a2847] border border-purple-400/45 text-purple-300 font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer">
         <i data-lucide="layers" class="w-4 h-4 text-[#18ffff]"></i>
         <span>🏛️ បើកបន្ទប់ប្រវត្តិស្កេន (Open Scan History Lobby)</span>
@@ -994,7 +1000,7 @@
     </button>
   </div>
 
-  <!-- MODAL: SELF-BUY KEY GUIDE -->
+  <!-- MODAL: SELF-BUY KEY GUIDE (របៀបទិញ KEY ដោយខ្លួនឯង) -->
   <div id="selfBuyGuideModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-[#0e1626] border border-cyan-500/40 rounded-[28px] max-w-md w-full p-6 shadow-2xl relative animate-fadeIn">
       <button data-close="selfBuyGuideModal" class="absolute top-5 right-5 text-slate-400 hover:text-white cursor-pointer">
@@ -1109,9 +1115,10 @@
     </div>
   </div>
 
-  <!-- MODAL: WINRATE LIVE ACTION STATS -->
+  <!-- MODAL: WINRATE LIVE ACTION STATS (WITH 4K DYNAMIC BACKGROUND + ETHUSDT & USOIL) -->
   <div id="winrateModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="winrate-modal-4k-shell border border-emerald-500/45 rounded-[28px] max-w-md w-full p-6 shadow-2xl relative animate-fadeIn">
+      <!-- 4K Dynamic Canvas inside Winrate Modal -->
       <canvas id="winrate4KCanvas"></canvas>
 
       <button data-close="winrateModal" class="absolute top-5 right-5 z-20 text-slate-400 hover:text-white cursor-pointer">
@@ -1392,7 +1399,7 @@
     </div>
   </div>
 
-  <!-- MODAL 6: SMOOTH DELETE CONFIRMATION MODAL (REPLACES NATIVE BROWSER CONFIRM) -->
+<!-- MODAL 6: SMOOTH DELETE CONFIRMATION MODAL (REPLACES NATIVE BROWSER CONFIRM) -->
   <div id="confirmDeleteModal" class="hidden fixed inset-0 z-[60] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="confirm-modal-shell border border-rose-500/45 rounded-[28px] max-w-sm w-full p-6 text-center relative">
       <button type="button" id="btnCancelDeleteTop" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 flex items-center justify-center text-slate-400 hover:text-white cursor-pointer transition-colors">
@@ -1687,7 +1694,7 @@
             រក្សាទុកការកំណត់ Bot
           </button>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 
