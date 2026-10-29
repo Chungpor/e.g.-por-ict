@@ -79,13 +79,13 @@ function getKeyRegistry() {
   try { return JSON.parse(localStorage.getItem('ksnr_issued_keys') || '{}'); } catch (e) { return {}; }
 }
 function saveKeyRegistry(reg) {
-  localStorage.setItem('ksnr_issued_keys', JSON.stringify(reg));
+  try { localStorage.setItem('ksnr_issued_keys', JSON.stringify(reg)); } catch (e) {}
 }
 function getKeyUsageMap() {
   try { return JSON.parse(localStorage.getItem('ksnr_key_usage') || '{}'); } catch (e) { return {}; }
 }
 function saveKeyUsageMap(map) {
-  localStorage.setItem('ksnr_key_usage', JSON.stringify(map));
+  try { localStorage.setItem('ksnr_key_usage', JSON.stringify(map)); } catch (e) {}
 }
 
 function generateSmartKey(mode = 'S1', qrSessionId = '') {
@@ -168,7 +168,10 @@ function verifySmartKey(inputKey, currentUserIdentifier = '') {
 }
 
 function consumeKeyScanIfNeeded() {
-  if (isAdminUser(state.user)) return true;
+  if (isAdminUser(state.user)) {
+    addHistoryLog('SCAN', `បានស្កេន Chart ដោយជោគជ័យ (👑 Admin Unlimited • ${state.tradeStyle})`);
+    return true;
+  }
   const savedKey = localStorage.getItem('ksnr_saved_key');
   if (!savedKey) return false;
   const userId = state.user ? state.user.identifier : '';
@@ -398,7 +401,7 @@ document.querySelectorAll('#tfSelectorBar .tf-btn').forEach((btn) => {
   });
 });
 
-// Self-Buy KEY Guide Modal ("របៀបទិញ KEY ដោយខ្លួនឯង")
+// Self-Buy KEY Guide Modal
 $('btnBuySelfGuide')?.addEventListener('click', () => openModal('selfBuyGuideModal'));
 $('btnGuideOpenBuyNow')?.addEventListener('click', () => {
   closeModal('selfBuyGuideModal');
@@ -412,7 +415,7 @@ function getUsers() {
   try { return JSON.parse(localStorage.getItem('ksnr_users') || '[]'); } catch (e) { return []; }
 }
 function saveUsers(list) {
-  localStorage.setItem('ksnr_users', JSON.stringify(list));
+  try { localStorage.setItem('ksnr_users', JSON.stringify(list)); } catch (e) {}
 }
 
 (function seedDefaultAdmins() {
@@ -504,7 +507,7 @@ function updateWinrateUI() {
   }
 
   renderLiveWinrateModalRows();
-  localStorage.setItem('ksnr_winrate', numStr);
+  try { localStorage.setItem('ksnr_winrate', numStr); } catch (e) {}
 }
 
 function tickLiveWinrateAction() {
@@ -664,24 +667,53 @@ $('btnTheme')?.addEventListener('click', () => {
 });
 
 // ==========================================
-// 7. USER AUTH, PROFILE & ADMIN UNLIMITED
+// 7. USER AUTH, PROFILE & ACCOUNT HISTORY
 // ==========================================
 function getInitials(name) {
   return String(name || 'PO').trim().slice(0, 2).toUpperCase();
 }
 
+function getAccountLogKey() {
+  const id = state.user?.identifier ? String(state.user.identifier).trim().toLowerCase() : 'guest';
+  return `ksnr_hist_${id}`;
+}
+
+function getAccountHistoryLogs() {
+  try {
+    const userLogs = JSON.parse(localStorage.getItem(getAccountLogKey()) || '[]');
+    if (state.user?.identifier) {
+      const guestLogs = JSON.parse(localStorage.getItem('ksnr_hist_guest') || '[]');
+      if (guestLogs.length > 0) {
+        const merged = [...userLogs, ...guestLogs].slice(0, 50);
+        localStorage.setItem(getAccountLogKey(), JSON.stringify(merged));
+        localStorage.removeItem('ksnr_hist_guest');
+        return merged;
+      }
+    }
+    return userLogs;
+  } catch (e) {
+    return [];
+  }
+}
+
 function addHistoryLog(type, detail) {
-  if (!state.user) return;
-  const key = `ksnr_hist_${state.user.identifier}`;
-  const list = JSON.parse(localStorage.getItem(key) || '[]');
-  list.unshift({ type, detail, time: new Date().toLocaleString('km-KH') });
-  localStorage.setItem(key, JSON.stringify(list.slice(0, 40)));
+  try {
+    const key = getAccountLogKey();
+    const list = JSON.parse(localStorage.getItem(key) || '[]');
+    list.unshift({
+      id: `LOG-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
+      type,
+      detail,
+      time: new Date().toLocaleString('km-KH')
+    });
+    localStorage.setItem(key, JSON.stringify(list.slice(0, 50)));
+  } catch (e) {}
 }
 
 function syncUserRecord(updatedFields) {
   if (!state.user) return;
   state.user = { ...state.user, ...updatedFields };
-  localStorage.setItem('ksnr_current_user', JSON.stringify(state.user));
+  try { localStorage.setItem('ksnr_current_user', JSON.stringify(state.user)); } catch (e) {}
   const users = getUsers();
   const idx = users.findIndex((u) => u.identifier === state.user.identifier);
   if (idx !== -1) {
@@ -761,12 +793,12 @@ $('profileImgInput')?.addEventListener('change', (e) => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      const size = 220;
+      const size = 180;
       canvas.width = size; canvas.height = size;
       const ctx = canvas.getContext('2d');
       const minSide = Math.min(img.width, img.height);
       ctx.drawImage(img, (img.width - minSide) / 2, (img.height - minSide) / 2, minSide, minSide, 0, 0, size, size);
-      syncUserRecord({ avatar: canvas.toDataURL('image/jpeg', 0.85) });
+      syncUserRecord({ avatar: canvas.toDataURL('image/jpeg', 0.78) });
       applyAuthUI();
       $('profileSaveMsg').textContent = '✅ បានបង្ហោះរូបភាព Profile រួចរាល់!';
       show($('profileSaveMsg'), true);
@@ -792,27 +824,123 @@ $('btnSaveProfile')?.addEventListener('click', () => {
   show($('profileSaveMsg'), true);
 });
 
-$('btnOpenHistory')?.addEventListener('click', () => {
-  if (!state.user) return;
-  const list = JSON.parse(localStorage.getItem(`ksnr_hist_${state.user.identifier}`) || '[]');
+// Render Unified Account History Modal (#historyModal: Shows Both Scan History & Account Logs)
+function renderAccountHistoryModal() {
   const box = $('historyContent');
+  if (!box) return;
   box.innerHTML = '';
-  if (!list.length) {
-    box.innerHTML = '<div class="p-4 rounded-xl bg-slate-900 text-center text-slate-400">មិនទាន់មានប្រវត្តិប្រើប្រាស់ ឬវិក្កយបត្រនៅឡើយទេ។</div>';
-  } else {
-    list.forEach((item) => {
+
+  const scanItems = getScanLobbyList();
+  const accountLogs = getAccountHistoryLogs();
+
+  if (!scanItems.length && !accountLogs.length) {
+    box.innerHTML = `
+      <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 text-center text-slate-400">
+        <div class="text-2xl mb-1">📭</div>
+        <div class="font-bold text-slate-200">មិនទាន់មានប្រវត្តិស្កេន ឬវិក្កយបត្រនៅឡើយទេ</div>
+        <div class="text-xs text-slate-500 mt-1">រាល់ការស្កេន Chart និងការទិញ KEY នឹងបង្ហាញនៅទីនេះស្វ័យប្រវត្តិ។</div>
+      </div>`;
+    return;
+  }
+
+  // Section 1: Interactive Chart Scan History inside Account History Modal
+  if (scanItems.length > 0) {
+    const secHeader = document.createElement('div');
+    secHeader.className = 'flex items-center justify-between text-xs font-extrabold text-cyan-300 uppercase tracking-wider pb-1 border-b border-slate-800';
+    secHeader.innerHTML = `<span>📊 ប្រវត្តិស្កេន Chart (${scanItems.length})</span><span class="text-[10px] text-emerald-300">Update & Delete Ready</span>`;
+    box.appendChild(secHeader);
+
+    scanItems.forEach((item) => {
+      const r = item.result || {};
+      const isBuy = String(r.action || 'BUY').toUpperCase().includes('BUY');
+      const row = document.createElement('div');
+      row.className = 'p-3 rounded-xl bg-[#131d31] border border-cyan-500/30 flex items-center justify-between gap-2.5';
+      row.innerHTML = `
+        <div class="flex items-center gap-2.5 min-w-0">
+          ${item.thumbDataUrl
+            ? `<img src="${item.thumbDataUrl}" class="w-12 h-10 rounded-lg object-cover border border-slate-700 shrink-0" />`
+            : `<div class="w-12 h-10 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center text-cyan-400 shrink-0"><i data-lucide="image" class="w-4 h-4"></i></div>`}
+          <div class="min-w-0">
+            <div class="font-extrabold text-white text-xs truncate">
+              ${r.pair || 'XAU/USD'} (${r.timeframe || 'M15'}) • <span class="${isBuy ? 'text-emerald-400' : 'text-rose-400'}">${r.action || 'BUY'} @ ${r.entry || '-'}</span>
+            </div>
+            <div class="text-[10px] text-slate-400 truncate">SL: ${r.sl || '-'} | TP: ${r.tp2 || r.tp1 || '-'} • ${item.timeText || ''}</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-1 shrink-0">
+          <button type="button" data-hist-view="${item.id}" class="px-2 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 text-[11px] font-extrabold cursor-pointer">មើល</button>
+          <button type="button" data-hist-edit="${item.id}" class="px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-[11px] font-extrabold cursor-pointer">Update</button>
+          <button type="button" data-hist-del="${item.id}" class="px-2 py-1 rounded-lg bg-rose-500/20 text-rose-300 text-[11px] font-extrabold cursor-pointer">លុប</button>
+        </div>
+      `;
+      box.appendChild(row);
+    });
+  }
+
+  // Section 2: Account Activity Logs (KEY, Login, KHQR, Scans)
+  if (accountLogs.length > 0) {
+    const logHeader = document.createElement('div');
+    logHeader.className = 'flex items-center justify-between text-xs font-extrabold text-amber-300 uppercase tracking-wider pt-2 pb-1 border-b border-slate-800';
+    logHeader.innerHTML = `<span>🔑 សកម្មភាពគណនី & KEY (${accountLogs.length})</span>`;
+    box.appendChild(logHeader);
+
+    accountLogs.forEach((item) => {
       const div = document.createElement('div');
-      div.className = 'p-3.5 rounded-xl bg-[#131d31] border border-slate-700/80 flex flex-col gap-1';
+      div.className = 'p-3 rounded-xl bg-[#131d31] border border-slate-700/80 flex flex-col gap-1';
       div.innerHTML = `
         <div class="flex justify-between items-center">
           <span class="font-extrabold text-[#00e5ff] text-xs">${item.type}</span>
           <span class="text-[11px] text-slate-400">${item.time}</span>
         </div>
-        <div class="text-slate-200 text-xs sm:text-sm">${item.detail}</div>
+        <div class="text-slate-200 text-xs">${item.detail}</div>
       `;
       box.appendChild(div);
     });
   }
+
+  box.querySelectorAll('[data-hist-view]').forEach((b) => {
+    b.addEventListener('click', () => {
+      const found = getScanLobbyList().find((x) => x.id === b.dataset.histView);
+      if (!found?.result) return;
+      state.activeLobbyItemId = found.id;
+      state.result = JSON.parse(JSON.stringify(found.result));
+      if (found.thumbDataUrl) {
+        $('previewImg').src = found.thumbDataUrl;
+        state.imageBase64 = found.thumbDataUrl.split(',')[1];
+        state.mime = 'image/jpeg';
+        show($('dropEmpty'), false); show($('dropPreview'), true); show($('imgReadyStepBadge'), true);
+      }
+      closeModal('historyModal');
+      closeModal('profileModal');
+      renderResult();
+      $('resultCard')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+
+  box.querySelectorAll('[data-hist-edit]').forEach((b) => {
+    b.addEventListener('click', () => {
+      closeModal('historyModal');
+      closeModal('profileModal');
+      openUpdateScanModalById(b.dataset.histEdit);
+    });
+  });
+
+  box.querySelectorAll('[data-hist-del]').forEach((b) => {
+    b.addEventListener('click', () => {
+      const targetId = b.dataset.histDel;
+      const backup = getScanLobbyList();
+      saveScanLobbyList(backup.filter((x) => x.id !== targetId));
+      renderAccountHistoryModal();
+      renderScanHistoryLobby();
+      showDeleteUndoToast('🗑️ បានលុបប្រវត្តិស្កេន ១ ដោយជោគជ័យ!', backup);
+    });
+  });
+
+  icons();
+}
+
+$('btnOpenHistory')?.addEventListener('click', () => {
+  renderAccountHistoryModal();
   openModal('historyModal');
 });
 
@@ -887,6 +1015,7 @@ $('loginForm')?.addEventListener('submit', (e) => {
   }
   state.user = matched;
   localStorage.setItem('ksnr_current_user', JSON.stringify(state.user));
+  addHistoryLog('LOGIN', `បានចូលគណនី ${matched.identifier} ដោយជោគជ័យ`);
   $('loginForm').reset();
   show($('loginError'), false);
   closeModal('loginModal');
@@ -1154,7 +1283,7 @@ $('uploadOriginalQrInput')?.addEventListener('change', (e) => {
   reader.onload = (ev) => {
     const dataUrl = ev.target.result;
     state.customAbaQrImg = dataUrl;
-    localStorage.setItem('ksnr_custom_aba_qr_img', dataUrl);
+    try { localStorage.setItem('ksnr_custom_aba_qr_img', dataUrl); } catch (err) {}
     if ($('khqrOriginalImg')) $('khqrOriginalImg').src = dataUrl;
     tryDecodeAbaQrFromImageSrc(dataUrl);
     setKhqrMode('original');
@@ -1577,22 +1706,78 @@ $('btnCopySignal')?.addEventListener('click', () => {
 });
 
 // =========================================================
-// 10B. AFTER-SCAN HISTORY LOBBY ENGINE (WITH UPDATE & SMOOTH DELETE)
+// 10B. AFTER-SCAN HISTORY LOBBY ENGINE (QUOTA-SAFE + UPDATE + SMOOTH DELETE)
 // =========================================================
+const GLOBAL_LOBBY_STORAGE_KEY = 'ksnr_scan_lobby_all_v2';
 let lastDeletedLobbyBackup = null;
 let undoToastTimer = null;
 let pendingConfirmAction = null;
 
-function getLobbyStorageKey() {
-  return `ksnr_scan_lobby_${state.user?.identifier || 'guest'}`;
+function getLegacyUserLobbyKey() {
+  const id = state.user?.identifier ? String(state.user.identifier).trim().toLowerCase() : 'guest';
+  return `ksnr_scan_lobby_${id}`;
 }
 
+// Unified History Reader (Merges Global + User + Guest Keys so History Never Disappears)
 function getScanLobbyList() {
-  try { return JSON.parse(localStorage.getItem(getLobbyStorageKey()) || '[]'); } catch (e) { return []; }
+  try {
+    let mainList = JSON.parse(localStorage.getItem(GLOBAL_LOBBY_STORAGE_KEY) || '[]');
+    const legacyKeys = [getLegacyUserLobbyKey(), 'ksnr_scan_lobby_guest'];
+
+    let migrated = false;
+    legacyKeys.forEach((k) => {
+      try {
+        const oldItems = JSON.parse(localStorage.getItem(k) || '[]');
+        if (Array.isArray(oldItems) && oldItems.length > 0) {
+          oldItems.forEach((oldItem) => {
+            if (oldItem && oldItem.id && !mainList.some((m) => m.id === oldItem.id)) {
+              mainList.push(oldItem);
+              migrated = true;
+            }
+          });
+          localStorage.removeItem(k);
+        }
+      } catch (err) {}
+    });
+
+    mainList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    if (migrated) saveScanLobbyList(mainList);
+    return mainList;
+  } catch (e) {
+    return [];
+  }
 }
 
+// Quota-Safe History Writer (Automatically Trims Old Thumbnails if localStorage is Full)
 function saveScanLobbyList(list) {
-  try { localStorage.setItem(getLobbyStorageKey(), JSON.stringify(list.slice(0, 25))); } catch (e) {}
+  const cleanList = Array.isArray(list) ? list.slice(0, 25) : [];
+  try {
+    localStorage.setItem(GLOBAL_LOBBY_STORAGE_KEY, JSON.stringify(cleanList));
+    return true;
+  } catch (quotaErr) {
+    try {
+      // Compress by keeping thumbnails only on the 8 most recent scans
+      const lighterList = cleanList.map((item, idx) => ({
+        ...item,
+        thumbDataUrl: idx < 8 ? item.thumbDataUrl : ''
+      }));
+      localStorage.setItem(GLOBAL_LOBBY_STORAGE_KEY, JSON.stringify(lighterList));
+      return true;
+    } catch (err2) {
+      try {
+        // Fallback: store text data without thumbnails so History ALWAYS saves
+        const textOnlyList = cleanList.slice(0, 15).map((item) => ({
+          ...item,
+          thumbDataUrl: ''
+        }));
+        localStorage.setItem(GLOBAL_LOBBY_STORAGE_KEY, JSON.stringify(textOnlyList));
+        return true;
+      } catch (err3) {
+        console.error('History storage full:', err3);
+        return false;
+      }
+    }
+  }
 }
 
 function showDeleteUndoToast(message, backupList = null) {
@@ -1662,17 +1847,17 @@ function openUpdateScanModalById(targetId) {
   if (!item || !item.result) return;
 
   const r = item.result;
-  $('updScanId').value = item.id;
-  $('updPairInput').value = r.pair || 'XAU/USD';
-  $('updTfInput').value = r.timeframe || 'M15';
-  $('updActionInput').value = String(r.action || 'BUY').toUpperCase().includes('SELL') ? 'SELL' : 'BUY';
-  $('updStyleInput').value = ['SCALPING', 'SWING', 'APLUS_ICT'].includes(r.tradeStyle) ? r.tradeStyle : 'SCALPING';
-  $('updOutcomeInput').value = ['PENDING', 'WIN', 'LOSS'].includes(item.outcome) ? item.outcome : 'PENDING';
-  $('updEntryInput').value = r.entry || '';
-  $('updSlInput').value = r.sl || '';
-  $('updTp1Input').value = r.tp1 || '';
-  $('updTp2Input').value = r.tp2 || '';
-  $('updNoteInput').value = r.detailedAnalysis || '';
+  if ($('updScanId')) $('updScanId').value = item.id;
+  if ($('updPairInput')) $('updPairInput').value = r.pair || 'XAU/USD';
+  if ($('updTfInput')) $('updTfInput').value = r.timeframe || 'M15';
+  if ($('updActionInput')) $('updActionInput').value = String(r.action || 'BUY').toUpperCase().includes('SELL') ? 'SELL' : 'BUY';
+  if ($('updStyleInput')) $('updStyleInput').value = ['SCALPING', 'SWING', 'APLUS_ICT'].includes(r.tradeStyle) ? r.tradeStyle : 'SCALPING';
+  if ($('updOutcomeInput')) $('updOutcomeInput').value = ['PENDING', 'WIN', 'LOSS'].includes(item.outcome) ? item.outcome : 'PENDING';
+  if ($('updEntryInput')) $('updEntryInput').value = r.entry || '';
+  if ($('updSlInput')) $('updSlInput').value = r.sl || '';
+  if ($('updTp1Input')) $('updTp1Input').value = r.tp1 || '';
+  if ($('updTp2Input')) $('updTp2Input').value = r.tp2 || '';
+  if ($('updNoteInput')) $('updNoteInput').value = r.detailedAnalysis || '';
 
   openModal('updateScanModal');
   icons();
@@ -1688,17 +1873,17 @@ $('btnEditCurrentScan')?.addEventListener('click', () => {
 
 $('updateScanForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
-  const id = $('updScanId').value;
-  const pair = $('updPairInput').value.trim().toUpperCase() || 'XAU/USD';
-  const timeframe = $('updTfInput').value.trim().toUpperCase() || 'M15';
-  const action = $('updActionInput').value === 'SELL' ? 'SELL' : 'BUY';
-  const tradeStyle = $('updStyleInput').value || 'SCALPING';
-  const outcome = $('updOutcomeInput').value || 'PENDING';
-  const entry = $('updEntryInput').value.trim();
-  const sl = $('updSlInput').value.trim();
-  const tp1 = $('updTp1Input').value.trim();
-  const tp2 = $('updTp2Input').value.trim();
-  const note = $('updNoteInput').value.trim();
+  const id = $('updScanId')?.value || '';
+  const pair = ($('updPairInput')?.value || 'XAU/USD').trim().toUpperCase();
+  const timeframe = ($('updTfInput')?.value || 'M15').trim().toUpperCase();
+  const action = $('updActionInput')?.value === 'SELL' ? 'SELL' : 'BUY';
+  const tradeStyle = $('updStyleInput')?.value || 'SCALPING';
+  const outcome = $('updOutcomeInput')?.value || 'PENDING';
+  const entry = ($('updEntryInput')?.value || '').trim();
+  const sl = ($('updSlInput')?.value || '').trim();
+  const tp1 = ($('updTp1Input')?.value || '').trim();
+  const tp2 = ($('updTp2Input')?.value || '').trim();
+  const note = ($('updNoteInput')?.value || '').trim();
 
   const isBuy = action === 'BUY';
   const list = getScanLobbyList();
@@ -1722,7 +1907,7 @@ $('updateScanForm')?.addEventListener('submit', (e) => {
     const slNum = parseNum(sl);
     const dec = (entry.split('.')[1] || '').length || 2;
     if (!isNaN(eNum) && !isNaN(slNum)) {
-      const microHalf = Math.abs(eNum - slNum) * 0.14;
+      const microHalf = Math.abs(eNum - slNum) * 0.12;
       r.scalpPerfect = {
         ...(r.scalpPerfect || {}),
         zone: `${(eNum - microHalf).toFixed(dec)} – ${(eNum + microHalf).toFixed(dec)}`,
@@ -1759,10 +1944,10 @@ $('updateScanForm')?.addEventListener('submit', (e) => {
     renderResult();
   }
 
+  addHistoryLog('UPDATE SCAN', `បានកែប្រែទិន្នន័យស្កេន ${pair} (${timeframe}) • ${action} @ ${entry}`);
   closeModal('updateScanModal');
   renderScanHistoryLobby();
 
-  // Highlight updated card in Lobby
   setTimeout(() => {
     const cardEl = document.querySelector(`[data-lobby-card-id="${id}"]`);
     if (cardEl) cardEl.classList.add('updating-flash');
@@ -1771,18 +1956,20 @@ $('updateScanForm')?.addEventListener('submit', (e) => {
   showDeleteUndoToast(`✅ បាន Update ទិន្នន័យស្កេន (${pair} • ${action} @ ${entry}) ដោយជោគជ័យ!`, null);
 });
 
-function createChartThumbnailDataUrl(sourceDataUrl, maxW = 360) {
+// Compact Thumbnail Generator (Prevents localStorage 5MB Quota Overflow)
+function createChartThumbnailDataUrl(sourceDataUrl, maxW = 240) {
   return new Promise((resolve) => {
     if (!sourceDataUrl) return resolve('');
     const img = new Image();
     img.onload = () => {
-      const ratio = (img.height || 180) / Math.max(1, img.width || 320);
+      const ratio = (img.height || 140) / Math.max(1, img.width || 240);
       const w = Math.min(maxW, img.width || maxW);
-      const h = Math.max(90, Math.round(w * ratio));
+      const h = Math.max(75, Math.round(w * ratio));
       const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
+      canvas.width = w;
+      canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      resolve(canvas.toDataURL('image/jpeg', 0.72));
+      resolve(canvas.toDataURL('image/jpeg', 0.58));
     };
     img.onerror = () => resolve('');
     img.src = sourceDataUrl;
@@ -1799,6 +1986,7 @@ window.saveScanToHistoryLobby = async function(scanResult, previewDataUrl) {
     timestamp: Date.now(),
     timeText: new Date().toLocaleString('km-KH'),
     outcome: 'PENDING',
+    userId: state.user?.identifier || 'guest',
     thumbDataUrl: thumb,
     result: JSON.parse(JSON.stringify(scanResult))
   };
@@ -1806,6 +1994,11 @@ window.saveScanToHistoryLobby = async function(scanResult, previewDataUrl) {
   list.unshift(newEntry);
   saveScanLobbyList(list);
   state.activeLobbyItemId = newEntry.id;
+
+  // Reset filter to ALL if current filter would hide the newly scanned chart
+  if (state.lobbyFilter !== 'ALL') {
+    state.lobbyFilter = 'ALL';
+  }
   renderScanHistoryLobby();
 
   const lobbyShell = $('scanHistoryLobby');
@@ -1817,9 +2010,11 @@ window.saveScanToHistoryLobby = async function(scanResult, previewDataUrl) {
 };
 
 window.updateActiveLobbyItemResult = function(updatedResult) {
-  if (!updatedResult || !state.activeLobbyItemId) return;
+  if (!updatedResult) return;
   const list = getScanLobbyList();
-  const idx = list.findIndex((item) => item.id === state.activeLobbyItemId);
+  let idx = list.findIndex((item) => item.id === state.activeLobbyItemId);
+  if (idx === -1 && list.length > 0) idx = 0;
+
   if (idx !== -1) {
     list[idx].result = JSON.parse(JSON.stringify(updatedResult));
     list[idx].timeText = new Date().toLocaleString('km-KH');
@@ -1908,7 +2103,7 @@ function renderScanHistoryLobby() {
         <div class="flex items-center gap-3 w-full sm:w-auto">
           ${item.thumbDataUrl
             ? `<img src="${item.thumbDataUrl}" alt="Chart" class="w-20 h-16 sm:w-24 sm:h-16 rounded-xl object-cover border border-slate-700 shrink-0 cursor-pointer" data-lobby-view="${item.id}" />`
-            : `<div class="w-20 h-16 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan-400 shrink-0"><i data-lucide="image" class="w-5 h-5"></i></div>`}
+            : `<div class="w-20 h-16 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan-400 shrink-0 cursor-pointer" data-lobby-view="${item.id}"><i data-lucide="bar-chart-2" class="w-5 h-5"></i></div>`}
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-1.5 flex-wrap">
               <span class="text-[10px] font-mono font-bold text-slate-400">#${filtered.length - index}</span>
@@ -2067,9 +2262,11 @@ document.querySelectorAll('#lobbyFilterBar [data-lobby-filter]').forEach((btn) =
 });
 
 $('btnJumpHistoryLobby')?.addEventListener('click', () => {
+  renderScanHistoryLobby();
   $('scanHistoryLobby')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 $('btnResultToLobby')?.addEventListener('click', () => {
+  renderScanHistoryLobby();
   $('scanHistoryLobby')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 $('btnNewScanFromLobby')?.addEventListener('click', () => {
@@ -2077,7 +2274,7 @@ $('btnNewScanFromLobby')?.addEventListener('click', () => {
   if (state.unlocked) $('fileInput')?.click();
 });
 
-// Smooth Clear All History Lobby Button (Uses Custom #confirmDeleteModal)
+// Smooth Clear All History Lobby Button (Single Clean Listener)
 $('btnClearScanLobby')?.addEventListener('click', () => {
   const currentList = getScanLobbyList();
   if (!currentList.length) return;
@@ -2523,7 +2720,7 @@ function playTelegramSuccessBeep() {
   }
 
   function savePriceAlerts() {
-    localStorage.setItem('ksnr_tg_price_alerts', JSON.stringify(activePriceAlerts));
+    try { localStorage.setItem('ksnr_tg_price_alerts', JSON.stringify(activePriceAlerts)); } catch (e) {}
     renderActivePriceAlerts();
   }
 

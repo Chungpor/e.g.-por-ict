@@ -813,7 +813,7 @@ async function scanChart() {
     consumeKeyScanIfNeeded();
     renderResult();
 
-    // Auto-save scan result + chart thumbnail into After-Scan History Lobby
+    // Auto-save scan result + compressed chart thumbnail into After-Scan History Lobby
     if (typeof window.saveScanToHistoryLobby === 'function') {
       await window.saveScanToHistoryLobby(state.result, previewSrc);
     }
