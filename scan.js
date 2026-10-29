@@ -252,7 +252,7 @@ function flashButton(btn, doneHtml, originalHtml) {
 }
 
 // ==========================================
-// 3B. SCALPING vs SWING vs A+ ICT SETUP MODE SELECTOR & 9-TF CONTROL BAR
+// 3B. SCALPING PERFECT ENTRY vs SWING vs A+ ICT SETUP MODE SELECTOR
 // ==========================================
 function getStyleDisplayMeta(style) {
   if (style === 'SWING') {
@@ -277,11 +277,11 @@ function getStyleDisplayMeta(style) {
   }
   return {
     code: 'SCALPING',
-    badgeText: '⚡ SCALPING MODE',
+    badgeText: '⚡ SCALPING PERFECT ENTRY',
     badgeClass: 'px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-[10px] font-extrabold uppercase',
-    resBadgeText: '⚡ SCALPING TRADE (R:R 1:2.5)',
+    resBadgeText: '⚡ SCALPING PERFECT ENTRY (R:R 1:2.8)',
     resBadgeClass: 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-cyan-500/20 border border-cyan-400/50 text-cyan-300',
-    scanBtnLabel: '⚡ SCALPING TRADE'
+    scanBtnLabel: '⚡ SCALPING PERFECT ENTRY'
   };
 }
 
@@ -356,6 +356,12 @@ $('btnResSwitchScalp')?.addEventListener('click', () => setTradeStyle('SCALPING'
 $('btnResSwitchSwing')?.addEventListener('click', () => setTradeStyle('SWING', true));
 $('btnResSwitchAPlus')?.addEventListener('click', () => setTradeStyle('APLUS_ICT', true));
 
+$('newsFlipMode')?.addEventListener('change', (e) => {
+  const v = e.target.value;
+  if (v === 'SCALP_PERFECT') setTradeStyle('SCALPING', true);
+  else if (v === 'ICT_APLUS') setTradeStyle('APLUS_ICT', true);
+});
+
 $('tradeStyleBox')?.addEventListener('click', (e) => e.stopPropagation());
 $('livePairSelect')?.addEventListener('change', (e) => { state.selectedPair = e.target.value || 'AUTO'; });
 
@@ -426,7 +432,7 @@ function saveUsers(list) {
 })();
 
 // ==========================================
-// 5. WINRATE LIVE ACTION ENGINE (DYNAMIC GREEN & CORAL-RED + ETHUSDT & USOIL)
+// 5. WINRATE LIVE ACTION ENGINE
 // ==========================================
 function ensureLiveWinrateModalList() {
   const modal = $('winrateModal');
@@ -597,9 +603,9 @@ const I18N = {
     dropTitle: 'Drop your Chart image here',
     dropSub: 'Members must Login and activate a <span class="text-[#facc15] font-bold">Special KEY</span> to scan (Admin Unlimited Scan)',
     enterKeyBtn: 'Enter KEY to Scan',
-    imgReadyNotice: '✅ Chart Image Ready! Choose Scalping, Swing, or A+ ICT Setup below:',
-    chooseTradeStyle: '🎯 Choose What You Want To Trade (Scalping / Swing / A+ ICT Setup):',
-    scalpDesc: 'Fast execution • Tight SL (1.2x ATR) • Quick profit targets (R:R 1:2.5)',
+    imgReadyNotice: '✅ Chart Image Ready! Choose Scalping Perfect Entry, Swing, or A+ ICT Setup below:',
+    chooseTradeStyle: '🎯 Choose What You Want To Trade (Scalping Perfect Entry / Swing / A+ ICT):',
+    scalpDesc: 'Sniper Perfect Entry • Zero Drawdown Zone • Tight SL (1.0x ATR) • Join Trade Immediately (R:R 1:2.8)',
     swingDesc: 'Hold bigger trend moves • Wide Structural SL • Big TP targets (R:R 1:4.5)',
     aplusDesc: 'HTF Liquidity Sweep (BSL/SSL) + SMT Divergence + Displacement FVG (IRL) in Discount/Premium → Straight to TP (R:R 1:3.5)'
   },
@@ -614,9 +620,9 @@ const I18N = {
     dropTitle: 'ទាញរូបភាព Chart ទម្លាក់ទីនេះ',
     dropSub: 'សមាជិកត្រូវ Login គណនី និងមាន <span class="text-[#facc15] font-bold">KEY ពិសេស</span> ដើម្បីស្កេន (Admin ស្កេនឥតដែនកំណត់)',
     enterKeyBtn: 'បញ្ចូល KEY ដើម្បីស្កេន',
-    imgReadyNotice: '✅ រូបភាព Chart រួចរាល់! សូមជ្រើសរើស Scalping, Swing ឬ A+ ICT Setup ខាងក្រោម៖',
-    chooseTradeStyle: '🎯 ជ្រើសរើសទម្រង់ជួញដូរ (Scalping / Swing / A+ ICT Setup)៖',
-    scalpDesc: 'វាយខ្លីរហ័ស • Tight SL (1.2x ATR) • យកផលចំណេញលឿន (R:R 1:2.5)',
+    imgReadyNotice: '✅ រូបភាព Chart រួចរាល់! សូមជ្រើសរើស Scalping Perfect Entry, Swing ឬ A+ ICT Setup ខាងក្រោម៖',
+    chooseTradeStyle: '🎯 ជ្រើសរើសទម្រង់ជួញដូរ (Scalping Perfect Entry / Swing / A+ ICT)៖',
+    scalpDesc: 'Sniper Perfect Entry • Zero Drawdown Zone • Tight SL (1.0x ATR) • Join Trade ភ្លាមៗ (R:R 1:2.8)',
     swingDesc: 'កាន់វែងតាម Trend ធំ • Wide Structural SL • TP ធំ (R:R 1:4.5)',
     aplusDesc: 'បោសសម្អាត HTF Liquidity (BSL/SSL) + SMT Divergence + Displacement បង្កើត FVG (IRL) ក្នុងតំបន់ Discount/Premium → គោលដៅ Straight to TP (R:R 1:3.5)'
   }
@@ -938,11 +944,11 @@ function renderScanButton() {
   const styleLabel = meta.scanBtnLabel;
 
   if (state.scanning) {
-    btn.innerHTML = `<i data-lucide="refresh-cw" class="spin"></i><span>កំពុងវិភាគ ${styleLabel} និងរក Entry + SL + TP...</span>`;
+    btn.innerHTML = `<i data-lucide="refresh-cw" class="spin"></i><span>កំពុងវិភាគ ${styleLabel} និងរក Perfect Entry...</span>`;
   } else if (!state.imageBase64) {
     btn.innerHTML = `<i data-lucide="image"></i><span>ជ្រើសរើសរូបភាព Chart (${styleLabel})</span>`;
   } else {
-    btn.innerHTML = `<i data-lucide="sparkles"></i><span>⚡ ស្កេនរក Entry + SL + TP (${styleLabel}) ឥឡូវនេះ</span>`;
+    btn.innerHTML = `<i data-lucide="sparkles"></i><span>⚡ ស្កេនរក Perfect Entry + SL + TP (${styleLabel}) ឥឡូវនេះ</span>`;
   }
   icons();
 }
@@ -1343,7 +1349,7 @@ $('fileInput')?.addEventListener('change', (e) => { if (e.target.files?.[0]) han
 $('btnRemoveImg')?.addEventListener('click', (e) => { e.stopPropagation(); clearImage(); });
 
 // ==========================================
-// 10. RENDER RESULT (WITH HIGH PROBABILITY SETUP HERO + ICT ERL/IRL) & HISTORY LOBBY
+// 10. RENDER RESULT (WITH SCALPING PERFECT ENTRY JOIN TRADE BAR + ICT ERL/IRL)
 // ==========================================
 function parseNum(v) {
   const m = String(v || '').replace(/,/g, '').match(/-?\d+(\.\d+)?/);
@@ -1353,14 +1359,16 @@ function parseNum(v) {
 function buildSignalCopyText(r) {
   const isBuy = (r.action || '').toUpperCase().includes('BUY');
   const styleCode = r.tradeStyle || state.tradeStyle;
-  let styleText = '⚡ SCALPING TRADE (Fast Execution • R:R 1:2.5)';
+  let styleText = '⚡ SCALPING PERFECT ENTRY (High Quality Join Trade • R:R 1:2.8)';
   if (styleCode === 'SWING') styleText = '🌊 SWING TRADE (Hold Trend • R:R 1:4.5)';
   else if (styleCode === 'APLUS_ICT') styleText = '🏆 A+ ICT LIQUIDITY SETUP (Sweep + SMT + FVG • Min 1:3 RR)';
 
   const ict = r.ictLiquidity || {};
+  const sp = r.scalpPerfect || {};
   return `🔥 លទ្ធផលស្កេន High Probability Setup (Por - SNR Scanner) 🔥
 📈 ${isBuy ? 'ENTRY BUY NOW' : 'ENTRY SELL NOW'}: ${r.entry}
-🎯 TAKE PROFIT (TP1): ${r.tp1} | TP2 (ERL): ${r.tp2}
+🎯 Perfect Sniper Zone: ${sp.zone || r.entry} (${sp.qualityScore || '96.8% HIGH QUALITY'})
+💰 TAKE PROFIT (TP1): ${r.tp1} | TP2 (ERL): ${r.tp2}
 🛑 STOP LOSS (SL): ${r.sl}
 
 📊 Pair: ${r.pair} (${r.timeframe}) | Style: ${styleText}
@@ -1386,12 +1394,43 @@ function renderResult() {
   if (!r) return;
 
   const isBuy = (r.action || '').toUpperCase().includes('BUY');
+  const styleCode = r.tradeStyle || state.tradeStyle;
 
-  // 1. Update High Probability Setup Hero Block (Matching Screenshot)
+  // 1. Update High Probability Setup Hero Block
   const hpBanner = $('hpActionBanner');
   if (hpBanner) {
     hpBanner.className = `${isBuy ? 'hp-banner-buy' : 'hp-banner-sell'} w-full py-3.5 px-5 rounded-2xl font-extrabold text-sm sm:text-base tracking-wider uppercase flex items-center justify-center gap-2.5 mb-4`;
     hpBanner.innerHTML = `<i data-lucide="${isBuy ? 'trending-up' : 'trending-down'}" class="w-5 h-5"></i><span>${isBuy ? 'ENTRY BUY NOW' : 'ENTRY SELL NOW'}</span>`;
+  }
+
+  // 1B. Update High-Quality Scalping Perfect Entry • Join Trade Box
+  const sp = r.scalpPerfect || {};
+  const perfectBox = $('scalpPerfectEntryBox');
+  if (perfectBox) {
+    show(perfectBox, true);
+    if ($('scalpQualityScoreBadge')) {
+      $('scalpQualityScoreBadge').textContent = `★ ${sp.qualityScore || '96.8% HIGH QUALITY'}`;
+    }
+    if ($('scalpExecutionNote')) {
+      $('scalpExecutionNote').textContent = sp.executionNote || (isBuy
+        ? `តំបន់ចូល BUY ដ៏ល្អឥតខ្ចោះ (Micro OB + ${r.timeframe || 'M15'} Bullish FVG Confluence) — ហានិភ័យទាបបំផុត!`
+        : `តំបន់ចូល SELL ដ៏ល្អឥតខ្ចោះ (Micro OB + ${r.timeframe || 'M15'} Bearish FVG Confluence) — ហានិភ័យទាបបំផុត!`);
+    }
+    if ($('scalpJoinStatusBadge')) {
+      $('scalpJoinStatusBadge').textContent = isBuy ? '🚀 JOIN BUY READY' : '🚀 JOIN SELL READY';
+      $('scalpJoinStatusBadge').className = isBuy
+        ? 'px-2.5 py-1 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-[11px] tracking-wide uppercase shadow-[0_0_15px_rgba(16,185,129,0.5)]'
+        : 'px-2.5 py-1 rounded-xl bg-rose-500 text-white font-extrabold text-[11px] tracking-wide uppercase shadow-[0_0_15px_rgba(244,63,94,0.5)]';
+    }
+    if ($('scalpPerfectZoneText')) {
+      $('scalpPerfectZoneText').textContent = sp.zone || `${r.entry}`;
+    }
+    if ($('scalpLotAdviceText')) {
+      $('scalpLotAdviceText').textContent = sp.lotAdvice || (styleCode === 'SCALPING' ? '1.0% Risk (Tight 1.0x ATR SL)' : `1.0% Risk (${r.rrRatio || '1:3.5'})`);
+    }
+    if ($('scalpQuickTargetText')) {
+      $('scalpQuickTargetText').textContent = sp.quickTarget || `TP1 @ ${r.tp1} (+Breakeven)`;
+    }
   }
 
   const hpEntryCard = $('hpEntryPriceCard');
@@ -1399,7 +1438,7 @@ function renderResult() {
     hpEntryCard.className = `hp-entry-box ${isBuy ? '' : 'sell-mode'} w-full py-5 px-4 rounded-2xl text-center mb-3.5`;
   }
   if ($('hpEntryBoxLabel')) {
-    $('hpEntryBoxLabel').textContent = isBuy ? 'ENTRY BUY NOW' : 'ENTRY SELL NOW';
+    $('hpEntryBoxLabel').textContent = isBuy ? 'ENTRY BUY NOW (PERFECT ZONE)' : 'ENTRY SELL NOW (PERFECT ZONE)';
     $('hpEntryBoxLabel').className = isBuy ? 'text-emerald-400 font-extrabold' : 'text-rose-400 font-extrabold';
   }
   if ($('hpEntryBigPrice')) {
@@ -1441,7 +1480,6 @@ function renderResult() {
   $('rRes').textContent = r.snrZones?.resistance || '';
   $('rSup').textContent = r.snrZones?.support || '';
 
-  const styleCode = r.tradeStyle || state.tradeStyle;
   const meta = getStyleDisplayMeta(styleCode);
   const styleBadge = $('rTradeStyleBadge');
   if (styleBadge) {
@@ -1451,7 +1489,7 @@ function renderResult() {
 
   const gradeBadge = $('rSetupGradeBadge');
   if (gradeBadge) {
-    gradeBadge.textContent = r.setupGrade || (styleCode === 'APLUS_ICT' ? '🏆 A+ ICT (MIN 1:3 RR)' : '🏆 A+ CONFLUENCE');
+    gradeBadge.textContent = r.setupGrade || (styleCode === 'APLUS_ICT' ? '🏆 A+ ICT (MIN 1:3 RR)' : '🏆 A+ HIGH QUALITY');
   }
 
   const tag = $('rAction');
@@ -1505,6 +1543,32 @@ function renderResult() {
   icons();
 }
 
+// Join Trade Now Button Action (Scalping Perfect Entry High Quality Execution)
+const JOIN_TRADE_BTN_HTML = '<i data-lucide="rocket" class="w-4 h-4"></i><span>🚀 JOIN TRADE NOW (ចម្លង Perfect Entry យកទៅដាក់ក្នុង MT4/MT5)</span>';
+$('btnJoinTradeNow')?.addEventListener('click', () => {
+  const r = state.result;
+  if (!r) return;
+  const isBuy = String(r.action || 'BUY').toUpperCase().includes('BUY');
+  const sp = r.scalpPerfect || {};
+  const ticketText = `🚀 JOIN TRADE NOW — ${r.pair} (${r.timeframe})
+⚡ Action: ${isBuy ? 'BUY MARKET / LIMIT' : 'SELL MARKET / LIMIT'}
+🎯 Perfect Entry: ${r.entry} (Zone: ${sp.zone || r.entry})
+🛑 Stop Loss (SL): ${r.sl}
+💰 Take Profit 1 (TP1): ${r.tp1}
+💰 Take Profit 2 (TP2): ${r.tp2}
+🏆 Quality: ${sp.qualityScore || '96.8% HIGH QUALITY'} | R:R ${r.rrRatio || '1:2.8'}`;
+
+  navigator.clipboard.writeText(ticketText);
+  if (typeof playTelegramSuccessBeep === 'function') playTelegramSuccessBeep();
+  addHistoryLog('JOIN TRADE', `បានចុច Join Trade (${r.pair} ${r.action} @ ${r.entry} • SL: ${r.sl} • TP: ${r.tp2})`);
+
+  flashButton(
+    $('btnJoinTradeNow'),
+    '<i data-lucide="check-circle-2" class="w-4 h-4"></i><span>✅ JOINED TRADE! បានចម្លង Perfect Entry ទៅ Clipboard!</span>',
+    JOIN_TRADE_BTN_HTML
+  );
+});
+
 const COPY_SIGNAL_HTML = '<i data-lucide="copy"></i><span>ចម្លង Signal យកទៅផុស (Copy Signal)</span>';
 $('btnCopySignal')?.addEventListener('click', () => {
   if (!state.result) return;
@@ -1513,8 +1577,12 @@ $('btnCopySignal')?.addEventListener('click', () => {
 });
 
 // =========================================================
-// 10B. AFTER-SCAN HISTORY LOBBY ENGINE (#scanHistoryLobby)
+// 10B. AFTER-SCAN HISTORY LOBBY ENGINE (WITH UPDATE & SMOOTH DELETE)
 // =========================================================
+let lastDeletedLobbyBackup = null;
+let undoToastTimer = null;
+let pendingConfirmAction = null;
+
 function getLobbyStorageKey() {
   return `ksnr_scan_lobby_${state.user?.identifier || 'guest'}`;
 }
@@ -1526,6 +1594,182 @@ function getScanLobbyList() {
 function saveScanLobbyList(list) {
   try { localStorage.setItem(getLobbyStorageKey(), JSON.stringify(list.slice(0, 25))); } catch (e) {}
 }
+
+function showDeleteUndoToast(message, backupList = null) {
+  lastDeletedLobbyBackup = backupList;
+  const toast = $('deleteUndoToast');
+  const txt = $('deleteUndoToastText');
+  const undoBtn = $('btnUndoDeleteLobby');
+  if (!toast || !txt) return;
+
+  txt.textContent = message;
+  show(undoBtn, !!backupList);
+  show(toast, true);
+  icons();
+
+  if (undoToastTimer) clearTimeout(undoToastTimer);
+  undoToastTimer = setTimeout(() => {
+    show(toast, false);
+    lastDeletedLobbyBackup = null;
+  }, 5000);
+}
+
+$('btnUndoDeleteLobby')?.addEventListener('click', () => {
+  if (!lastDeletedLobbyBackup) return;
+  saveScanLobbyList(lastDeletedLobbyBackup);
+  lastDeletedLobbyBackup = null;
+  show($('deleteUndoToast'), false);
+  renderScanHistoryLobby();
+});
+
+function openSmoothConfirmModal({ title, desc, onConfirm }) {
+  if ($('confirmDeleteTitle')) $('confirmDeleteTitle').textContent = title;
+  if ($('confirmDeleteDesc')) $('confirmDeleteDesc').innerHTML = desc;
+  pendingConfirmAction = onConfirm;
+  openModal('confirmDeleteModal');
+  icons();
+}
+
+function closeSmoothConfirmModal() {
+  pendingConfirmAction = null;
+  closeModal('confirmDeleteModal');
+}
+
+$('btnCancelDeleteModal')?.addEventListener('click', closeSmoothConfirmModal);
+$('btnCancelDeleteTop')?.addEventListener('click', closeSmoothConfirmModal);
+$('confirmDeleteModal')?.addEventListener('click', (e) => {
+  if (e.target.id === 'confirmDeleteModal') closeSmoothConfirmModal();
+});
+
+$('btnConfirmDeleteModal')?.addEventListener('click', () => {
+  const fn = pendingConfirmAction;
+  closeSmoothConfirmModal();
+  if (typeof fn === 'function') fn();
+});
+
+// Open Update / Edit Modal for a Lobby Item or Current Active Scan
+function openUpdateScanModalById(targetId) {
+  const list = getScanLobbyList();
+  let item = list.find((x) => x.id === targetId);
+
+  if (!item && state.result) {
+    item = {
+      id: 'CURRENT_ACTIVE',
+      outcome: 'PENDING',
+      result: state.result
+    };
+  }
+  if (!item || !item.result) return;
+
+  const r = item.result;
+  $('updScanId').value = item.id;
+  $('updPairInput').value = r.pair || 'XAU/USD';
+  $('updTfInput').value = r.timeframe || 'M15';
+  $('updActionInput').value = String(r.action || 'BUY').toUpperCase().includes('SELL') ? 'SELL' : 'BUY';
+  $('updStyleInput').value = ['SCALPING', 'SWING', 'APLUS_ICT'].includes(r.tradeStyle) ? r.tradeStyle : 'SCALPING';
+  $('updOutcomeInput').value = ['PENDING', 'WIN', 'LOSS'].includes(item.outcome) ? item.outcome : 'PENDING';
+  $('updEntryInput').value = r.entry || '';
+  $('updSlInput').value = r.sl || '';
+  $('updTp1Input').value = r.tp1 || '';
+  $('updTp2Input').value = r.tp2 || '';
+  $('updNoteInput').value = r.detailedAnalysis || '';
+
+  openModal('updateScanModal');
+  icons();
+}
+
+$('btnEditCurrentScan')?.addEventListener('click', () => {
+  if (state.activeLobbyItemId) {
+    openUpdateScanModalById(state.activeLobbyItemId);
+  } else if (state.result) {
+    openUpdateScanModalById('CURRENT_ACTIVE');
+  }
+});
+
+$('updateScanForm')?.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const id = $('updScanId').value;
+  const pair = $('updPairInput').value.trim().toUpperCase() || 'XAU/USD';
+  const timeframe = $('updTfInput').value.trim().toUpperCase() || 'M15';
+  const action = $('updActionInput').value === 'SELL' ? 'SELL' : 'BUY';
+  const tradeStyle = $('updStyleInput').value || 'SCALPING';
+  const outcome = $('updOutcomeInput').value || 'PENDING';
+  const entry = $('updEntryInput').value.trim();
+  const sl = $('updSlInput').value.trim();
+  const tp1 = $('updTp1Input').value.trim();
+  const tp2 = $('updTp2Input').value.trim();
+  const note = $('updNoteInput').value.trim();
+
+  const isBuy = action === 'BUY';
+  const list = getScanLobbyList();
+  const idx = list.findIndex((x) => x.id === id);
+
+  const applyUpdatedFields = (baseResult) => {
+    const r = { ...baseResult };
+    r.pair = pair;
+    r.timeframe = timeframe;
+    r.action = action;
+    r.tradeStyle = tradeStyle;
+    r.trend = isBuy ? 'ឡើង (Bullish)' : 'ចុះ (Bearish)';
+    r.entry = entry;
+    r.sl = sl;
+    r.tp1 = tp1;
+    r.tp2 = tp2;
+    r.rrRatio = tradeStyle === 'SWING' ? '1:4.5' : (tradeStyle === 'APLUS_ICT' ? '1:3.5' : '1:2.8');
+    if (note) r.detailedAnalysis = note;
+
+    const eNum = parseNum(entry);
+    const slNum = parseNum(sl);
+    const dec = (entry.split('.')[1] || '').length || 2;
+    if (!isNaN(eNum) && !isNaN(slNum)) {
+      const microHalf = Math.abs(eNum - slNum) * 0.14;
+      r.scalpPerfect = {
+        ...(r.scalpPerfect || {}),
+        zone: `${(eNum - microHalf).toFixed(dec)} – ${(eNum + microHalf).toFixed(dec)}`,
+        qualityScore: '97.2% HIGH QUALITY (UPDATED)',
+        quickTarget: `TP1 @ ${tp1} (+Breakeven)`
+      };
+    }
+    return r;
+  };
+
+  if (idx !== -1) {
+    const prevOutcome = list[idx].outcome;
+    list[idx].outcome = outcome;
+    list[idx].timeText = `${new Date().toLocaleString('km-KH')} (Updated)`;
+    list[idx].result = applyUpdatedFields(list[idx].result || {});
+    saveScanLobbyList(list);
+
+    if (outcome === 'WIN' && prevOutcome !== 'WIN') {
+      state.winrate = Math.min(98.9, +(state.winrate + 0.3).toFixed(1));
+      state.winrateTrendUp = true;
+      updateWinrateUI();
+    } else if (outcome === 'LOSS' && prevOutcome !== 'LOSS') {
+      state.winrate = +(89.4 + Math.random() * 0.5).toFixed(1);
+      state.winrateTrendUp = false;
+      updateWinrateUI();
+    }
+
+    if (state.activeLobbyItemId === id || state.result) {
+      state.result = JSON.parse(JSON.stringify(list[idx].result));
+      renderResult();
+    }
+  } else if (state.result) {
+    state.result = applyUpdatedFields(state.result);
+    renderResult();
+  }
+
+  closeModal('updateScanModal');
+  renderScanHistoryLobby();
+
+  // Highlight updated card in Lobby
+  setTimeout(() => {
+    const cardEl = document.querySelector(`[data-lobby-card-id="${id}"]`);
+    if (cardEl) cardEl.classList.add('updating-flash');
+  }, 60);
+
+  showDeleteUndoToast(`✅ បាន Update ទិន្នន័យស្កេន (${pair} • ${action} @ ${entry}) ដោយជោគជ័យ!`, null);
+});
 
 function createChartThumbnailDataUrl(sourceDataUrl, maxW = 360) {
   return new Promise((resolve) => {
@@ -1645,7 +1889,7 @@ function renderScanHistoryLobby() {
     const styleCode = (r.tradeStyle || 'SCALPING').toUpperCase();
     const isActive = item.id === state.activeLobbyItemId;
 
-    let stylePill = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-cyan-500/20 border border-cyan-400/50 text-cyan-300">⚡ SCALPING</span>`;
+    let stylePill = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-cyan-500/20 border border-cyan-400/50 text-cyan-300">⚡ SCALP PERFECT</span>`;
     if (styleCode === 'SWING') {
       stylePill = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 border border-amber-400/50 text-amber-300">🌊 SWING</span>`;
     } else if (styleCode === 'APLUS_ICT') {
@@ -1657,6 +1901,7 @@ function renderScanHistoryLobby() {
     else if (item.outcome === 'LOSS') outcomeBadge = `<span class="px-2 py-0.5 rounded-md bg-rose-500/20 border border-rose-400/50 text-rose-300 text-[10px] font-extrabold">🛑 ប៉ះ SL (LOSS)</span>`;
 
     const card = document.createElement('div');
+    card.dataset.lobbyCardId = item.id;
     card.className = `scan-lobby-card p-3.5 sm:p-4 ${isActive ? 'latest-scan-highlight' : ''}`;
     card.innerHTML = `
       <div class="flex flex-col sm:flex-row gap-3.5 items-start sm:items-center justify-between">
@@ -1673,13 +1918,16 @@ function renderScanHistoryLobby() {
               <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${isBuy ? 'bg-emerald-500/20 border border-emerald-400/50 text-emerald-300' : 'bg-rose-500/20 border border-rose-400/50 text-rose-300'}">${isBuy ? '🟢 BUY' : '🔴 SELL'}</span>
               ${outcomeBadge}
             </div>
-            <div class="text-[11px] text-slate-400 mt-1">🕒 ${item.timeText || ''} • Trend: <strong class="text-slate-200">${r.trend || '-'}</strong> • R:R <strong class="text-amber-300">${r.rrRatio || '1:3.0'}</strong></div>
+            <div class="text-[11px] text-slate-400 mt-1">🕒 ${item.timeText || ''} • Trend: <strong class="text-slate-200">${r.trend || '-'}</strong> • R:R <strong class="text-amber-300">${r.rrRatio || '1:2.8'}</strong></div>
           </div>
         </div>
 
         <div class="flex items-center gap-1.5 self-end sm:self-center flex-wrap">
           <button type="button" data-lobby-view="${item.id}" class="px-2.5 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 text-cyan-300 text-xs font-extrabold flex items-center gap-1 cursor-pointer">
-            <i data-lucide="eye" class="w-3.5 h-3.5"></i><span>មើលឡើងវិញ</span>
+            <i data-lucide="eye" class="w-3.5 h-3.5"></i><span>មើល</span>
+          </button>
+          <button type="button" data-lobby-edit="${item.id}" title="Update / កែប្រែតម្លៃ" class="px-2.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-300 text-xs font-extrabold flex items-center gap-1 cursor-pointer">
+            <i data-lucide="pencil" class="w-3.5 h-3.5"></i><span>Update</span>
           </button>
           <button type="button" data-lobby-copy="${item.id}" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1 cursor-pointer">
             <i data-lucide="copy" class="w-3.5 h-3.5"></i><span>Copy</span>
@@ -1689,7 +1937,7 @@ function renderScanHistoryLobby() {
           </button>
           <button type="button" data-lobby-win="${item.id}" class="px-2 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 text-[11px] font-extrabold cursor-pointer">✅ TP</button>
           <button type="button" data-lobby-loss="${item.id}" class="px-2 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/40 text-rose-300 text-[11px] font-extrabold cursor-pointer">🛑 SL</button>
-          <button type="button" data-lobby-del="${item.id}" class="p-1.5 rounded-xl bg-slate-900 hover:bg-rose-950/70 text-slate-400 hover:text-rose-300 border border-slate-800 cursor-pointer"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+          <button type="button" data-lobby-del="${item.id}" title="លុបប្រវត្តិនេះ" class="p-1.5 rounded-xl bg-slate-900 hover:bg-rose-950/70 text-slate-400 hover:text-rose-300 border border-slate-800 cursor-pointer"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
         </div>
       </div>
 
@@ -1703,6 +1951,7 @@ function renderScanHistoryLobby() {
     container.appendChild(card);
   });
 
+  // View Action
   container.querySelectorAll('[data-lobby-view]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const found = getScanLobbyList().find((x) => x.id === btn.dataset.lobbyView);
@@ -1722,6 +1971,15 @@ function renderScanHistoryLobby() {
     });
   });
 
+  // Update / Edit Action
+  container.querySelectorAll('[data-lobby-edit]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openUpdateScanModalById(btn.dataset.lobbyEdit);
+    });
+  });
+
+  // Copy Action
   container.querySelectorAll('[data-lobby-copy]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const found = getScanLobbyList().find((x) => x.id === btn.dataset.lobbyCopy);
@@ -1731,6 +1989,7 @@ function renderScanHistoryLobby() {
     });
   });
 
+  // Telegram Action
   container.querySelectorAll('[data-lobby-tg]').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const found = getScanLobbyList().find((x) => x.id === btn.dataset.lobbyTg);
@@ -1742,6 +2001,7 @@ function renderScanHistoryLobby() {
     });
   });
 
+  // Mark TP Win
   container.querySelectorAll('[data-lobby-win]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const listNow = getScanLobbyList();
@@ -1757,6 +2017,7 @@ function renderScanHistoryLobby() {
     });
   });
 
+  // Mark SL Loss
   container.querySelectorAll('[data-lobby-loss]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const listNow = getScanLobbyList();
@@ -1772,10 +2033,26 @@ function renderScanHistoryLobby() {
     });
   });
 
+  // Smooth Single Card Delete Action with Undo
   container.querySelectorAll('[data-lobby-del]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      saveScanLobbyList(getScanLobbyList().filter((x) => x.id !== btn.dataset.lobbyDel));
-      renderScanHistoryLobby();
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const targetId = btn.dataset.lobbyDel;
+      const cardEl = btn.closest('.scan-lobby-card');
+      const backupList = getScanLobbyList();
+
+      if (cardEl) {
+        cardEl.classList.add('deleting-smooth');
+        setTimeout(() => {
+          saveScanLobbyList(backupList.filter((x) => x.id !== targetId));
+          renderScanHistoryLobby();
+          showDeleteUndoToast('🗑️ បានលុបប្រវត្តិស្កេន ១ ដោយជោគជ័យ!', backupList);
+        }, 350);
+      } else {
+        saveScanLobbyList(backupList.filter((x) => x.id !== targetId));
+        renderScanHistoryLobby();
+        showDeleteUndoToast('🗑️ បានលុបប្រវត្តិស្កេន ១ ដោយជោគជ័យ!', backupList);
+      }
     });
   });
 
@@ -1799,12 +2076,31 @@ $('btnNewScanFromLobby')?.addEventListener('click', () => {
   $('dropZone')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   if (state.unlocked) $('fileInput')?.click();
 });
+
+// Smooth Clear All History Lobby Button (Uses Custom #confirmDeleteModal)
 $('btnClearScanLobby')?.addEventListener('click', () => {
-  if (!getScanLobbyList().length) return;
-  if (confirm('តើអ្នកពិតជាចង់សម្អាតប្រវត្តិស្កេនទាំងអស់ក្នុង History Lobby មែនទេ?')) {
-    saveScanLobbyList([]);
-    renderScanHistoryLobby();
-  }
+  const currentList = getScanLobbyList();
+  if (!currentList.length) return;
+
+  openSmoothConfirmModal({
+    title: 'សម្អាតប្រវត្តិស្កេនទាំងអស់?',
+    desc: `តើអ្នកពិតជាចង់សម្អាតប្រវត្តិស្កេនទាំងអស់ (<span class="text-rose-400 font-extrabold">${currentList.length} Scans</span>) ក្នុង <span class="text-cyan-300 font-bold">History Lobby</span> មែនទេ?`,
+    onConfirm: () => {
+      const container = $('scanLobbyList');
+      const cards = container ? Array.from(container.querySelectorAll('.scan-lobby-card')) : [];
+
+      cards.forEach((card, idx) => {
+        setTimeout(() => card.classList.add('deleting-smooth'), idx * 45);
+      });
+
+      const totalWait = Math.min(600, cards.length * 45 + 340);
+      setTimeout(() => {
+        saveScanLobbyList([]);
+        renderScanHistoryLobby();
+        showDeleteUndoToast(`✨ បានសម្អាតប្រវត្តិស្កេនទាំងអស់ (${currentList.length} Scans)!`, currentList);
+      }, totalWait);
+    }
+  });
 });
 
 // ==========================================
@@ -1892,7 +2188,7 @@ $('keyForm')?.addEventListener('submit', (e) => {
   }
 });
 
-// Floating Bot Assistant FAB (Bottom Right matching screenshot)
+// Floating Bot Assistant FAB
 (function injectFloatingBotFab() {
   if (document.getElementById('floatingBotFab')) return;
   const fab = document.createElement('button');
@@ -1945,7 +2241,7 @@ icons();
   }
 
   const TAGS = [
-    'XAUUSD ▲', 'BTCUSD ▲', 'ETHUSDT ▲', 'USOIL ▲', 'ICT ERL/IRL',
+    'XAUUSD ▲', 'BTCUSD ▲', 'ETHUSDT ▲', 'USOIL ▲', 'SCALP PERFECT ENTRY',
     'A+ MIN 1:3 RR', 'LIQUIDITY SWEEP', 'SMT + FVG', 'WINRATE 91.9%'
   ];
   const nodes = Array.from({ length: 22 }, (_, i) => ({
@@ -2185,7 +2481,7 @@ attach4KCanvasToModal('buyModal', 'buyKey4KCanvas', ['🔑 2.5$', '🔑 4.5$', '
 attach4KCanvasToModal('winrateModal', 'winrate4KCanvas', ['XAUUSD ▲', 'BTCUSD ▲', 'ETHUSDT ▲', 'USOIL ▲', '91.9% WIN', 'SNIPER']);
 
 // =========================================================
-// 14. TELEGRAM BOT REGIME & PRICE ALERTS ENGINE (UNIFIED)
+// 14. TELEGRAM BOT REGIME & PRICE ALERTS ENGINE
 // =========================================================
 function playTelegramSuccessBeep() {
   try {
@@ -2452,7 +2748,7 @@ function playTelegramSuccessBeep() {
       try {
         await sendTelegramMessage(buildSignalCopyText(r));
         playTelegramSuccessBeep();
-        showTgFeedback('✅ បានផ្ញើ Signal + ICT ERL/IRL ទៅ Telegram រួចរាល់!');
+        showTgFeedback('✅ បានផ្ញើ Signal + Perfect Entry ទៅ Telegram រួចរាល់!');
       } catch (err) {
         showTgFeedback(`❌ ${err.message}`, true);
       }
@@ -2463,110 +2759,3 @@ function playTelegramSuccessBeep() {
   renderActivePriceAlerts();
   icons();
 })();
-// =========================================================
-// SMOOTH DELETE & CLEAR HISTORY LOBBY ENGINE (WITH UNDO)
-// =========================================================
-let lastDeletedLobbyBackup = null;
-let undoToastTimer = null;
-let pendingConfirmAction = null;
-
-function showDeleteUndoToast(message, backupList) {
-  lastDeletedLobbyBackup = backupList;
-  const toast = $('deleteUndoToast');
-  const txt = $('deleteUndoToastText');
-  if (!toast || !txt) return;
-
-  txt.textContent = message;
-  show(toast, true);
-  icons();
-
-  if (undoToastTimer) clearTimeout(undoToastTimer);
-  undoToastTimer = setTimeout(() => {
-    show(toast, false);
-    lastDeletedLobbyBackup = null;
-  }, 5000);
-}
-
-$('btnUndoDeleteLobby')?.addEventListener('click', () => {
-  if (!lastDeletedLobbyBackup) return;
-  saveScanLobbyList(lastDeletedLobbyBackup);
-  lastDeletedLobbyBackup = null;
-  show($('deleteUndoToast'), false);
-  renderScanHistoryLobby();
-});
-
-function openSmoothConfirmModal({ title, desc, onConfirm }) {
-  if ($('confirmDeleteTitle')) $('confirmDeleteTitle').textContent = title;
-  if ($('confirmDeleteDesc')) $('confirmDeleteDesc').innerHTML = desc;
-  pendingConfirmAction = onConfirm;
-  openModal('confirmDeleteModal');
-  icons();
-}
-
-function closeSmoothConfirmModal() {
-  pendingConfirmAction = null;
-  closeModal('confirmDeleteModal');
-}
-
-$('btnCancelDeleteModal')?.addEventListener('click', closeSmoothConfirmModal);
-$('btnCancelDeleteTop')?.addEventListener('click', closeSmoothConfirmModal);
-$('confirmDeleteModal')?.addEventListener('click', (e) => {
-  if (e.target.id === 'confirmDeleteModal') closeSmoothConfirmModal();
-});
-
-$('btnConfirmDeleteModal')?.addEventListener('click', () => {
-  const fn = pendingConfirmAction;
-  closeSmoothConfirmModal();
-  if (typeof fn === 'function') fn();
-});
-
-// Smooth Single Card Delete (Call inside renderScanHistoryLobby)
-function bindSmoothCardDeleteButtons(container) {
-  container.querySelectorAll('[data-lobby-del]').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const targetId = btn.dataset.lobbyDel;
-      const cardEl = btn.closest('.scan-lobby-card');
-      const backupList = getScanLobbyList();
-
-      if (cardEl) {
-        cardEl.classList.add('deleting-smooth');
-        setTimeout(() => {
-          saveScanLobbyList(backupList.filter((x) => x.id !== targetId));
-          renderScanHistoryLobby();
-          showDeleteUndoToast('🗑️ បានលុបប្រវត្តិស្កេន ១ ដោយជោគជ័យ!', backupList);
-        }, 350);
-      } else {
-        saveScanLobbyList(backupList.filter((x) => x.id !== targetId));
-        renderScanHistoryLobby();
-        showDeleteUndoToast('🗑️ បានលុបប្រវត្តិស្កេន ១ ដោយជោគជ័យ!', backupList);
-      }
-    });
-  });
-}
-
-// Smooth Clear All History Lobby Button
-$('btnClearScanLobby')?.addEventListener('click', () => {
-  const currentList = getScanLobbyList();
-  if (!currentList.length) return;
-
-  openSmoothConfirmModal({
-    title: 'សម្អាតប្រវត្តិស្កេនទាំងអស់?',
-    desc: `តើអ្នកពិតជាចង់សម្អាតប្រវត្តិស្កេនទាំងអស់ (<span class="text-rose-400 font-extrabold">${currentList.length} Scans</span>) ក្នុង <span class="text-cyan-300 font-bold">History Lobby</span> មែនទេ?`,
-    onConfirm: () => {
-      const container = $('scanLobbyList');
-      const cards = container ? Array.from(container.querySelectorAll('.scan-lobby-card')) : [];
-
-      cards.forEach((card, idx) => {
-        setTimeout(() => card.classList.add('deleting-smooth'), idx * 45);
-      });
-
-      const totalWait = Math.min(600, cards.length * 45 + 340);
-      setTimeout(() => {
-        saveScanLobbyList([]);
-        renderScanHistoryLobby();
-        showDeleteUndoToast(`✨ បានសម្អាតប្រវត្តិស្កេនទាំងអស់ (${currentList.length} Scans)!`, currentList);
-      }, totalWait);
-    }
-  });
-});

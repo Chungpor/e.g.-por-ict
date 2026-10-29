@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Por - SNR Scanner - AI Chart Vision & ICT A+ Liquidity</title>
+  <title>Por - SNR Scanner - AI Chart Vision & Scalping Perfect Entry</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
@@ -108,7 +108,7 @@
   <div class="max-w-2xl w-full text-center px-4 mt-4 mb-6 relative z-10">
     <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold mb-3 backdrop-blur-sm">
       <i data-lucide="zap" class="w-3.5 h-3.5"></i>
-      <span>AI CHART VISION • ICT ERL/IRL LIQUIDITY • A+ SETUP (MIN 1:3 RR)</span>
+      <span>AI CHART VISION • SCALPING PERFECT ENTRY • ICT A+ LIQUIDITY (MIN 1:3 RR)</span>
     </div>
 
     <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight flex items-center justify-center gap-3 flex-wrap">
@@ -146,6 +146,7 @@
         </div>
         <select id="newsFlipMode" class="px-3 py-1.5 rounded-xl bg-[#0b1220] border border-cyan-500/40 text-cyan-300 text-xs font-bold focus:outline-none cursor-pointer">
           <option value="ALL">⚡ ស្កេនគ្រប់ទម្រង់ (Auto Flip Mode)</option>
+          <option value="SCALP_PERFECT">🎯 SCALPING PERFECT ENTRY (High Quality)</option>
           <option value="NON_FARM">✅ NON FARM : 4H KEY ENTRY</option>
           <option value="CPI">✅ CPI : 1H KEY ENTRY</option>
           <option value="FOMC">✅ FOMC : LIMITE (15M-30M-1H)</option>
@@ -440,7 +441,7 @@
         </div>
       </div>
 
-      <!-- 2 GUIDE BUTTONS ROW (MATCHING SCREENSHOT: របៀបទិញ KEY ជាមួយ support & របៀបទិញ KEY ដោយខ្លួនឯង) -->
+      <!-- 2 GUIDE BUTTONS ROW -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-5 relative z-10">
         <a href="https://t.me/KaingChungpor" target="_blank" rel="noopener noreferrer" id="btnBuyWithSupport" class="hp-guide-btn py-3 px-4 rounded-2xl text-cyan-300 font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer">
           <span class="w-5 h-5 rounded-full bg-cyan-400/20 border border-cyan-400/50 flex items-center justify-center text-[#18ffff]">
@@ -482,7 +483,7 @@
             </select>
           </div>
           <span id="liveFeedBadge" class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold">
-            ● LIVE DATA READY (1m–1w)
+            ● HIGH QUALITY SCALPING READY
           </span>
         </div>
 
@@ -530,11 +531,11 @@
           </div>
           <p class="text-xs sm:text-sm font-bold text-[#18ffff] mt-3 flex items-center justify-center gap-1.5 animate-pulse">
             <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
-            <span id="txtImgReadyNotice">✅ រូបភាព Chart រួចរាល់! សូមជ្រើសរើស Scalping, Swing ឬ A+ ICT Setup ខាងក្រោម៖</span>
+            <span id="txtImgReadyNotice">✅ រូបភាព Chart រួចរាល់! សូមជ្រើសរើស Scalping Perfect Entry, Swing ឬ A+ ICT Setup ខាងក្រោម៖</span>
           </p>
         </div>
 
-        <!-- IMAGE READY: CHOOSE OPTION SCALPING, SWING TRADE, OR A+ ICT SETUP -->
+        <!-- IMAGE READY: CHOOSE OPTION SCALPING PERFECT ENTRY, SWING TRADE, OR A+ ICT SETUP -->
         <div id="tradeStyleBox" class="w-full mt-5 p-4 rounded-2xl bg-[#090f1c]/95 border border-cyan-500/40 text-left transition-all">
           <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
             <div class="flex items-center gap-2 flex-wrap">
@@ -542,7 +543,7 @@
                 ● IMAGE READY
               </span>
               <span id="txtChooseTradeStyle" class="text-xs sm:text-sm font-extrabold text-white flex items-center gap-1.5">
-                <span>🎯 ជ្រើសរើសទម្រង់ជួញដូរ (Scalping / Swing / A+ ICT Setup)៖</span>
+                <span>🎯 ជ្រើសរើសទម្រង់ជួញដូរ (Scalping Perfect Entry / Swing / A+ ICT)៖</span>
               </span>
             </div>
 
@@ -552,27 +553,27 @@
                 <span id="txtInstantScanToggle">⚡ ស្កេនភ្លាមពេលជ្រើសរើស</span>
               </label>
               <span id="activeTradeStyleBadge" class="px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-[10px] font-extrabold uppercase">
-                ⚡ SCALPING MODE
+                ⚡ SCALPING PERFECT ENTRY
               </span>
             </div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <!-- Option 1: SCALPING TRADE -->
+            <!-- Option 1: SCALPING PERFECT ENTRY (HIGH QUALITY JOIN TRADE) -->
             <button type="button" id="btnModeScalping" data-trade-style="SCALPING" class="trade-style-card active-scalp p-3.5 rounded-xl bg-[#111a2e] border border-cyan-400/60 text-left cursor-pointer flex items-start gap-3">
               <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-[#18ffff] shrink-0 mt-0.5">
-                <i data-lucide="zap" class="w-5 h-5"></i>
+                <i data-lucide="crosshair" class="w-5 h-5"></i>
               </div>
               <div class="flex-1">
                 <div class="flex items-center justify-between">
-                  <span class="font-extrabold text-[#18ffff] text-xs sm:text-sm">⚡ SCALPING TRADE</span>
-                  <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-200">1m–15m</span>
+                  <span class="font-extrabold text-[#18ffff] text-xs sm:text-sm">⚡ SCALPING PERFECT ENTRY</span>
+                  <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-200">1m–15m • 96.8% HQ</span>
                 </div>
                 <p id="txtScalpDesc" class="text-[11px] text-slate-300 mt-1 leading-snug">
-                  វាយខ្លីរហ័ស • Tight SL (1.2x ATR) • យកផលចំណេញលឿន (R:R 1:2.5)
+                  Sniper Perfect Entry • Zero Drawdown Zone • Tight SL (1.0x ATR) • Join Trade ភ្លាមៗ (R:R 1:2.8)
                 </p>
                 <div class="mt-2 flex items-center justify-between text-[10px] font-bold text-cyan-300/90">
-                  <span>🎯 Fast Sniper Entry</span>
+                  <span>🚀 High Quality Join Trade</span>
                   <span id="scalpReadyActionHint" class="underline">ជ្រើសរើស Scalping →</span>
                 </div>
               </div>
@@ -628,7 +629,7 @@
 
           <button id="btnScan" type="button" class="hidden bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 active:scale-95 transition-all text-slate-950 font-bold px-8 py-3.5 rounded-full flex items-center gap-2.5 text-sm sm:text-base shadow-[0_0_25px_rgba(6,182,212,0.4)] cursor-pointer">
             <i data-lucide="sparkles" class="w-5 h-5"></i>
-            <span>⚡ ស្កេនរក Entry + SL + TP ឥឡូវនេះ</span>
+            <span>⚡ ស្កេនរក Perfect Entry + SL + TP ឥឡូវនេះ</span>
           </button>
         </div>
       </div>
@@ -647,59 +648,108 @@
       </div>
     </div>
 
-    <!-- 6. RESULT CARD (UPDATED WITH EXACT "🔥 លទ្ធផលស្កេន High Probability Setup" LAYOUT FROM SCREENSHOT) -->
+    <!-- 6. RESULT CARD (WITH HIGH PROBABILITY SETUP + SCALPING PERFECT ENTRY JOIN TRADE BAR) -->
     <div id="resultCard" class="hidden w-full mt-6 hp-setup-shell rounded-[28px] p-5 sm:p-6 shadow-2xl animate-fadeIn">
 
-      <!-- 6A. HIGH PROBABILITY SETUP HERO BLOCK (MATCHING SCREENSHOT) -->
-      <div class="text-center mb-4">
-        <h3 class="text-xl sm:text-2xl font-extrabold flex items-center justify-center gap-2 tracking-wide">
+      <!-- 6A. HIGH PROBABILITY SETUP HERO BLOCK -->
+      <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+        <h3 class="text-lg sm:text-2xl font-extrabold flex items-center gap-2 tracking-wide">
           <span class="text-2xl">🔥</span>
           <span id="hpSetupTitleText" class="hp-title-glow">លទ្ធផលស្កេន High Probability Setup</span>
         </h3>
+        <button type="button" id="btnEditCurrentScan" class="px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/50 text-amber-300 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition-all">
+          <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+          <span>Update / កែប្រែតម្លៃ</span>
+        </button>
       </div>
 
       <!-- Full-Width Green/Red Action Banner ("📈 ENTRY BUY NOW" / "📉 ENTRY SELL NOW") -->
-      <div id="hpActionBanner" class="hp-entry-banner-buy w-full py-3.5 px-5 rounded-2xl font-extrabold text-sm sm:text-base tracking-wider uppercase flex items-center justify-center gap-2.5 mb-4">
+      <div id="hpActionBanner" class="hp-banner-buy w-full py-3.5 px-5 rounded-2xl font-extrabold text-sm sm:text-base tracking-wider uppercase flex items-center justify-center gap-2.5 mb-4">
         <i id="hpActionBannerIcon" data-lucide="trending-up" class="w-5 h-5"></i>
         <span id="hpActionBannerText">ENTRY BUY NOW</span>
       </div>
 
+      <!-- NEW: SCALPING PERFECT ENTRY • HIGH QUALITY JOIN TRADE PANEL -->
+      <div id="scalpPerfectEntryBox" class="scalp-perfect-entry-shell rounded-2xl p-4 mb-4">
+        <div class="flex items-center justify-between flex-wrap gap-2 pb-2.5 border-b border-cyan-500/30">
+          <div class="flex items-center gap-2">
+            <span class="w-7 h-7 rounded-lg bg-cyan-400/20 border border-cyan-300/50 flex items-center justify-center text-[#18ffff]">
+              <i data-lucide="crosshair" class="w-4 h-4"></i>
+            </span>
+            <div>
+              <div class="text-xs sm:text-sm font-extrabold text-white flex items-center gap-2 flex-wrap">
+                <span>🎯 SCALPING PERFECT ENTRY • JOIN TRADE NOW</span>
+                <span id="scalpQualityScoreBadge" class="px-2 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-400/60 text-emerald-300 text-[10px] font-extrabold">
+                  ★ 96.8% HIGH QUALITY
+                </span>
+              </div>
+              <p id="scalpExecutionNote" class="text-[11px] text-cyan-200/90 mt-0.5">
+                តំបន់ចូលដ៏ល្អឥតខ្ចោះ (Micro OB + M5/M15 FVG Confluence) — ហានិភ័យទាបបំផុត!
+              </p>
+            </div>
+          </div>
+          <span id="scalpJoinStatusBadge" class="px-2.5 py-1 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-[11px] tracking-wide uppercase shadow-[0_0_15px_rgba(16,185,129,0.5)]">
+            🚀 JOIN TRADE READY
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 my-3 text-xs">
+          <div class="p-2.5 rounded-xl bg-slate-950/80 border border-cyan-400/40">
+            <div class="text-[10px] font-bold text-cyan-300 uppercase">🎯 Perfect Sniper Zone</div>
+            <div id="scalpPerfectZoneText" class="font-mono font-extrabold text-white text-sm mt-0.5">3996.2 – 3996.8</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-950/80 border border-amber-400/40">
+            <div class="text-[10px] font-bold text-amber-300 uppercase">⚡ Recommended Lot / Risk</div>
+            <div id="scalpLotAdviceText" class="font-mono font-extrabold text-amber-300 text-sm mt-0.5">1.0% Risk (Tight SL)</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-950/80 border border-emerald-400/40">
+            <div class="text-[10px] font-bold text-emerald-300 uppercase">💰 Quick Scalp Target</div>
+            <div id="scalpQuickTargetText" class="font-mono font-extrabold text-emerald-300 text-sm mt-0.5">TP1 Lock + Breakeven</div>
+          </div>
+        </div>
+
+        <button type="button" id="btnJoinTradeNow" class="join-trade-pulse-btn w-full py-3 px-4 rounded-xl text-slate-950 font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer">
+          <i data-lucide="rocket" class="w-4 h-4"></i>
+          <span>🚀 JOIN TRADE NOW (ចម្លង Perfect Entry យកទៅដាក់ក្នុង MT4/MT5)</span>
+        </button>
+      </div>
+
       <!-- Large Centered ENTRY BUY NOW / ENTRY SELL NOW Price Box -->
-      <div id="hpEntryPriceCard" class="hp-entry-price-card w-full py-5 px-4 rounded-2xl text-center mb-3.5">
+      <div id="hpEntryPriceCard" class="hp-entry-box w-full py-5 px-4 rounded-2xl text-center mb-3.5">
         <div class="flex items-center justify-center gap-2 text-xs sm:text-sm font-extrabold tracking-wider text-slate-300 uppercase mb-1">
           <span class="w-2.5 h-2.5 rounded-full bg-sky-400 inline-block shadow-[0_0_10px_#38bdf8]"></span>
           <span id="hpEntryBoxLabel">ENTRY BUY NOW</span>
         </div>
-        <div id="hpEntryBigPrice" class="hp-entry-price-num text-3xl sm:text-5xl font-extrabold tracking-tight">
+        <div id="hpEntryBigPrice" class="hp-entry-price text-3xl sm:text-5xl font-extrabold tracking-tight">
           3996.5
         </div>
       </div>
 
       <!-- 2-Column Grid: TAKE PROFIT (TP) & STOP LOSS (SL) -->
       <div class="grid grid-cols-2 gap-3.5 mb-4">
-        <div class="hp-tp-card py-4 px-3 sm:px-4 rounded-2xl text-center">
+        <div class="hp-tp-box py-4 px-3 sm:px-4 rounded-2xl text-center">
           <div class="flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-extrabold text-emerald-400 uppercase tracking-wider mb-1">
             <i data-lucide="target" class="w-3.5 h-3.5"></i>
             <span>TAKE PROFIT (TP)</span>
           </div>
-          <div id="hpTpBigPrice" class="hp-tp-num text-2xl sm:text-3xl font-extrabold tracking-tight">
+          <div id="hpTpBigPrice" class="hp-tp-price text-2xl sm:text-3xl font-extrabold tracking-tight">
             4010
           </div>
         </div>
 
-        <div class="hp-sl-card py-4 px-3 sm:px-4 rounded-2xl text-center">
+        <div class="hp-sl-box py-4 px-3 sm:px-4 rounded-2xl text-center">
           <div class="flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-extrabold text-rose-400 uppercase tracking-wider mb-1">
             <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
             <span>STOP LOSS (SL)</span>
           </div>
-          <div id="hpSlBigPrice" class="hp-sl-num text-2xl sm:text-3xl font-extrabold tracking-tight">
+          <div id="hpSlBigPrice" class="hp-sl-price text-2xl sm:text-3xl font-extrabold tracking-tight">
             3990
           </div>
         </div>
       </div>
 
       <!-- Analysis Summary Paragraph Box ("ការវិភាគលម្អិត:") -->
-      <div class="hp-analysis-box p-4 rounded-2xl text-xs sm:text-sm leading-relaxed text-slate-200 mb-5">
+      <div class="hp-reason-box p-4 rounded-2xl text-xs sm:text-sm leading-relaxed text-slate-200 mb-5">
         <span class="font-extrabold text-amber-400 underline mr-1.5">ការវិភាគលម្អិត:</span>
         <span id="hpAnalysisSummaryText">
           ទីផ្សារមានទំនោរកើនឡើងបន្ទាប់ពីតម្លៃបានប៉ះតំបន់ Support សំខាន់។ Entry ត្រូវបានកំណត់នៅចំណុចបច្ចុប្បន្ន ដើម្បីចូលតាមទិសដៅកើនឡើង។ TP នៅក្បែរតំបន់ខ្ពស់ចាស់ និង SL នៅក្រោមតំបន់ទាបចុងក្រោយ ដើម្បីការពារហានិភ័យ។
@@ -718,10 +768,10 @@
                 <span id="rPair"></span> <span id="rTimeframe" class="text-xs font-normal text-slate-400"></span>
               </h3>
               <span id="rTradeStyleBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-cyan-500/20 border border-cyan-400/50 text-cyan-300">
-                ⚡ SCALPING TRADE
+                ⚡ SCALPING PERFECT ENTRY
               </span>
               <span id="rSetupGradeBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 border border-emerald-400/50 text-emerald-300">
-                🏆 A+ CONFLUENCE
+                🏆 A+ HIGH QUALITY
               </span>
             </div>
             <p class="text-xs text-slate-400 mt-0.5">និន្នាការទីផ្សារ៖ <span id="rTrend" class="text-cyan-300"></span> | តម្លៃបច្ចុប្បន្ន៖ <span id="rCur" class="text-amber-300"></span></p>
@@ -738,7 +788,7 @@
         <span class="text-slate-300 font-bold">🔄 ប្តូរទម្រង់ជួញដូរលើរូបភាពនេះភ្លាមៗ៖</span>
         <div class="flex items-center gap-1.5 flex-wrap">
           <button type="button" id="btnResSwitchScalp" class="px-3 py-1 rounded-lg bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 font-extrabold cursor-pointer hover:brightness-110">
-            ⚡ Scalping
+            ⚡ Scalping Perfect
           </button>
           <button type="button" id="btnResSwitchSwing" class="px-3 py-1 rounded-lg bg-amber-500/20 border border-amber-400/50 text-amber-300 font-extrabold cursor-pointer hover:brightness-110">
             🌊 Swing Trade
@@ -756,7 +806,7 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 my-4">
         <div class="p-3.5 rounded-xl bg-slate-900/90 border border-amber-500/30 flex items-center justify-between">
-          <span class="text-xs sm:text-sm text-slate-400 flex items-center gap-2"><i data-lucide="target" class="w-4 h-4 text-amber-400"></i>🎯 Entry (FVG / KEY):</span>
+          <span class="text-xs sm:text-sm text-slate-400 flex items-center gap-2"><i data-lucide="target" class="w-4 h-4 text-amber-400"></i>🎯 Entry (Perfect Zone):</span>
           <span id="rEntry" class="font-bold text-amber-300 text-sm sm:text-base"></span>
         </div>
         <div class="p-3.5 rounded-xl bg-slate-900/90 border border-rose-500/30 flex items-center justify-between">
@@ -831,7 +881,7 @@
       </div>
 
       <div class="space-y-1.5 text-xs sm:text-sm text-slate-300 mb-5">
-        <div class="font-semibold text-cyan-300">💡 មូលហេតុបច្ចេកទេស (ICT & KEY Por-SNR Confluence)៖</div>
+        <div class="font-semibold text-cyan-300">💡 មូលហេតុបច្ចេកទេស (Scalping Perfect Entry & ICT Confluence)៖</div>
         <div id="rConfluence" class="space-y-1"></div>
       </div>
 
@@ -847,7 +897,7 @@
       </button>
     </div>
 
-    <!-- 7. AFTER-SCAN HISTORY LOBBY -->
+    <!-- 7. AFTER-SCAN HISTORY LOBBY (WITH UPDATE & SMOOTH DELETE ACTIONS) -->
     <div id="scanHistoryLobby" class="history-lobby-shell w-full mt-6 bg-[#111726] border border-cyan-500/35 rounded-[26px] p-5 sm:p-6 shadow-2xl relative overflow-hidden animate-fadeIn">
       <div class="absolute -top-20 -right-20 w-56 h-56 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -866,11 +916,11 @@
                 0 Scans
               </span>
               <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 text-[10px] font-extrabold uppercase">
-                ● AUTO-SAVED AFTER SCAN
+                ● UPDATE &amp; DELETE READY
               </span>
             </div>
             <p id="txtLobbySub" class="text-xs text-slate-400 mt-0.5">
-              រាល់ពេលស្កេនរួច លទ្ធផល Chart + Entry/SL/TP + ICT ERL/IRL ត្រូវបានរក្សាទុកក្នុង Lobby នេះដោយស្វ័យប្រវត្តិ
+              រាល់ពេលស្កេនរួច លទ្ធផលត្រូវបានរក្សាទុកស្វ័យប្រវត្តិ — អាចកែប្រែ (Update) ឬលុប (Delete + Undo) បានគ្រប់ពេល
             </p>
           </div>
         </div>
@@ -882,7 +932,7 @@
           </button>
           <button id="btnClearScanLobby" type="button" title="លុបប្រវត្តិស្កេនទាំងអស់" class="px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/35 text-rose-300 text-xs font-bold flex items-center gap-1 cursor-pointer transition-all">
             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-            <span>សម្អាត</span>
+            <span>សម្អាតទាំងអស់</span>
           </button>
         </div>
       </div>
@@ -958,13 +1008,12 @@
     <div class="w-full mt-6 space-y-4">
       <div class="bg-[#111726]/90 border border-slate-800 rounded-2xl p-5">
         <h3 class="text-base sm:text-lg font-bold text-amber-400 mb-3 flex items-center gap-2">
-          <i data-lucide="sparkles" class="w-5 h-5"></i>អត្ថប្រយោជន៍របស់ Por - SNR Scanner (ICT Liquidity & A+ Setup)
+          <i data-lucide="sparkles" class="w-5 h-5"></i>អត្ថប្រយោជន៍របស់ Por - SNR Scanner (Scalping Perfect Entry & ICT A+)
         </h3>
         <ul class="space-y-2.5 text-xs sm:text-sm text-slate-300">
-          <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">ជ្រើសរើសបានទាំង Scalping, Swing & A+ ICT Setup៖</strong> ដាក់រូបភាពភ្លាម ជ្រើសរើសវាយខ្លី (Scalping), កាន់វែង (Swing) ឬទម្រង់ A+ ICT Liquidity (Min 1:3 RR)។</span></li>
+          <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">Scalping Perfect Entry (Join Trade High Quality)៖</strong> គណនាតំបន់ចូលវាយខ្លីដ៏ល្អឥតខ្ចោះ (Micro OB + FVG) ជាមួយប៊ូតុង Join Trade Now។</span></li>
           <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">Mastering ICT Liquidity (BSL / SSL / ERL / IRL)៖</strong> គណនាតំបន់ Buy-side Liquidity, Sell-side Liquidity, Dealing Range (Premium/Discount 0.5 Fib) និង Internal FVG ស្វ័យប្រវត្តិ។</span></li>
-          <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">Top 3 A+ Confluences៖</strong> ផ្ទៀងផ្ទាត់ #1 Liquidity Sweep, #2 SMT Divergence, និង #3 Displacement + Shift + FVG Entry។</span></li>
-          <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">បន្ទប់ប្រវត្តិស្កេន (After-Scan History Lobby)៖</strong> រាល់ពេលស្កេនរួច លទ្ធផល និងរូបភាព Chart ត្រូវបានរក្សាទុកក្នុង Lobby ដើម្បីមើលឡើងវិញ ឬកត់ត្រា WIN/LOSS។</span></li>
+          <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">•</span><span><strong class="text-white">Update &amp; Smooth Delete ក្នុង History Lobby៖</strong> អាចកែប្រែតម្លៃ Entry/SL/TP ឬលុបប្រវត្តិស្កេនដោយរលូន និងមានប៊ូតុង Undo យកមកវិញ។</span></li>
         </ul>
       </div>
 
@@ -1000,7 +1049,7 @@
     </button>
   </div>
 
-  <!-- MODAL: SELF-BUY KEY GUIDE (របៀបទិញ KEY ដោយខ្លួនឯង) -->
+  <!-- MODAL: SELF-BUY KEY GUIDE -->
   <div id="selfBuyGuideModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-[#0e1626] border border-cyan-500/40 rounded-[28px] max-w-md w-full p-6 shadow-2xl relative animate-fadeIn">
       <button data-close="selfBuyGuideModal" class="absolute top-5 right-5 text-slate-400 hover:text-white cursor-pointer">
@@ -1115,10 +1164,9 @@
     </div>
   </div>
 
-  <!-- MODAL: WINRATE LIVE ACTION STATS (WITH 4K DYNAMIC BACKGROUND + ETHUSDT & USOIL) -->
+  <!-- MODAL: WINRATE LIVE ACTION STATS -->
   <div id="winrateModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="winrate-modal-4k-shell border border-emerald-500/45 rounded-[28px] max-w-md w-full p-6 shadow-2xl relative animate-fadeIn">
-      <!-- 4K Dynamic Canvas inside Winrate Modal -->
       <canvas id="winrate4KCanvas"></canvas>
 
       <button data-close="winrateModal" class="absolute top-5 right-5 z-20 text-slate-400 hover:text-white cursor-pointer">
@@ -1135,28 +1183,7 @@
         </div>
       </div>
 
-      <div id="winrateLivePairsList" class="relative z-10 space-y-2.5 text-xs sm:text-sm mb-5">
-        <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between items-center">
-          <span class="font-bold text-amber-300">XAUUSD (Gold Sniper)</span>
-          <span class="text-[#00e676] font-extrabold">92.4% WIN</span>
-        </div>
-        <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between items-center">
-          <span class="font-bold text-cyan-300">BTCUSD (Crypto SMC)</span>
-          <span class="text-[#00e676] font-extrabold">91.2% WIN</span>
-        </div>
-        <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between items-center">
-          <span class="font-bold text-blue-300">ETHUSDT (Ethereum Sniper)</span>
-          <span class="text-[#00e676] font-extrabold">91.5% WIN</span>
-        </div>
-        <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between items-center">
-          <span class="font-bold text-rose-300">USOIL (Crude Oil Sniper)</span>
-          <span class="text-[#00e676] font-extrabold">90.9% WIN</span>
-        </div>
-        <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between items-center">
-          <span class="font-bold text-purple-300">NON FARM / CPI / FOMC FLIP</span>
-          <span class="text-[#00e676] font-extrabold">91.8% WIN</span>
-        </div>
-      </div>
+      <div id="winrateLivePairsList" class="relative z-10 space-y-2.5 text-xs sm:text-sm mb-5"></div>
 
       <div class="relative z-10 p-3.5 rounded-2xl bg-[#131d31]/90 border border-slate-700/90 text-center backdrop-blur-md">
         <p class="text-xs text-slate-300 mb-2.5">កត់ត្រាលទ្ធផលជួញដូរចុងក្រោយរបស់អ្នក ដើម្បីធ្វើបច្ចុប្បន្នភាព Winrate៖</p>
@@ -1399,7 +1426,7 @@
     </div>
   </div>
 
-<!-- MODAL 6: SMOOTH DELETE CONFIRMATION MODAL (REPLACES NATIVE BROWSER CONFIRM) -->
+  <!-- MODAL 6: SMOOTH DELETE CONFIRMATION MODAL -->
   <div id="confirmDeleteModal" class="hidden fixed inset-0 z-[60] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="confirm-modal-shell border border-rose-500/45 rounded-[28px] max-w-sm w-full p-6 text-center relative">
       <button type="button" id="btnCancelDeleteTop" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 flex items-center justify-center text-slate-400 hover:text-white cursor-pointer transition-colors">
@@ -1427,6 +1454,100 @@
           <span>យល់ព្រមលុប (OK)</span>
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL 7: UPDATE / EDIT SCAN RECORD MODAL (NEW ACTION FOR UPDATE) -->
+  <div id="updateScanModal" class="hidden fixed inset-0 z-[60] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-[#0e1626] border border-cyan-500/45 rounded-[28px] max-w-md w-full p-6 shadow-2xl relative animate-fadeIn">
+      <button type="button" data-close="updateScanModal" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white cursor-pointer">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-11 h-11 rounded-2xl bg-amber-500/15 border border-amber-400/40 flex items-center justify-center text-amber-300">
+          <i data-lucide="pencil" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-extrabold text-white">កែប្រែ / Update ទិន្នន័យស្កេន</h3>
+          <p class="text-xs text-cyan-300">កែសម្រួល Perfect Entry, SL, TP ឬលទ្ធផលជួញដូរ</p>
+        </div>
+      </div>
+
+      <form id="updateScanForm" class="space-y-3 text-xs sm:text-sm">
+        <input type="hidden" id="updScanId" />
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="text-[11px] font-bold text-slate-400 block mb-1">Pair / Symbol</label>
+            <input id="updPairInput" type="text" required class="w-full px-3 py-2.5 rounded-xl bg-[#131d31] border border-slate-700 text-white font-extrabold focus:outline-none focus:border-cyan-400" />
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-400 block mb-1">Timeframe</label>
+            <input id="updTfInput" type="text" required class="w-full px-3 py-2.5 rounded-xl bg-[#131d31] border border-slate-700 text-cyan-300 font-extrabold focus:outline-none focus:border-cyan-400" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="text-[11px] font-bold text-slate-400 block mb-1">ទិសដៅ (Action)</label>
+            <select id="updActionInput" class="w-full px-2.5 py-2.5 rounded-xl bg-[#131d31] border border-slate-700 text-white font-extrabold focus:outline-none">
+              <option value="BUY">🟢 BUY</option>
+              <option value="SELL">🔴 SELL</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-400 block mb-1">ទម្រង់ (Style)</label>
+            <select id="updStyleInput" class="w-full px-2.5 py-2.5 rounded-xl bg-[#131d31] border border-slate-700 text-cyan-300 font-extrabold focus:outline-none">
+              <option value="SCALPING">⚡ Scalping</option>
+              <option value="SWING">🌊 Swing</option>
+              <option value="APLUS_ICT">🏆 A+ ICT</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-400 block mb-1">លទ្ធផល (Status)</label>
+            <select id="updOutcomeInput" class="w-full px-2.5 py-2.5 rounded-xl bg-[#131d31] border border-slate-700 text-emerald-300 font-extrabold focus:outline-none">
+              <option value="PENDING">⏳ រង់ចាំ</option>
+              <option value="WIN">✅ ឈ្នះ TP</option>
+              <option value="LOSS">🛑 ប៉ះ SL</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="text-[11px] font-bold text-amber-300 block mb-1">🎯 Perfect Entry Price</label>
+            <input id="updEntryInput" type="text" required class="w-full px-3 py-2.5 rounded-xl bg-[#131d31] border border-amber-500/40 text-amber-300 font-mono font-extrabold focus:outline-none focus:border-amber-400" />
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-rose-400 block mb-1">🛑 Stop Loss (SL)</label>
+            <input id="updSlInput" type="text" required class="w-full px-3 py-2.5 rounded-xl bg-[#131d31] border border-rose-500/40 text-rose-300 font-mono font-extrabold focus:outline-none focus:border-rose-400" />
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-emerald-300 block mb-1">💰 Take Profit 1 (TP1)</label>
+            <input id="updTp1Input" type="text" required class="w-full px-3 py-2.5 rounded-xl bg-[#131d31] border border-emerald-500/40 text-emerald-300 font-mono font-extrabold focus:outline-none focus:border-emerald-400" />
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-emerald-400 block mb-1">💰 Take Profit 2 (TP2)</label>
+            <input id="updTp2Input" type="text" required class="w-full px-3 py-2.5 rounded-xl bg-[#131d31] border border-emerald-500/40 text-emerald-300 font-mono font-extrabold focus:outline-none focus:border-emerald-400" />
+          </div>
+        </div>
+
+        <div>
+          <label class="text-[11px] font-bold text-slate-400 block mb-1">📝 កំណត់ចំណាំ / ការវិភាគលម្អិត</label>
+          <input id="updNoteInput" type="text" placeholder="បញ្ចូលការវិភាគបន្ថែម..." class="w-full px-3 py-2.5 rounded-xl bg-[#131d31] border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-cyan-400" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5 pt-2">
+          <button type="button" data-close="updateScanModal" class="py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">
+            បោះបង់ (Cancel)
+          </button>
+          <button type="submit" class="py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:brightness-110 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-[0_0_20px_rgba(6,182,212,0.35)]">
+            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+            <span>រក្សាទុក Update</span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -1694,7 +1815,7 @@
             រក្សាទុកការកំណត់ Bot
           </button>
         </div>
-      </div>
+      </form>
     </div>
   </div>
 

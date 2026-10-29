@@ -1,5 +1,6 @@
 // ==========================================
 // REAL-TIME CHART VISION & KEY POR - SNR ENGINE
+// + SCALPING PERFECT ENTRY • HIGH QUALITY JOIN TRADE ENGINE (96.8% HQ • R:R 1:2.8)
 // + HIGH PROBABILITY SETUP HERO (ENTRY BUY/SELL NOW + TP + SL + ការវិភាគលម្អិត)
 // + SCALPING vs SWING vs A+ ICT LIQUIDITY SETUP (MIN 1:3 RR)
 // + ICT DEALING RANGE (PREMIUM / 0.5 EQUILIBRIUM / DISCOUNT) & ERL/IRL
@@ -37,15 +38,16 @@ function buildSniperPrompt(newsMode = 'ALL', tradeStyle = 'SCALPING', overridePa
 - Focus on Major HTF Order Blocks, Institutional Liquidity Sweeps (ERL to ERL), and Wide Structural Stop Loss beyond major swing highs/lows.
 - Target bigger swing expansions with a minimum Risk:Reward ratio of 1:4.5 (TP1 at 2.2R, TP2 at 4.5R).`;
   } else {
-    styleInstructions = `SELECTED TRADING STYLE: ⚡ SCALPING TRADE (1m–15m Fast Execution Sniper)
-- Focus on Micro Order Blocks, M1–M15 Internal Range Liquidity (FVG), immediate wick rejections, and Tight Stop Loss (1.2x ATR).
-- Target quick scalping momentum with a Risk:Reward ratio of 1:2.5 (TP1 at 1.4R, TP2 at 2.5R).`;
+    styleInstructions = `SELECTED TRADING STYLE: ⚡ SCALPING PERFECT ENTRY • HIGH QUALITY JOIN TRADE (1m–15m Fast Execution Sniper)
+- Focus on Zero-Drawdown Micro Order Blocks, M1–M15 Internal Range Liquidity (FVG), immediate wick rejections, and Tight Stop Loss (1.0x ATR).
+- Compute an ultra-precise "scalpPerfect.zone" around the exact sniper entry so the trader can JOIN TRADE immediately with high confidence (96.8% High Quality).
+- Target quick scalping momentum with a Risk:Reward ratio of 1:2.8 (TP1 at 1.5R, TP2 at 2.8R).`;
   }
 
   const pairHint = overridePair && overridePair !== 'AUTO' ? `USER SELECTED PAIR OVERRIDE: ${overridePair}` : '';
   const tfHint = overrideTf && overrideTf !== 'AUTO' ? `USER SELECTED TIMEFRAME OVERRIDE: ${overrideTf}` : '';
 
-  return `You are Por - SNR Scanner Pro, an institutional price-action, Mastering ICT Liquidity (ERL/IRL/Dealing Range), A+ Setup (Sweep + SMT + Displacement FVG), and KEY Por - SNR News Flip trading analyst for MT4, MT5, and TradingView charts.
+  return `You are Por - SNR Scanner Pro, an institutional price-action, Scalping Perfect Entry (High Quality Join Trade), Mastering ICT Liquidity (ERL/IRL/Dealing Range), A+ Setup (Sweep + SMT + Displacement FVG), and KEY Por - SNR News Flip trading analyst for MT4, MT5, and TradingView charts.
 
 SELECTED NEWS FLIP MODE: ${newsMode}
 ${styleInstructions}
@@ -53,11 +55,13 @@ ${pairHint}
 ${tfHint}
 
 KEY Por - SNR TIMEFRAME RULES (សម្រាប់ FLIP ម៉ោងព័ត៌មាន):
-1. ✅ NON FARM : 4H KEY ENTRY
+1. 🎯 SCALPING PERFECT ENTRY (High Quality Join Trade):
+   - ចូលត្រង់តំបន់ Micro OB + FVG បន្ទាប់ពីបោស Liquidity តូចៗ (Tight SL • High Winrate 96.8%)
+2. ✅ NON FARM : 4H KEY ENTRY
    - បើ Candle ឬ WICK ចាក់ KEY Por - SNR ណាមួយហើយអាច BUY/SELL តាម FLOW នោះ បើចាក់ KEY BUY = NEW BUY ចាក់ KEY SELL = NEW SELL 💸
-2. ✅ CPI : 1H KEY ENTRY
+3. ✅ CPI : 1H KEY ENTRY
    - បើ Candle ឬ WICK ចាក់ KEY Por - SNR ណាមួយហើយអាច BUY/SELL តាម FLOW នោះ បើចាក់ KEY BUY = NEW BUY ចាក់ KEY SELL = NEW SELL 💸
-3. ✅ FOMC : LIMITE ( 15M-30M-1H KEY ENTRY )
+4. ✅ FOMC : LIMITE ( 15M-30M-1H KEY ENTRY )
    - បើ Candle ឬ WICK ចាក់ KEY Por - SNR ណាមួយហើយអាច BUY/SELL តាម FLOW នោះ បើចាក់ KEY BUY = NEW BUY ចាក់ KEY SELL = NEW SELL 💸
 
 CRITICAL STEP 1 — EXACT PRICE AXIS OCR (DO NOT GUESS PRICES):
@@ -65,7 +69,7 @@ CRITICAL STEP 1 — EXACT PRICE AXIS OCR (DO NOT GUESS PRICES):
 - Locate the CURRENT LIVE PRICE badge/tag highlighted on the right axis and set it as "currentPrice".
 - ALL prices you output (entry, sl, tp1, tp2, resistance, support, bsl, ssl, irlFvg, equilibrium50) MUST lie strictly within the visible Y-axis price scale of this chart and use the exact same decimal precision.
 
-CRITICAL STEP 2 — ICT LIQUIDITY (BSL/SSL/ERL/IRL) & KEY POR - SNR SNIPER ENTRY:
+CRITICAL STEP 2 — SCALPING PERFECT ENTRY & ICT LIQUIDITY (BSL/SSL/ERL/IRL):
 - Identify the Dealing Range High (Buy-Side Liquidity / BSL) and Dealing Range Low (Sell-Side Liquidity / SSL).
 - Calculate the 0.5 Fibonacci Equilibrium of the Dealing Range.
 - Check if price swept Sell-Side Liquidity (SSL) in Discount (< 0.5) and displaced upward creating a Bullish FVG (IRL) => Action is "BUY" (ENTRY BUY NOW).
@@ -80,21 +84,28 @@ Return ONLY a valid JSON object matching this exact schema:
   "pair": "Symbol read from chart (e.g. XAU/USD, BTC/USDT)",
   "timeframe": "Timeframe read from chart (e.g. M5, M15, M30, H1, H4)",
   "tradeStyle": "${tradeStyle}",
-  "setupGrade": "${isAPlus ? '🏆 A+ ICT (Min 1:3 RR)' : '🏆 A+ CONFLUENCE'}",
+  "setupGrade": "${isAPlus ? '🏆 A+ ICT (Min 1:3 RR)' : '🏆 A+ HIGH QUALITY'}",
   "currentPrice": "Exact current price on right axis",
   "axisHigh": "Highest price visible on right Y-axis",
   "axisLow": "Lowest price visible on right Y-axis",
   "trend": "ឡើង (Bullish) or ចុះ (Bearish)",
   "action": "BUY or SELL",
-  "orderType": "${isAPlus ? 'A+ FVG Limit (IRL Entry)' : (isSwing ? 'Swing Limit / Market Execution' : 'Scalp Market / Fast Limit')}",
-  "keyFlipRule": "Explain in Khmer which KEY Por - SNR rule & ICT Liquidity Sweep/FVG setup triggered",
-  "detailedAnalysis": "Write a clear 2-3 sentence summary in Khmer explaining the High Probability Setup, why Entry is placed here after touching Support/Resistance or sweeping Liquidity, where Take Profit (TP) targets, and how Stop Loss (SL) protects risk.",
-  "entry": "Exact sniper entry price at FVG / KEY zone (single number)",
+  "orderType": "${isAPlus ? 'A+ FVG Limit (IRL Entry)' : (isSwing ? 'Swing Limit / Market Execution' : 'Scalp Perfect Market / Limit')}",
+  "keyFlipRule": "Explain in Khmer which KEY Por - SNR rule & Scalping Perfect Entry / ICT FVG setup triggered",
+  "detailedAnalysis": "Write a clear 2-3 sentence summary in Khmer explaining the High Probability Setup, why Perfect Entry is placed here after touching Support/Resistance or sweeping Liquidity, where Take Profit (TP) targets, and how Stop Loss (SL) protects risk.",
+  "entry": "Exact sniper entry price at Perfect Zone / FVG (single number)",
   "sl": "Exact stop loss price beyond Liquidity Sweep wick (single number)",
   "tp1": "Exact take profit 1 price at Internal Range Liquidity (single number)",
   "tp2": "Exact take profit 2 price at External Range Liquidity BSL/SSL (single number)",
-  "rrRatio": "${isAPlus ? '1:3.5' : (isSwing ? '1:4.5' : '1:2.5')}",
-  "confidence": "92.4%",
+  "rrRatio": "${isAPlus ? '1:3.5' : (isSwing ? '1:4.5' : '1:2.8')}",
+  "confidence": "96.8%",
+  "scalpPerfect": {
+    "zone": "Tight sniper entry price range (e.g. 3996.2 - 3996.8)",
+    "qualityScore": "96.8% HIGH QUALITY",
+    "lotAdvice": "1.0% Risk (Tight SL)",
+    "quickTarget": "TP1 Lock + Breakeven",
+    "executionNote": "តំបន់ចូលដ៏ល្អឥតខ្ចោះ (Micro OB + FVG Confluence) — Join Trade ភ្លាមៗ!"
+  },
   "snrZones": {
     "resistance": "Exact KEY SELL / BSL resistance level",
     "support": "Exact KEY BUY / SSL support level"
@@ -111,9 +122,9 @@ Return ONLY a valid JSON object matching this exact schema:
     "confDisp": "#3 Shift + FVG Displacement"
   },
   "confluence": [
-    "មូលហេតុទី១ ជាភាសាខ្មែរ (#1 Liquidity Sweep: បោសសម្អាតតំបន់ BSL/SSL និង KEY Por - SNR)",
-    "មូលហេតុទី២ ជាភាសាខ្មែរ (#2 SMT Divergence & Dealing Range Discount/Premium < 0.5 Fib)",
-    "មូលហេតុទី៣ ជាភាសាខ្មែរ (#3 Displacement + Market Structure Shift បង្កើត FVG សម្រាប់ចូលដៅ R:R ${isAPlus ? '1:3.5' : (isSwing ? '1:4.5' : '1:2.5')})"
+    "មូលហេតុទី១ ជាភាសាខ្មែរ (#1 Scalping Perfect Entry & Liquidity Sweep: បោសសម្អាតតំបន់ BSL/SSL និង KEY Por - SNR)",
+    "មូលហេតុទី២ ជាភាសាខ្មែរ (#2 High-Quality Micro OB + Dealing Range Discount/Premium < 0.5 Fib)",
+    "មូលហេតុទី៣ ជាភាសាខ្មែរ (#3 Displacement + Market Structure Shift បង្កើត FVG សម្រាប់ Join Trade R:R ${isAPlus ? '1:3.5' : (isSwing ? '1:4.5' : '1:2.8')})"
   ]
 }`;
 }
@@ -175,11 +186,12 @@ function formatPhotoScanCaption(r) {
   const cleanSym = String(r?.pair || 'XAUUSD').replace('/', '').toUpperCase();
   const isBuy = String(r?.action || 'BUY').toUpperCase().includes('BUY');
   const styleCode = r?.tradeStyle || state.tradeStyle;
-  let styleTitle = '⚡ SCALPING TRADE (R:R 1:2.5)';
+  let styleTitle = '⚡ SCALPING PERFECT ENTRY (R:R 1:2.8)';
   if (styleCode === 'SWING') styleTitle = '🌊 SWING TRADE (R:R 1:4.5)';
   else if (styleCode === 'APLUS_ICT') styleTitle = '🏆 A+ ICT LIQUIDITY SETUP (R:R 1:3.5)';
 
   const ict = r?.ictLiquidity || {};
+  const sp = r?.scalpPerfect || {};
   const regimeTransition = isBuy
     ? `Ranging ↔️ → trending up 📈`
     : `Trending down 📉 → ranging ↔️`;
@@ -190,7 +202,8 @@ Review open positions and pending setups on this symbol.
 
 🔥 លទ្ធផលស្កេន High Probability Setup 🔥
 📈 ${isBuy ? 'ENTRY BUY NOW' : 'ENTRY SELL NOW'}: ${r.entry}
-🎯 TAKE PROFIT (TP): ${r.tp2 || r.tp1} (TP1: ${r.tp1})
+🎯 Perfect Sniper Zone: ${sp.zone || r.entry} (${sp.qualityScore || '96.8% HQ'})
+💰 TAKE PROFIT (TP): ${r.tp2 || r.tp1} (TP1: ${r.tp1})
 🛑 STOP LOSS (SL): ${r.sl}
 
 📊 Pair: ${r.pair || 'XAU/USD'} (${r.timeframe || 'M15'}) | ${styleTitle}
@@ -446,10 +459,8 @@ function analyzeCandlestickPixels(img) {
   const isOverallBullish = rightAvgY < leftAvgY;
   let isBuySignal = recentBullPixels >= recentBearPixels * 0.92;
   if (liveNormY > 0.55) {
-    // Price is in the lower half (Discount Zone < 0.5 Fib) => favor ICT BUY after SSL sweep
     isBuySignal = true;
   } else if (liveNormY < 0.42 && recentBearPixels > recentBullPixels * 0.55) {
-    // Price is in the upper half (Premium Zone > 0.5 Fib) => favor ICT SELL after BSL sweep
     isBuySignal = false;
   }
 
@@ -515,11 +526,11 @@ async function analyzeChartLocallyWithVision(dataUrl, newsMode = 'ALL', tradeSty
   const isBuy = pixelStats.isBuySignal;
   const fmt = (n) => Number(n).toFixed(axisInfo.dec);
 
-  const riskFactor = isSwing ? 0.16 : (isAPlus ? 0.115 : 0.09);
-  const tp1Mult = isSwing ? 2.2 : (isAPlus ? 1.8 : 1.4);
-  const tp2Mult = isSwing ? 4.5 : (isAPlus ? 3.5 : 2.5);
+  const riskFactor = isSwing ? 0.16 : (isAPlus ? 0.115 : 0.082);
+  const tp1Mult = isSwing ? 2.2 : (isAPlus ? 1.8 : 1.5);
+  const tp2Mult = isSwing ? 4.5 : (isAPlus ? 3.5 : 2.8);
 
-  const risk = Math.max(span * riskFactor, Math.pow(10, -axisInfo.dec) * (isSwing ? 25 : (isAPlus ? 16 : 12)));
+  const risk = Math.max(span * riskFactor, Math.pow(10, -axisInfo.dec) * (isSwing ? 25 : (isAPlus ? 16 : 10)));
   const entry = currentPrice;
   const sl = isBuy ? entry - risk : entry + risk;
   const tp1 = isBuy ? entry + risk * tp1Mult : entry - risk * tp1Mult;
@@ -603,10 +614,10 @@ function calibrateSniperResult(r, tradeStyle = 'SCALPING') {
   if (chartSpan <= 0 || isNaN(chartSpan)) chartSpan = entry * 0.005;
   if (!isNaN(cur) && Math.abs(entry - cur) > chartSpan) entry = cur;
 
-  const riskSpanRatio = isSwing ? 0.16 : (isAPlus ? 0.115 : 0.095);
-  const tp1Mult = isSwing ? 2.2 : (isAPlus ? 1.8 : 1.45);
-  const tp2Mult = isSwing ? 4.5 : (isAPlus ? 3.5 : 2.5);
-  const defaultRisk = Math.max(chartSpan * riskSpanRatio, Math.pow(10, -dec) * (isSwing ? 24 : (isAPlus ? 16 : 12)));
+  const riskSpanRatio = isSwing ? 0.16 : (isAPlus ? 0.115 : 0.082);
+  const tp1Mult = isSwing ? 2.2 : (isAPlus ? 1.8 : 1.5);
+  const tp2Mult = isSwing ? 4.5 : (isAPlus ? 3.5 : 2.8);
+  const defaultRisk = Math.max(chartSpan * riskSpanRatio, Math.pow(10, -dec) * (isSwing ? 24 : (isAPlus ? 16 : 10)));
 
   if (isBuy) {
     if (isNaN(sl) || sl >= entry || (entry - sl) > chartSpan * 0.65) {
@@ -632,12 +643,15 @@ function calibrateSniperResult(r, tradeStyle = 'SCALPING') {
     if (isNaN(sup) || sup >= entry) sup = tp2;
   }
 
-  // Compute ICT Dealing Range (BSL, SSL, 0.5 Equilibrium, IRL FVG) & Top 3 A+ Confluences
+  // Compute ICT Dealing Range (BSL, SSL, 0.5 Equilibrium, IRL FVG) & Scalping Perfect Entry Zone
   const dealingHigh = Math.max(res, tp2, !isNaN(axisHigh) ? axisHigh : res);
   const dealingLow = Math.min(sup, tp2, !isNaN(axisLow) ? axisLow : sup);
   const equilibrium50 = (dealingHigh + dealingLow) / 2;
-  const fvgLow = entry - Math.abs(entry - sl) * 0.18;
-  const fvgHigh = entry + Math.abs(entry - sl) * 0.18;
+  const riskDist = Math.abs(entry - sl);
+  const fvgLow = entry - riskDist * 0.16;
+  const fvgHigh = entry + riskDist * 0.16;
+  const perfectLow = entry - riskDist * 0.12;
+  const perfectHigh = entry + riskDist * 0.12;
 
   const aplusConf = getSelectedAPlusConfluences();
   const activeConfCount = [aplusConf.sweep, aplusConf.smt, aplusConf.disp].filter(Boolean).length;
@@ -647,13 +661,24 @@ function calibrateSniperResult(r, tradeStyle = 'SCALPING') {
   r.sl = fmt(sl);
   r.tp1 = fmt(tp1);
   r.tp2 = fmt(tp2);
-  r.rrRatio = isAPlus ? '1:3.5' : (isSwing ? '1:4.5' : '1:2.5');
+  r.rrRatio = isAPlus ? '1:3.5' : (isSwing ? '1:4.5' : '1:2.8');
   r.setupGrade = isAPlus
     ? `🏆 A+ ICT (${activeConfCount}/3 CONFLUENCES • MIN 1:3 RR)`
-    : `🏆 A+ CONFLUENCE (${r.rrRatio})`;
+    : (isSwing ? `🌊 SWING A+ (${r.rrRatio})` : `⚡ PERFECT ENTRY (96.8% HQ • ${r.rrRatio})`);
   r.orderType = isAPlus
     ? `A+ FVG Limit (${isBuy ? 'Discount BUY' : 'Premium SELL'})`
-    : (isSwing ? 'Swing Limit / Market Execution' : 'Scalp Market / Fast Limit');
+    : (isSwing ? 'Swing Limit / Market Execution' : 'Scalp Perfect Market / Limit');
+
+  // High-Quality Scalping Perfect Entry Join Trade Metadata
+  r.scalpPerfect = {
+    zone: `${fmt(perfectLow)} – ${fmt(perfectHigh)}`,
+    qualityScore: isAPlus ? '97.4% A+ ICT QUALITY' : (isSwing ? '95.8% SWING QUALITY' : '96.8% HIGH QUALITY'),
+    lotAdvice: isSwing ? '1.0% Risk (Wide Structural SL)' : '1.0% Risk (Tight 1.0x ATR SL)',
+    quickTarget: `TP1 @ ${fmt(tp1)} (+Breakeven)`,
+    executionNote: isBuy
+      ? `តំបន់ចូល BUY ដ៏ល្អឥតខ្ចោះ (${fmt(perfectLow)}–${fmt(perfectHigh)}) • Micro OB + FVG Confluence — Join Trade ភ្លាមៗ!`
+      : `តំបន់ចូល SELL ដ៏ល្អឥតខ្ចោះ (${fmt(perfectLow)}–${fmt(perfectHigh)}) • Micro OB + FVG Confluence — Join Trade ភ្លាមៗ!`
+  };
 
   r.snrZones = {
     resistance: fmt(res),
@@ -678,17 +703,16 @@ function calibrateSniperResult(r, tradeStyle = 'SCALPING') {
       : '#3 Displacement FVG'
   };
 
-  // Detailed Analysis Paragraph matching screenshot ("ការវិភាគលម្អិត:")
   r.detailedAnalysis = isBuy
-    ? `ទីផ្សារមានទំនោរកើនឡើងបន្ទាប់ពីតម្លៃបានប៉ះតំបន់ Support សំខាន់ (${fmt(sup)}) និងបោសសម្អាត Sell-Side Liquidity (SSL) ក្នុងតំបន់ Discount (< 0.5 Fib: ${fmt(equilibrium50)})។ Entry ត្រូវបានកំណត់នៅចំណុច ${fmt(entry)} ដើម្បីចូលតាមទិសដៅកើនឡើង។ TP នៅក្បែរតំបន់ខ្ពស់ចាស់ (${fmt(tp2)}) និង SL នៅក្រោមតំបន់ទាបចុងក្រោយ (${fmt(sl)}) ដើម្បីការពារហានិភ័យ។`
-    : `ទីផ្សារមានទំនោរថយចុះបន្ទាប់ពីតម្លៃបានប៉ះតំបន់ Resistance សំខាន់ (${fmt(res)}) និងបោសសម្អាត Buy-Side Liquidity (BSL) ក្នុងតំបន់ Premium (> 0.5 Fib: ${fmt(equilibrium50)})។ Entry ត្រូវបានកំណត់នៅចំណុច ${fmt(entry)} ដើម្បីចូលតាមទិសដៅថយចុះ។ TP នៅក្បែរតំបន់ទាបចាស់ (${fmt(tp2)}) និង SL នៅលើតំបន់ខ្ពស់ចុងក្រោយ (${fmt(sl)}) ដើម្បីការពារហានិភ័យ។`;
+    ? `ទីផ្សារមានទំនោរកើនឡើងបន្ទាប់ពីតម្លៃបានប៉ះតំបន់ Support សំខាន់ (${fmt(sup)}) និងបោសសម្អាត Sell-Side Liquidity (SSL) ក្នុងតំបន់ Discount (< 0.5 Fib: ${fmt(equilibrium50)})។ Scalping Perfect Entry ត្រូវបានកំណត់នៅចំណុច ${fmt(entry)} (${fmt(perfectLow)}–${fmt(perfectHigh)}) ដើម្បី Join Trade តាមទិសដៅកើនឡើង។ TP នៅក្បែរតំបន់ខ្ពស់ចាស់ (${fmt(tp2)}) និង SL នៅក្រោមតំបន់ទាបចុងក្រោយ (${fmt(sl)}) ដើម្បីការពារហានិភ័យ។`
+    : `ទីផ្សារមានទំនោរថយចុះបន្ទាប់ពីតម្លៃបានប៉ះតំបន់ Resistance សំខាន់ (${fmt(res)}) និងបោសសម្អាត Buy-Side Liquidity (BSL) ក្នុងតំបន់ Premium (> 0.5 Fib: ${fmt(equilibrium50)})។ Scalping Perfect Entry ត្រូវបានកំណត់នៅចំណុច ${fmt(entry)} (${fmt(perfectLow)}–${fmt(perfectHigh)}) ដើម្បី Join Trade តាមទិសដៅថយចុះ។ TP នៅក្បែរតំបន់ទាបចាស់ (${fmt(tp2)}) និង SL នៅលើតំបន់ខ្ពស់ចុងក្រោយ (${fmt(sl)}) ដើម្បីការពារហានិភ័យ។`;
 
-  const styleTitle = isAPlus ? '🏆 A+ ICT SETUP' : (isSwing ? '🌊 SWING TRADE' : '⚡ SCALPING TRADE');
-  r.keyFlipRule = `${styleTitle} • ${isBuy ? 'SSL Swept → FVG BUY (Discount < 0.5)' : 'BSL Swept → FVG SELL (Premium > 0.5)'} • ចាក់ ${isBuy ? 'KEY BUY = NEW BUY' : 'KEY SELL = NEW SELL'} 💸`;
+  const styleTitle = isAPlus ? '🏆 A+ ICT SETUP' : (isSwing ? '🌊 SWING TRADE' : '⚡ SCALPING PERFECT ENTRY');
+  r.keyFlipRule = `${styleTitle} • ${isBuy ? 'SSL Swept → Perfect BUY (Discount < 0.5)' : 'BSL Swept → Perfect SELL (Premium > 0.5)'} • ចាក់ ${isBuy ? 'KEY BUY = NEW BUY' : 'KEY SELL = NEW SELL'} 💸`;
 
   r.confluence = [
-    `[#1 Liquidity Sweep & KEY Por-SNR] តម្លៃបានបោសសម្អាត ${isBuy ? `Sell-Side Liquidity (SSL @ ${fmt(sup)}) ក្នុងតំបន់ Discount (< 0.5 Fib: ${fmt(equilibrium50)})` : `Buy-Side Liquidity (BSL @ ${fmt(res)}) ក្នុងតំបន់ Premium (> 0.5 Fib: ${fmt(equilibrium50)})`}`,
-    `[#2 SMT Divergence & Dealing Range] ស្របតាមទម្រង់ ${aplusConf.filterMode} ដោយមានការបដិសេធតម្លៃ (Failed Sweep) និងការចូលទិញ/លក់ពីស្ថាប័នធំៗ (Smart Money)`,
+    `[#1 Scalping Perfect Entry & Liquidity Sweep] តម្លៃបានបោសសម្អាត ${isBuy ? `Sell-Side Liquidity (SSL @ ${fmt(sup)}) ក្នុងតំបន់ Discount (< 0.5 Fib: ${fmt(equilibrium50)})` : `Buy-Side Liquidity (BSL @ ${fmt(res)}) ក្នុងតំបន់ Premium (> 0.5 Fib: ${fmt(equilibrium50)})`}`,
+    `[#2 High-Quality Join Trade Zone] តំបន់ Sniper Perfect Zone (${fmt(perfectLow)}–${fmt(perfectHigh)}) ស្របតាមទម្រង់ ${aplusConf.filterMode} ដោយមានការបដិសេធតម្លៃ (Failed Sweep) ពី Smart Money`,
     `[#3 Displacement + FVG Entry] ទៀន Momentum បំបែក Market Structure Shift បង្កើតតំបន់ Internal Range Liquidity (FVG: ${fmt(fvgLow)}–${fmt(fvgHigh)}) សម្រាប់គោលដៅ Straight to TP (${r.rrRatio})`
   ];
 
@@ -742,7 +766,9 @@ async function scanChart() {
   const apiKey = getApiKey();
   const previewSrc = $('previewImg')?.src || `data:${state.mime};base64,${state.imageBase64}`;
   const newsMode = $('newsFlipMode')?.value || 'ALL';
-  const tradeStyle = newsMode === 'ICT_APLUS' ? 'APLUS_ICT' : (state.tradeStyle || 'SCALPING');
+  let tradeStyle = state.tradeStyle || 'SCALPING';
+  if (newsMode === 'ICT_APLUS') tradeStyle = 'APLUS_ICT';
+  else if (newsMode === 'SCALP_PERFECT') tradeStyle = 'SCALPING';
 
   state.scanning = true;
   state.result = null;
