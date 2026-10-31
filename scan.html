@@ -1289,25 +1289,28 @@
   </div>
 
   <!-- Footer / Admin Link -->
-  <div class="mt-8 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500 relative z-10 px-4">
-    <a href="index.html" class="text-[#00ffff] hover:underline font-bold flex items-center gap-1">
-      <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Main Dashboard
-    </a>
-    <span>•</span>
-    <span>© 2026 Por - SNR Scanner</span>
-    <span>•</span>
-    <a href="https://t.me/KaingChungpor" target="_blank" class="text-cyan-400 hover:underline flex items-center gap-1">
-      <i data-lucide="send" class="w-3.5 h-3.5"></i>Telegram: @KaingChungpor
-    </a>
-    <span>•</span>
-    <button id="btnAdmin" class="hover:text-slate-300 flex items-center gap-1 transition-colors cursor-pointer">
-      <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i>Admin បង្កើត KEY
-    </button>
-    <span>•</span>
-    <button id="btnApi" class="hover:text-slate-300 flex items-center gap-1 transition-colors cursor-pointer">
-      <i data-lucide="key" class="w-3.5 h-3.5"></i>API Key
-    </button>
-  </div>
+  <footer class="site-footer-box bg-[#111726] border border-cyan-500/35 rounded-[24px] p-4 sm:p-5 shadow-xl relative z-10">
+    <div class="footer-top">
+      <a href="index.html" class="footer-pill footer-pill-main">
+        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Main Dashboard
+      </a>
+      <span class="footer-copy">© 2026 Por - SNR Scanner</span>
+    </div>
+
+    <div class="footer-divider"></div>
+
+    <div class="footer-links">
+      <a href="https://t.me/KaingChungpor" target="_blank" rel="noopener noreferrer" class="footer-pill footer-pill-tg">
+        <i data-lucide="send" class="w-3.5 h-3.5"></i>Telegram: @KaingChungpor
+      </a>
+      <button id="btnAdmin" type="button" class="footer-pill footer-pill-admin">
+        <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i>Admin បង្កើត KEY
+      </button>
+      <button id="btnApi" type="button" class="footer-pill footer-pill-api">
+        <i data-lucide="key" class="w-3.5 h-3.5"></i>API Key
+      </button>
+    </div>
+  </footer>
 
   <!-- MODAL: SELF-BUY KEY GUIDE -->
   <div id="selfBuyGuideModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">

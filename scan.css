@@ -1204,3 +1204,69 @@ body.fx-tint { box-shadow: inset 0 0 120px rgb(var(--fx-rgb, 34,211,238) / .22);
   #btnOpenReceiveKey::after,#btnJumpHistoryLobby::after,#btnLocked::after,
   #unlockedBox > div::after,.hp-guide-btn::after{animation:none}
 }
+
+/* ========================================================= */
+/* FOOTER BOX                                                */
+/* ========================================================= */
+.site-footer-box{
+  width:100%;
+  margin-top:2rem;
+  margin-bottom:5.5rem;            /* keeps the floating bot button clear of the box */
+  text-align:center;
+}
+.site-footer-box .footer-top{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:.75rem;
+}
+.site-footer-box .footer-copy{
+  color:var(--muted);
+  font-size:.75rem;
+  font-weight:600;
+  letter-spacing:.01em;
+}
+.site-footer-box .footer-divider{
+  height:1px;
+  margin:.9rem 0;
+  background:linear-gradient(90deg,transparent,rgba(24,255,255,.4),transparent);
+}
+.site-footer-box .footer-links{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:.6rem;
+}
+.footer-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:.4rem;
+  padding:.6rem .85rem;
+  border-radius:14px;
+  font-size:.75rem;
+  font-weight:700;
+  line-height:1.25;
+  text-decoration:none;
+  cursor:pointer;
+  background:linear-gradient(180deg,rgba(17,28,52,.95),rgba(9,15,29,.97));
+  border:1px solid var(--pill-edge,rgba(56,189,248,.35));
+  color:var(--pill-text,#7dd3fc);
+  box-shadow:0 8px 20px -10px rgba(0,0,0,.8),inset 0 1px 1px rgba(255,255,255,.08);
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease,filter .2s ease;
+}
+.footer-pill:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.12);
+  box-shadow:0 0 22px var(--pill-glow,rgba(24,255,255,.3)),inset 0 1px 1px rgba(255,255,255,.15);
+}
+.footer-pill:active{transform:translateY(0) scale(.97)}
+.footer-pill-main{--pill-edge:rgba(24,255,255,.55);--pill-text:#18ffff;--pill-glow:rgba(24,255,255,.35)}
+.footer-pill-tg{--pill-edge:rgba(56,189,248,.5);--pill-text:#38bdf8;--pill-glow:rgba(56,189,248,.35)}
+.footer-pill-admin{--pill-edge:rgba(251,191,36,.5);--pill-text:#fbbf24;--pill-glow:rgba(251,191,36,.35)}
+.footer-pill-api{--pill-edge:rgba(167,139,250,.5);--pill-text:#c4b5fd;--pill-glow:rgba(167,139,250,.35)}
+
+@media (max-width:560px){
+  .site-footer-box .footer-top{justify-content:center;flex-direction:column}
+  .site-footer-box .footer-links{grid-template-columns:1fr}
+}
