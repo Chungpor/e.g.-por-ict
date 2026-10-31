@@ -916,7 +916,7 @@
   </div>
 
   <!-- ==========================================
-       VIEW 2B: POR ICT NEWS (MARKET NEWS & FOREX FACTORY)
+       VIEW 2B: POR ICT NEWS (USD FOCUS & FOREX FACTORY)
        ========================================== -->
   <div id="newsView" class="dashboard-page-container hidden">
     <div class="dashboard-inner">
@@ -964,16 +964,21 @@
               </div>
             </div>
 
-            <a 
-              href="https://www.forexfactory.com/" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              class="ff-direct-cta-btn" 
-              id="ffCalendarExternalBtn"
-            >
-              <span>Visit ForexFactory.com</span>
-              <span class="cta-arrow">↗</span>
-            </a>
+            <div class="ff-cta-buttons-row">
+              <button type="button" class="ff-sync-now-btn" id="syncForexFactoryBtn">
+                <span>🔄 Sync Forex Factory</span>
+              </button>
+              <a 
+                href="https://www.forexfactory.com/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                class="ff-direct-cta-btn" 
+                id="ffCalendarExternalBtn"
+              >
+                <span>Visit ForexFactory.com</span>
+                <span class="cta-arrow">↗</span>
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -981,26 +986,18 @@
       <!-- MARKET NEWS HEADER -->
       <header class="news-main-header">
         <div class="header-titles-wrap">
-          <span class="news-kicker-tag" data-i18n="news_kicker">LIVE NEWSWIRE · ព័ត៌មានទីផ្សារ</span>
+          <span class="news-kicker-tag" data-i18n="news_kicker">USD FOCUS &amp; FOREX FACTORY · ព័ត៌មានទីផ្សារ</span>
           <h1 class="news-headline-title">
-            <span class="headline-en" data-i18n="news_main_title">Market news</span>
+            <span class="headline-en" data-i18n="news_main_title">Por ICT News</span>
             <span class="headline-divider">/</span>
             <span class="headline-kh">ព័ត៌មានទីផ្សារ</span>
           </h1>
           <p class="news-sub-description" data-i18n="news_sub_desc">
-            Real-time market-moving headlines, translated to Khmer and scored for impact. Focused on USD currency pairs.
+            Real-time Forex Factory economic releases &amp; macro headlines scored for Gold, USD, Crypto, Oil, and Stocks impact.
           </p>
         </div>
 
         <div class="news-header-actions">
-          <div class="news-view-switch-tabs">
-            <button type="button" class="view-switch-tab-btn active" id="tabHotNewsBtn">
-              <span>🔥 Hot news</span>
-            </button>
-            <button type="button" class="view-switch-tab-btn" id="tabNewswireBtn">
-              <span>📰 Live newswire</span>
-            </button>
-          </div>
           <button type="button" class="json-api-pill-btn" id="jsonApiBtn">
             <span class="code-brackets">&lt;&gt;</span>
             <span>JSON API</span>
@@ -1013,7 +1010,7 @@
         <div class="filter-pills-container" id="newsFiltersContainer">
           <button type="button" class="filter-pill-btn active" data-filter="all" data-i18n="filter_all">All</button>
           <button type="button" class="filter-pill-btn usd-focus-btn" data-filter="usd" data-i18n="filter_usd_only">
-            💵 USD Only (Hot)
+            💵 USD Focus
           </button>
           <button type="button" class="filter-pill-btn" data-filter="high" data-i18n="filter_high">
             <span class="impact-bullet red">●</span> High Impact
@@ -1032,29 +1029,37 @@
         </div>
       </div>
 
-      <!-- SECTION: POR ICT HOT READS -->
-      <section class="hot-reads-container-card" id="hotReadsSection">
-        <div class="hot-reads-card-header">
-          <div class="hot-reads-brand-left">
-            <span class="fire-icon-badge">🔥</span>
-            <h2 class="hot-reads-brand-title" id="hotReadsTitle">Por ICT Hot reads</h2>
+      <!-- TERMINAL NEWS BOARD (MATCHING SCREENSHOT: HOT NEWS / LIVE NEWSWIRE TABS + ● LIVE · JUST NOW) -->
+      <section class="hot-reads-container-card terminal-news-board">
+        <div class="hot-reads-card-header terminal-tabs-header">
+          <div class="terminal-tabs-left">
+            <button type="button" class="terminal-tab-pill active" id="tabHotNewsBtn">
+              <span class="tab-fire-dot">🔥</span>
+              <span>Hot news</span>
+            </button>
+            <button type="button" class="terminal-tab-pill" id="tabNewswireBtn">
+              <span class="tab-wire-ico">📰</span>
+              <span>Live newswire</span>
+            </button>
           </div>
           <div class="hot-reads-badge-right">
-            <span class="live-pulsing-tag">● LIVE · JUST NOW</span>
+            <span class="live-pulsing-tag"><span class="live-dot-inline">●</span> LIVE · JUST NOW</span>
           </div>
         </div>
 
-        <div class="hot-news-stack-list" id="hotNewsItemsList"></div>
-      </section>
-
-      <!-- SECTION: LIVE USD MARKET NEWSWIRE GRID -->
-      <section class="market-wire-grid-section" id="newswireSection">
-        <div class="section-title-strip">
-          <h3 class="strip-heading" data-i18n="title_usd_wire">USD Economic Newswire Feed</h3>
-          <span class="strip-count" id="newsFeedCounter">Showing headlines</span>
+        <!-- TAB 1: HOT NEWS STACK LIST -->
+        <div id="hotReadsSection">
+          <div class="hot-news-stack-list" id="hotNewsItemsList"></div>
         </div>
 
-        <div class="wire-cards-grid" id="wireCardsGrid"></div>
+        <!-- TAB 2: LIVE USD MARKET NEWSWIRE GRID -->
+        <div class="market-wire-grid-section hidden" id="newswireSection">
+          <div class="section-title-strip">
+            <h3 class="strip-heading" data-i18n="title_usd_wire">Forex Factory &amp; USD Economic Newswire Feed</h3>
+            <span class="strip-count" id="newsFeedCounter">Showing headlines</span>
+          </div>
+          <div class="wire-cards-grid" id="wireCardsGrid"></div>
+        </div>
       </section>
 
     </div>
@@ -1482,14 +1487,12 @@
        ========================================== -->
   <script>
     (function () {
-      // 1. Clone Marquee Content for Seamless Loop
       const marqueePrimary = document.getElementById('marqueePrimary');
       const marqueeClone = document.getElementById('marqueeClone');
       if (marqueePrimary && marqueeClone) {
         marqueeClone.innerHTML = marqueePrimary.innerHTML;
       }
 
-      // 2. Real Market Data State (Synced with Oct 28, 2026 Live Market Levels; continuously updated via Live APIs)
       const marketAssets = [
         { symbol: 'XAUUSD', binanceSym: 'PAXGUSDT', yahooSym: 'GC=F', name: 'Gold Spot / USD', price: 4029.80, prevClose: 4018.15, change: 0.29, decimals: 2, step: 0.35, trend: 'uptrend', structure: 'HH + HL (Bullish BOS)' },
         { symbol: 'XAGUSD', binanceSym: null, yahooSym: 'SI=F', name: 'Silver Spot / USD', price: 54.50, prevClose: 54.13, change: 0.68, decimals: 2, step: 0.03, trend: 'uptrend', structure: 'HH + HL (Bullish Shift)' },
@@ -1507,7 +1510,7 @@
 
       let currentTrendFilter = 'all';
       let activeChartSymbol = 'XAUUSD';
-      let activeTimeframeMinutes = 15; // Default 15m (ICT)
+      let activeTimeframeMinutes = 15;
       let lastPaxgPrice = null;
 
       function formatPrice(val, decimals) {
@@ -1527,7 +1530,6 @@
         }
       }
 
-      // Generate SVG path for Uptrend or Downtrend mini chart
       function getSparklinePath(isUp) {
         if (isUp) {
           return 'M 0 34 C 30 32, 55 24, 85 26 C 115 28, 145 14, 175 10 L 200 5';
@@ -1535,7 +1537,6 @@
         return 'M 0 6 C 30 10, 55 18, 85 15 C 115 12, 145 26, 175 30 L 200 35';
       }
 
-      // 3. Render Dashboard Market Uptrend & Downtrend Cards (Includes both XAUUSD & XAGUSD Silver)
       const gridEl = document.getElementById('marketTrendCardsGrid');
       const dashboardPairs = ['XAUUSD', 'XAGUSD', 'BTCUSD', 'NAS100', 'EURUSD', 'ETHUSDT'];
 
@@ -1583,12 +1584,10 @@
         }).join('');
       }
 
-      // Update single card & marquee DOM without re-rendering full grid
       function updateAssetDom(asset, tickUp) {
         const isUp = asset.trend === 'uptrend';
         const sign = asset.change >= 0 ? '+' : '';
 
-        // Update Top Marquee Ticker
         const marqueeNodes = document.querySelectorAll(`[data-ticker="${asset.symbol}"]`);
         marqueeNodes.forEach(node => {
           const priceEl = node.querySelector('.t-price');
@@ -1608,7 +1607,6 @@
           node.classList.add(tickUp ? 'tick-flash-up' : 'tick-flash-down');
         });
 
-        // Update Dashboard Card if visible
         const cardEl = document.querySelector(`[data-card-sym="${asset.symbol}"]`);
         const priceEl = document.querySelector(`[data-price-sym="${asset.symbol}"]`);
         const chgEl = document.querySelector(`[data-chg-sym="${asset.symbol}"]`);
@@ -1641,7 +1639,6 @@
           structEl.textContent = asset.structure;
         }
 
-        // Sync Live Chart Header if this asset is currently selected
         const mappedSym = asset.symbol === 'BTCUSD' ? 'BTCUSDT' : asset.symbol;
         if (activeChartSymbol === asset.symbol || activeChartSymbol === mappedSym) {
           const lcTopPrice = document.getElementById('lcTopLivePrice');
@@ -1671,7 +1668,6 @@
         renderMarketTrendGrid();
       };
 
-      // Filter buttons in Dashboard
       const filterContainer = document.getElementById('trendPulseFilters');
       if (filterContainer) {
         filterContainer.querySelectorAll('.trend-filter-btn').forEach(btn => {
@@ -1684,8 +1680,6 @@
         });
       }
 
-      // 4A. REAL-TIME XAUUSD (GOLD) & XAGUSD (SILVER) MULTI-SOURCE SPOT FETCHER
-      // Uses Swissquote Institutional BBO Feed + GoldPrice.org Live Spot API + Yahoo Finance Spot/Futures
       async function fetchYahooQuoteWithFallback(ticker) {
         const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1m&range=1d`;
         const endpoints = [
@@ -1705,15 +1699,12 @@
               const changePct = prev ? ((price - prev) / prev) * 100 : 0;
               return { price, prevClose: prev, changePct, marketState: meta.marketState || 'REGULAR' };
             }
-          } catch (e) {
-            // Try next proxy
-          }
+          } catch (e) {}
         }
         return null;
       }
 
       async function fetchSwissquoteMetalMidPrice(metalCode) {
-        // Swissquote Public Institutional BBO Feed (CORS enabled natively)
         const sqUrl = `https://forex-data-feed.swissquote.com/public-quotes/bboquotes/instrument/${metalCode}/USD`;
         try {
           const res = await fetch(sqUrl, { cache: 'no-store' });
@@ -1730,12 +1721,8 @@
       }
 
       async function fetchGoldPriceOrgSpot() {
-        // GoldPrice.org Direct Spot Feed for XAUUSD & XAGUSD
         const gpUrl = 'https://data-asg.goldprice.org/dbXRates/USD';
-        const urls = [
-          gpUrl,
-          `https://corsproxy.io/?${encodeURIComponent(gpUrl)}`
-        ];
+        const urls = [gpUrl, `https://corsproxy.io/?${encodeURIComponent(gpUrl)}`];
         for (const u of urls) {
           try {
             const res = await fetch(u, { cache: 'no-store' });
@@ -1761,7 +1748,6 @@
         let xauUpdated = false;
         let xagUpdated = false;
 
-        // 1. Try GoldPrice.org Spot API (Provides both exact Spot Price & 24h % Change for XAUUSD and XAGUSD)
         const gpSpot = await fetchGoldPriceOrgSpot();
         if (gpSpot) {
           if (xauAsset && !isNaN(gpSpot.xauPrice) && gpSpot.xauPrice > 1000) {
@@ -1782,7 +1768,6 @@
           }
         }
 
-        // 2. Try Swissquote Live Institutional Bid/Ask Mid-Price for sub-second precision
         const [sqXau, sqXag] = await Promise.all([
           fetchSwissquoteMetalMidPrice('XAU'),
           fetchSwissquoteMetalMidPrice('XAG')
@@ -1810,7 +1795,6 @@
           xagUpdated = true;
         }
 
-        // 3. Fallback to Yahoo Finance Spot/Futures (GC=F & SI=F) if needed
         if (!xauUpdated || !xagUpdated) {
           const [yfGold, yfSilver] = await Promise.all([
             !xauUpdated ? fetchYahooQuoteWithFallback('GC=F') : Promise.resolve(null),
@@ -1837,14 +1821,11 @@
         }
       }
 
-      // 4B. REAL-TIME NASDAQ (^NDX & NQ=F 24/5 FUTURES) + CRUDE OIL FETCHER
       let lastNqFuturesPrice = null;
 
       async function fetchLiveNasdaqAndMacro() {
-        // 1. Fetch Real-Time Gold (XAUUSD) & Silver (XAGUSD) Spot
         await fetchLiveGoldAndSilverSpot();
 
-        // 2. Fetch Real-Time NASDAQ 100 Index (^NDX) & 24/5 E-mini Nasdaq Futures (NQ=F)
         try {
           const [ndxQuote, nqQuote, oilQuote] = await Promise.all([
             fetchYahooQuoteWithFallback('^NDX'),
@@ -1900,9 +1881,7 @@
         }
       }
 
-      // 4C. REAL LIVE CRYPTO & FOREX SNAPSHOTS (Binance REST + Open FX API)
       async function fetchInitialLiveSnapshots() {
-        // A. Fetch Binance 24hr Ticker Snapshot for Crypto Pairs
         try {
           const symbolsParam = JSON.stringify(['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 'XRPUSDT', 'EURUSDT']);
           const res = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(symbolsParam)}`);
@@ -1924,7 +1903,6 @@
           console.warn('Binance REST snapshot fallback active:', err);
         }
 
-        // B. Fetch Real Forex Rates (EURUSD, GBPUSD) from Open ExchangeRate API
         try {
           const fxRes = await fetch('https://open.er-api.com/v6/latest/USD');
           if (fxRes.ok) {
@@ -1952,7 +1930,6 @@
           console.warn('FX API fallback active:', err);
         }
 
-        // C. Fetch Real-Time XAUUSD, XAGUSD (Silver), NASDAQ 100 & Oil
         await fetchLiveNasdaqAndMacro();
 
         renderMarketTrendGrid();
@@ -1960,7 +1937,6 @@
         applyLiveChartTrend(activeAsset.trend);
       }
 
-      // Connect Real-Time Binance WebSocket Stream (Applies sub-second micro-deltas to XAUUSD & XAGUSD between Spot REST polls)
       let wsConnection = null;
       function connectBinanceWebSocket() {
         const streams = [
@@ -1990,7 +1966,6 @@
               const d = msg.data;
               if (!d || !d.s) return;
 
-              // Sub-second Gold (XAUUSD) & Silver (XAGUSD) tick synchronization using PAXG real-time orderflow delta
               if (d.s === 'PAXGUSDT') {
                 const paxgPrice = parseFloat(d.c);
                 if (!isNaN(paxgPrice) && paxgPrice > 0) {
@@ -2004,7 +1979,7 @@
                         updateAssetDom(xauAsset, delta >= 0);
                       }
                       if (xagAsset) {
-                        const silverDelta = delta * 0.0135; // Proportional Gold/Silver beta tick
+                        const silverDelta = delta * 0.0135;
                         xagAsset.price = Math.max(10, xagAsset.price + silverDelta);
                         updateAssetDom(xagAsset, silverDelta >= 0);
                       }
@@ -2047,7 +2022,6 @@
         });
       }
 
-      // 5. Live Chart Uptrend / Downtrend Mode Switcher
       function applyLiveChartTrend(mode) {
         const isUp = mode === 'uptrend';
         const currentAsset = marketAssets.find(a => a.symbol === activeChartSymbol || (activeChartSymbol === 'BTCUSDT' && a.symbol === 'BTCUSD')) || marketAssets[0];
@@ -2104,7 +2078,7 @@
           dirBadge.textContent = isUp ? 'BUY' : 'SELL';
         }
 
-        const riskOffset = p * 0.0025; // 0.25% dynamic stop distance
+        const riskOffset = p * 0.0025;
         const sl = isUp ? p - riskOffset : p + riskOffset;
         const tp1 = isUp ? p + riskOffset * 1.4 : p - riskOffset * 1.4;
         const tp2 = isUp ? p + riskOffset * 2.1 : p - riskOffset * 2.1;
@@ -2127,7 +2101,6 @@
       if (upBtn) upBtn.addEventListener('click', () => applyLiveChartTrend('uptrend'));
       if (downBtn) downBtn.addEventListener('click', () => applyLiveChartTrend('downtrend'));
 
-      // Listen to Asset & Timeframe Pill Clicks on Live Chart
       const assetPillsTrack = document.getElementById('assetPillsTrack');
       if (assetPillsTrack) {
         assetPillsTrack.querySelectorAll('.chart-pill-btn').forEach(btn => {
@@ -2153,7 +2126,6 @@
         });
       }
 
-      // 6. REAL LIVE TIME ENGINE (Phnom Penh ICT Clock, Active Session & Candle Close Countdown)
       function getActiveForexSession(utcHour) {
         if (utcHour >= 12 && utcHour < 16) return 'LONDON + NY OVERLAP 🔥';
         if (utcHour >= 7 && utcHour < 16) return 'LONDON SESSION ACTIVE';
@@ -2165,7 +2137,6 @@
       function updateLiveClocksAndSession() {
         const now = new Date();
 
-        // A. Update Real Live ICT Clock (Asia/Phnom_Penh UTC+7)
         const ictClockEl = document.getElementById('liveIctClock');
         if (ictClockEl) {
           const timeStr = now.toLocaleTimeString('en-GB', {
@@ -2184,13 +2155,11 @@
           ictClockEl.textContent = `${dateStr} · ${timeStr} ICT`;
         }
 
-        // B. Update Real Active Forex Session Tag
         const sessionTagEl = document.getElementById('currentSessionTag');
         if (sessionTagEl) {
           sessionTagEl.textContent = getActiveForexSession(now.getUTCHours());
         }
 
-        // C. Update Real Candle Close Countdown (#lcTimeLeftPill)
         const timeLeftPill = document.getElementById('lcTimeLeftPill');
         if (timeLeftPill) {
           const periodSec = activeTimeframeMinutes * 60;
@@ -2208,22 +2177,14 @@
         }
       }
 
-      // Initialize Everything Immediately
       renderMarketTrendGrid();
       updateLiveClocksAndSession();
       fetchInitialLiveSnapshots();
       connectBinanceWebSocket();
 
-      // Tick Real Live Clock & Candle Countdown every 1 second
       setInterval(updateLiveClocksAndSession, 1000);
-
-      // Poll Real-Time XAUUSD (Gold) & XAGUSD (Silver) Spot every 5 seconds
       setInterval(fetchLiveGoldAndSilverSpot, 5000);
-
-      // Poll Real-Time NASDAQ (^NDX / NQ=F) & Crude Oil every 10 seconds
       setInterval(fetchLiveNasdaqAndMacro, 10000);
-
-      // Refresh REST FX & Crypto Snapshots every 20 seconds
       setInterval(fetchInitialLiveSnapshots, 20000);
     })();
   </script>

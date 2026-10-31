@@ -2683,7 +2683,9 @@ button.product-chart-btn {
   font-weight: 600;
 }
 
-/* FOREX FACTORY OFFICIAL LIVE BANNER */
+/* ========================================================
+   FOREX FACTORY OFFICIAL LIVE BANNER
+   ======================================================== */
 .ff-official-banner-card {
   background: linear-gradient(135deg, rgba(20, 24, 38, 0.98) 0%, rgba(13, 20, 32, 0.98) 100%);
   border: 1.5px solid rgba(56, 189, 248, 0.35);
@@ -2818,6 +2820,7 @@ button.product-chart-btn {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .legend-pill {
@@ -2857,9 +2860,53 @@ button.product-chart-btn {
 .impact-indicator-dot.orange { background: var(--warning-amber); box-shadow: 0 0 6px var(--warning-amber); }
 .impact-indicator-dot.yellow { background: #eab308; box-shadow: 0 0 6px #eab308; }
 
+.ff-cta-buttons-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ff-sync-now-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 16px;
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.48);
+  border-radius: 12px;
+  color: #fbbf24;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.22s ease, background-color 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.ff-sync-now-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: rgba(245, 158, 11, 0.24);
+  border-color: #fbbf24;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.28);
+}
+
+.ff-sync-now-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+[data-theme="light"] .ff-sync-now-btn {
+  background: rgba(217, 119, 6, 0.1);
+  border-color: rgba(217, 119, 6, 0.45);
+  color: #b45309;
+}
+
 .ff-direct-cta-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 9px 18px;
   background: linear-gradient(135deg, #0284c7 0%, var(--teal-accent) 100%);
@@ -2880,19 +2927,22 @@ button.product-chart-btn {
 
 .cta-arrow { font-size: 14px; }
 
-/* MARKET NEWS HEADER */
+/* ========================================================
+   POR ICT NEWS HEADER & FILTER TOOLBAR
+   ======================================================== */
 .news-main-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   gap: 16px;
   margin-top: 4px;
+  flex-wrap: wrap;
 }
 
 .news-kicker-tag {
   font-size: 11px;
   font-weight: 800;
-  color: var(--sky-blue);
+  color: var(--warning-amber);
   letter-spacing: 1px;
   text-transform: uppercase;
 }
@@ -2968,6 +3018,12 @@ button.product-chart-btn {
   align-items: center;
   gap: 6px;
   cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.json-api-pill-btn:hover {
+  border-color: var(--sky-blue);
+  transform: translateY(-1px);
 }
 
 .code-brackets { color: var(--sky-blue); font-weight: 800; }
@@ -3001,6 +3057,7 @@ button.product-chart-btn {
   align-items: center;
   gap: 6px;
   font-family: inherit;
+  transition: all 0.2s ease;
 }
 
 .filter-pill-btn:hover {
@@ -3021,9 +3078,15 @@ button.product-chart-btn {
 }
 
 .usd-focus-btn.active {
-  background: linear-gradient(135deg, rgba(2, 132, 199, 0.25) 0%, rgba(13, 148, 136, 0.25) 100%);
-  border-color: var(--sky-blue);
-  color: var(--sky-blue);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(2, 132, 199, 0.22) 100%);
+  border-color: var(--warning-amber);
+  color: #fbbf24;
+}
+
+[data-theme="light"] .usd-focus-btn.active {
+  background: rgba(217, 119, 6, 0.14);
+  border-color: #d97706;
+  color: #b45309;
 }
 
 .impact-bullet { font-size: 10px; }
@@ -3061,24 +3124,102 @@ button.product-chart-btn {
   color: var(--text-sub);
 }
 
-/* POR ICT HOT READS */
-.hot-reads-container-card {
-  background: var(--bg-card);
-  border: 1px solid var(--card-border);
-  border-radius: 20px;
-  padding: 22px 24px;
-  box-shadow: var(--card-shadow);
+/* ========================================================
+   POR ICT TERMINAL NEWS BOARD (MATCHES SCREENSHOT)
+   ======================================================== */
+.hot-reads-container-card,
+.terminal-news-board {
+  background: #0a0c10;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 18px;
+  padding: 0;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.65);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 0;
+  overflow: hidden;
 }
 
-.hot-reads-card-header {
+[data-theme="light"] .hot-reads-container-card,
+[data-theme="light"] .terminal-news-board {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 26px rgba(15, 23, 42, 0.06);
+}
+
+.hot-reads-card-header,
+.terminal-tabs-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--card-border);
-  padding-bottom: 14px;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 14px 22px;
+  background: rgba(15, 18, 25, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .hot-reads-card-header,
+[data-theme="light"] .terminal-tabs-header {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.terminal-tabs-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.terminal-tab-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #94a3b8;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.terminal-tab-pill:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.terminal-tab-pill.active {
+  background: #171a22;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="light"] .terminal-tab-pill {
+  color: #64748b;
+}
+
+[data-theme="light"] .terminal-tab-pill:hover {
+  color: #0f172a;
+  background: rgba(15, 23, 42, 0.04);
+}
+
+[data-theme="light"] .terminal-tab-pill.active {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+.tab-fire-dot,
+.tab-wire-ico {
+  font-size: 14px;
+  line-height: 1;
 }
 
 .hot-reads-brand-left {
@@ -3102,82 +3243,186 @@ button.product-chart-btn {
   letter-spacing: -0.2px;
 }
 
-.live-pulsing-tag {
-  font-size: 11.5px;
-  font-weight: 800;
-  color: var(--emerald-green);
-  letter-spacing: 0.8px;
+.hot-reads-badge-right {
+  display: flex;
+  align-items: center;
 }
 
+.live-pulsing-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+}
+
+.live-dot-inline {
+  color: #10b981;
+  font-size: 11px;
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.85);
+  animation: pulseDot 1.5s infinite ease-in-out;
+}
+
+/* HOT NEWS STACK LIST (TERMINAL ROWS) */
 .hot-news-stack-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 0;
 }
 
-.hot-news-item-card {
+.hot-news-item-card,
+.terminal-news-row {
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  padding: 18px 20px;
-  border-radius: 14px;
-  background: var(--input-bg);
-  border: 1px solid var(--card-border);
-  transition: border-color 0.22s ease, transform 0.22s ease;
+  padding: 20px 24px;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  transition: background-color 0.2s ease;
 }
 
-.hot-news-item-card:hover {
-  border-color: rgba(56, 189, 248, 0.4);
-  transform: translateY(-2px);
+.hot-news-item-card:last-child,
+.terminal-news-row:last-child {
+  border-bottom: none;
 }
 
+.hot-news-item-card:hover,
+.terminal-news-row:hover {
+  background: rgba(255, 255, 255, 0.025);
+  transform: none;
+}
+
+[data-theme="light"] .hot-news-item-card,
+[data-theme="light"] .terminal-news-row {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+[data-theme="light"] .hot-news-item-card:hover,
+[data-theme="light"] .terminal-news-row:hover {
+  background: #f8fafc;
+}
+
+/* HIGH / MEDIUM / LOW IMPACT PILLS (MATCHING SCREENSHOT) */
 .impact-badge-pill {
   font-size: 11px;
   font-weight: 800;
   padding: 4px 10px;
-  border-radius: 8px;
+  border-radius: 7px;
   letter-spacing: 0.6px;
   flex-shrink: 0;
   margin-top: 2px;
+  text-transform: uppercase;
+  line-height: 1.2;
 }
 
 .impact-badge-pill.high {
-  background: rgba(239, 68, 68, 0.16);
-  border: 1px solid rgba(239, 68, 68, 0.45);
-  color: var(--danger-soft);
+  background: rgba(127, 29, 29, 0.35);
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  color: #f87171;
 }
 
 .impact-badge-pill.medium {
-  background: rgba(245, 158, 11, 0.16);
-  border: 1px solid rgba(245, 158, 11, 0.45);
-  color: var(--warning-amber);
+  background: rgba(120, 53, 15, 0.35);
+  border: 1px solid rgba(245, 158, 11, 0.55);
+  color: #fbbf24;
 }
 
 .impact-badge-pill.low {
-  background: rgba(234, 179, 8, 0.14);
-  border: 1px solid rgba(234, 179, 8, 0.38);
-  color: var(--low-yellow);
+  background: rgba(113, 63, 18, 0.3);
+  border: 1px solid rgba(234, 179, 8, 0.45);
+  color: #fde047;
+}
+
+[data-theme="light"] .impact-badge-pill.high {
+  background: #fee2e2;
+  border-color: #f87171;
+  color: #b91c1c;
+}
+
+[data-theme="light"] .impact-badge-pill.medium {
+  background: #fef3c7;
+  border-color: #fbbf24;
+  color: #b45309;
+}
+
+[data-theme="light"] .impact-badge-pill.low {
+  background: #fef9c3;
+  border-color: #facc15;
+  color: #854d0e;
 }
 
 .hot-item-content {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
   flex: 1;
+  min-width: 0;
 }
 
 .hot-item-title {
-  font-size: 15.5px;
-  font-weight: 700;
-  color: var(--text-main);
-  line-height: 1.4;
+  font-size: 16px;
+  font-weight: 800;
+  color: #f8fafc;
+  line-height: 1.38;
+  letter-spacing: -0.2px;
 }
 
+[data-theme="light"] .hot-item-title {
+  color: #0f172a;
+}
+
+/* INLINE ASSET SENTIMENT PAIRS (Gold bullish, USD bullish, Crypto bearish...) */
 .hot-meta-tags-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 14px;
   flex-wrap: wrap;
+  margin-top: 1px;
+}
+
+.terminal-sentiment-pair {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  line-height: 1.2;
+}
+
+.sent-asset {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.sent-bull {
+  color: #10b981;
+  font-weight: 800;
+}
+
+.sent-bear {
+  color: #ef4444;
+  font-weight: 800;
+}
+
+.sent-neutral {
+  color: #cbd5e1;
+  font-weight: 700;
+}
+
+[data-theme="light"] .sent-asset {
+  color: #64748b;
+}
+
+[data-theme="light"] .sent-bull {
+  color: #059669;
+}
+
+[data-theme="light"] .sent-bear {
+  color: #dc2626;
 }
 
 .market-sentiment-tag {
@@ -3203,48 +3448,75 @@ button.product-chart-btn {
 }
 
 .por-wire-source-tag {
-  font-size: 11px;
-  color: var(--text-muted);
-  font-weight: 700;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
 }
 
+/* CATALYST SUMMARY LINE (Golden-amber prefix + clean body text) */
 .hot-item-catalyst-summary {
-  font-size: 13px;
-  color: var(--text-sub);
-  line-height: 1.45;
+  font-size: 13.5px;
+  color: #cbd5e1;
+  line-height: 1.5;
+  margin-top: 2px;
 }
 
-.hot-item-catalyst-summary strong {
-  color: var(--text-main);
+.hot-item-catalyst-summary strong,
+.catalyst-gold-label {
+  color: #fbbf24 !important;
+  font-weight: 800;
 }
 
+[data-theme="light"] .hot-item-catalyst-summary {
+  color: #334155;
+}
+
+[data-theme="light"] .hot-item-catalyst-summary strong,
+[data-theme="light"] .catalyst-gold-label {
+  color: #d97706 !important;
+}
+
+/* ICT ACTION LINE (⚡ Short AUDUSD and USOIL...) */
 .hot-ict-action-row {
   display: flex;
   align-items: flex-start;
-  gap: 7px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--warning-amber);
-  line-height: 1.4;
-  background: rgba(245, 158, 11, 0.08);
-  border: 1px solid rgba(245, 158, 11, 0.22);
-  padding: 8px 12px;
-  border-radius: 10px;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #f59e0b;
+  line-height: 1.45;
+  background: transparent;
+  border: none;
+  padding: 2px 0 0 0;
+  border-radius: 0;
 }
 
-.ict-bolt { flex-shrink: 0; }
+[data-theme="light"] .hot-ict-action-row {
+  color: #b45309;
+}
 
-/* WIRE CARDS GRID SECTION */
+.ict-bolt {
+  flex-shrink: 0;
+  color: #f97316;
+  font-size: 13px;
+}
+
+/* ========================================================
+   LIVE NEWSWIRE GRID SECTION (TAB 2 INSIDE TERMINAL BOARD)
+   ======================================================== */
 .market-wire-grid-section {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  padding: 20px 24px 24px;
 }
 
 .section-title-strip {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .strip-heading {
@@ -3260,20 +3532,25 @@ button.product-chart-btn {
 
 .wire-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
   gap: 14px;
 }
 
 .wire-news-card {
-  background: var(--bg-card);
+  background: rgba(20, 24, 36, 0.85);
   border: 1px solid var(--card-border);
-  border-radius: 18px;
+  border-radius: 16px;
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   box-shadow: var(--card-shadow);
   transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.24s ease;
+}
+
+[data-theme="light"] .wire-news-card {
+  background: #f8fafc;
+  border-color: #e2e8f0;
 }
 
 .wire-news-card:hover {
@@ -3303,7 +3580,7 @@ button.product-chart-btn {
 }
 
 .wire-english-title {
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 700;
   color: var(--text-main);
   line-height: 1.4;
@@ -3313,7 +3590,7 @@ button.product-chart-btn {
   font-size: 13px;
   color: var(--text-sub);
   line-height: 1.5;
-  font-family: 'Kantumruy Pro', sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Kantumruy Pro', sans-serif;
 }
 
 .wire-asset-tags-group {
@@ -4992,9 +5269,29 @@ button.product-chart-btn {
     width: 100%;
   }
 
+  .ff-cta-buttons-row {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ff-sync-now-btn,
   .ff-direct-cta-btn {
     width: 100%;
     justify-content: center;
+  }
+
+  .terminal-tabs-header {
+    padding: 12px 14px;
+  }
+
+  .hot-news-item-card,
+  .terminal-news-row {
+    padding: 16px 14px;
+  }
+
+  .market-wire-grid-section {
+    padding: 16px 14px;
   }
 
   .wire-cards-grid { grid-template-columns: 1fr; }
@@ -5027,7 +5324,11 @@ button.product-chart-btn {
 @media (max-width: 480px) {
   .news-headline-title { font-size: 24px; }
   .headline-kh { font-size: 20px; }
-  .hot-news-item-card { flex-direction: column; gap: 10px; }
+  .hot-news-item-card,
+  .terminal-news-row {
+    flex-direction: column;
+    gap: 10px;
+  }
 }
 
 @supports (-webkit-touch-callout: none) {

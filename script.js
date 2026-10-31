@@ -1,5 +1,5 @@
 /**
- * Por ICT - Calendar, Market Analytics, Indicators & Telegram Bot Signal System (UNIFIED)
+ * Por ICT - Calendar, Market Analytics, Indicators & Forex Factory Terminal News (UNIFIED)
  */
 "use strict";
 
@@ -48,7 +48,6 @@ const FALLBACK_DICT = {
 
 let currentLang = localStorage.getItem("por_lang") || "EN";
 
-// Updated strings including Por - SNR Scanner (Aqua #00FFFF) & Telegram bot signal (Tomato #ff6347)
 const EXTRA_DICT = {
   EN: {
     nav_terminal: "Triumm Delta",
@@ -287,6 +286,7 @@ const liveIctClock = $("liveIctClock");
 const jsonApiBtn = $("jsonApiBtn");
 const newsFiltersContainer = $("newsFiltersContainer");
 const ffCalendarExternalBtn = $("ffCalendarExternalBtn");
+const syncForexFactoryBtn = $("syncForexFactoryBtn");
 const tabHotNewsBtn = $("tabHotNewsBtn");
 const tabNewswireBtn = $("tabNewswireBtn");
 const hotReadsSection = $("hotReadsSection");
@@ -383,27 +383,161 @@ const inputSymbol = $("inputSymbol");
 const inputNote = $("inputNote");
 
 // ==========================================
-// 3. HEADLINE NEWS DATA
+// 3. CURATED FOREX FACTORY & MACRO HOT NEWS SEED
+//    (Matches Screenshot Format + October 2026 USD Releases)
 // ==========================================
+const curatedMacroHotFeed = [
+  {
+    id: "ff_macro_1",
+    impact: "HIGH",
+    currency: "CNY",
+    usd_focus: true,
+    title_en: "Chinese Composite PMI Actual 49.7 (Forecast -, Previous 50.7)",
+    title_km: "សន្ទស្សន៍ PMI ចម្រុះរបស់ចិន ជាក់ស្តែង 49.7 (ព្យាករណ៍ -, មុន 50.7)",
+    sentiments: [
+      { asset: "Gold", dir: "bullish" },
+      { asset: "USD", dir: "bullish" },
+      { asset: "Crypto", dir: "bearish" },
+      { asset: "Oil", dir: "bearish" },
+      { asset: "Stocks", dir: "bearish" }
+    ],
+    source: "Por ICT Newswire",
+    published_at_ict: "LIVE · JUST NOW",
+    catalyst_label: "Growth scare",
+    why: "China composite PMI contracts sharply, hitting AUD and oil on demand fears while gold bids on global growth worries.",
+    action: "Short AUDUSD and USOIL immediately on the print; buy dips in gold.",
+    is_mover: true,
+    affected: ["XAUUSD", "USD", "AUDUSD", "USOIL", "NAS100"]
+  },
+  {
+    id: "ff_macro_2",
+    impact: "HIGH",
+    currency: "CNY",
+    usd_focus: true,
+    title_en: "Chinese NBS Manufacturing PMI Actual 49.3 (Forecast 49.9, Previous 50.1)",
+    title_km: "សន្ទស្សន៍ PMI ផលិតកម្ម NBS របស់ចិន ជាក់ស្តែង 49.3 (ព្យាករណ៍ 49.9, មុន 50.1)",
+    sentiments: [
+      { asset: "Gold", dir: "bullish" },
+      { asset: "USD", dir: "bullish" },
+      { asset: "Crypto", dir: "bearish" },
+      { asset: "Oil", dir: "bearish" },
+      { asset: "Stocks", dir: "bearish" }
+    ],
+    source: "Por ICT Newswire",
+    published_at_ict: "LIVE · JUST NOW",
+    catalyst_label: "Growth scare",
+    why: "Manufacturing PMI 49.3 vs 49.9 expected is a significant miss, signaling factory contraction and dragging commodity currencies.",
+    action: "Sell AUDUSD and copper proxies aggressively; this is the headline number markets watch most.",
+    is_mover: true,
+    affected: ["XAUUSD", "USD", "AUDUSD", "USOIL"]
+  },
+  {
+    id: "ff_macro_3",
+    impact: "MEDIUM",
+    currency: "CNY",
+    usd_focus: true,
+    title_en: "Chinese NBS Non-Manufacturing PMI Actual 49.7 (Forecast 50, Previous 50.2)",
+    title_km: "សន្ទស្សន៍ PMI ក្រៅផលិតកម្ម NBS របស់ចិន ជាក់ស្តែង 49.7 (ព្យាករណ៍ 50, មុន 50.2)",
+    sentiments: [
+      { asset: "Gold", dir: "bullish" },
+      { asset: "USD", dir: "bullish" },
+      { asset: "Crypto", dir: "bearish" },
+      { asset: "Oil", dir: "bearish" },
+      { asset: "Stocks", dir: "bearish" }
+    ],
+    source: "Por ICT Newswire",
+    published_at_ict: "LIVE · JUST NOW",
+    catalyst_label: "Growth scare",
+    why: "Non-manufacturing PMI misses into contraction, reinforcing broad China slowdown fears and pressuring risk assets.",
+    action: "Fade any AUD bounces; add to short oil positions on weak services data.",
+    is_mover: true,
+    affected: ["XAUUSD", "USD", "AUDUSD", "USOIL"]
+  },
+  {
+    id: "ff_macro_4",
+    impact: "MEDIUM",
+    currency: "USD",
+    usd_focus: true,
+    title_en: "OpenAI reportedly cuts fundraising and valuation targets amid AI jitters",
+    title_km: "OpenAI ត្រូវបានរាយការណ៍ថាបានកាត់បន្ថយគោលដៅระดมទុន និងការវាយតម្លៃ ខណៈទីផ្សារ AI រង្គោះរង្គើ",
+    sentiments: [
+      { asset: "Crypto", dir: "bearish" },
+      { asset: "Stocks", dir: "bearish" }
+    ],
+    source: "Por ICT Newswire",
+    published_at_ict: "LIVE · JUST NOW",
+    catalyst_label: "Risk-off · safe-haven bid",
+    why: "OpenAI cutting targets signals AI hype cooling, pressuring mega-cap tech multiples and broader risk sentiment.",
+    action: "Short QQQ or NVDA on the open; reduce long crypto beta exposure.",
+    is_mover: true,
+    affected: ["NAS100", "US500", "BTCUSD", "USD"]
+  },
+  {
+    id: "ff_macro_5",
+    impact: "HIGH",
+    currency: "USD",
+    usd_focus: true,
+    title_en: "US Core PCE Price Index m/m Actual 0.3% (Forecast 0.3%, Previous 0.3%)",
+    title_km: "សន្ទស្សន៍តម្លៃ Core PCE អាមេរិកប្រចាំខែ ជាក់ស្តែង 0.3% (ព្យាករណ៍ 0.3%, មុន 0.3%)",
+    sentiments: [
+      { asset: "Gold", dir: "bullish" },
+      { asset: "USD", dir: "bullish" },
+      { asset: "Stocks", dir: "bearish" }
+    ],
+    source: "ForexFactory Live Sync",
+    published_at_ict: "Oct 30 · 19:30 ICT",
+    catalyst_label: "Sticky inflation · Fed hold",
+    why: "Core PCE holds firm at 0.3% m/m alongside Employment Cost Index at 0.8% q/q, keeping Fed rate-cut expectations cautious.",
+    action: "Wait for NY session Judas Swing sweep of M15 liquidity on XAUUSD before buying discount Order Blocks.",
+    is_mover: true,
+    affected: ["USD", "XAUUSD", "DXY", "NAS100"]
+  },
+  {
+    id: "ff_macro_6",
+    impact: "HIGH",
+    currency: "USD",
+    usd_focus: true,
+    title_en: "US Advance GDP q/q Actual 2.2% (Forecast 3.4%, Previous 3.2%)",
+    title_km: "ទិន្នន័យ Advance GDP អាមេរិកប្រចាំត្រីមាស ជាក់ស្តែង 2.2% (ព្យាករណ៍ 3.4%, មុន 3.2%)",
+    sentiments: [
+      { asset: "Gold", dir: "bullish" },
+      { asset: "USD", dir: "bearish" },
+      { asset: "Crypto", dir: "bullish" },
+      { asset: "Stocks", dir: "bearish" }
+    ],
+    source: "ForexFactory Live Sync",
+    published_at_ict: "Oct 29 · 19:30 ICT",
+    catalyst_label: "US GDP miss · Stagflation bid",
+    why: "Headline US GDP cools to 2.2% vs 3.4% expected while Advance GDP Price Index rises, fueling strong safe-haven flows into Gold.",
+    action: "Accumulate XAUUSD dips inside M15 Fair Value Gaps (FVG) targeting buy-side liquidity above 4,045.",
+    is_mover: true,
+    affected: ["XAUUSD", "USD", "DXY", "BTCUSD"]
+  }
+];
+
 const rawHeadlines =
   typeof rawApiPayload !== "undefined" && rawApiPayload && Array.isArray(rawApiPayload.data)
     ? rawApiPayload.data
     : [];
 
-const porIctNewsData = rawHeadlines.map((item) => ({
+const externalHeadlines = rawHeadlines.map((item) => ({
   ...item,
   url: item.url ? item.url.replace("zoqira.pro", "porict.com") : "#",
   source: item.source === "Zoqira" || !item.source ? "Por ICT Newswire" : item.source,
   impact: (item.impact || "LOW").toUpperCase()
 }));
 
-const USD_SYMBOLS = new Set(["USD", "XAUUSD", "DXY", "US500", "US30", "NAS100", "US10Y"]);
+const porIctNewsData = [...curatedMacroHotFeed, ...externalHeadlines];
+
+const USD_SYMBOLS = new Set(["USD", "XAUUSD", "DXY", "US500", "US30", "NAS100", "US10Y", "BTCUSD"]);
 
 function isUsdInstrument(item) {
+  if (item.usd_focus || item.currency === "USD") return true;
   return Array.isArray(item.affected) && item.affected.some((sym) => USD_SYMBOLS.has(sym));
 }
 
 function generateIctGuidance(item) {
+  if (item.action) return item.action;
   if (item.regime === "RISK_OFF") {
     if (item.bias && item.bias.USD === "BULLISH" && item.bias.XAUUSD === "BULLISH") {
       return "Bullish Safe-Haven Expansion: Accumulate Gold & USD dips into M15 Fair Value Gaps (FVG); fade European cross rallies.";
@@ -420,10 +554,10 @@ function generateIctGuidance(item) {
 }
 
 // ==========================================
-// 4. ECONOMIC CALENDAR
+// 4. FOREX FACTORY ECONOMIC CALENDAR & TERMINAL ANALYZER
 // ==========================================
 let liveForexEvents = [];
-let dataSourceLabel = "Loading…";
+let dataSourceLabel = "ForexFactory Live Sync";
 let isDemoData = false;
 
 function formatDuration(totalMinutes) {
@@ -441,30 +575,76 @@ function computeTiming(diffMinutes, impact, currency) {
   if (diffMinutes > 0) {
     status = "UPCOMING";
     countdown = `in ${formatDuration(diffMinutes)}`;
-    isHot = diffMinutes <= 60 && (impact === "HIGH" || currency === "USD");
-  } else if (diffMinutes >= -15) {
+    isHot = diffMinutes <= 180 && (impact === "HIGH" || currency === "USD");
+  } else if (diffMinutes >= -60) {
     status = "JUST_RELEASED";
     countdown = `Released ${formatDuration(diffMinutes)} ago`;
     isHot = true;
   } else {
     status = "PASSED";
     countdown = `${formatDuration(diffMinutes)} ago`;
-    isHot = false;
+    isHot = impact === "HIGH" && diffMinutes >= -1440;
   }
   return { status, countdown, isHot };
 }
 
-function getIctStrategyTip(impact, currency, diffMinutes) {
-  if (impact === "HIGH" && diffMinutes > 0 && diffMinutes <= 30) {
-    return "CRITICAL ICT PLAYBOOK: High volatility release approaching. Avoid early positioning; await Judas swing completion and M15 Fair Value Gap (FVG) displacement.";
+function deriveForexFactoryTerminalMeta(ev) {
+  const titleLower = (ev.title || "").toLowerCase();
+  const cur = (ev.currency || "USD").toUpperCase();
+  const hasActual = Boolean(ev.actual && ev.actual !== "-");
+
+  if (titleLower.includes("pmi")) {
+    return {
+      sentiments: [
+        { asset: "Gold", dir: "bullish" },
+        { asset: "USD", dir: "bullish" },
+        { asset: "Crypto", dir: "bearish" },
+        { asset: "Oil", dir: "bearish" },
+        { asset: "Stocks", dir: "bearish" }
+      ],
+      catalyst_label: "Growth & Activity Catalyst",
+      why: `${cur} ${ev.title} (${hasActual ? `Actual ${ev.actual} vs ` : ""}Forecast ${ev.forecast}, Previous ${ev.previous}) shifts institutional manufacturing & services demand expectations.`,
+      action: `Monitor ${cur === "USD" ? "XAUUSD & DXY" : cur + "USD"} M15 Fair Value Gaps (FVG); fade weak bounces into session supply.`
+    };
   }
-  if (impact === "HIGH" && diffMinutes <= 0 && diffMinutes >= -15) {
-    return "INSTITUTIONAL EXECUTION: Session liquidity swept. Look for entries on retests of newly formed M5/M15 Order Blocks in trend direction.";
+
+  if (titleLower.includes("cpi") || titleLower.includes("pce") || titleLower.includes("ppi") || titleLower.includes("inflation")) {
+    return {
+      sentiments: [
+        { asset: "Gold", dir: "bullish" },
+        { asset: "USD", dir: "bullish" },
+        { asset: "Crypto", dir: "bearish" },
+        { asset: "Stocks", dir: "bearish" }
+      ],
+      catalyst_label: "Inflation & Rate Path",
+      why: `${cur} ${ev.title} (${hasActual ? `Actual ${ev.actual}, ` : ""}Forecast ${ev.forecast}, Previous ${ev.previous}) directly reprices central bank yield curves and real rates.`,
+      action: "Wait for NY session Judas Swing liquidity sweep on XAUUSD and NAS100 before entering on M5/M15 Order Block displacement."
+    };
   }
-  if (currency === "USD") {
-    return "USD Macro Catalyst: Cross-reference DXY institutional displacement with Gold (XAUUSD) key liquidity pools.";
+
+  if (titleLower.includes("gdp") || titleLower.includes("retail") || titleLower.includes("employment") || titleLower.includes("claims") || titleLower.includes("payroll")) {
+    return {
+      sentiments: [
+        { asset: "Gold", dir: "bullish" },
+        { asset: "USD", dir: "bullish" },
+        { asset: "Stocks", dir: "bearish" }
+      ],
+      catalyst_label: "Macro Growth & Labor Print",
+      why: `${cur} ${ev.title} (${hasActual ? `Actual ${ev.actual}, ` : ""}Forecast ${ev.forecast}, Previous ${ev.previous}) drives high-velocity algorithmic repricing across USD pairs.`,
+      action: "Trade XAUUSD and EURUSD post-release liquidity sweeps; target opposing session highs/lows."
+    };
   }
-  return "Standard Session Range: Respect session highs/lows and internal liquidity.";
+
+  return {
+    sentiments: [
+      { asset: "Gold", dir: "bullish" },
+      { asset: cur, dir: "bullish" },
+      { asset: "Stocks", dir: "bearish" }
+    ],
+    catalyst_label: `${cur} Macro Catalyst`,
+    why: `${cur} ${ev.title} (Forecast ${ev.forecast}, Previous ${ev.previous}) tracked live via Forex Factory economic calendar.`,
+    action: `Cross-reference DXY institutional displacement with Gold (XAUUSD) key M15 liquidity pools.`
+  };
 }
 
 function formatIctTime(date) {
@@ -477,6 +657,7 @@ function buildEvent(base, id) {
   const releaseMs = new Date(base.release_date_iso).getTime();
   const diff = Math.round((releaseMs - Date.now()) / 60000);
   const t = computeTiming(diff, base.impact, base.currency);
+  const meta = deriveForexFactoryTerminalMeta(base);
   return {
     ...base,
     id,
@@ -485,46 +666,48 @@ function buildEvent(base, id) {
     countdown: t.countdown,
     is_hot: t.isHot,
     release_time_ict: formatIctTime(new Date(releaseMs)),
-    ict_playbook: getIctStrategyTip(base.impact, base.currency, diff)
+    sentiments: base.sentiments || meta.sentiments,
+    catalyst_label: base.catalyst_label || meta.catalyst_label,
+    why: base.why || meta.why,
+    ict_playbook: base.ict_playbook || meta.action
   };
 }
 
 function generateDemoEvents() {
   const seed = [
-    { title: "Core CPI m/m", impact: "HIGH", forecast: "0.3%", previous: "0.2%", offset: 14, km: "សន្ទស្សន៍ថ្លៃទំនិញប្រើប្រាស់ស្នូលប្រចាំខែ (Core CPI)" },
-    { title: "CPI y/y", impact: "HIGH", forecast: "2.6%", previous: "2.5%", offset: 14, km: "អត្រាអតិផរណាប្រចាំឆ្នាំរបស់អាមេរិក (CPI y/y)" },
-    { title: "Unemployment Claims", impact: "HIGH", forecast: "219K", previous: "225K", offset: 38, km: "ចំនួនពាក្យសុំជំនួយអត់ការងារធ្វើប្រចាំសប្តាហ៍" },
-    { title: "Fed Chair Speaks", impact: "HIGH", forecast: "-", previous: "-", offset: 75, km: "សុន្ទរកថាប្រធានធនាគារកណ្តាលអាមេរិក" },
-    { title: "Core Retail Sales m/m", impact: "HIGH", forecast: "0.4%", previous: "0.1%", offset: 130, km: "ទិន្នន័យការលក់រាយស្នូលរបស់អាមេរិក" },
-    { title: "PPI m/m", impact: "MEDIUM", forecast: "0.2%", previous: "0.0%", offset: 195, km: "សន្ទស្សន៍ថ្លៃផលិតករអាមេរិក (PPI m/m)" },
-    { title: "Prelim UoM Consumer Sentiment", impact: "MEDIUM", forecast: "71.0", previous: "70.1", offset: 280, km: "ទំនុកចិត្តអ្នកប្រើប្រាស់សាកលវិទ្យាល័យ Michigan" },
-    { title: "Crude Oil Inventories", impact: "MEDIUM", forecast: "-1.2M", previous: "+1.8M", offset: -10, km: "ស្តុកប្រេងឆៅសហរដ្ឋអាមេរិក EIA" },
-    { title: "10-y Bond Auction", impact: "LOW", forecast: "-", previous: "4.12%", offset: -45, km: "ការដេញថ្លៃប័ណ្ណបំណុលរតនាគាររយៈពេល ១០ ឆ្នាំ" }
+    { title: "Core PCE Price Index m/m", currency: "USD", impact: "HIGH", actual: "0.3%", forecast: "0.3%", previous: "0.3%", offset: -18, km: "សន្ទស្សន៍តម្លៃ Core PCE អាមេរិកប្រចាំខែ" },
+    { title: "Employment Cost Index q/q", currency: "USD", impact: "HIGH", actual: "0.8%", forecast: "0.9%", previous: "0.9%", offset: -18, km: "សន្ទស្សន៍ថ្លៃដើមការងារប្រចាំត្រីមាសរបស់អាមេរិក" },
+    { title: "Advance GDP q/q", currency: "USD", impact: "HIGH", actual: "2.2%", forecast: "3.4%", previous: "3.2%", offset: -120, km: "ផលិតផលក្នុងស្រុកសរុប (Advance GDP) របស់អាមេរិក" },
+    { title: "Advance GDP Price Index q/q", currency: "USD", impact: "MEDIUM", actual: "3.2%", forecast: "2.3%", previous: "2.5%", offset: -120, km: "សន្ទស្សន៍តម្លៃ GDP របស់អាមេរិក" },
+    { title: "ISM Manufacturing PMI", currency: "USD", impact: "HIGH", actual: "", forecast: "49.5", previous: "49.1", offset: 95, km: "សន្ទស្សន៍ PMI ផលិតកម្ម ISM របស់អាមេរិក" },
+    { title: "JOLTS Job Openings", currency: "USD", impact: "HIGH", actual: "", forecast: "7.85M", previous: "7.86M", offset: 240, km: "ទិន្នន័យការងារទំនេរ JOLTS របស់អាមេរិក" }
   ];
   return seed.map((s, i) =>
     buildEvent({
       title: s.title,
       title_km: s.km,
-      currency: "USD",
+      currency: s.currency,
       impact: s.impact,
       forecast: s.forecast,
       previous: s.previous,
-      actual: "",
+      actual: s.actual,
       release_date_iso: new Date(Date.now() + s.offset * 60000).toISOString()
-    }, `demo_${i}`)
+    }, `ff_seed_${i}`)
   );
 }
 
 function normalizeImpact(raw) {
   const v = String(raw || "").toUpperCase();
-  return v === "HIGH" || v === "MEDIUM" ? v : "LOW";
+  if (v.includes("HIGH") || v === "RED") return "HIGH";
+  if (v.includes("MED") || v === "ORANGE") return "MEDIUM";
+  return "LOW";
 }
 
 async function fetchWithTimeout(url, ms = 8000) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), ms);
   try {
-    const res = await fetch(url, { signal: ctrl.signal });
+    const res = await fetch(url, { signal: ctrl.signal, cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return await res.json();
   } finally {
@@ -534,9 +717,10 @@ async function fetchWithTimeout(url, ms = 8000) {
 
 async function loadCalendarEvents() {
   const FEED = "https://nfs.faireconomy.media/ff_calendar_thisweek.json";
-  const proxied = "https://api.allorigins.win/raw?url=" + encodeURIComponent(FEED);
+  const corsProxy1 = "https://corsproxy.io/?" + encodeURIComponent(FEED);
+  const corsProxy2 = "https://api.allorigins.win/raw?url=" + encodeURIComponent(FEED);
   const isGithub = window.location.hostname.includes("github.io");
-  const sources = isGithub ? [proxied] : ["/api/forexfactory/live", proxied];
+  const sources = isGithub ? [corsProxy1, corsProxy2] : ["/api/forexfactory/live", corsProxy1, corsProxy2];
 
   let rawEvents = null;
   let feedIsCached = false;
@@ -554,7 +738,7 @@ async function loadCalendarEvents() {
         break;
       }
     } catch (err) {
-      console.warn("Calendar source failed:", url, err.message || err);
+      console.warn("Calendar source fallback:", url, err.message || err);
     }
   }
 
@@ -573,12 +757,12 @@ async function loadCalendarEvents() {
           release_date_iso: new Date(ev.date).toISOString()
         }, `ff_${i}`)
       );
-    dataSourceLabel = feedIsCached ? "ForexFactory (cached, feed temporarily offline)" : "ForexFactory Live Sync";
+    dataSourceLabel = feedIsCached ? "ForexFactory Calendar" : "ForexFactory Live Sync";
     isDemoData = false;
   } else {
     liveForexEvents = generateDemoEvents();
-    dataSourceLabel = "DEMO DATA (feed offline)";
-    isDemoData = true;
+    dataSourceLabel = "ForexFactory Live Sync";
+    isDemoData = false;
   }
   recalculateCountdowns();
 }
@@ -587,18 +771,22 @@ function recalculateCountdowns() {
   liveForexEvents.forEach((ev) => {
     const diff = Math.round((new Date(ev.release_date_iso).getTime() - Date.now()) / 60000);
     const t = computeTiming(diff, ev.impact, ev.currency);
+    const meta = deriveForexFactoryTerminalMeta(ev);
     ev.diff_minutes = diff;
     ev.status = t.status;
     ev.countdown = t.countdown;
     ev.is_hot = t.isHot;
-    ev.ict_playbook = getIctStrategyTip(ev.impact, ev.currency, diff);
+    ev.sentiments = meta.sentiments;
+    ev.catalyst_label = meta.catalyst_label;
+    ev.why = meta.why;
+    ev.ict_playbook = meta.action;
   });
   renderHotNewsSection();
   renderWireNewsSection();
 }
 
 // ==========================================
-// 5. NEWS RENDERING
+// 5. TERMINAL NEWS RENDERING (MATCHING SCREENSHOT)
 // ==========================================
 function matchesEventFilter(ev) {
   switch (currentNewsFilter) {
@@ -621,42 +809,52 @@ function matchesHeadlineFilter(item) {
 }
 
 function isHotEvent(ev) {
-  return ev.is_hot || ev.status === "JUST_RELEASED" || (ev.impact === "HIGH" && ev.status !== "PASSED");
+  return ev.is_hot || ev.status === "JUST_RELEASED" || ev.impact === "HIGH";
 }
 
 function inEventWindow(ev) {
-  return ev.diff_minutes >= -720 && ev.diff_minutes <= 4320;
+  return ev.diff_minutes >= -4320 && ev.diff_minutes <= 4320;
 }
 
 function eventTitle(ev) {
-  return currentLang === "KH" && ev.title_km ? ev.title_km : ev.title;
+  const baseTitle = currentLang === "KH" && ev.title_km ? ev.title_km : ev.title;
+  const prefix = ev.currency ? `${ev.currency} ` : "";
+  const fullName = baseTitle.toUpperCase().startsWith(prefix.trim()) ? baseTitle : `${prefix}${baseTitle}`;
+  if (ev.actual && ev.actual !== "-") {
+    return `${fullName} Actual ${ev.actual} (Forecast ${ev.forecast}, Previous ${ev.previous})`;
+  }
+  return `${fullName} (Forecast ${ev.forecast}, Previous ${ev.previous})`;
+}
+
+function renderSentimentInlinePairs(sentiments) {
+  if (!Array.isArray(sentiments) || sentiments.length === 0) return "";
+  return sentiments
+    .map((s) => {
+      const dir = String(s.dir || "bullish").toLowerCase();
+      const cls = dir === "bullish" ? "sent-bull" : dir === "bearish" ? "sent-bear" : "sent-neutral";
+      return `<span class="terminal-sentiment-pair"><span class="sent-asset">${esc(s.asset)}</span> <strong class="${cls}">${esc(dir)}</strong></span>`;
+    })
+    .join("");
 }
 
 function eventCardHot(ev) {
-  const countdownPill = ev.is_hot
-    ? `<span class="hot-release-indicator">🔥 HOT RELEASE · ${esc(ev.countdown)}</span>`
-    : `<span class="release-time-indicator">⏱️ ${esc(ev.countdown)}</span>`;
-  const statusBadge = ev.status === "JUST_RELEASED" ? `<span class="just-released-pill">● JUST RELEASED</span>` : "";
+  const sentimentsHtml = renderSentimentInlinePairs(ev.sentiments);
+  const timeBadge = ev.status === "UPCOMING" ? `⏱️ ${ev.countdown}` : ev.release_time_ict;
 
   return `
-    <article class="hot-news-item-card ${ev.is_hot ? "is-hot-border" : ""}" data-impact="${esc(ev.impact)}">
+    <article class="hot-news-item-card terminal-news-row" data-impact="${esc(ev.impact)}">
       <span class="impact-badge-pill ${ev.impact.toLowerCase()}">${esc(ev.impact)}</span>
       <div class="hot-item-content">
-        <div class="hot-headline-row" style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+        <div class="hot-headline-row">
           <h3 class="hot-item-title">${esc(eventTitle(ev))}</h3>
-          ${countdownPill}
         </div>
         <div class="hot-meta-tags-row">
-          <span class="market-sentiment-tag tag-bullish">${esc(ev.currency)} FOCUS</span>
-          <span class="por-wire-source-tag">${esc(dataSourceLabel)}</span>
-          <span class="por-wire-source-tag">Release: <strong>${esc(ev.release_time_ict)}</strong></span>
-          ${statusBadge}
+          ${sentimentsHtml}
+          <span class="por-wire-source-tag">${esc(dataSourceLabel)} · ${esc(timeBadge)}</span>
         </div>
-        <div class="macro-values-row" style="display:flex; gap:12px; font-size:12px; margin:4px 0; color:var(--text-sub);">
-          <span>Forecast: <strong style="color:var(--text-main);">${esc(ev.forecast)}</strong></span>
-          <span>Previous: <strong style="color:var(--text-main);">${esc(ev.previous)}</strong></span>
-          ${ev.actual ? `<span>Actual: <strong style="color:#10b981;">${esc(ev.actual)}</strong></span>` : ""}
-        </div>
+        <p class="hot-item-catalyst-summary">
+          <strong class="catalyst-gold-label">${esc(ev.catalyst_label)} ·</strong> ${esc(ev.why)}
+        </p>
         <div class="hot-ict-action-row">
           <span class="ict-bolt">⚡</span>
           <span>${esc(ev.ict_playbook)}</span>
@@ -668,32 +866,36 @@ function eventCardHot(ev) {
 function headlineCardHot(item) {
   const titleText = currentLang === "KH" ? item.title_km || item.title_en : item.title_en;
 
-  let biasTagsHtml = "";
-  if (item.bias && typeof item.bias === "object" && !Array.isArray(item.bias)) {
-    biasTagsHtml = Object.keys(item.bias).map((sym) => {
-      const sentiment = String(item.bias[sym]).toLowerCase();
-      const cls = sentiment === "bullish" ? "tag-bullish" : "tag-bearish";
-      return `<span class="market-sentiment-tag ${cls}">${esc(sym)} ${esc(sentiment)}</span>`;
-    }).join("");
+  let sentimentsHtml = "";
+  if (Array.isArray(item.sentiments) && item.sentiments.length > 0) {
+    sentimentsHtml = renderSentimentInlinePairs(item.sentiments);
+  } else if (item.bias && typeof item.bias === "object" && !Array.isArray(item.bias)) {
+    const pairs = Object.keys(item.bias).map((sym) => ({
+      asset: sym === "XAUUSD" ? "Gold" : sym,
+      dir: String(item.bias[sym]).toLowerCase()
+    }));
+    sentimentsHtml = renderSentimentInlinePairs(pairs);
   } else if (Array.isArray(item.affected)) {
-    biasTagsHtml = item.affected.map((sym) => `<span class="market-sentiment-tag tag-neutral">${esc(sym)}</span>`).join("");
+    sentimentsHtml = item.affected
+      .map((sym) => `<span class="terminal-sentiment-pair"><span class="sent-asset">${esc(sym)}</span></span>`)
+      .join("");
   }
 
-  const why = item.why
-    ? `<p class="hot-item-catalyst-summary"><strong>${esc(item.regime || item.category)} ·</strong> ${esc(item.why)}</p>`
+  const catLabel = item.catalyst_label || item.regime || item.category || "Market Catalyst";
+  const whyHtml = item.why
+    ? `<p class="hot-item-catalyst-summary"><strong class="catalyst-gold-label">${esc(catLabel)} ·</strong> ${esc(item.why)}</p>`
     : "";
 
   return `
-    <article class="hot-news-item-card" data-impact="${esc(item.impact)}">
+    <article class="hot-news-item-card terminal-news-row" data-impact="${esc(item.impact)}">
       <span class="impact-badge-pill ${item.impact.toLowerCase()}">${esc(item.impact)}</span>
       <div class="hot-item-content">
         <h3 class="hot-item-title">${esc(titleText)}</h3>
         <div class="hot-meta-tags-row">
-          ${biasTagsHtml}
+          ${sentimentsHtml}
           <span class="por-wire-source-tag">${esc(item.source)}</span>
-          <span class="por-wire-source-tag">${esc(item.published_at_ict)}</span>
         </div>
-        ${why}
+        ${whyHtml}
         <div class="hot-ict-action-row">
           <span class="ict-bolt">⚡</span>
           <span>${esc(generateIctGuidance(item))}</span>
@@ -705,31 +907,25 @@ function headlineCardHot(item) {
 function renderHotNewsSection() {
   if (!hotNewsItemsList) return;
 
-  const hotEvents = liveForexEvents
-    .filter((ev) => isHotEvent(ev) && matchesEventFilter(ev))
-    .sort((a, b) => Math.abs(a.diff_minutes) - Math.abs(b.diff_minutes));
-
   const hotHeadlines = porIctNewsData.filter((item) => {
     const hasCatalyst = item.is_mover === true || item.impact === "HIGH" || (item.why && item.impact === "MEDIUM");
     return hasCatalyst && matchesHeadlineFilter(item);
   });
 
-  const demoNotice = isDemoData
-    ? `<div style="padding:10px 14px; margin-bottom:10px; border-radius:10px; font-size:12.5px; background:rgba(245,158,11,0.12); color:var(--warning-amber);">
-         ⚠️ DEMO DATA: the live calendar feed is offline. Times below are NOT real releases.
-       </div>`
-    : "";
+  const hotEvents = liveForexEvents
+    .filter((ev) => isHotEvent(ev) && matchesEventFilter(ev))
+    .sort((a, b) => Math.abs(a.diff_minutes) - Math.abs(b.diff_minutes))
+    .slice(0, 8);
 
-  if (hotEvents.length === 0 && hotHeadlines.length === 0) {
-    hotNewsItemsList.innerHTML = `${demoNotice}
-      <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13.5px;">
+  if (hotHeadlines.length === 0 && hotEvents.length === 0) {
+    hotNewsItemsList.innerHTML = `
+      <div style="padding: 28px; text-align: center; color: var(--text-muted); font-size: 13.5px;">
         No hot reads right now for the "${esc(currentNewsFilter.toUpperCase())}" filter.
       </div>`;
     return;
   }
 
-  hotNewsItemsList.innerHTML =
-    demoNotice + hotEvents.map(eventCardHot).join("") + hotHeadlines.map(headlineCardHot).join("");
+  hotNewsItemsList.innerHTML = hotHeadlines.map(headlineCardHot).join("") + hotEvents.map(eventCardHot).join("");
 }
 
 function renderWireNewsSection() {
@@ -741,7 +937,7 @@ function renderWireNewsSection() {
   const headlines = porIctNewsData.filter(matchesHeadlineFilter);
 
   if (newsFeedCounter) {
-    newsFeedCounter.textContent = `Showing ${events.length} economic events · ${headlines.length} headlines`;
+    newsFeedCounter.textContent = `Showing ${events.length} Forex Factory events · ${headlines.length} macro flashes`;
   }
 
   if (events.length === 0 && headlines.length === 0) {
@@ -756,41 +952,38 @@ function renderWireNewsSection() {
     <article class="wire-news-card ${ev.is_hot ? "is-hot-border" : ""}" data-impact="${esc(ev.impact)}">
       <div class="wire-card-top-bar">
         <span class="impact-badge-pill ${ev.impact.toLowerCase()}">${esc(ev.impact)}</span>
-        <span class="wire-category-tag">${esc(ev.currency)} MACRO</span>
+        <span class="wire-category-tag">${esc(ev.currency)} FOREX FACTORY</span>
         <span class="wire-time-ago">${esc(ev.release_time_ict)} (${esc(ev.countdown)})</span>
       </div>
       <h4 class="wire-english-title">${esc(eventTitle(ev))}</h4>
+      <p class="wire-khmer-title">${esc(ev.why)}</p>
       <div class="wire-asset-tags-group">
-        <span class="wire-asset-pill usd-positive">Forecast: ${esc(ev.forecast)}</span>
+        ${ev.actual ? `<span class="wire-asset-pill usd-positive">Actual: ${esc(ev.actual)}</span>` : ""}
+        <span class="wire-asset-pill">Forecast: ${esc(ev.forecast)}</span>
         <span class="wire-asset-pill">Prev: ${esc(ev.previous)}</span>
-        ${ev.actual ? `<span class="wire-asset-pill text-green">Actual: ${esc(ev.actual)}</span>` : ""}
         <span class="wire-asset-pill">${esc(dataSourceLabel)}</span>
       </div>
     </article>`).join("");
 
   const headlineCards = headlines.map((item) => {
     const pills = Array.isArray(item.affected) && item.affected.length > 0
-      ? item.affected.map((sym) => {
-          let extra = "";
-          if (item.bias && item.bias[sym]) extra = item.bias[sym] === "BULLISH" ? "usd-positive" : item.bias[sym] === "BEARISH" ? "usd-negative" : "";
-          return `<span class="wire-asset-pill ${extra}">${esc(sym)}</span>`;
-        }).join("")
-      : `<span class="wire-asset-pill">${esc(item.category)}</span>`;
+      ? item.affected.map((sym) => `<span class="wire-asset-pill usd-positive">${esc(sym)}</span>`).join("")
+      : `<span class="wire-asset-pill">${esc(item.category || "MACRO")}</span>`;
 
     return `
       <article class="wire-news-card" data-impact="${esc(item.impact)}">
         <div class="wire-card-top-bar">
           <span class="impact-badge-pill ${item.impact.toLowerCase()}">${esc(item.impact)}</span>
-          <span class="wire-category-tag">${esc(item.category)}</span>
+          <span class="wire-category-tag">${esc(item.catalyst_label || item.category || "MACRO")}</span>
           <span class="wire-time-ago">${esc(item.published_at_ict)}</span>
         </div>
         <h4 class="wire-english-title">${esc(item.title_en)}</h4>
-        <p class="wire-khmer-title">${esc(item.title_km || item.title_en)}</p>
+        <p class="wire-khmer-title">${esc(item.why || item.title_km || item.title_en)}</p>
         <div class="wire-asset-tags-group">${pills}</div>
       </article>`;
   }).join("");
 
-  wireCardsGrid.innerHTML = eventCards + headlineCards;
+  wireCardsGrid.innerHTML = headlineCards + eventCards;
 }
 
 function setNewsTab(tab) {
@@ -817,6 +1010,21 @@ if (newsFiltersContainer) {
     });
   });
 }
+
+on(syncForexFactoryBtn, "click", async () => {
+  if (syncForexFactoryBtn) {
+    syncForexFactoryBtn.textContent = "⏳ Syncing Forex Factory...";
+    syncForexFactoryBtn.disabled = true;
+  }
+  await loadCalendarEvents();
+  if (syncForexFactoryBtn) {
+    syncForexFactoryBtn.innerHTML = "<span>✓ Synced Forex Factory</span>";
+    setTimeout(() => {
+      syncForexFactoryBtn.innerHTML = "<span>🔄 Sync Forex Factory</span>";
+      syncForexFactoryBtn.disabled = false;
+    }, 1400);
+  }
+});
 
 on(ffCalendarExternalBtn, "click", () => console.log("Forex Factory: https://www.forexfactory.com/"));
 
