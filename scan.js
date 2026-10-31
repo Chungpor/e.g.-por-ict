@@ -2826,7 +2826,7 @@ $('keyForm')?.addEventListener('submit', (e) => {
   }));
 
   function resizeCanvas() {
-    dpr = Math.min(window.devicePixelRatio || 2, 3);
+    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     width = window.innerWidth;
     height = window.innerHeight;
     canvas.width = Math.floor(width * dpr);
@@ -2910,7 +2910,16 @@ $('keyForm')?.addEventListener('submit', (e) => {
     ctx.restore();
   }
 
+  // ផ្អាកគំនូរផ្ទៃខាងក្រោយពេលកំពុង scroll / អូស => ទុក GPU/CPU ឱ្យការអូសរលូន
+  let busyUntil = 0;
+  const markBusy = () => { busyUntil = performance.now() + 160; };
+  window.addEventListener('scroll', markBusy, { capture: true, passive: true });
+  window.addEventListener('wheel', markBusy, { passive: true });
+  window.addEventListener('touchmove', markBusy, { passive: true });
+
   function animate() {
+    requestAnimationFrame(animate);
+    if (document.hidden || performance.now() < busyUntil) return;
     tick += 1;
     mouse.x += (mouse.targetX - mouse.x) * 0.05;
     mouse.y += (mouse.targetY - mouse.y) * 0.05;
@@ -2918,7 +2927,6 @@ $('keyForm')?.addEventListener('submit', (e) => {
     drawCyberGrid((mouse.x - 0.5) * 2, (mouse.y - 0.5) * 2);
     drawCandlesticksAndWave((mouse.x - 0.5) * 2, (mouse.y - 0.5) * 2);
     drawFloatingNodes();
-    requestAnimationFrame(animate);
   }
   animate();
 })();
@@ -3519,21 +3527,6 @@ icons();
     dot.addEventListener('animationend', () => dot.remove(), { once: true });
     setTimeout(() => dot.remove(), 900);
 
-    // Full-page body color wash from the click point
-    const wash = document.createElement('div');
-    wash.className = 'fx-body-wash';
-    wash.style.setProperty('--fx-x', x + 'px');
-    wash.style.setProperty('--fx-y', y + 'px');
-    wash.style.setProperty('--fx-rgb', rgb);
-    document.body.appendChild(wash);
-    wash.addEventListener('animationend', () => wash.remove(), { once: true });
-    setTimeout(() => wash.remove(), 1200);
-
-    // Soft colored edge glow on <body> that fades away
-    document.body.style.setProperty('--fx-rgb', rgb);
-    document.body.classList.add('fx-tint');
-    clearTimeout(tintTimer);
-    tintTimer = setTimeout(() => document.body.classList.remove('fx-tint'), 650);
   }
 
   function release() {
@@ -3548,7 +3541,10 @@ icons();
     release();
     pressedEl = el;
     el.classList.add('fx-press');
-    spawnRipple(e.clientX, e.clientY, el);
+    // មិន spawn ripple ក្នុងបញ្ជីដែលកំពុងអូស (កុំឱ្យ lag ពេលចាប់ផ្តើមអូស)
+    if (!(e.target.closest && e.target.closest('#scanLobbyList, #historyContent, #lobbyFilterBar'))) {
+      spawnRipple(e.clientX, e.clientY, el);
+    }
   }, { passive: true });
 
   ['pointerup', 'pointercancel', 'pointerleave', 'dragstart', 'blur'].forEach((ev) =>
@@ -3567,21 +3563,26 @@ icons();
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
   // ---------- Drag-to-scroll + momentum (mouse / pen) ----------
+  // SMOOTH v3: rAF-batched writes, no 6px jump, float momentum position
   function enableDragScroll(el, axis) {
     if (!el) return;
     const horiz = axis === 'x';
     const prop = horiz ? 'scrollLeft' : 'scrollTop';
     const pos = (e) => (horiz ? e.clientX : e.clientY);
+    const maxScroll = () => (horiz ? el.scrollWidth - el.clientWidth : el.scrollHeight - el.clientHeight);
 
     let down = false, dragging = false;
     let startPos = 0, startScroll = 0, lastPos = 0, lastT = 0, vel = 0;
-    let raf = 0, suppressClick = false;
+    let maxCache = 0, targetScroll = 0;
+    let dragRaf = 0, raf = 0, suppressClick = false;
 
-    const maxScroll = () => (horiz ? el.scrollWidth - el.clientWidth : el.scrollHeight - el.clientHeight);
     const stopMomentum = () => {
       if (raf) cancelAnimationFrame(raf);
       raf = 0;
-      el.style.scrollBehavior = '';
+    };
+    const flushDrag = () => {
+      dragRaf = 0;
+      el[prop] = targetScroll;
     };
 
     el.addEventListener('pointerdown', (e) => {
@@ -3599,23 +3600,34 @@ icons();
     el.addEventListener('pointermove', (e) => {
       if (!down) return;
       const p = pos(e);
-      const delta = p - startPos;
+
       if (!dragging) {
-        if (Math.abs(delta) < 6) return;
+        if (Math.abs(p - startPos) < 6) return;
         dragging = true;
+        // rebase => មិនមានការលោត 6px ពេលចាប់ផ្តើមអូស
+        startPos = lastPos = p;
+        startScroll = el[prop];
+        maxCache = Math.max(0, maxScroll());
+        lastT = performance.now();
+        vel = 0;
         el.classList.add('dragging-scroll');
-        el.style.scrollBehavior = 'auto';
         try { el.setPointerCapture(e.pointerId); } catch (_) {}
         const sel = window.getSelection && window.getSelection();
         if (sel && sel.removeAllRanges) sel.removeAllRanges();
+        return;
       }
-      el[prop] = startScroll - delta;
+
+      // សរសេរ scroll ម្តងក្នុង 1 frame (មិនសរសេរគ្រប់ pointermove)
+      targetScroll = clamp(startScroll - (p - startPos), 0, maxCache);
+      if (!dragRaf) dragRaf = requestAnimationFrame(flushDrag);
 
       const now = performance.now();
       const dt = now - lastT;
-      if (dt > 0) vel = vel * 0.55 + ((lastPos - p) / dt) * 0.45; // px/ms
-      lastPos = p;
-      lastT = now;
+      if (dt > 0) {
+        vel = vel * 0.55 + ((lastPos - p) / dt) * 0.45; // px/ms
+        lastPos = p;
+        lastT = now;
+      }
     });
 
     const release = (e) => {
@@ -3623,24 +3635,36 @@ icons();
       down = false;
       if (!dragging) return;
       dragging = false;
+
+      if (dragRaf) {
+        cancelAnimationFrame(dragRaf);
+        dragRaf = 0;
+        el[prop] = targetScroll;
+      }
       el.classList.remove('dragging-scroll');
       try { el.releasePointerCapture(e.pointerId); } catch (_) {}
       suppressClick = true;
       setTimeout(() => { suppressClick = false; }, 60);
 
       if (performance.now() - lastT > 90) vel = 0; // ឈប់មុនលែង => មិនមាន momentum
-      if (reduceMotion || Math.abs(vel) < 0.05) { el.style.scrollBehavior = ''; return; }
+      if (reduceMotion || Math.abs(vel) < 0.05) return;
 
       let v = clamp(vel, -3.2, 3.2);
+      let cur = el[prop];                 // រក្សា position ជា float => ចុងក្រោយរលូន
+      const max = Math.max(0, maxScroll());
       let prev = performance.now();
       const step = (now) => {
-        const dt = Math.min(34, now - prev);
+        const dt = Math.max(0, Math.min(34, now - prev));
         prev = now;
-        const before = el[prop];
-        el[prop] = before + v * dt;
+        cur += v * dt;
         v *= Math.pow(0.945, dt / 16.67); // friction
-        const hitEdge = el[prop] === before || el[prop] <= 0 || el[prop] >= maxScroll() - 1;
-        if (Math.abs(v) < 0.02 || hitEdge) { stopMomentum(); return; }
+        if (cur <= 0 || cur >= max) {
+          el[prop] = clamp(cur, 0, max);
+          raf = 0;
+          return;
+        }
+        el[prop] = cur;
+        if (Math.abs(v) < 0.02) { raf = 0; return; }
         raf = requestAnimationFrame(step);
       };
       raf = requestAnimationFrame(step);
@@ -3662,42 +3686,64 @@ icons();
   }
 
   // ---------- Depth scroller (3D fold + fade + motion stretch) ----------
+  // SMOOTH v3: cached metrics (គ្មាន layout read ក្នុងរាល់ frame) + skip unchanged writes
   function createDepthScroller(container, itemSel) {
     if (!container) return null;
     let items = [];
+    let metrics = [];
+    let dirty = true;
     let vel = 0;
     let lastTop = container.scrollTop;
     let raf = 0;
     let idleTimer = 0;
+    let ro = null;
 
-    function collect() { items = Array.from(container.querySelectorAll(itemSel)); }
+    function collect() {
+      items = Array.from(container.querySelectorAll(itemSel));
+      dirty = true;
+      if (ro) {
+        ro.disconnect();
+        ro.observe(container);
+        items.forEach((it) => ro.observe(it));
+      }
+    }
+
+    // អានទំហំ/ទីតាំង ម្តងគត់ (batch) ពេល layout ប្តូរ
+    function measure() {
+      metrics = items.map((el) => {
+        const h = el.offsetHeight;
+        return { el, h, mid: el.offsetTop + h / 2, t: '', o: '' };
+      });
+      dirty = false;
+    }
 
     function apply() {
-      const h = container.clientHeight;
-      if (!h || reduceMotion) return;
-      const half = h / 2;
+      const ch = container.clientHeight;
+      if (!ch || reduceMotion) return;
+      if (dirty) measure();
+      const half = ch / 2;
       const top = container.scrollTop;
-      const stretch = 1 + Math.min(Math.abs(vel) * 0.0016, 0.03);
+      const stretch = Math.round((1 + Math.min(Math.abs(vel) * 0.0016, 0.03)) * 1000) / 1000;
 
-      for (let i = 0; i < items.length; i++) {
-        const el = items[i];
-        const ih = el.offsetHeight;
-        const c = el.offsetTop + ih / 2 - top - half;
-        if (Math.abs(c) > half + ih + 80) continue; // ឆ្ងាយពី viewport មិនចាំបាច់គណនា
+      for (let i = 0; i < metrics.length; i++) {
+        const m = metrics[i];
+        const c = m.mid - top - half;
+        if (Math.abs(c) > half + m.h + 80) continue; // ឆ្ងាយពី viewport
 
         const n = c / half;                                   // -1 លើ … 0 កណ្តាល … +1 ក្រោម
         const t = clamp((Math.abs(n) - 0.38) / 0.72, 0, 1);
         const e = t * t * (3 - 2 * t);                        // smoothstep
 
-        if (e < 0.002 && stretch < 1.002) {
-          el.style.transform = '';
-          el.style.opacity = '';
-          continue;
+        let tf = '';
+        let op = '';
+        if (e >= 0.002 || stretch >= 1.002) {
+          const rx = (-Math.sign(n) * e * 15).toFixed(2);
+          const sc = (1 - e * 0.065).toFixed(3);
+          tf = `perspective(900px) rotateX(${rx}deg) scale(${sc}) scaleY(${stretch.toFixed(3)})`;
+          op = (1 - e * 0.55).toFixed(3);
         }
-        const rx = (-Math.sign(n) * e * 15).toFixed(2);
-        const sc = (1 - e * 0.065).toFixed(3);
-        el.style.transform = `perspective(900px) rotateX(${rx}deg) scale(${sc}) scaleY(${stretch.toFixed(4)})`;
-        el.style.opacity = (1 - e * 0.55).toFixed(3);
+        if (tf !== m.t) { m.el.style.transform = tf; m.t = tf; }
+        if (op !== m.o) { m.el.style.opacity = op; m.o = op; }
       }
     }
 
@@ -3714,9 +3760,9 @@ icons();
 
     function onScroll() {
       if (!raf) raf = requestAnimationFrame(tick);
-      container.classList.add('is-scrolling');
+      if (!container.classList.contains('is-scrolling')) container.classList.add('is-scrolling');
       clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => container.classList.remove('is-scrolling'), 240);
+      idleTimer = setTimeout(() => container.classList.remove('is-scrolling'), 140);
     }
 
     function refresh() {
@@ -3728,7 +3774,9 @@ icons();
 
     container.addEventListener('scroll', onScroll, { passive: true });
     new MutationObserver(refresh).observe(container, { childList: true });
-    if (typeof ResizeObserver !== 'undefined') new ResizeObserver(refresh).observe(container);
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(() => { dirty = true; apply(); });
+    }
     refresh();
     return { refresh };
   }
