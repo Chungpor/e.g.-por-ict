@@ -208,7 +208,7 @@ function consumeKeyScanIfNeeded() {
 // 3. STATE + HELPERS
 // ==========================================
 const $ = (id) => document.getElementById(id);
-const VALID_TRADE_STYLES = ['SCALPING', 'SWING', 'APLUS_ICT', 'MSNR_EMPEROR', 'AMD_MMXM'];
+const VALID_TRADE_STYLES = ['SCALPING', 'SWING', 'APLUS_ICT', 'MSNR_EMPEROR', 'AMD_MMXM', 'SECRET_411', 'RARE_FLIP_SNR'];
 
 const state = {
   unlocked: false,
@@ -328,12 +328,15 @@ function setTradeStyle(style, userClickedChoice = false) {
     SWING:        { el: $('btnModeSwing'),    cls: 'active-swing' },
     APLUS_ICT:    { el: $('btnModeAPlus'),    cls: 'active-aplus' },
     MSNR_EMPEROR: { el: $('btnModeMsnr'),     cls: 'active-msnr' },
-    AMD_MMXM:     { el: $('btnModeAmd'),      cls: 'active-amd' }
+    AMD_MMXM:     { el: $('btnModeAmd'),      cls: 'active-amd' },
+    SECRET_411:    { el: $('btnModeSecret411'), cls: 'active-secret411' },
+    RARE_FLIP_SNR: { el: $('btnModeRareFlip'),  cls: 'active-rareflip' }
   };
+  const ALL_ACTIVE_CLS = ['active-scalp', 'active-swing', 'active-aplus', 'active-msnr', 'active-amd', 'active-secret411', 'active-rareflip'];
 
   Object.values(btnMap).forEach(({ el }) => {
     if (!el) return;
-    el.classList.remove('active-scalp', 'active-swing', 'active-aplus', 'active-msnr', 'active-amd');
+    el.classList.remove(...ALL_ACTIVE_CLS);
     el.classList.add('border-slate-700');
   });
 
@@ -348,7 +351,9 @@ function setTradeStyle(style, userClickedChoice = false) {
     { id: 'btnResSwitchSwing', code: 'SWING',        on: 'px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(251,191,36,0.45)]',   off: 'px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-400/50 text-amber-300 font-extrabold cursor-pointer hover:brightness-110' },
     { id: 'btnResSwitchAPlus', code: 'APLUS_ICT',    on: 'px-2.5 py-1 rounded-lg bg-emerald-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(52,211,153,0.45)]', off: 'px-2.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 font-extrabold cursor-pointer hover:brightness-110' },
     { id: 'btnResSwitchMsnr',  code: 'MSNR_EMPEROR', on: 'px-2.5 py-1 rounded-lg bg-purple-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(192,132,252,0.45)]', off: 'px-2.5 py-1 rounded-lg bg-purple-500/20 border border-purple-400/50 text-purple-300 font-extrabold cursor-pointer hover:brightness-110' },
-    { id: 'btnResSwitchAmd',   code: 'AMD_MMXM',     on: 'px-2.5 py-1 rounded-lg bg-rose-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(251,113,133,0.45)]',   off: 'px-2.5 py-1 rounded-lg bg-rose-500/20 border border-rose-400/50 text-rose-300 font-extrabold cursor-pointer hover:brightness-110' }
+    { id: 'btnResSwitchAmd',   code: 'AMD_MMXM',     on: 'px-2.5 py-1 rounded-lg bg-rose-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(251,113,133,0.45)]',   off: 'px-2.5 py-1 rounded-lg bg-rose-500/20 border border-rose-400/50 text-rose-300 font-extrabold cursor-pointer hover:brightness-110' },
+    { id: 'btnResSwitch411',      code: 'SECRET_411',    on: 'px-2.5 py-1 rounded-lg bg-yellow-300 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(253,224,71,0.5)]', off: 'px-2.5 py-1 rounded-lg bg-yellow-500/20 border border-yellow-400/50 text-yellow-300 font-extrabold cursor-pointer hover:brightness-110' },
+    { id: 'btnResSwitchRareFlip', code: 'RARE_FLIP_SNR', on: 'px-2.5 py-1 rounded-lg bg-sky-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(56,189,248,0.5)]',  off: 'px-2.5 py-1 rounded-lg bg-sky-500/20 border border-sky-400/50 text-sky-300 font-extrabold cursor-pointer hover:brightness-110' }
   ];
 
   resBtnConfigs.forEach((cfg) => {
@@ -393,9 +398,23 @@ $('newsFlipMode')?.addEventListener('change', (e) => {
   else if (v === 'MSNR_EMPEROR') setTradeStyle('MSNR_EMPEROR', true);
   else if (v === 'AMD_MMXM') setTradeStyle('AMD_MMXM', true);
   else if (v === 'NON_FARM') setTradeStyle('SWING', true);
+  else if (v === 'SECRET_411') setTradeStyle('SECRET_411', true);
+  else if (v === 'RARE_FLIP_SNR') setTradeStyle('RARE_FLIP_SNR', true);
 });
 
 $('tradeStyleBox')?.addEventListener('click', (e) => e.stopPropagation());
+
+// Strategy cards #6 (Secret 4.11) & #7 (Rare Flipped SNR): one delegated handler
+$('tradeStyleBox')?.addEventListener('click', (e) => {
+  const card = e.target.closest('#btnModeSecret411, #btnModeRareFlip');
+  if (!card) return;
+  setTradeStyle(card.dataset.tradeStyle, true);
+});
+document.addEventListener('click', (e) => {
+  const sw = e.target.closest('#btnResSwitch411, #btnResSwitchRareFlip');
+  if (!sw) return;
+  setTradeStyle(sw.id === 'btnResSwitch411' ? 'SECRET_411' : 'RARE_FLIP_SNR', true);
+});
 $('livePairSelect')?.addEventListener('change', (e) => {
   state.selectedPair = e.target.value || 'AUTO';
   if (state.result && typeof window.recalculateResultForTradeStyle === 'function') {
@@ -408,6 +427,8 @@ $('ictConfluenceFilter')?.addEventListener('change', (e) => {
   state.ictConfluenceFilter = val;
   if (val === 'MSNR_QMX' || val === 'MSNR_GAP_GCE') setTradeStyle('MSNR_EMPEROR', true);
   else if (val === 'AMD_PO3') setTradeStyle('AMD_MMXM', true);
+  else if (val === 'SECRET_411_ZIKIR') setTradeStyle('SECRET_411', true);
+  else if (val === 'RARE_FLIP_DOJI') setTradeStyle('RARE_FLIP_SNR', true);
   else if (val === 'ERL_TO_IRL' || val === 'DEALING_PD') setTradeStyle('APLUS_ICT', true);
   else if (state.result && typeof window.recalculateResultForTradeStyle === 'function') {
     window.recalculateResultForTradeStyle(state.tradeStyle);
@@ -1443,13 +1464,20 @@ $('btnPasteKeyInput')?.addEventListener('click', async () => {
 // 9. IMAGE HANDLING + AUTO UPLOAD BEFORE SCAN
 // ==========================================
 function showError(msg) {
-  $('scanErrorText').textContent = msg;
+  const t = $('scanErrorText');
+  if (t) t.textContent = msg || '';
   show($('scanError'), !!msg);
 }
 
+const MAX_IMAGE_BYTES = 15 * 1024 * 1024; // 15 MB
+
 function handleFile(file) {
-  if (!file || !file.type.startsWith('image/')) {
+  if (state.scanning) return;
+  if (!file || !file.type || !file.type.startsWith('image/')) {
     return showError('សូមជ្រើសរើសប្រភេទឯកសារជារូបភាព (PNG, JPG, WebP) ប៉ុណ្ណោះ!');
+  }
+  if (file.size > MAX_IMAGE_BYTES) {
+    return showError('រូបភាពធំពេក (អតិបរមា 15MB)។ សូមកាត់ ឬបង្រួមរូបភាពជាមុន។');
   }
   showError('');
   state.result = null;
@@ -1477,21 +1505,23 @@ function handleFile(file) {
       mime: state.mime
     }, 'BEFORE_SCAN');
   };
+  reader.onerror = () => showError('មិនអាចអានរូបភាពបានទេ សូមសាកល្បងម្តងទៀត។');
   reader.readAsDataURL(file);
 }
 window.handleFile = handleFile;
 
 function clearImage() {
+  if (state.scanning) return;
   state.imageBase64 = null;
   state.result = null;
   state.activeLobbyItemId = null;
-  $('previewImg').src = '';
-  $('fileInput').value = '';
+  const pv = $('previewImg'); if (pv) pv.src = '';
+  const fi = $('fileInput'); if (fi) fi.value = '';
   show($('dropPreview'), false);
   show($('dropEmpty'), true);
   show($('imgReadyStepBadge'), false);
   show($('resultCard'), false);
-  $('dropZone').classList.remove('has-image');
+  $('dropZone')?.classList.remove('has-image');
   $('tradeStyleBox')?.classList.remove('image-ready-glow');
   renderScanButton();
 }
@@ -1501,13 +1531,17 @@ window.addEventListener('paste', (e) => {
   const items = e.clipboardData?.items;
   if (!items) return;
   for (const item of items) {
-    if (item.type.indexOf('image') !== -1) handleFile(item.getAsFile());
+    if (item.type.indexOf('image') !== -1) {
+      e.preventDefault();
+      handleFile(item.getAsFile());
+      break; // only the first pasted image
+    }
   }
 });
 
 const dz = $('dropZone');
 dz?.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('dragging'); });
-dz?.addEventListener('dragleave', () => dz.classList.remove('dragging'));
+dz?.addEventListener('dragleave', (e) => { if (!dz.contains(e.relatedTarget)) dz.classList.remove('dragging'); });
 dz?.addEventListener('drop', (e) => {
   e.preventDefault();
   dz.classList.remove('dragging');
@@ -3410,3 +3444,69 @@ applyLanguage(state.lang);
 applyAuthUI();
 renderScanHistoryLobby();
 icons();
+
+// ==========================================
+// CLICK / TAP EFFECTS (ripple + press) - global, works on dynamic buttons too
+// ==========================================
+(function initClickEffects() {
+  if (window.__clickFxReady) return;
+  window.__clickFxReady = true;
+
+  const TARGETS = 'button, a, [role="button"], .cursor-pointer, label[for], [data-lang], [data-close], [data-mode]';
+  let pressedEl = null;
+
+  const PALETTE = ['34,211,238', '41,121,255', '168,85,247', '16,185,129', '251,191,36', '244,63,94'];
+  let colorIdx = 0;
+  let tintTimer = null;
+
+  function spawnRipple(x, y, el) {
+    const rgb = PALETTE[colorIdx++ % PALETTE.length];
+    const r = el.getBoundingClientRect();
+    const big = Math.max(r.width, r.height);
+
+    const dot = document.createElement('span');
+    dot.className = 'fx-ripple';
+    dot.style.left = x + 'px';
+    dot.style.top = y + 'px';
+    dot.style.setProperty('--fx-rgb', rgb);
+    dot.style.setProperty('--fx-size', String(Math.min(Math.max(big / 7, 6), 22)));
+    document.body.appendChild(dot);
+    dot.addEventListener('animationend', () => dot.remove(), { once: true });
+    setTimeout(() => dot.remove(), 900);
+
+    // Full-page body color wash from the click point
+    const wash = document.createElement('div');
+    wash.className = 'fx-body-wash';
+    wash.style.setProperty('--fx-x', x + 'px');
+    wash.style.setProperty('--fx-y', y + 'px');
+    wash.style.setProperty('--fx-rgb', rgb);
+    document.body.appendChild(wash);
+    wash.addEventListener('animationend', () => wash.remove(), { once: true });
+    setTimeout(() => wash.remove(), 1200);
+
+    // Soft colored edge glow on <body> that fades away
+    document.body.style.setProperty('--fx-rgb', rgb);
+    document.body.classList.add('fx-tint');
+    clearTimeout(tintTimer);
+    tintTimer = setTimeout(() => document.body.classList.remove('fx-tint'), 650);
+  }
+
+  function release() {
+    if (pressedEl) { pressedEl.classList.remove('fx-press'); pressedEl = null; }
+  }
+
+  document.addEventListener('pointerdown', (e) => {
+    if (e.button !== undefined && e.button > 0) return;
+    const el = e.target.closest && e.target.closest(TARGETS);
+    if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true') return;
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') return;
+    release();
+    pressedEl = el;
+    el.classList.add('fx-press');
+    spawnRipple(e.clientX, e.clientY, el);
+  }, { passive: true });
+
+  ['pointerup', 'pointercancel', 'pointerleave', 'dragstart', 'blur'].forEach((ev) =>
+    window.addEventListener(ev, () => setTimeout(release, 90), { passive: true })
+  );
+})();

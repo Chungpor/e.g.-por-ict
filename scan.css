@@ -223,7 +223,7 @@ body > *:not(#bgTradeCanvas):not(.fixed) {
   z-index: 10;
 }
 
-.bg-[\#111726] {
+.bg-\[\#111726\] {
   background: rgba(15, 22, 38, 0.72) !important;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -417,7 +417,7 @@ body.light-mode #bgTradeCanvas {
 }
 
 /* ========================================================= */
-/* SCALPING vs SWING vs A+ ICT vs MSNR EMPIRE MODE SELECTOR  */
+/* 7 PRO STRATEGIES MODE SELECTOR CARDS                      */
 /* ========================================================= */
 .trade-style-card {
   position: relative;
@@ -452,6 +452,18 @@ body.light-mode #bgTradeCanvas {
   background: linear-gradient(135deg, rgba(244, 63, 94, 0.28), rgba(245, 158, 11, 0.18), rgba(15, 23, 42, 0.96));
   border-color: #fb7185 !important;
   box-shadow: 0 0 28px rgba(244, 63, 94, 0.42), inset 0 1px 1.5px rgba(255, 255, 255, 0.28);
+  transform: translateY(-2px);
+}
+.trade-style-card.active-secret411 {
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.28), rgba(16, 185, 129, 0.18), rgba(15, 23, 42, 0.96));
+  border-color: #fde047 !important;
+  box-shadow: 0 0 28px rgba(250, 204, 21, 0.45), inset 0 1px 1.5px rgba(255, 255, 255, 0.28);
+  transform: translateY(-2px);
+}
+.trade-style-card.active-rareflip {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.28), rgba(168, 85, 247, 0.18), rgba(15, 23, 42, 0.96));
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 28px rgba(56, 189, 248, 0.45), inset 0 1px 1.5px rgba(255, 255, 255, 0.28);
   transform: translateY(-2px);
 }
 
@@ -641,3 +653,64 @@ body.light-mode #bgTradeCanvas {
   animation: goldSweep4K 3.5s cubic-bezier(.4, 0, .2, 1) infinite;
   pointer-events: none;
 }
+
+/* ==========================================
+   CLICK / TAP EFFECTS (ripple + press)
+   ========================================== */
+.fx-press {
+  scale: 0.95;
+  filter: brightness(1.25) saturate(1.1);
+  transition: scale .09s ease-out, filter .09s ease-out;
+}
+button, a, [role="button"], .cursor-pointer, label[for] {
+  transition-property: scale, filter, background-color, border-color, color, box-shadow, opacity;
+  transition-duration: .18s;
+  transition-timing-function: cubic-bezier(.2,.8,.2,1);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+button:disabled { cursor: not-allowed; }
+
+.fx-ripple {
+  position: fixed;
+  z-index: 99999;
+  width: 14px; height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgb(var(--fx-rgb, 34,211,238) / .65) 0%, rgb(var(--fx-rgb, 34,211,238) / .3) 45%, rgb(var(--fx-rgb, 34,211,238) / 0) 70%);
+  box-shadow: 0 0 18px rgb(var(--fx-rgb, 34,211,238) / .6);
+  transform: scale(0);
+  opacity: .9;
+  animation: fxRipple .6s cubic-bezier(.2,.7,.3,1) forwards;
+}
+@keyframes fxRipple {
+  to { transform: scale(var(--fx-size, 10)); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fx-ripple { display: none; }
+  .fx-press { scale: 1; }
+}
+
+/* Full-page body color wash on click */
+.fx-body-wash {
+  position: fixed;
+  inset: 0;
+  z-index: 99998;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0;
+  background: radial-gradient(circle at var(--fx-x, 50%) var(--fx-y, 50%),
+    rgb(var(--fx-rgb, 34,211,238) / .38) 0%,
+    rgb(var(--fx-rgb, 34,211,238) / .18) 28%,
+    rgb(var(--fx-rgb, 34,211,238) / 0) 62%);
+  clip-path: circle(0% at var(--fx-x, 50%) var(--fx-y, 50%));
+  animation: fxBodyWash .85s cubic-bezier(.2,.7,.3,1) forwards;
+}
+@keyframes fxBodyWash {
+  0%   { opacity: 1; clip-path: circle(0% at var(--fx-x, 50%) var(--fx-y, 50%)); }
+  60%  { opacity: .8; }
+  100% { opacity: 0; clip-path: circle(150% at var(--fx-x, 50%) var(--fx-y, 50%)); }
+}
+body.fx-tint { box-shadow: inset 0 0 120px rgb(var(--fx-rgb, 34,211,238) / .22); transition: box-shadow .5s ease; }
+@media (prefers-reduced-motion: reduce) { .fx-body-wash { display: none; } }
