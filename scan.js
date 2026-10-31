@@ -42,6 +42,7 @@ const MASTER_KEYS = ['KSNR-VIP', 'KSNR-2026', 'ADMIN-999', 'KSNR-UNLIMITED'];
 
 function isAdminUser(user) {
   if (!user || !user.identifier) return false;
+  if (user.role === 'admin') return true;
   return ADMIN_EMAILS.includes(String(user.identifier).trim().toLowerCase());
 }
 
@@ -241,7 +242,7 @@ const state = {
     BTCUSD:  { label: 'BTCUSD (Crypto SMC)',        color: 'text-cyan-300',   rate: 91.2, trendUp: true },
     ETHUSDT: { label: 'ETHUSDT (Ethereum Sniper)',  color: 'text-blue-300',   rate: 91.5, trendUp: true },
     USOIL:   { label: 'USOIL (Crude Oil Sniper)',   color: 'text-rose-300',   rate: 90.9, trendUp: true },
-    NEWS:    { label: 'MSNR QMX / ICT AMD / NEWS',  color: 'text-purple-300', rate: 92.1, trendUp: true }
+    NEWS:    { label: 'MSNR QMX / 4.11 / RARE SNR', color: 'text-purple-300', rate: 92.6, trendUp: true }
   },
   lang: localStorage.getItem('ksnr_lang') || 'km',
   user: JSON.parse(localStorage.getItem('ksnr_current_user') || 'null')
@@ -260,10 +261,32 @@ function flashButton(btn, doneHtml, originalHtml) {
 }
 
 // ==========================================
-// 3B. 5 PRO TRADING STRATEGIES SELECTOR
-// (SCALPING | SWING | APLUS_ICT | MSNR_EMPEROR | AMD_MMXM)
+// 3B. 7 PRO TRADING STRATEGIES SELECTOR
+// (SCALPING | SWING | APLUS_ICT | MSNR_EMPEROR | AMD_MMXM | SECRET_411 | RARE_FLIP_SNR)
 // ==========================================
 function getStyleDisplayMeta(style) {
+  if (style === 'SECRET_411') {
+    return {
+      code: 'SECRET_411',
+      badgeText: '🕵️‍♂️ SECRET OF 4.11 (HSL + ISL + ZIKIR)',
+      badgeClass: 'px-2.5 py-0.5 rounded-full bg-yellow-500/20 border border-yellow-400/50 text-yellow-300 text-[10px] font-extrabold uppercase',
+      resBadgeText: '🕵️‍♂️ SECRET OF 4.11 • HSL+ISL ZIKIR (R:R 1:4.2)',
+      resBadgeClass: 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-yellow-500/20 border border-yellow-400/50 text-yellow-300',
+      scanBtnLabel: '🕵️‍♂️ SECRET OF 4.11',
+      overlayTag: 'SECRET OF 4.11 (HSL NIGHT MARKET + ISL 2x BO + YELLOW ZONE)'
+    };
+  }
+  if (style === 'RARE_FLIP_SNR') {
+    return {
+      code: 'RARE_FLIP_SNR',
+      badgeText: '💎 RARE #FLIPPED_SNR & #DOJI_SNR',
+      badgeClass: 'px-2.5 py-0.5 rounded-full bg-sky-500/20 border border-sky-400/50 text-sky-300 text-[10px] font-extrabold uppercase',
+      resBadgeText: '💎 RARE #FLIPPED_SNR + #DOJI_SNR (R:R 1:5.0)',
+      resBadgeClass: 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-sky-500/20 border border-sky-400/50 text-sky-300',
+      scanBtnLabel: '💎 RARE #FLIPPED_SNR',
+      overlayTag: 'RARE #FLIPPED_SNR + #DOJI_SNR + GAP UL/LL FLIPZONE'
+    };
+  }
   if (style === 'SWING') {
     return {
       code: 'SWING',
@@ -318,17 +341,18 @@ function getStyleDisplayMeta(style) {
     overlayTag: 'SNIPER SCALPING OVERLAY (1M–15M)'
   };
 }
+window.getStyleDisplayMeta = getStyleDisplayMeta;
 
 function setTradeStyle(style, userClickedChoice = false) {
   state.tradeStyle = VALID_TRADE_STYLES.includes(style) ? style : 'SCALPING';
   localStorage.setItem('ksnr_trade_style', state.tradeStyle);
 
   const btnMap = {
-    SCALPING:     { el: $('btnModeScalping'), cls: 'active-scalp' },
-    SWING:        { el: $('btnModeSwing'),    cls: 'active-swing' },
-    APLUS_ICT:    { el: $('btnModeAPlus'),    cls: 'active-aplus' },
-    MSNR_EMPEROR: { el: $('btnModeMsnr'),     cls: 'active-msnr' },
-    AMD_MMXM:     { el: $('btnModeAmd'),      cls: 'active-amd' },
+    SCALPING:      { el: $('btnModeScalping'),  cls: 'active-scalp' },
+    SWING:         { el: $('btnModeSwing'),     cls: 'active-swing' },
+    APLUS_ICT:     { el: $('btnModeAPlus'),     cls: 'active-aplus' },
+    MSNR_EMPEROR:  { el: $('btnModeMsnr'),      cls: 'active-msnr' },
+    AMD_MMXM:      { el: $('btnModeAmd'),       cls: 'active-amd' },
     SECRET_411:    { el: $('btnModeSecret411'), cls: 'active-secret411' },
     RARE_FLIP_SNR: { el: $('btnModeRareFlip'),  cls: 'active-rareflip' }
   };
@@ -347,13 +371,13 @@ function setTradeStyle(style, userClickedChoice = false) {
   }
 
   const resBtnConfigs = [
-    { id: 'btnResSwitchScalp', code: 'SCALPING',     on: 'px-2.5 py-1 rounded-lg bg-cyan-500 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(6,182,212,0.45)]',     off: 'px-2.5 py-1 rounded-lg bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 font-extrabold cursor-pointer hover:brightness-110' },
-    { id: 'btnResSwitchSwing', code: 'SWING',        on: 'px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(251,191,36,0.45)]',   off: 'px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-400/50 text-amber-300 font-extrabold cursor-pointer hover:brightness-110' },
-    { id: 'btnResSwitchAPlus', code: 'APLUS_ICT',    on: 'px-2.5 py-1 rounded-lg bg-emerald-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(52,211,153,0.45)]', off: 'px-2.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 font-extrabold cursor-pointer hover:brightness-110' },
-    { id: 'btnResSwitchMsnr',  code: 'MSNR_EMPEROR', on: 'px-2.5 py-1 rounded-lg bg-purple-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(192,132,252,0.45)]', off: 'px-2.5 py-1 rounded-lg bg-purple-500/20 border border-purple-400/50 text-purple-300 font-extrabold cursor-pointer hover:brightness-110' },
-    { id: 'btnResSwitchAmd',   code: 'AMD_MMXM',     on: 'px-2.5 py-1 rounded-lg bg-rose-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(251,113,133,0.45)]',   off: 'px-2.5 py-1 rounded-lg bg-rose-500/20 border border-rose-400/50 text-rose-300 font-extrabold cursor-pointer hover:brightness-110' },
-    { id: 'btnResSwitch411',      code: 'SECRET_411',    on: 'px-2.5 py-1 rounded-lg bg-yellow-300 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(253,224,71,0.5)]', off: 'px-2.5 py-1 rounded-lg bg-yellow-500/20 border border-yellow-400/50 text-yellow-300 font-extrabold cursor-pointer hover:brightness-110' },
-    { id: 'btnResSwitchRareFlip', code: 'RARE_FLIP_SNR', on: 'px-2.5 py-1 rounded-lg bg-sky-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(56,189,248,0.5)]',  off: 'px-2.5 py-1 rounded-lg bg-sky-500/20 border border-sky-400/50 text-sky-300 font-extrabold cursor-pointer hover:brightness-110' }
+    { id: 'btnResSwitchScalp',    code: 'SCALPING',      on: 'px-2.5 py-1 rounded-lg bg-cyan-500 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(6,182,212,0.45)]',     off: 'px-2.5 py-1 rounded-lg bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 font-extrabold cursor-pointer hover:brightness-110' },
+    { id: 'btnResSwitchSwing',    code: 'SWING',         on: 'px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(251,191,36,0.45)]',   off: 'px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-400/50 text-amber-300 font-extrabold cursor-pointer hover:brightness-110' },
+    { id: 'btnResSwitchAPlus',    code: 'APLUS_ICT',     on: 'px-2.5 py-1 rounded-lg bg-emerald-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(52,211,153,0.45)]', off: 'px-2.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 font-extrabold cursor-pointer hover:brightness-110' },
+    { id: 'btnResSwitchMsnr',     code: 'MSNR_EMPEROR',  on: 'px-2.5 py-1 rounded-lg bg-purple-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(192,132,252,0.45)]', off: 'px-2.5 py-1 rounded-lg bg-purple-500/20 border border-purple-400/50 text-purple-300 font-extrabold cursor-pointer hover:brightness-110' },
+    { id: 'btnResSwitchAmd',      code: 'AMD_MMXM',      on: 'px-2.5 py-1 rounded-lg bg-rose-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(251,113,133,0.45)]',   off: 'px-2.5 py-1 rounded-lg bg-rose-500/20 border border-rose-400/50 text-rose-300 font-extrabold cursor-pointer hover:brightness-110' },
+    { id: 'btnResSwitch411',      code: 'SECRET_411',    on: 'px-2.5 py-1 rounded-lg bg-yellow-300 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(253,224,71,0.5)]',  off: 'px-2.5 py-1 rounded-lg bg-yellow-500/20 border border-yellow-400/50 text-yellow-300 font-extrabold cursor-pointer hover:brightness-110' },
+    { id: 'btnResSwitchRareFlip', code: 'RARE_FLIP_SNR', on: 'px-2.5 py-1 rounded-lg bg-sky-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(56,189,248,0.5)]',     off: 'px-2.5 py-1 rounded-lg bg-sky-500/20 border border-sky-400/50 text-sky-300 font-extrabold cursor-pointer hover:brightness-110' }
   ];
 
   resBtnConfigs.forEach((cfg) => {
@@ -384,12 +408,16 @@ $('btnModeSwing')?.addEventListener('click', (e) => { e.stopPropagation(); setTr
 $('btnModeAPlus')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('APLUS_ICT', true); });
 $('btnModeMsnr')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('MSNR_EMPEROR', true); });
 $('btnModeAmd')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('AMD_MMXM', true); });
+$('btnModeSecret411')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('SECRET_411', true); });
+$('btnModeRareFlip')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('RARE_FLIP_SNR', true); });
 
 $('btnResSwitchScalp')?.addEventListener('click', () => setTradeStyle('SCALPING', true));
 $('btnResSwitchSwing')?.addEventListener('click', () => setTradeStyle('SWING', true));
 $('btnResSwitchAPlus')?.addEventListener('click', () => setTradeStyle('APLUS_ICT', true));
 $('btnResSwitchMsnr')?.addEventListener('click', () => setTradeStyle('MSNR_EMPEROR', true));
 $('btnResSwitchAmd')?.addEventListener('click', () => setTradeStyle('AMD_MMXM', true));
+$('btnResSwitch411')?.addEventListener('click', () => setTradeStyle('SECRET_411', true));
+$('btnResSwitchRareFlip')?.addEventListener('click', () => setTradeStyle('RARE_FLIP_SNR', true));
 
 $('newsFlipMode')?.addEventListener('change', (e) => {
   const v = e.target.value;
@@ -404,17 +432,6 @@ $('newsFlipMode')?.addEventListener('change', (e) => {
 
 $('tradeStyleBox')?.addEventListener('click', (e) => e.stopPropagation());
 
-// Strategy cards #6 (Secret 4.11) & #7 (Rare Flipped SNR): one delegated handler
-$('tradeStyleBox')?.addEventListener('click', (e) => {
-  const card = e.target.closest('#btnModeSecret411, #btnModeRareFlip');
-  if (!card) return;
-  setTradeStyle(card.dataset.tradeStyle, true);
-});
-document.addEventListener('click', (e) => {
-  const sw = e.target.closest('#btnResSwitch411, #btnResSwitchRareFlip');
-  if (!sw) return;
-  setTradeStyle(sw.id === 'btnResSwitch411' ? 'SECRET_411' : 'RARE_FLIP_SNR', true);
-});
 $('livePairSelect')?.addEventListener('change', (e) => {
   state.selectedPair = e.target.value || 'AUTO';
   if (state.result && typeof window.recalculateResultForTradeStyle === 'function') {
@@ -663,13 +680,15 @@ const I18N = {
     dropTitle: 'Drop your Chart image here',
     dropSub: 'Members must Login and activate a <span class="text-[#facc15] font-bold">Special KEY</span> to scan (Admin Unlimited Scan)',
     enterKeyBtn: 'Enter KEY to Scan',
-    imgReadyNotice: '✅ Chart Image Ready! Choose one of the 5 Pro Strategies below for a clear Perfect Entry:',
-    chooseTradeStyle: '🎯 Choose Scanning Strategy (5 Pro Strategies for Clear Perfect Entry):',
+    imgReadyNotice: '✅ Chart Image Ready! Choose one of the 7 Pro Strategies below for a clear Perfect Entry:',
+    chooseTradeStyle: '🎯 Choose Scanning Strategy (7 Pro Strategies for Clear Perfect Entry):',
     scalpDesc: 'Sniper Perfect Entry • 1m Ping-Pong & Micro OB + FVG • Tight SL (1.0x ATR) • Join Trade Immediately (R:R 1:2.8)',
     swingDesc: 'Hold bigger trend moves via Storyline (WRW / DRD) • Major Liquidity (PWH/PDH) • Wide SL (R:R 1:4.5)',
     aplusDesc: 'ERL Liquidity Sweep (BSL/SSL) + SMT Divergence + Algo Candle FVG at 50% C.E. in Discount/Premium (R:R 1:3.5)',
     msnrDesc: 'Fresh A/V & Gap SNR + Shadow Wick Touch + Missed Candles + QML Crossing Trendline Point #3 ("X") & GCE (R:R 1:4.0)',
-    amdDesc: 'Asia Accumulation Build-Up → Frankfurt/London Manipulation Sweep (Inducement) → NY Distribution + Breaker Block (R:R 1:3.8)'
+    amdDesc: 'Asia Accumulation Build-Up → Frankfurt/London Manipulation Sweep (Inducement) → NY Distribution + Breaker Block (R:R 1:3.8)',
+    secret411Desc: 'Zikir (1.Breakout 2x → 2.Pullback → 3.Entry) • Night Market (HSL) + ISL Full-Body+Wick Yellow Zone • 5 Engulfing Types (R:R 1:4.2)',
+    rareFlipDesc: 'Flipping Momentum Candle (Bullish Gap Overtakes Bearish Gap A-B-C Cycle) • #Doji_SNR & #GAP_SNR (UL/LL) • 1R:5R Target'
   },
   km: {
     flag: 'KH', label: 'ភាសាខ្មែរ',
@@ -683,12 +702,14 @@ const I18N = {
     dropSub: 'សមាជិកត្រូវ Login គណនី និងមាន <span class="text-[#facc15] font-bold">KEY ពិសេស</span> ដើម្បីស្កេន (Admin ស្កេនឥតដែនកំណត់)',
     enterKeyBtn: 'បញ្ចូល KEY ដើម្បីស្កេន',
     imgReadyNotice: '✅ រូបភាព Chart រួចរាល់! សូមជ្រើសរើសយុទ្ធសាស្ត្រស្កេនរក Perfect Entry ខាងក្រោម៖',
-    chooseTradeStyle: '🎯 ជ្រើសរើសយុទ្ធសាស្ត្រស្កេន (5 Pro Strategies for Clear Perfect Entry)៖',
+    chooseTradeStyle: '🎯 ជ្រើសរើសយុទ្ធសាស្ត្រស្កេន (7 Pro Strategies for Clear Perfect Entry)៖',
     scalpDesc: 'Sniper Perfect Entry • 1m Ping-Pong & Micro OB + FVG • Tight SL (1.0x ATR) • Join Trade ភ្លាមៗ (R:R 1:2.8)',
     swingDesc: 'កាន់វែងតាម Storyline (WRW / DRD) • Major Liquidity (PWH/PDH) • Wide Structural SL • TP ធំ (R:R 1:4.5)',
     aplusDesc: 'ERL Liquidity Sweep (BSL/SSL) + SMT Divergence + Algo Candle FVG ត្រង់ 50% C.E. ក្នុងតំបន់ Discount/Premium',
     msnrDesc: 'Fresh A/V & Gap SNR + Shadow Touch + Missed Candles + QML ប្រសព្វ Trendline Point #3 (\'X\' Factor) & GCE',
-    amdDesc: 'Asia Accumulation Build-Up → Frankfurt/London Manipulation Sweep (Inducement Trap) → NY Open Distribution + Breaker/Rejection Block & HVI'
+    amdDesc: 'Asia Accumulation Build-Up → Frankfurt/London Manipulation Sweep (Inducement Trap) → NY Open Distribution + Breaker/Rejection Block & HVI',
+    secret411Desc: 'Zikir (1.Breakout 2x → 2.Pullback → 3.Entry) • Night Market (HSL) + ISL Full-Body+Wick Yellow Zone • 5 Engulfing Types',
+    rareFlipDesc: 'Flipping Momentum Candle (Bullish Gap Overtakes Bearish Gap A-B-C Cycle) • #Doji_SNR & #GAP_SNR (UL/LL) • Direct & Confirmatory Entry + Internal Gap Roadblocks'
   }
 };
 
@@ -715,6 +736,8 @@ function applyLanguage(lang) {
   if ($('txtAplusDesc')) $('txtAplusDesc').textContent = t.aplusDesc;
   if ($('txtMsnrDesc')) $('txtMsnrDesc').textContent = t.msnrDesc;
   if ($('txtAmdDesc')) $('txtAmdDesc').textContent = t.amdDesc;
+  if ($('txtSecret411Desc')) $('txtSecret411Desc').textContent = t.secret411Desc;
+  if ($('txtRareFlipDesc')) $('txtRareFlipDesc').textContent = t.rareFlipDesc;
   renderScanButton();
 }
 
@@ -731,6 +754,7 @@ $('btnTheme')?.addEventListener('click', () => {
 
 // ==========================================
 // 7. USER AUTH, PROFILE & ACCOUNT HISTORY
+// (Synced with Express auth.js + LocalStorage Fallback)
 // ==========================================
 function getInitials(name) {
   return String(name || 'PO').trim().slice(0, 2).toUpperCase();
@@ -783,6 +807,34 @@ function syncUserRecord(updatedFields) {
     users[idx] = { ...users[idx], ...updatedFields };
     saveUsers(users);
   }
+  if (updatedFields.username !== undefined || updatedFields.avatar !== undefined) {
+    fetch('/api/profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: state.user.username,
+        avatar: state.user.avatar || ''
+      })
+    }).catch(() => {});
+  }
+}
+
+async function checkServerSessionOnLoad() {
+  try {
+    const res = await fetch('/api/me', { headers: { 'Accept': 'application/json' } });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.user) {
+        const savedLocal = JSON.parse(localStorage.getItem('ksnr_current_user') || 'null');
+        state.user = {
+          ...(savedLocal || {}),
+          ...data.user
+        };
+        localStorage.setItem('ksnr_current_user', JSON.stringify(state.user));
+        applyAuthUI();
+      }
+    }
+  } catch (_) {}
 }
 
 function applyAuthUI() {
@@ -1025,7 +1077,14 @@ $('btnOpenHistory')?.addEventListener('click', () => {
   openModal('historyModal');
 });
 
-$('btnProfileLogout')?.addEventListener('click', () => {
+$('btnProfileLogout')?.addEventListener('click', async () => {
+  try {
+    await fetch('/api/logout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}'
+    });
+  } catch (_) {}
   state.user = null;
   localStorage.removeItem('ksnr_current_user');
   closeModal('profileModal');
@@ -1048,7 +1107,7 @@ document.querySelectorAll('[data-toggle-pass]').forEach((btn) => {
   });
 });
 
-$('signupForm')?.addEventListener('submit', (e) => {
+$('signupForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
   const username = $('signupUsername').value.trim();
   const gender = $('signupGender').value;
@@ -1056,10 +1115,41 @@ $('signupForm')?.addEventListener('submit', (e) => {
   const identifier = $('signupIdentifier').value.trim().toLowerCase();
   const password = $('signupPassword').value;
 
-  if (password.length < 4) {
-    $('signupError').textContent = 'Password ត្រូវមានយ៉ាងតិច 4 ខ្ទង់!';
+  if (password.length < 6) {
+    $('signupError').textContent = 'Password ត្រូវមានយ៉ាងតិច 6 ខ្ទង់!';
     return show($('signupError'), true);
   }
+
+  try {
+    const res = await fetch('/api/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, gender, age, identifier, password })
+    });
+    const data = await res.json();
+    if (res.ok && data.user) {
+      state.user = data.user;
+      localStorage.setItem('ksnr_current_user', JSON.stringify(state.user));
+      const users = getUsers();
+      const idx = users.findIndex((u) => u.identifier === identifier);
+      if (idx !== -1) users[idx] = { ...users[idx], ...data.user, password };
+      else users.push({ ...data.user, password });
+      saveUsers(users);
+
+      addHistoryLog('ACCOUNT', 'បង្កើតគណនីសមាជិកថ្មីដោយជោគជ័យ');
+      $('signupForm').reset();
+      show($('signupError'), false);
+      closeModal('signupModal');
+      applyAuthUI();
+      return;
+    } else if (data && data.message) {
+      $('signupError').textContent = data.message;
+      return show($('signupError'), true);
+    }
+  } catch (_) {
+    // Fallback to localStorage if running without Node backend
+  }
+
   const users = getUsers();
   const existingIdx = users.findIndex((u) => u.identifier === identifier);
   if (existingIdx !== -1 && !ADMIN_EMAILS.includes(identifier)) {
@@ -1080,10 +1170,32 @@ $('signupForm')?.addEventListener('submit', (e) => {
   applyAuthUI();
 });
 
-$('loginForm')?.addEventListener('submit', (e) => {
+$('loginForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
   const identifier = $('loginIdentifier').value.trim().toLowerCase();
   const password = $('loginPassword').value;
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifier, password })
+    });
+    const data = await res.json();
+    if (res.ok && data.user) {
+      state.user = data.user;
+      localStorage.setItem('ksnr_current_user', JSON.stringify(state.user));
+      addHistoryLog('LOGIN', `បានចូលគណនី ${data.user.identifier} ដោយជោគជ័យ`);
+      $('loginForm').reset();
+      show($('loginError'), false);
+      closeModal('loginModal');
+      applyAuthUI();
+      return;
+    }
+  } catch (_) {
+    // Fallback to localStorage if running without Node backend
+  }
+
   const users = getUsers();
   let matched = users.find((u) => (u.identifier === identifier || u.username.toLowerCase() === identifier) && u.password === password);
   if (!matched && ADMIN_EMAILS.includes(identifier)) {
@@ -1555,7 +1667,7 @@ window.addEventListener('paste', (e) => {
     if (item.type.indexOf('image') !== -1) {
       e.preventDefault();
       handleFile(item.getAsFile());
-      break; // only the first pasted image
+      break;
     }
   }
 });
@@ -1660,18 +1772,15 @@ window.drawAnnotatedChartCanvas = function(r) {
     const zoneLeft = Math.floor(w * 0.42);
     const zoneRight = Math.floor(w * 0.86);
 
-    // 1. Subtle Dark Vignette for Contrast
     ctx.fillStyle = 'rgba(4, 9, 20, 0.24)';
     ctx.fillRect(0, 0, w, h);
 
-    // 2. Shaded Profit Box (Entry to TP2) & Risk Box (Entry to SL)
     ctx.fillStyle = 'rgba(16, 185, 129, 0.13)';
     ctx.fillRect(zoneLeft, Math.min(yEntry, yTp2), zoneRight - zoneLeft, Math.abs(yTp2 - yEntry));
 
     ctx.fillStyle = 'rgba(244, 63, 94, 0.15)';
     ctx.fillRect(zoneLeft, Math.min(yEntry, ySl), zoneRight - zoneLeft, Math.abs(ySl - yEntry));
 
-    // 3. Highlighted Sniper FVG / OrderBlock / MSNR Perfect Entry Zone Box
     const boxTop = Math.min(yT1, yEntry, yT3) - 6;
     const boxHeight = Math.max(14, Math.abs(yT3 - yT1) + 12);
     ctx.fillStyle = isBuy ? 'rgba(0, 229, 255, 0.22)' : 'rgba(244, 63, 94, 0.22)';
@@ -1680,7 +1789,6 @@ window.drawAnnotatedChartCanvas = function(r) {
     ctx.fillRect(Math.floor(w * 0.30), boxTop, zoneRight - Math.floor(w * 0.30), boxHeight);
     ctx.strokeRect(Math.floor(w * 0.30), boxTop, zoneRight - Math.floor(w * 0.30), boxHeight);
 
-    // 4. Draw Malaysian SNR Trendline 'X' (Point 1 -> Point 2 -> Point 3 QMX Intersection at Perfect Entry)
     const pt3X = Math.floor(w * 0.64);
     const pt3Y = yEntry;
     const pt1X = Math.floor(w * 0.22);
@@ -1698,7 +1806,6 @@ window.drawAnnotatedChartCanvas = function(r) {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Draw Points #1, #2, #3 ('X' Factor Confluence)
     [
       { x: pt1X, y: pt1Y, lbl: '#1 SNR' },
       { x: pt2X, y: pt2Y, lbl: '#2 MISS' },
@@ -1718,7 +1825,6 @@ window.drawAnnotatedChartCanvas = function(r) {
     });
     ctx.restore();
 
-    // 5. Draw Future Projection Trajectory Arrow (Sweep -> Perfect Entry -> TP1 -> TP2)
     ctx.save();
     ctx.strokeStyle = isBuy ? '#34d399' : '#fb7185';
     ctx.lineWidth = 3;
@@ -1728,7 +1834,6 @@ window.drawAnnotatedChartCanvas = function(r) {
     ctx.lineTo(Math.floor(w * 0.82), yTp2);
     ctx.stroke();
 
-    // Arrowhead at TP2
     const endX = Math.floor(w * 0.82);
     const endY = yTp2;
     ctx.fillStyle = isBuy ? '#34d399' : '#fb7185';
@@ -1740,7 +1845,6 @@ window.drawAnnotatedChartCanvas = function(r) {
     ctx.fill();
     ctx.restore();
 
-    // 6. Helper to draw Horizontal Price Level Lines + Right Pill Badges
     const drawLevelLine = (y, label, priceText, colorHex, bgRgba, dashed = false) => {
       ctx.save();
       ctx.strokeStyle = colorHex;
@@ -1782,7 +1886,6 @@ window.drawAnnotatedChartCanvas = function(r) {
     drawLevelLine(yEntry, `⚡ PERFECT ${r.action} (C.E.)`, r.entry, '#18ffff', 'rgba(8, 51, 68, 0.96)', false);
     drawLevelLine(ySl, '🛑 STOP LOSS (SL)', r.sl, '#fb7185', 'rgba(136, 19, 55, 0.94)', false);
 
-    // 7. Top-Left Institutional Strategy Watermark Header
     ctx.save();
     ctx.fillStyle = 'rgba(8, 15, 30, 0.88)';
     ctx.strokeStyle = 'rgba(24, 255, 255, 0.55)';
@@ -1823,7 +1926,7 @@ $('btnDownloadAnnotatedChart')?.addEventListener('click', () => {
 });
 
 // ==========================================
-// 10B. RENDER RESULT (WITH 3-TIER PERFECT ENTRY + 5 STRATEGIES + VISUAL CHART)
+// 10B. RENDER RESULT (WITH 3-TIER PERFECT ENTRY + 7 STRATEGIES + VISUAL CHART)
 // ==========================================
 function buildSignalCopyText(r) {
   const isBuy = (r.action || '').toUpperCase().includes('BUY');
@@ -1831,22 +1934,28 @@ function buildSignalCopyText(r) {
   const meta = getStyleDisplayMeta(styleCode);
 
   const ict = r.ictLiquidity || {};
-  const sp = r.scalpPerfect || {};
   const te = r.tierEntries || {};
   const msnr = r.msnrEmperor || {};
+  const s411 = r.secret411Rare || {};
 
   return `🔥 លទ្ធផលស្កេន High Probability Setup (Por - SNR Scanner) 🔥
 📈 ${isBuy ? 'ENTRY BUY NOW' : 'ENTRY SELL NOW'}: ${r.entry}
 🎯 3-Tier Perfect Entry Matrix:
-  • ⚡ Tier 1 (IOFED / Shadow Touch): ${te.tier1Iofed || r.entry}
+  • ⚡ Tier 1 (IOFED / Direct / MISS): ${te.tier1Iofed || r.entry}
   • 🎯 Tier 2 (Sniper 50% C.E. / QMX Best): ${te.tier2SniperCe || r.entry}
-  • 👑 Tier 3 (Golden Confirm GCE): ${te.tier3Golden || r.entry}
+  • 👑 Tier 3 (Golden Confirm GCE / DEEP): ${te.tier3Golden || r.entry}
 💰 TAKE PROFIT 1 (TP1): ${r.tp1} | TP2 (ERL): ${r.tp2}
 🛑 STOP LOSS (SL): ${r.sl}
 
 📊 Pair: ${r.pair} (${r.timeframe}) | Strategy: ${meta.resBadgeText}
 📈 និន្នាការ (Trend): ${r.trend}
 📝 ការវិភាគលម្អិត: ${r.detailedAnalysis || ''}
+
+🕵️‍♂️ Secret of 4.11 & 💎 Rare #Flipped_SNR:
+- 4.11 Night Market (HSL) + BO (ISL): ${s411.hslIslZone || 'HSL Cluster + ISL 2x Breakout Yellow Zone'}
+- 4.11 Engulfing & Pullback: ${s411.engulfPullback || 'Dominant / Hidden MTF Engulf • ACCURATE Pullback'}
+- Rare #Flipped_SNR (FLIPZONE): ${s411.flippedSnr || 'Momentum Flipping Candle (Gap Overtake A-B-C Cycle)'}
+- #Doji_SNR & #GAP_SNR Limits: ${s411.dojiGapLimits || '#Doji_SNR + Internal Gap Roadblocks (UL / LL Protected)'}
 
 👑 Malaysian SNR Emperor & 🔥 ICT AMD Matrix:
 - MSNR Level & MISS: ${msnr.levelType || 'Fresh A/V + Gap SNR (Shadow Touch + Missed Candles)'}
@@ -1877,7 +1986,6 @@ function renderResult() {
     hpBanner.innerHTML = `<i data-lucide="${isBuy ? 'trending-up' : 'trending-down'}" class="w-5 h-5"></i><span>${isBuy ? 'ENTRY BUY NOW' : 'ENTRY SELL NOW'}</span>`;
   }
 
-  // Populate 3-Tier Perfect Entry Matrix & Scalping Box
   const sp = r.scalpPerfect || {};
   const te = r.tierEntries || {};
   const perfectBox = $('scalpPerfectEntryBox');
@@ -1888,8 +1996,8 @@ function renderResult() {
     }
     if ($('scalpExecutionNote')) {
       $('scalpExecutionNote').textContent = sp.executionNote || (isBuy
-        ? `តំបន់ចូល BUY ដ៏ល្អឥតខ្ចោះ (Micro OB + FVG + MSNR Shadow Touch + QMX Confluence) — ហានិភ័យទាបបំផុត!`
-        : `តំបន់ចូល SELL ដ៏ល្អឥតខ្ចោះ (Micro OB + FVG + MSNR Shadow Touch + QMX Confluence) — ហានិភ័យទាបបំផុត!`);
+        ? `តំបន់ចូល BUY ដ៏ល្អឥតខ្ចោះ (HSL+ISL Yellow Zone + #Flipped_SNR + 50% C.E. + QMX Confluence) — ហានិភ័យទាបបំផុត!`
+        : `តំបន់ចូល SELL ដ៏ល្អឥតខ្ចោះ (HSL+ISL Yellow Zone + #Flipped_SNR + 50% C.E. + QMX Confluence) — ហានិភ័យទាបបំផុត!`);
     }
     if ($('scalpJoinStatusBadge')) {
       $('scalpJoinStatusBadge').textContent = isBuy ? '🚀 JOIN BUY READY' : '🚀 JOIN SELL READY';
@@ -1898,13 +2006,12 @@ function renderResult() {
         : 'px-2.5 py-1 rounded-xl bg-rose-500 text-white font-extrabold text-[11px] tracking-wide uppercase shadow-[0_0_15px_rgba(244,63,94,0.5)]';
     }
 
-    // 3-Tier Perfect Entry values
     if ($('tier1IofedPrice')) $('tier1IofedPrice').textContent = te.tier1Iofed || r.entry || '-';
-    if ($('tier1IofedNote')) $('tier1IofedNote').textContent = te.tier1Note || 'គែមដំបូងនៃ FVG (IOFED) / Fresh SNR Wick Touch';
+    if ($('tier1IofedNote')) $('tier1IofedNote').textContent = te.tier1Note || 'គែមដំបូងនៃ FVG / Yellow Zone / Direct Entry';
     if ($('tier2SniperCePrice')) $('tier2SniperCePrice').textContent = te.tier2SniperCe || r.entry || '-';
-    if ($('tier2SniperCeNote')) $('tier2SniperCeNote').textContent = te.tier2Note || '50% FVG Equilibrium (C.E.) & Trendline Point #3 "X"';
+    if ($('tier2SniperCeNote')) $('tier2SniperCeNote').textContent = te.tier2Note || '50% Equilibrium (C.E.) / ACCURATE / #Doji_SNR';
     if ($('tier3GoldenPrice')) $('tier3GoldenPrice').textContent = te.tier3Golden || r.entry || '-';
-    if ($('tier3GoldenNote')) $('tier3GoldenNote').textContent = te.tier3Note || 'Golden Confirmation (GCE) ទៀន Engulfing បិទតួពេញ';
+    if ($('tier3GoldenNote')) $('tier3GoldenNote').textContent = te.tier3Note || 'Golden Confirmation (GCE) / DEEP Pullback';
 
     if ($('scalpPerfectZoneText')) $('scalpPerfectZoneText').textContent = sp.zone || `${r.entry}`;
     if ($('scalpLotAdviceText')) $('scalpLotAdviceText').textContent = sp.lotAdvice || `1.0% Risk (${r.rrRatio || '1:3.5'})`;
@@ -1960,7 +2067,6 @@ function renderResult() {
     $('rFlipText').textContent = r.keyFlipRule || '';
   }
 
-  // ICT Dealing Range & Liquidity Map
   const ict = r.ictLiquidity || {};
   if ($('rPdZoneBadge')) {
     const isDiscount = ict.isDiscount !== undefined ? ict.isDiscount : isBuy;
@@ -1980,7 +2086,6 @@ function renderResult() {
   if ($('rConfSmtText')) $('rConfSmtText').textContent = ict.confSmt || '#2 SMT Divergence Confirmed';
   if ($('rConfDispText')) $('rConfDispText').textContent = ict.confDisp || '#3 Displacement + FVG Entry';
 
-  // Malaysian SNR Emperor & ICT AMD Matrix
   const msnr = r.msnrEmperor || {};
   if ($('rMsnrStorylineBadge')) {
     $('rMsnrStorylineBadge').textContent = msnr.storylineBadge || '📐 STORYLINE + QMX CONFIRMED';
@@ -2002,6 +2107,23 @@ function renderResult() {
     $('rIctAmdCycle').textContent = msnr.amdCycle || 'Asia Build-Up → London Inducement Sweep → NY Distribution + Breaker';
   }
 
+  const s411 = r.secret411Rare || {};
+  if ($('r411ZikirBadge')) {
+    $('r411ZikirBadge').textContent = s411.zikirBadge || '🌙 ZIKIR FRESH ZONE (2x BO CONFIRMED)';
+  }
+  if ($('r411HslIslZone')) {
+    $('r411HslIslZone').textContent = s411.hslIslZone || 'HSL Cluster + ISL 2x Breakout (Full Body + Wick Yellow Zone)';
+  }
+  if ($('r411EngulfPullback')) {
+    $('r411EngulfPullback').textContent = s411.engulfPullback || 'Dominant / Hidden MTF Engulf • ACCURATE Pullback';
+  }
+  if ($('rRareFlippedSnr')) {
+    $('rRareFlippedSnr').textContent = s411.flippedSnr || 'Momentum Flipping Candle (Gap Overtake A-B-C Cycle)';
+  }
+  if ($('rRareDojiGapLimits')) {
+    $('rRareDojiGapLimits').textContent = s411.dojiGapLimits || '#Doji_SNR + Internal Gap Roadblocks (UL / LL Protected)';
+  }
+
   const box = $('rConfluence');
   if (box) {
     box.innerHTML = '';
@@ -2019,6 +2141,7 @@ function renderResult() {
   window.drawAnnotatedChartCanvas(r);
   icons();
 }
+window.renderResult = renderResult;
 
 const JOIN_TRADE_BTN_HTML = '<i data-lucide="rocket" class="w-4 h-4"></i><span>🚀 JOIN TRADE NOW (ចម្លង 3-Tier Perfect Entry យកទៅដាក់ក្នុង MT4/MT5)</span>';
 $('btnJoinTradeNow')?.addEventListener('click', () => {
@@ -2029,9 +2152,9 @@ $('btnJoinTradeNow')?.addEventListener('click', () => {
   const te = r.tierEntries || {};
   const ticketText = `🚀 JOIN TRADE NOW — ${r.pair} (${r.timeframe})
 ⚡ Action: ${isBuy ? 'BUY MARKET / LIMIT' : 'SELL MARKET / LIMIT'}
-🎯 Tier 1 (IOFED / Shadow Touch): ${te.tier1Iofed || r.entry}
+🎯 Tier 1 (IOFED / Direct / MISS): ${te.tier1Iofed || r.entry}
 🎯 Tier 2 (Sniper 50% C.E. / QMX Best): ${te.tier2SniperCe || r.entry}
-👑 Tier 3 (Golden Confirm GCE): ${te.tier3Golden || r.entry}
+👑 Tier 3 (Golden Confirm GCE / DEEP): ${te.tier3Golden || r.entry}
 🛑 Stop Loss (SL): ${r.sl}
 💰 Take Profit 1 (TP1 - Move SL to BE): ${r.tp1}
 💰 Take Profit 2 (TP2 - External ERL): ${r.tp2}
@@ -2237,7 +2360,10 @@ $('updateScanForm')?.addEventListener('submit', (e) => {
     r.sl = sl;
     r.tp1 = tp1;
     r.tp2 = tp2;
-    const rrMap = { SCALPING: '1:2.8', SWING: '1:4.5', APLUS_ICT: '1:3.5', MSNR_EMPEROR: '1:4.0', AMD_MMXM: '1:3.8' };
+    const rrMap = {
+      SCALPING: '1:2.8', SWING: '1:4.5', APLUS_ICT: '1:3.5',
+      MSNR_EMPEROR: '1:4.0', AMD_MMXM: '1:3.8', SECRET_411: '1:4.2', RARE_FLIP_SNR: '1:5.0'
+    };
     r.rrRatio = rrMap[tradeStyle] || '1:3.5';
     if (note) r.detailedAnalysis = note;
 
@@ -2373,7 +2499,7 @@ function renderScanHistoryLobby() {
   const list = getScanLobbyList();
   const total = list.length;
   const scalpCount = list.filter((i) => (i.result?.tradeStyle || 'SCALPING') === 'SCALPING').length;
-  const proStratCount = list.filter((i) => ['SWING', 'APLUS_ICT', 'MSNR_EMPEROR', 'AMD_MMXM'].includes(i.result?.tradeStyle)).length;
+  const proStratCount = list.filter((i) => ['SWING', 'APLUS_ICT', 'MSNR_EMPEROR', 'AMD_MMXM', 'SECRET_411', 'RARE_FLIP_SNR'].includes(i.result?.tradeStyle)).length;
   const winCount = list.filter((i) => i.outcome === 'WIN').length;
   const lossCount = list.filter((i) => i.outcome === 'LOSS').length;
 
@@ -2406,7 +2532,6 @@ function renderScanHistoryLobby() {
   const container = $('scanLobbyList') || $('scanLobbyCards');
   if (!container) return;
 
-  // FX: ចងចាំទីតាំងអូស + កាតដែលមានស្រាប់ ដើម្បីឱ្យតែកាតថ្មី/ពេលប្តូរ Filter ទេដែលមាន animation
   const fxPrevScroll = container.scrollTop;
   const fxPrevIds = new Set(Array.from(container.querySelectorAll('[data-lobby-card-id]')).map((el) => el.dataset.lobbyCardId));
   const fxSameFilter = container.dataset.fxFilter === state.lobbyFilter;
@@ -2441,6 +2566,10 @@ function renderScanHistoryLobby() {
       stylePill = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-500/20 border border-purple-400/50 text-purple-300">👑 MSNR EMPEROR</span>`;
     } else if (styleCode === 'AMD_MMXM') {
       stylePill = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/20 border border-rose-400/50 text-rose-300">🔥 ICT AMD</span>`;
+    } else if (styleCode === 'SECRET_411') {
+      stylePill = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-yellow-500/20 border border-yellow-400/50 text-yellow-300">🕵️‍♂️ SECRET 4.11</span>`;
+    } else if (styleCode === 'RARE_FLIP_SNR') {
+      stylePill = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-sky-500/20 border border-sky-400/50 text-sky-300">💎 RARE #FLIPPED_SNR</span>`;
     }
 
     let outcomeBadge = `<span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-[10px] font-bold">⏳ កំពុងរង់ចាំ</span>`;
@@ -2502,7 +2631,6 @@ function renderScanHistoryLobby() {
     container.appendChild(card);
   });
 
-  // FX: រក្សាទីតាំងអូសដដែលពេល TP/SL/Update/Delete — ហើយអូសទៅលើបំផុតពេលមានកាតថ្មី
   {
     const fxNewActive = !!state.activeLobbyItemId && !fxPrevIds.has(state.activeLobbyItemId);
     const fxJump = (y) => {
@@ -2812,7 +2940,7 @@ $('keyForm')?.addEventListener('submit', (e) => {
 
   const TAGS = [
     'XAUUSD ▲', 'BTCUSD ▲', 'MSNR QMX "X"', '50% C.E. FVG', 'SCALP PERFECT ENTRY',
-    'AMD POWER OF 3', 'LIQUIDITY SWEEP', 'GOLDEN CONFIRM GCE', 'WINRATE 91.9%'
+    'SECRET 4.11 ZIKIR', 'RARE #FLIPPED_SNR', 'GOLDEN CONFIRM GCE', 'WINRATE 91.9%'
   ];
   const nodes = Array.from({ length: 22 }, (_, i) => ({
     x: Math.random(),
@@ -2910,7 +3038,6 @@ $('keyForm')?.addEventListener('submit', (e) => {
     ctx.restore();
   }
 
-  // ផ្អាកគំនូរផ្ទៃខាងក្រោយពេលកំពុង scroll / អូស => ទុក GPU/CPU ឱ្យការអូសរលូន
   let busyUntil = 0;
   const markBusy = () => { busyUntil = performance.now() + 160; };
   window.addEventListener('scroll', markBusy, { capture: true, passive: true });
@@ -3403,9 +3530,9 @@ function formatStatusTelegramCaption(r, statusType = 'SCAN') {
 🔔 បញ្ជា: ${r?.action || 'BUY'} (${isBuy ? 'NEW BUY' : 'NEW SELL'})
 ${statusBadge}
 
-🎯 Tier 1 (IOFED / Shadow): ${te.tier1Iofed || r?.entry || '-'}
+🎯 Tier 1 (IOFED / Direct / MISS): ${te.tier1Iofed || r?.entry || '-'}
 🎯 Tier 2 (Sniper 50% C.E. / QMX): ${r?.entry || '-'}
-👑 Tier 3 (Golden Confirm GCE): ${te.tier3Golden || r?.entry || '-'}
+👑 Tier 3 (Golden Confirm GCE / DEEP): ${te.tier3Golden || r?.entry || '-'}
 🛑 SL: ${r?.sl || '-'}
 💰 TP 1 (IRL): ${r?.tp1 || '-'}
 💰 TP 2 (ERL): ${r?.tp2 || '-'}
@@ -3474,7 +3601,7 @@ async function autoSendScanStatusToTelegram(scanItem, statusType = 'SCAN') {
   }
 
   try {
-    await fetch('http://localhost:3000/api/auto-scan-drop', {
+    await fetch('/api/auto-scan-drop', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -3495,11 +3622,12 @@ setTradeStyle(state.tradeStyle, false);
 updateWinrateUI();
 applyLanguage(state.lang);
 applyAuthUI();
+checkServerSessionOnLoad();
 renderScanHistoryLobby();
 icons();
 
 // ==========================================
-// CLICK / TAP EFFECTS (ripple + press) - global, works on dynamic buttons too
+// 16. CLICK / TAP EFFECTS (ripple + press)
 // ==========================================
 (function initClickEffects() {
   if (window.__clickFxReady) return;
@@ -3510,7 +3638,6 @@ icons();
 
   const PALETTE = ['34,211,238', '41,121,255', '168,85,247', '16,185,129', '251,191,36', '244,63,94'];
   let colorIdx = 0;
-  let tintTimer = null;
 
   function spawnRipple(x, y, el) {
     const rgb = PALETTE[colorIdx++ % PALETTE.length];
@@ -3526,7 +3653,6 @@ icons();
     document.body.appendChild(dot);
     dot.addEventListener('animationend', () => dot.remove(), { once: true });
     setTimeout(() => dot.remove(), 900);
-
   }
 
   function release() {
@@ -3541,7 +3667,6 @@ icons();
     release();
     pressedEl = el;
     el.classList.add('fx-press');
-    // មិន spawn ripple ក្នុងបញ្ជីដែលកំពុងអូស (កុំឱ្យ lag ពេលចាប់ផ្តើមអូស)
     if (!(e.target.closest && e.target.closest('#scanLobbyList, #historyContent, #lobbyFilterBar'))) {
       spawnRipple(e.clientX, e.clientY, el);
     }
@@ -3551,19 +3676,14 @@ icons();
     window.addEventListener(ev, () => setTimeout(release, 90), { passive: true })
   );
 })();
+
 // =========================================================
-// HISTORY SCROLL FX v2
-//  • Depth scroll: កាតផ្អៀង 3D + តូច + ស្រាលនៅគែម, ធំច្បាស់នៅកណ្តាល
-//  • Motion stretch តាមល្បឿនអូស
-//  • Drag-to-scroll ដោយ Mouse មាន Momentum (Touch ប្រើ native)
-//  • Filter bar: drag + momentum + edge fade + auto-center tab
+// 17. HISTORY SCROLL FX v3 (3D Depth + Drag-to-Scroll + Momentum)
 // =========================================================
 (function initHistoryScrollEffects() {
   const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
-  // ---------- Drag-to-scroll + momentum (mouse / pen) ----------
-  // SMOOTH v3: rAF-batched writes, no 6px jump, float momentum position
   function enableDragScroll(el, axis) {
     if (!el) return;
     const horiz = axis === 'x';
@@ -3604,7 +3724,6 @@ icons();
       if (!dragging) {
         if (Math.abs(p - startPos) < 6) return;
         dragging = true;
-        // rebase => មិនមានការលោត 6px ពេលចាប់ផ្តើមអូស
         startPos = lastPos = p;
         startScroll = el[prop];
         maxCache = Math.max(0, maxScroll());
@@ -3617,14 +3736,13 @@ icons();
         return;
       }
 
-      // សរសេរ scroll ម្តងក្នុង 1 frame (មិនសរសេរគ្រប់ pointermove)
       targetScroll = clamp(startScroll - (p - startPos), 0, maxCache);
       if (!dragRaf) dragRaf = requestAnimationFrame(flushDrag);
 
       const now = performance.now();
       const dt = now - lastT;
       if (dt > 0) {
-        vel = vel * 0.55 + ((lastPos - p) / dt) * 0.45; // px/ms
+        vel = vel * 0.55 + ((lastPos - p) / dt) * 0.45;
         lastPos = p;
         lastT = now;
       }
@@ -3646,18 +3764,18 @@ icons();
       suppressClick = true;
       setTimeout(() => { suppressClick = false; }, 60);
 
-      if (performance.now() - lastT > 90) vel = 0; // ឈប់មុនលែង => មិនមាន momentum
+      if (performance.now() - lastT > 90) vel = 0;
       if (reduceMotion || Math.abs(vel) < 0.05) return;
 
       let v = clamp(vel, -3.2, 3.2);
-      let cur = el[prop];                 // រក្សា position ជា float => ចុងក្រោយរលូន
+      let cur = el[prop];
       const max = Math.max(0, maxScroll());
       let prev = performance.now();
       const step = (now) => {
         const dt = Math.max(0, Math.min(34, now - prev));
         prev = now;
         cur += v * dt;
-        v *= Math.pow(0.945, dt / 16.67); // friction
+        v *= Math.pow(0.945, dt / 16.67);
         if (cur <= 0 || cur >= max) {
           el[prop] = clamp(cur, 0, max);
           raf = 0;
@@ -3672,21 +3790,15 @@ icons();
     el.addEventListener('pointerup', release);
     el.addEventListener('pointercancel', release);
 
-    // ជៀសវាងការចុចប៊ូតុងដោយអចេតនា ពេលទើបអូសរួច
     el.addEventListener('click', (e) => {
       if (suppressClick) { e.preventDefault(); e.stopPropagation(); }
     }, true);
 
-    // រូប thumbnail មិនឱ្យលោតចេញជា native drag
     el.addEventListener('dragstart', (e) => e.preventDefault());
-
-    // ប្រើកង់ Mouse / Touch ពេល momentum កំពុងរត់ => ឈប់ភ្លាម
     el.addEventListener('wheel', stopMomentum, { passive: true });
     el.addEventListener('touchstart', stopMomentum, { passive: true });
   }
 
-  // ---------- Depth scroller (3D fold + fade + motion stretch) ----------
-  // SMOOTH v3: cached metrics (គ្មាន layout read ក្នុងរាល់ frame) + skip unchanged writes
   function createDepthScroller(container, itemSel) {
     if (!container) return null;
     let items = [];
@@ -3708,7 +3820,6 @@ icons();
       }
     }
 
-    // អានទំហំ/ទីតាំង ម្តងគត់ (batch) ពេល layout ប្តូរ
     function measure() {
       metrics = items.map((el) => {
         const h = el.offsetHeight;
@@ -3728,11 +3839,11 @@ icons();
       for (let i = 0; i < metrics.length; i++) {
         const m = metrics[i];
         const c = m.mid - top - half;
-        if (Math.abs(c) > half + m.h + 80) continue; // ឆ្ងាយពី viewport
+        if (Math.abs(c) > half + m.h + 80) continue;
 
-        const n = c / half;                                   // -1 លើ … 0 កណ្តាល … +1 ក្រោម
+        const n = c / half;
         const t = clamp((Math.abs(n) - 0.38) / 0.72, 0, 1);
-        const e = t * t * (3 - 2 * t);                        // smoothstep
+        const e = t * t * (3 - 2 * t);
 
         let tf = '';
         let op = '';
@@ -3781,7 +3892,6 @@ icons();
     return { refresh };
   }
 
-  // ---------- Filter bar ----------
   function setupFilterBar(bar) {
     if (!bar) return;
     enableDragScroll(bar, 'x');
@@ -3796,7 +3906,6 @@ icons();
     if (typeof ResizeObserver !== 'undefined') new ResizeObserver(updateFade).observe(bar);
     updateFade();
 
-    // កង់ Mouse => អូសឆ្វេង-ស្តាំ (តែបើនៅមានកន្លែងអូស ទើបរារាំងទំព័រ)
     bar.addEventListener('wheel', (e) => {
       if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
       const max = bar.scrollWidth - bar.clientWidth;
@@ -3808,7 +3917,6 @@ icons();
       bar.scrollLeft += e.deltaY;
     }, { passive: false });
 
-    // ចុច tab => រុញ tab នោះមកកណ្តាលយ៉ាងរលូន + pop effect
     bar.querySelectorAll('[data-lobby-filter]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const target = btn.offsetLeft - (bar.clientWidth - btn.offsetWidth) / 2;

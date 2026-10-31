@@ -9,17 +9,24 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const auth = require('./auth'); // Member login / signup / logout
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 
-// Default JSON limit everywhere, except the chart-upload route which sets its own larger limit.
-app.use((req, res, next) => (req.path === '/api/analyze-chart' ? next() : express.json()(req, res, next)));
+// Member auth routes: /api/signup /api/login /api/logout /api/logout-all /api/me /api/profile
+app.use(auth.middleware());
+
+// Default JSON limit everywhere, except chart upload routes which set a larger limit.
+app.use((req, res, next) => {
+  if (req.path === '/api/analyze-chart' || req.path === '/api/auto-scan-drop') return next();
+  return express.json()(req, res, next);
+});
 
 // Never serve server code, dependency files, env files or dotfiles.
-const BLOCKED_PATH = /^\/(server\.js|package(-lock)?\.json|node_modules(\/.*)?|\.[^/]*|.*\.(env|log|md))$/i;
+const BLOCKED_PATH = /^\/(server\.js|auth\.js|data(\/.*)?|package(-lock)?\.json|node_modules(\/.*)?|\.[^/]*|.*\.(env|log|md))$/i;
 app.use((req, res, next) => {
   let p;
   try {
@@ -31,12 +38,17 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve static frontend assets (index.html, script.js, style.css, terminal.html/css/js, por.jpg)
+// Serve static frontend assets
 app.use(express.static(__dirname, { dotfiles: 'deny' }));
 
 // Root route handler
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Por - SNR Scanner page (supports /scan and /scan.html)
+app.get(['/scan', '/scan.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'scan.html'));
 });
 
 // Terminal page (supports /terminal and /terminal.html)
@@ -55,6 +67,56 @@ app.get(['/chart-analysis', '/chart-analysis.html'], (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
+// Auto-Scan Telegram Relay Endpoint (/api/auto-scan-drop)
+// ---------------------------------------------------------------------------
+app.post('/api/auto-scan-drop', express.json({ limit: '25mb' }), async (req, res) => {
+  try {
+    const { chatId, imageBase64, mimeType, scanResult, eventType } = req.body || {};
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    const targetChatId = chatId || process.env.TELEGRAM_CHAT_ID;
+
+    if (!botToken || !targetChatId) {
+      return res.status(200).json({ ok: false, skipped: true, reason: 'No server Telegram token/chatId configured' });
+    }
+
+    const pair = scanResult?.pair || 'XAU/USD';
+    const tf = scanResult?.timeframe || 'M15';
+    const action = scanResult?.action || 'BUY';
+    const style = scanResult?.tradeStyle || 'SCALPING';
+    const caption = `⚡ Por - SNR Scanner [${eventType || 'SCAN'}]\n📊 Pair: ${pair} (${tf}) | ${style}\n🔔 Action: ${action}\n🎯 Entry: ${scanResult?.entry || '-'}\n🛑 SL: ${scanResult?.sl || '-'}\n💰 TP1: ${scanResult?.tp1 || '-'} | TP2: ${scanResult?.tp2 || '-'}`;
+
+    if (imageBase64) {
+      const cleanB64 = String(imageBase64).replace(/^data:image\/\w+;base64,/, '');
+      const buf = Buffer.from(cleanB64, 'base64');
+      const form = new FormData();
+      form.append('chat_id', targetChatId);
+      form.append('photo', new Blob([buf], { type: mimeType || 'image/png' }), `scan-${Date.now()}.png`);
+      form.append('caption', caption);
+
+      const tgRes = await fetch(`https://api.telegram.org/bot${encodeURIComponent(botToken)}/sendPhoto`, {
+        method: 'POST',
+        body: form,
+        signal: AbortSignal.timeout(20000)
+      });
+      const tgData = await tgRes.json();
+      return res.json({ ok: Boolean(tgData.ok) });
+    }
+
+    const tgRes = await fetch(`https://api.telegram.org/bot${encodeURIComponent(botToken)}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: targetChatId, text: caption }),
+      signal: AbortSignal.timeout(15000)
+    });
+    const tgData = await tgRes.json();
+    return res.json({ ok: Boolean(tgData.ok) });
+  } catch (err) {
+    console.error('auto-scan-drop error:', err.message);
+    return res.status(200).json({ ok: false, error: err.message });
+  }
+});
+
+// ---------------------------------------------------------------------------
 // AI chart reading (Upload Chart mode).
 // Needs: GEMINI_API_KEY=... or ANTHROPIC_API_KEY=sk-ant-...
 // ---------------------------------------------------------------------------
@@ -69,26 +131,24 @@ function analyzeRateLimited(ip) {
   return hits.length > ANALYZE_LIMIT.max;
 }
 
-// Clean up expired rate-limit IP records every 5 minutes
 setInterval(() => {
   const now = Date.now();
   for (const [ip, timestamps] of analyzeHits.entries()) {
     const active = timestamps.filter(t => now - t < ANALYZE_LIMIT.windowMs);
-    if (active.length === 0) {
-      analyzeHits.delete(ip);
-    } else {
-      analyzeHits.set(ip, active);
-    }
+    if (active.length === 0) analyzeHits.delete(ip);
+    else analyzeHits.set(ip, active);
   }
 }, 5 * 60 * 1000).unref();
 
-app.post('/api/analyze-chart', express.json({ limit: '25mb' }), async (req, res) => {
+const aiGate = process.env.REQUIRE_LOGIN_FOR_AI === 'true' ? auth.requireLogin : (req, res, next) => next();
+
+app.post('/api/analyze-chart', aiGate, express.json({ limit: '25mb' }), async (req, res) => {
   try {
     const useGemini = Boolean(process.env.GEMINI_API_KEY);
     if (!useGemini && !process.env.ANTHROPIC_API_KEY) {
       return res.status(503).json({
         success: false,
-        error: 'AI chart reading is not set up on this server. Add GEMINI_API_KEY (or ANTHROPIC_API_KEY) to the server environment, or use Manual Entry / Live Chart.'
+        error: 'AI chart reading is not set up on this server. Add GEMINI_API_KEY (or ANTHROPIC_API_KEY) to the server environment.'
       });
     }
     if (analyzeRateLimited(req.ip)) {
@@ -120,7 +180,7 @@ Stop loss must be on the losing side of entry; targets on the winning side. Do n
 
     let apiRes;
     if (useGemini) {
-      const model = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+      const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
       apiRes = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
         {
@@ -198,7 +258,7 @@ Stop loss must be on the losing side of entry; targets on the winning side. Do n
           success: true,
           analysis: {
             direction: 'NONE',
-            summary: 'The AI levels were inconsistent (stop or targets on the wrong side), so no signal was produced. Try a clearer screenshot that shows the price axis.'
+            summary: 'The AI levels were inconsistent (stop or targets on the wrong side), so no signal was produced.'
           }
         });
       }
@@ -212,7 +272,6 @@ Stop loss must be on the losing side of entry; targets on the winning side. Do n
 
 // Forex Factory CDN endpoint
 const FF_FEED_URL = 'https://nfs.faireconomy.media/ff_calendar_thisweek.json';
-
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const RETRY_BACKOFF_MS = 60 * 1000;
 const FETCH_TIMEOUT_MS = 10 * 1000;
@@ -224,9 +283,7 @@ let inflightFetch = null;
 
 async function fetchFeed() {
   const response = await fetch(FF_FEED_URL, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (PorICT Market Analytics Engine; contact@porict.com)'
-    },
+    headers: { 'User-Agent': 'Mozilla/5.0 (PorICT Market Analytics Engine; contact@porict.com)' },
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
   });
   if (!response.ok) throw new Error(`ForexFactory CDN error: ${response.status}`);
@@ -237,15 +294,12 @@ async function fetchFeed() {
 
 async function getEnrichedForexFactoryData() {
   const now = Date.now();
-
   if (cachedCalendar && now - lastFetchTimestamp < CACHE_TTL_MS) {
     return { events: enrichLiveCountdowns(cachedCalendar), source: 'live' };
   }
-
   if (now - lastFailureTimestamp < RETRY_BACKOFF_MS) {
     return fallbackData();
   }
-
   try {
     if (!inflightFetch) {
       inflightFetch = fetchFeed().finally(() => { inflightFetch = null; });
@@ -268,7 +322,6 @@ function fallbackData() {
 
 function enrichLiveCountdowns(events) {
   const now = Date.now();
-
   return events
     .filter(event => event && !Number.isNaN(new Date(event.date).getTime()))
     .map((event, index) => {
@@ -284,9 +337,7 @@ function enrichLiveCountdowns(events) {
         const hours = Math.floor(diffMinutes / 60);
         const mins = diffMinutes % 60;
         countdownDisplay = hours > 0 ? `in ${hours}h ${mins}m` : `in ${mins}m`;
-        if (diffMinutes <= 60 && (event.impact === 'High' || event.country === 'USD')) {
-          isHot = true;
-        }
+        if (diffMinutes <= 60 && (event.impact === 'High' || event.country === 'USD')) isHot = true;
       } else if (diffMinutes >= -15) {
         status = 'JUST_RELEASED';
         countdownDisplay = `Released ${Math.abs(diffMinutes)}m ago`;
@@ -347,7 +398,6 @@ function getIctStrategyGuidance(impact, currency, diffMinutes) {
 function getSyntheticUpcomingEvents() {
   const base = new Date();
   const makeDate = (offsetMins) => new Date(base.getTime() + offsetMins * 60000).toISOString();
-
   const raw = [
     { title: "Core CPI m/m", country: "USD", impact: "High", forecast: "0.3%", previous: "0.2%", date: makeDate(15) },
     { title: "Unemployment Claims", country: "USD", impact: "High", forecast: "220K", previous: "218K", date: makeDate(45) },
@@ -358,12 +408,6 @@ function getSyntheticUpcomingEvents() {
   return enrichLiveCountdowns(raw);
 }
 
-console.log('--- Environment Check ---');
-console.log('GEMINI_API_KEY:', process.env.GEMINI_API_KEY ? 'Loaded (starts with ' + process.env.GEMINI_API_KEY.slice(0, 6) + '...)' : 'MISSING / UNDEFINED');
-console.log('ANTHROPIC_API_KEY:', process.env.ANTHROPIC_API_KEY ? 'Loaded (starts with ' + process.env.ANTHROPIC_API_KEY.slice(0, 7) + '...)' : 'MISSING / UNDEFINED');
-console.log('-------------------------');
-
-// API Routes
 app.get('/api/forexfactory/live', async (req, res) => {
   try {
     const { events, source } = await getEnrichedForexFactoryData();
@@ -393,11 +437,10 @@ app.get('/api/forexfactory/live', async (req, res) => {
   }
 });
 
-// Fallback 404 handler for missing routes
 app.use((req, res) => {
   res.status(404).send(`Cannot GET ${req.path}. Ensure the file exists in your project directory.`);
 });
 
 app.listen(PORT, () => {
-  console.log(`Por ICT Dashboard running at: http://localhost:${PORT}`);
+  console.log(`Por ICT Dashboard & SNR Scanner running at: http://localhost:${PORT}`);
 });
