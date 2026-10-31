@@ -835,3 +835,372 @@ body.fx-tint { box-shadow: inset 0 0 120px rgb(var(--fx-rgb, 34,211,238) / .22);
   #scanLobbyList .scan-lobby-card,
   #historyContent .fx-row { transform: none !important; opacity: 1 !important; }
 }
+/* ========================================================= */
+/* FEATURE CARD BODY UPDATE (applies to ALL card types)      */
+/* trade-style-card · tier-entry-card · scan-lobby-card ·    */
+/* pkg-card                                                  */
+/* ========================================================= */
+:root{
+  --fc-radius:18px;
+  --fc-pad:1rem;
+  --fc-border:rgba(56,189,248,.28);
+  --fc-border-hover:#18ffff;
+  --fc-bg:linear-gradient(160deg,rgba(17,25,46,.92) 0%,rgba(9,15,29,.94) 100%);
+  --fc-shadow:0 10px 26px -10px rgba(0,0,0,.75),inset 0 1px 1px rgba(255,255,255,.10);
+  --fc-shadow-hover:0 18px 38px -10px rgba(0,0,0,.85),0 0 26px rgba(24,255,255,.22),inset 0 1px 1.5px rgba(255,255,255,.22);
+  --fc-ease:cubic-bezier(.2,.8,.2,1);
+}
+
+/* Shared card body */
+.trade-style-card,
+.tier-entry-card,
+.scan-lobby-card,
+#packageList .pkg-card{
+  position:relative;
+  overflow:hidden;
+  border-radius:var(--fc-radius);
+  padding:var(--fc-pad);
+  box-shadow:var(--fc-shadow);
+  line-height:1.5;
+  transition:transform .22s var(--fc-ease),box-shadow .22s ease,border-color .22s ease,background .22s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* Default glass background (does not override active / highlight / colored states) */
+.trade-style-card:not([class*="active-"]),
+.tier-entry-card:not(.sniper-ce-highlight),
+.scan-lobby-card:not(.latest-scan-highlight){
+  background:var(--fc-bg);
+  border:1px solid var(--fc-border);
+}
+
+/* Top glow line inside every card body */
+.trade-style-card::after,
+.tier-entry-card::after,
+.scan-lobby-card::after,
+#packageList .pkg-card::after{
+  content:"";
+  position:absolute;
+  top:0;left:12%;right:12%;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);
+  opacity:.55;
+  pointer-events:none;
+}
+
+/* Unified hover */
+.trade-style-card:hover,
+.tier-entry-card:hover,
+.scan-lobby-card:hover,
+#packageList .pkg-card:hover{
+  transform:translateY(-3px);
+  box-shadow:var(--fc-shadow-hover);
+}
+.trade-style-card:not([class*="active-"]):hover,
+.tier-entry-card:not(.sniper-ce-highlight):hover,
+.scan-lobby-card:not(.latest-scan-highlight):hover{
+  border-color:var(--fc-border-hover);
+}
+
+/* Press feedback */
+.trade-style-card:active,
+.tier-entry-card:active,
+.scan-lobby-card:active,
+#packageList .pkg-card:active{
+  transform:translateY(-1px) scale(.992);
+}
+
+/* Keyboard focus */
+.trade-style-card:focus-visible,
+.tier-entry-card:focus-visible,
+.scan-lobby-card:focus-visible,
+#packageList .pkg-card:focus-visible{
+  outline:2px solid var(--fc-border-hover);
+  outline-offset:3px;
+}
+
+/* Card text body */
+.trade-style-card p,
+.tier-entry-card p,
+.scan-lobby-card p{
+  color:var(--soft);
+  font-size:.8125rem;
+}
+.trade-style-card :is(h3,h4,strong),
+.tier-entry-card :is(h3,h4,strong),
+.scan-lobby-card :is(h3,h4,strong){
+  color:var(--text);
+}
+
+/* Mobile */
+@media (max-width:640px){
+  :root{--fc-radius:16px;--fc-pad:.875rem}
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion:reduce){
+  .trade-style-card,.tier-entry-card,.scan-lobby-card,#packageList .pkg-card{transition:none}
+  .trade-style-card:hover,.tier-entry-card:hover,.scan-lobby-card:hover,#packageList .pkg-card:hover{transform:none}
+}
+
+/* ========================================================= */
+/* WATER-WAVE FLOWING NEON BORDER FOR OUTER BOXES            */
+/* ========================================================= */
+@property --wave-angle{
+  syntax:'<angle>';
+  inherits:false;
+  initial-value:0deg;
+}
+
+.bg-\[\#111726\],
+.history-lobby-shell,
+#tradeStyleBox,
+.hp-setup-shell{
+  position:relative;
+  --wave-ring:2px;
+  --wave-colors:
+    #18ffff 0deg, #10b981 70deg, #a78bfa 140deg,
+    #fbbf24 200deg, #38bdf8 270deg, #18ffff 360deg;
+}
+
+/* Sharp flowing ring */
+.bg-\[\#111726\]::before,
+.history-lobby-shell::before,
+#tradeStyleBox::before,
+.hp-setup-shell::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  padding:var(--wave-ring);
+  border-radius:inherit;
+  background:conic-gradient(from var(--wave-angle), var(--wave-colors));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation:waveFlow 7s linear infinite;
+  pointer-events:none;
+  z-index:2;
+}
+
+/* Soft glowing halo that follows the same wave */
+.bg-\[\#111726\]::after,
+.history-lobby-shell::after,
+#tradeStyleBox::after,
+.hp-setup-shell::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  padding:5px;
+  border-radius:inherit;
+  background:conic-gradient(from var(--wave-angle), var(--wave-colors));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  filter:blur(9px);
+  opacity:.55;
+  animation:waveFlow 7s linear infinite, waveBreath 4.5s ease-in-out infinite;
+  pointer-events:none;
+  z-index:1;
+}
+
+/* Outer glow breathing (skips boxes that already have their own glow animation) */
+.bg-\[\#111726\]:not(.tg-glow-card),
+.history-lobby-shell,
+.hp-setup-shell{
+  animation:waveOuterGlow 4.5s ease-in-out infinite;
+}
+
+@keyframes waveFlow{
+  to{--wave-angle:360deg}
+}
+@keyframes waveBreath{
+  0%,100%{opacity:.35}
+  50%{opacity:.75}
+}
+@keyframes waveOuterGlow{
+  0%,100%{box-shadow:0 18px 50px -18px rgba(0,0,0,.8), 0 0 18px rgba(24,255,255,.14), 0 0 40px rgba(16,185,129,.08)}
+  50%{box-shadow:0 18px 50px -18px rgba(0,0,0,.8), 0 0 30px rgba(24,255,255,.30), 0 0 64px rgba(167,139,250,.18)}
+}
+
+/* Keep real content above the glow layers */
+.bg-\[\#111726\] > :not(.absolute):not(.fixed):not(.sticky),
+.history-lobby-shell > :not(.absolute):not(.fixed):not(.sticky),
+#tradeStyleBox > :not(.absolute):not(.fixed):not(.sticky),
+.hp-setup-shell > :not(.absolute):not(.fixed):not(.sticky){
+  position:relative;
+  z-index:3;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .bg-\[\#111726\]::before,.bg-\[\#111726\]::after,
+  .history-lobby-shell::before,.history-lobby-shell::after,
+  #tradeStyleBox::before,#tradeStyleBox::after,
+  .hp-setup-shell::before,.hp-setup-shell::after,
+  .bg-\[\#111726\]:not(.tg-glow-card),.history-lobby-shell,.hp-setup-shell{animation:none}
+}
+
+/* ========================================================= */
+/* WATER-WAVE BORDER: BENEFITS BOX + DISCLAIMER BOX          */
+/* ========================================================= */
+[class~="bg-[#111726]/90"],
+.bg-amber-950\/30{
+  position:relative;
+  --wave-ring:2px;
+  --wave-colors:
+    #18ffff 0deg, #10b981 70deg, #a78bfa 140deg,
+    #fbbf24 200deg, #38bdf8 270deg, #18ffff 360deg;
+}
+/* Disclaimer keeps a warm amber / gold wave */
+.bg-amber-950\/30{
+  --wave-colors:
+    #fbbf24 0deg, #f97316 80deg, #fde047 150deg,
+    #fb7185 220deg, #f59e0b 290deg, #fbbf24 360deg;
+}
+
+[class~="bg-[#111726]/90"]::before,
+.bg-amber-950\/30::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  padding:var(--wave-ring);
+  border-radius:inherit;
+  background:conic-gradient(from var(--wave-angle), var(--wave-colors));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation:waveFlow 7s linear infinite;
+  pointer-events:none;
+  z-index:2;
+}
+[class~="bg-[#111726]/90"]::after,
+.bg-amber-950\/30::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  padding:5px;
+  border-radius:inherit;
+  background:conic-gradient(from var(--wave-angle), var(--wave-colors));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  filter:blur(9px);
+  opacity:.55;
+  animation:waveFlow 7s linear infinite, waveBreath 4.5s ease-in-out infinite;
+  pointer-events:none;
+  z-index:1;
+}
+[class~="bg-[#111726]/90"]{animation:waveOuterGlow 4.5s ease-in-out infinite}
+.bg-amber-950\/30{animation:waveOuterGlowAmber 4.5s ease-in-out infinite}
+
+@keyframes waveOuterGlowAmber{
+  0%,100%{box-shadow:0 14px 40px -16px rgba(0,0,0,.8), 0 0 16px rgba(251,191,36,.14), 0 0 34px rgba(249,115,22,.08)}
+  50%{box-shadow:0 14px 40px -16px rgba(0,0,0,.8), 0 0 28px rgba(251,191,36,.32), 0 0 56px rgba(251,113,133,.16)}
+}
+
+[class~="bg-[#111726]/90"] > :not(.absolute):not(.fixed):not(.sticky),
+.bg-amber-950\/30 > :not(.absolute):not(.fixed):not(.sticky){
+  position:relative;
+  z-index:3;
+}
+
+@media (prefers-reduced-motion:reduce){
+  [class~="bg-[#111726]/90"],[class~="bg-[#111726]/90"]::before,[class~="bg-[#111726]/90"]::after,
+  .bg-amber-950\/30,.bg-amber-950\/30::before,.bg-amber-950\/30::after{animation:none}
+}
+
+/* ========================================================= */
+/* BUY-KEY STYLE GLOSSY GLOW BUTTONS (same look as BUY KEY)  */
+/* receive KEY · History Lobby · 2 guide buttons ·           */
+/* unlocked status · locked button                           */
+/* ========================================================= */
+#btnOpenReceiveKey,
+#btnJumpHistoryLobby,
+#btnLocked,
+#unlockedBox > div,
+.hp-guide-btn{
+  position:relative;
+  overflow:hidden;
+  color:#04121c !important;
+  font-weight:800;
+  border:1px solid var(--bk-edge) !important;
+  box-shadow:0 0 26px var(--bk-glow-a),0 0 50px var(--bk-glow-b),inset 0 1px 2px rgba(255,255,255,.6);
+  animation:bkPulse 3s ease-in-out infinite;
+}
+
+/* colour families */
+#btnOpenReceiveKey,.hp-guide-btn{
+  --bk-edge:rgba(103,232,249,.7);
+  --bk-glow-a:rgba(34,211,238,.45);
+  --bk-glow-b:rgba(6,182,212,.2);
+  background:linear-gradient(180deg,#67e8f9 0%,#22d3ee 45%,#0891b2 100%) !important;
+}
+#btnJumpHistoryLobby{
+  --bk-edge:rgba(216,180,254,.7);
+  --bk-glow-a:rgba(168,85,247,.45);
+  --bk-glow-b:rgba(139,92,246,.2);
+  background:linear-gradient(180deg,#d8b4fe 0%,#a855f7 45%,#7e22ce 100%) !important;
+}
+#unlockedBox > div{
+  --bk-edge:rgba(110,231,183,.7);
+  --bk-glow-a:rgba(16,185,129,.45);
+  --bk-glow-b:rgba(5,150,105,.2);
+  background:linear-gradient(180deg,#6ee7b7 0%,#10b981 45%,#047857 100%) !important;
+}
+#btnLocked{
+  --bk-edge:rgba(253,164,175,.7);
+  --bk-glow-a:rgba(244,63,94,.45);
+  --bk-glow-b:rgba(225,29,72,.2);
+  background:linear-gradient(180deg,#fda4af 0%,#f43f5e 45%,#be123c 100%) !important;
+}
+
+/* dark readable text + icons inside, like BUY KEY */
+#btnOpenReceiveKey *,
+#btnJumpHistoryLobby > :not(#topLobbyCountBadge),
+#btnLocked *,
+#unlockedBox > div *,
+.hp-guide-btn *{
+  color:#04121c !important;
+}
+.hp-guide-btn > span:first-child{
+  background:rgba(4,18,28,.16) !important;
+  border-color:rgba(4,18,28,.35) !important;
+}
+#topLobbyCountBadge{
+  background:#2e1065 !important;
+  border-color:rgba(255,255,255,.35) !important;
+  color:#f5d0fe !important;
+}
+
+/* shine sweep */
+#btnOpenReceiveKey::after,
+#btnJumpHistoryLobby::after,
+#btnLocked::after,
+#unlockedBox > div::after,
+.hp-guide-btn::after{
+  content:"";
+  position:absolute;
+  top:-50%;left:-120%;
+  width:70%;height:200%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);
+  transform:skewX(-25deg);
+  animation:goldSweep4K 3.4s cubic-bezier(.4,0,.2,1) infinite;
+  pointer-events:none;
+}
+#btnJumpHistoryLobby::after{animation-delay:.5s}
+.hp-guide-btn::after{animation-delay:1s}
+
+@keyframes bkPulse{
+  0%,100%{box-shadow:0 0 22px var(--bk-glow-a),0 0 42px var(--bk-glow-b),inset 0 1px 2px rgba(255,255,255,.55)}
+  50%{box-shadow:0 0 34px var(--bk-glow-a),0 0 68px var(--bk-glow-b),inset 0 1px 2px rgba(255,255,255,.8)}
+}
+
+#btnOpenReceiveKey:hover,#btnJumpHistoryLobby:hover,#btnLocked:hover,.hp-guide-btn:hover{
+  filter:brightness(1.1);
+  transform:translateY(-1px);
+}
+
+@media (prefers-reduced-motion:reduce){
+  #btnOpenReceiveKey,#btnJumpHistoryLobby,#btnLocked,#unlockedBox > div,.hp-guide-btn,
+  #btnOpenReceiveKey::after,#btnJumpHistoryLobby::after,#btnLocked::after,
+  #unlockedBox > div::after,.hp-guide-btn::after{animation:none}
+}
