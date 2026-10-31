@@ -890,6 +890,17 @@ $('btnSaveProfile')?.addEventListener('click', () => {
 function renderAccountHistoryModal() {
   const box = $('historyContent');
   if (!box) return;
+  const fxPrevScroll = box.scrollTop;
+  const fxHidden = box.clientHeight === 0;
+  const fxPrevIds = new Set(Array.from(box.querySelectorAll('[data-fx-id]')).map((el) => el.dataset.fxId));
+  let fxIdx = 0;
+  const fxMark = (el, isNew) => {
+    el.classList.add('fx-row');
+    if (isNew) {
+      el.classList.add('fx-enter');
+      el.style.setProperty('--fx-delay', `${Math.min(fxIdx++, 10) * 45}ms`);
+    }
+  };
   box.innerHTML = '';
 
   const scanItems = getScanLobbyList();
@@ -916,6 +927,8 @@ function renderAccountHistoryModal() {
       const isBuy = String(r.action || 'BUY').toUpperCase().includes('BUY');
       const row = document.createElement('div');
       row.className = 'p-3 rounded-xl bg-[#131d31] border border-cyan-500/30 flex items-center justify-between gap-2.5';
+      row.dataset.fxId = item.id;
+      fxMark(row, fxHidden || !fxPrevIds.has(item.id));
       row.innerHTML = `
         <div class="flex items-center gap-2.5 min-w-0">
           ${item.thumbDataUrl
@@ -947,6 +960,7 @@ function renderAccountHistoryModal() {
     accountLogs.forEach((item) => {
       const div = document.createElement('div');
       div.className = 'p-3 rounded-xl bg-[#131d31] border border-slate-700/80 flex flex-col gap-1';
+      fxMark(div, fxHidden);
       div.innerHTML = `
         <div class="flex justify-between items-center">
           <span class="font-extrabold text-[#00e5ff] text-xs">${item.type}</span>
@@ -995,6 +1009,13 @@ function renderAccountHistoryModal() {
       showDeleteUndoToast('🗑️ បានលុបប្រវត្តិស្កេន ១ ដោយជោគជ័យ!', backup);
     });
   });
+
+  if (!fxHidden) {
+    const keep = box.style.scrollBehavior;
+    box.style.scrollBehavior = 'auto';
+    box.scrollTop = fxPrevScroll;
+    box.style.scrollBehavior = keep;
+  }
 
   icons();
 }
@@ -2384,6 +2405,13 @@ function renderScanHistoryLobby() {
 
   const container = $('scanLobbyList') || $('scanLobbyCards');
   if (!container) return;
+
+  // FX: ចងចាំទីតាំងអូស + កាតដែលមានស្រាប់ ដើម្បីឱ្យតែកាតថ្មី/ពេលប្តូរ Filter ទេដែលមាន animation
+  const fxPrevScroll = container.scrollTop;
+  const fxPrevIds = new Set(Array.from(container.querySelectorAll('[data-lobby-card-id]')).map((el) => el.dataset.lobbyCardId));
+  const fxSameFilter = container.dataset.fxFilter === state.lobbyFilter;
+  container.dataset.fxFilter = state.lobbyFilter;
+  let fxEnterIdx = 0;
   container.innerHTML = '';
 
   if (!filtered.length) {
@@ -2422,6 +2450,10 @@ function renderScanHistoryLobby() {
     const card = document.createElement('div');
     card.dataset.lobbyCardId = item.id;
     card.className = `scan-lobby-card p-3.5 sm:p-4 ${isActive ? 'latest-scan-highlight' : ''}`;
+    if (!fxSameFilter || !fxPrevIds.has(item.id)) {
+      card.classList.add('fx-enter');
+      card.style.setProperty('--fx-delay', `${Math.min(fxEnterIdx++, 8) * 55}ms`);
+    }
     card.innerHTML = `
       <div class="flex flex-col sm:flex-row gap-3.5 items-start sm:items-center justify-between">
         <div class="flex items-center gap-3 w-full sm:w-auto">
@@ -2469,6 +2501,19 @@ function renderScanHistoryLobby() {
     `;
     container.appendChild(card);
   });
+
+  // FX: រក្សាទីតាំងអូសដដែលពេល TP/SL/Update/Delete — ហើយអូសទៅលើបំផុតពេលមានកាតថ្មី
+  {
+    const fxNewActive = !!state.activeLobbyItemId && !fxPrevIds.has(state.activeLobbyItemId);
+    const fxJump = (y) => {
+      const keep = container.style.scrollBehavior;
+      container.style.scrollBehavior = 'auto';
+      container.scrollTop = y;
+      container.style.scrollBehavior = keep;
+    };
+    if (fxSameFilter && !fxNewActive) fxJump(fxPrevScroll);
+    else if (fxNewActive && fxPrevScroll > 0) container.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
   container.querySelectorAll('[data-lobby-view]').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -3509,4 +3554,229 @@ icons();
   ['pointerup', 'pointercancel', 'pointerleave', 'dragstart', 'blur'].forEach((ev) =>
     window.addEventListener(ev, () => setTimeout(release, 90), { passive: true })
   );
+})();
+// =========================================================
+// HISTORY SCROLL FX v2
+//  • Depth scroll: កាតផ្អៀង 3D + តូច + ស្រាលនៅគែម, ធំច្បាស់នៅកណ្តាល
+//  • Motion stretch តាមល្បឿនអូស
+//  • Drag-to-scroll ដោយ Mouse មាន Momentum (Touch ប្រើ native)
+//  • Filter bar: drag + momentum + edge fade + auto-center tab
+// =========================================================
+(function initHistoryScrollEffects() {
+  const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+  // ---------- Drag-to-scroll + momentum (mouse / pen) ----------
+  function enableDragScroll(el, axis) {
+    if (!el) return;
+    const horiz = axis === 'x';
+    const prop = horiz ? 'scrollLeft' : 'scrollTop';
+    const pos = (e) => (horiz ? e.clientX : e.clientY);
+
+    let down = false, dragging = false;
+    let startPos = 0, startScroll = 0, lastPos = 0, lastT = 0, vel = 0;
+    let raf = 0, suppressClick = false;
+
+    const maxScroll = () => (horiz ? el.scrollWidth - el.clientWidth : el.scrollHeight - el.clientHeight);
+    const stopMomentum = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+      el.style.scrollBehavior = '';
+    };
+
+    el.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'touch' || e.button !== 0) return;
+      if (e.target.closest && e.target.closest('input, textarea, select')) return;
+      stopMomentum();
+      down = true;
+      dragging = false;
+      startPos = lastPos = pos(e);
+      startScroll = el[prop];
+      lastT = performance.now();
+      vel = 0;
+    });
+
+    el.addEventListener('pointermove', (e) => {
+      if (!down) return;
+      const p = pos(e);
+      const delta = p - startPos;
+      if (!dragging) {
+        if (Math.abs(delta) < 6) return;
+        dragging = true;
+        el.classList.add('dragging-scroll');
+        el.style.scrollBehavior = 'auto';
+        try { el.setPointerCapture(e.pointerId); } catch (_) {}
+        const sel = window.getSelection && window.getSelection();
+        if (sel && sel.removeAllRanges) sel.removeAllRanges();
+      }
+      el[prop] = startScroll - delta;
+
+      const now = performance.now();
+      const dt = now - lastT;
+      if (dt > 0) vel = vel * 0.55 + ((lastPos - p) / dt) * 0.45; // px/ms
+      lastPos = p;
+      lastT = now;
+    });
+
+    const release = (e) => {
+      if (!down) return;
+      down = false;
+      if (!dragging) return;
+      dragging = false;
+      el.classList.remove('dragging-scroll');
+      try { el.releasePointerCapture(e.pointerId); } catch (_) {}
+      suppressClick = true;
+      setTimeout(() => { suppressClick = false; }, 60);
+
+      if (performance.now() - lastT > 90) vel = 0; // ឈប់មុនលែង => មិនមាន momentum
+      if (reduceMotion || Math.abs(vel) < 0.05) { el.style.scrollBehavior = ''; return; }
+
+      let v = clamp(vel, -3.2, 3.2);
+      let prev = performance.now();
+      const step = (now) => {
+        const dt = Math.min(34, now - prev);
+        prev = now;
+        const before = el[prop];
+        el[prop] = before + v * dt;
+        v *= Math.pow(0.945, dt / 16.67); // friction
+        const hitEdge = el[prop] === before || el[prop] <= 0 || el[prop] >= maxScroll() - 1;
+        if (Math.abs(v) < 0.02 || hitEdge) { stopMomentum(); return; }
+        raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    };
+    el.addEventListener('pointerup', release);
+    el.addEventListener('pointercancel', release);
+
+    // ជៀសវាងការចុចប៊ូតុងដោយអចេតនា ពេលទើបអូសរួច
+    el.addEventListener('click', (e) => {
+      if (suppressClick) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
+
+    // រូប thumbnail មិនឱ្យលោតចេញជា native drag
+    el.addEventListener('dragstart', (e) => e.preventDefault());
+
+    // ប្រើកង់ Mouse / Touch ពេល momentum កំពុងរត់ => ឈប់ភ្លាម
+    el.addEventListener('wheel', stopMomentum, { passive: true });
+    el.addEventListener('touchstart', stopMomentum, { passive: true });
+  }
+
+  // ---------- Depth scroller (3D fold + fade + motion stretch) ----------
+  function createDepthScroller(container, itemSel) {
+    if (!container) return null;
+    let items = [];
+    let vel = 0;
+    let lastTop = container.scrollTop;
+    let raf = 0;
+    let idleTimer = 0;
+
+    function collect() { items = Array.from(container.querySelectorAll(itemSel)); }
+
+    function apply() {
+      const h = container.clientHeight;
+      if (!h || reduceMotion) return;
+      const half = h / 2;
+      const top = container.scrollTop;
+      const stretch = 1 + Math.min(Math.abs(vel) * 0.0016, 0.03);
+
+      for (let i = 0; i < items.length; i++) {
+        const el = items[i];
+        const ih = el.offsetHeight;
+        const c = el.offsetTop + ih / 2 - top - half;
+        if (Math.abs(c) > half + ih + 80) continue; // ឆ្ងាយពី viewport មិនចាំបាច់គណនា
+
+        const n = c / half;                                   // -1 លើ … 0 កណ្តាល … +1 ក្រោម
+        const t = clamp((Math.abs(n) - 0.38) / 0.72, 0, 1);
+        const e = t * t * (3 - 2 * t);                        // smoothstep
+
+        if (e < 0.002 && stretch < 1.002) {
+          el.style.transform = '';
+          el.style.opacity = '';
+          continue;
+        }
+        const rx = (-Math.sign(n) * e * 15).toFixed(2);
+        const sc = (1 - e * 0.065).toFixed(3);
+        el.style.transform = `perspective(900px) rotateX(${rx}deg) scale(${sc}) scaleY(${stretch.toFixed(4)})`;
+        el.style.opacity = (1 - e * 0.55).toFixed(3);
+      }
+    }
+
+    function tick() {
+      raf = 0;
+      const top = container.scrollTop;
+      const d = top - lastTop;
+      lastTop = top;
+      vel = vel * 0.8 + d * 0.2;
+      apply();
+      if (Math.abs(vel) > 0.12 || d !== 0) raf = requestAnimationFrame(tick);
+      else { vel = 0; apply(); }
+    }
+
+    function onScroll() {
+      if (!raf) raf = requestAnimationFrame(tick);
+      container.classList.add('is-scrolling');
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => container.classList.remove('is-scrolling'), 240);
+    }
+
+    function refresh() {
+      collect();
+      lastTop = container.scrollTop;
+      vel = 0;
+      apply();
+    }
+
+    container.addEventListener('scroll', onScroll, { passive: true });
+    new MutationObserver(refresh).observe(container, { childList: true });
+    if (typeof ResizeObserver !== 'undefined') new ResizeObserver(refresh).observe(container);
+    refresh();
+    return { refresh };
+  }
+
+  // ---------- Filter bar ----------
+  function setupFilterBar(bar) {
+    if (!bar) return;
+    enableDragScroll(bar, 'x');
+
+    const updateFade = () => {
+      const max = bar.scrollWidth - bar.clientWidth;
+      bar.classList.toggle('fx-fade-l', bar.scrollLeft > 4);
+      bar.classList.toggle('fx-fade-r', bar.scrollLeft < max - 4);
+    };
+    bar.addEventListener('scroll', updateFade, { passive: true });
+    window.addEventListener('resize', updateFade, { passive: true });
+    if (typeof ResizeObserver !== 'undefined') new ResizeObserver(updateFade).observe(bar);
+    updateFade();
+
+    // កង់ Mouse => អូសឆ្វេង-ស្តាំ (តែបើនៅមានកន្លែងអូស ទើបរារាំងទំព័រ)
+    bar.addEventListener('wheel', (e) => {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      const max = bar.scrollWidth - bar.clientWidth;
+      if (max <= 0) return;
+      const atStart = bar.scrollLeft <= 0 && e.deltaY < 0;
+      const atEnd = bar.scrollLeft >= max - 1 && e.deltaY > 0;
+      if (atStart || atEnd) return;
+      e.preventDefault();
+      bar.scrollLeft += e.deltaY;
+    }, { passive: false });
+
+    // ចុច tab => រុញ tab នោះមកកណ្តាលយ៉ាងរលូន + pop effect
+    bar.querySelectorAll('[data-lobby-filter]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const target = btn.offsetLeft - (bar.clientWidth - btn.offsetWidth) / 2;
+        bar.scrollTo({ left: Math.max(0, target), behavior: reduceMotion ? 'auto' : 'smooth' });
+        btn.classList.add('fx-pop');
+        setTimeout(() => btn.classList.remove('fx-pop'), 420);
+      });
+    });
+  }
+
+  const lobbyList = document.getElementById('scanLobbyList');
+  const historyBox = document.getElementById('historyContent');
+
+  enableDragScroll(lobbyList, 'y');
+  enableDragScroll(historyBox, 'y');
+  window.__lobbyFx = createDepthScroller(lobbyList, '.scan-lobby-card');
+  window.__historyFx = createDepthScroller(historyBox, '.fx-row');
+  setupFilterBar(document.getElementById('lobbyFilterBar'));
 })();
