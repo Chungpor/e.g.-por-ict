@@ -27,13 +27,13 @@ const ABA_MERCHANT_INFO = {
 };
 
 const PACKAGES_MAP = {
-  '1_SCAN':  { code: '1_SCAN',  mode: 'S1',     title: 'KEY ស្កេន 1-ដង',                  price: '2.5', scans: 1, hours: 0 },
-  '2_SCAN':  { code: '2_SCAN',  mode: 'S2',     title: 'KEY ស្កេន 2-ដង',                  price: '4.5', scans: 2, hours: 0 },
-  '5_SCAN':  { code: '5_SCAN',  mode: 'S5',     title: 'KEY ស្កេន 5-ដង',                  price: '8.5', scans: 5, hours: 0 },
-  '24H':     { code: '24H',     mode: 'H24',    title: 'KEY ស្កេន 1-DAY/24H Unlimited',    price: '10',  scans: 0, hours: 24 },
+  '1_SCAN':  { code: '1_SCAN',  mode: 'S1',     title: 'KEY ស្កេន 1-ដង',                   price: '2.5', scans: 1, hours: 0 },
+  '2_SCAN':  { code: '2_SCAN',  mode: 'S2',     title: 'KEY ស្កេន 2-ដង',                   price: '4.5', scans: 2, hours: 0 },
+  '5_SCAN':  { code: '5_SCAN',  mode: 'S5',     title: 'KEY ស្កេន 5-ដង',                   price: '8.5', scans: 5, hours: 0 },
+  '24H':     { code: '24H',     mode: 'H24',    title: 'KEY ស្កេន 1-DAY/24H Unlimited',     price: '10',  scans: 0, hours: 24 },
   '168H':    { code: '168H',    mode: 'H168',   title: 'KEY ស្កេន 1-សប្តាហ៍/168H Unlimited', price: '25',  scans: 0, hours: 168 },
-  '720H':    { code: '720H',    mode: 'H720',   title: 'KEY ស្កេន 1-ខែ/720H Unlimited',    price: '35',  scans: 0, hours: 720 },
-  '2880H':   { code: '2880H',   mode: 'H2880',  title: 'KEY ស្កេន 3-ខែ ថែម 1 ខែ / 2880H',  price: '50',  scans: 0, hours: 2880 },
+  '720H':    { code: '720H',    mode: 'H720',   title: 'KEY ស្កេន 1-ខែ/720H Unlimited',     price: '35',  scans: 0, hours: 720 },
+  '2880H':   { code: '2880H',   mode: 'H2880',  title: 'KEY ស្កេន 3-ខែ ថែម 1 ខែ / 2880H',   price: '50',  scans: 0, hours: 2880 },
   '12240H':  { code: '12240H',  mode: 'H12240', title: 'KEY ស្កេន 1-ឆ្នាំ ថែម 5 ខែ / 12240H', price: '80', scans: 0, hours: 12240 }
 };
 
@@ -208,15 +208,20 @@ function consumeKeyScanIfNeeded() {
 // 3. STATE + HELPERS
 // ==========================================
 const $ = (id) => document.getElementById(id);
+const VALID_TRADE_STYLES = ['SCALPING', 'SWING', 'APLUS_ICT', 'MSNR_EMPEROR', 'AMD_MMXM'];
+
 const state = {
   unlocked: false,
   imageBase64: null,
   mime: 'image/png',
   scanning: false,
   result: null,
+  showChartOverlay: true,
   activeLobbyItemId: null,
   lobbyFilter: 'ALL',
-  tradeStyle: localStorage.getItem('ksnr_trade_style') || 'SCALPING', // SCALPING | SWING | APLUS_ICT
+  tradeStyle: VALID_TRADE_STYLES.includes(localStorage.getItem('ksnr_trade_style'))
+    ? localStorage.getItem('ksnr_trade_style')
+    : 'SCALPING',
   ictConfluenceFilter: 'ALL_APLUS',
   selectedPair: 'AUTO',
   selectedTf: 'AUTO',
@@ -236,7 +241,7 @@ const state = {
     BTCUSD:  { label: 'BTCUSD (Crypto SMC)',        color: 'text-cyan-300',   rate: 91.2, trendUp: true },
     ETHUSDT: { label: 'ETHUSDT (Ethereum Sniper)',  color: 'text-blue-300',   rate: 91.5, trendUp: true },
     USOIL:   { label: 'USOIL (Crude Oil Sniper)',   color: 'text-rose-300',   rate: 90.9, trendUp: true },
-    NEWS:    { label: 'NON FARM / CPI / FOMC FLIP', color: 'text-purple-300', rate: 91.8, trendUp: true }
+    NEWS:    { label: 'MSNR QMX / ICT AMD / NEWS',  color: 'text-purple-300', rate: 92.1, trendUp: true }
   },
   lang: localStorage.getItem('ksnr_lang') || 'km',
   user: JSON.parse(localStorage.getItem('ksnr_current_user') || 'null')
@@ -255,27 +260,52 @@ function flashButton(btn, doneHtml, originalHtml) {
 }
 
 // ==========================================
-// 3B. SCALPING PERFECT ENTRY vs SWING vs A+ ICT SETUP MODE SELECTOR
+// 3B. 5 PRO TRADING STRATEGIES SELECTOR
+// (SCALPING | SWING | APLUS_ICT | MSNR_EMPEROR | AMD_MMXM)
 // ==========================================
 function getStyleDisplayMeta(style) {
   if (style === 'SWING') {
     return {
       code: 'SWING',
-      badgeText: '🌊 SWING TRADE MODE',
+      badgeText: '🌊 SWING TRADE (HTF STORYLINE)',
       badgeClass: 'px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300 text-[10px] font-extrabold uppercase',
-      resBadgeText: '🌊 SWING TRADE (R:R 1:4.5)',
+      resBadgeText: '🌊 SWING STORYLINE (R:R 1:4.5)',
       resBadgeClass: 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 border border-amber-400/50 text-amber-300',
-      scanBtnLabel: '🌊 SWING TRADE'
+      scanBtnLabel: '🌊 SWING TRADE',
+      overlayTag: 'SWING HTF STORYLINE OVERLAY'
     };
   }
   if (style === 'APLUS_ICT') {
     return {
       code: 'APLUS_ICT',
-      badgeText: '🏆 A+ ICT LIQUIDITY (MIN 1:3 RR)',
+      badgeText: '🏆 A+ ICT LIQUIDITY (ERL → IRL)',
       badgeClass: 'px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 text-[10px] font-extrabold uppercase',
       resBadgeText: '🏆 A+ ICT SETUP (R:R 1:3.5)',
       resBadgeClass: 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 border border-emerald-400/50 text-emerald-300',
-      scanBtnLabel: '🏆 A+ ICT SETUP'
+      scanBtnLabel: '🏆 A+ ICT SETUP',
+      overlayTag: 'ICT A+ (ERL SWEEP + 50% FVG C.E.)'
+    };
+  }
+  if (style === 'MSNR_EMPEROR') {
+    return {
+      code: 'MSNR_EMPEROR',
+      badgeText: '👑 MALAYSIAN SNR EMPEROR (QMX + GCE)',
+      badgeClass: 'px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-400/50 text-purple-300 text-[10px] font-extrabold uppercase',
+      resBadgeText: '👑 MSNR EMPEROR • QMX + MISS (R:R 1:4.0)',
+      resBadgeClass: 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-500/20 border border-purple-400/50 text-purple-300',
+      scanBtnLabel: '👑 MSNR EMPEROR',
+      overlayTag: 'MALAYSIAN SNR + QMX TRENDLINE "X"'
+    };
+  }
+  if (style === 'AMD_MMXM') {
+    return {
+      code: 'AMD_MMXM',
+      badgeText: '🔥 ICT AMD POWER OF 3 + BREAKER',
+      badgeClass: 'px-2.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-400/50 text-rose-300 text-[10px] font-extrabold uppercase',
+      resBadgeText: '🔥 ICT AMD + BREAKER BLOCK (R:R 1:3.8)',
+      resBadgeClass: 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/20 border border-rose-400/50 text-rose-300',
+      scanBtnLabel: '🔥 ICT AMD MODEL',
+      overlayTag: 'AMD MANIPULATION TRAP + BREAKER'
     };
   }
   return {
@@ -284,57 +314,50 @@ function getStyleDisplayMeta(style) {
     badgeClass: 'px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-[10px] font-extrabold uppercase',
     resBadgeText: '⚡ SCALPING PERFECT ENTRY (R:R 1:2.8)',
     resBadgeClass: 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-cyan-500/20 border border-cyan-400/50 text-cyan-300',
-    scanBtnLabel: '⚡ SCALPING PERFECT ENTRY'
+    scanBtnLabel: '⚡ SCALPING PERFECT ENTRY',
+    overlayTag: 'SNIPER SCALPING OVERLAY (1M–15M)'
   };
 }
 
 function setTradeStyle(style, userClickedChoice = false) {
-  const validStyles = ['SCALPING', 'SWING', 'APLUS_ICT'];
-  state.tradeStyle = validStyles.includes(style) ? style : 'SCALPING';
+  state.tradeStyle = VALID_TRADE_STYLES.includes(style) ? style : 'SCALPING';
   localStorage.setItem('ksnr_trade_style', state.tradeStyle);
 
-  const btnScalp = $('btnModeScalping');
-  const btnSwing = $('btnModeSwing');
-  const btnAPlus = $('btnModeAPlus');
-  const badge = $('activeTradeStyleBadge');
-  const resScalp = $('btnResSwitchScalp');
-  const resSwing = $('btnResSwitchSwing');
-  const resAPlus = $('btnResSwitchAPlus');
+  const btnMap = {
+    SCALPING:     { el: $('btnModeScalping'), cls: 'active-scalp' },
+    SWING:        { el: $('btnModeSwing'),    cls: 'active-swing' },
+    APLUS_ICT:    { el: $('btnModeAPlus'),    cls: 'active-aplus' },
+    MSNR_EMPEROR: { el: $('btnModeMsnr'),     cls: 'active-msnr' },
+    AMD_MMXM:     { el: $('btnModeAmd'),      cls: 'active-amd' }
+  };
 
-  [btnScalp, btnSwing, btnAPlus].forEach((b) => {
-    if (!b) return;
-    b.classList.remove('active-scalp', 'active-swing', 'active-aplus');
-    b.classList.add('border-slate-700');
+  Object.values(btnMap).forEach(({ el }) => {
+    if (!el) return;
+    el.classList.remove('active-scalp', 'active-swing', 'active-aplus', 'active-msnr', 'active-amd');
+    el.classList.add('border-slate-700');
   });
 
-  if (state.tradeStyle === 'SCALPING' && btnScalp) {
-    btnScalp.classList.add('active-scalp');
-    btnScalp.classList.remove('border-slate-700');
-  } else if (state.tradeStyle === 'SWING' && btnSwing) {
-    btnSwing.classList.add('active-swing');
-    btnSwing.classList.remove('border-slate-700');
-  } else if (state.tradeStyle === 'APLUS_ICT' && btnAPlus) {
-    btnAPlus.classList.add('active-aplus');
-    btnAPlus.classList.remove('border-slate-700');
+  const activeEntry = btnMap[state.tradeStyle];
+  if (activeEntry?.el) {
+    activeEntry.el.classList.add(activeEntry.cls);
+    activeEntry.el.classList.remove('border-slate-700');
   }
 
-  if (resScalp && resSwing) {
-    resScalp.className = state.tradeStyle === 'SCALPING'
-      ? 'px-3 py-1 rounded-lg bg-cyan-500 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(6,182,212,0.45)]'
-      : 'px-3 py-1 rounded-lg bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 font-extrabold cursor-pointer hover:brightness-110';
+  const resBtnConfigs = [
+    { id: 'btnResSwitchScalp', code: 'SCALPING',     on: 'px-2.5 py-1 rounded-lg bg-cyan-500 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(6,182,212,0.45)]',     off: 'px-2.5 py-1 rounded-lg bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 font-extrabold cursor-pointer hover:brightness-110' },
+    { id: 'btnResSwitchSwing', code: 'SWING',        on: 'px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(251,191,36,0.45)]',   off: 'px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-400/50 text-amber-300 font-extrabold cursor-pointer hover:brightness-110' },
+    { id: 'btnResSwitchAPlus', code: 'APLUS_ICT',    on: 'px-2.5 py-1 rounded-lg bg-emerald-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(52,211,153,0.45)]', off: 'px-2.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 font-extrabold cursor-pointer hover:brightness-110' },
+    { id: 'btnResSwitchMsnr',  code: 'MSNR_EMPEROR', on: 'px-2.5 py-1 rounded-lg bg-purple-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(192,132,252,0.45)]', off: 'px-2.5 py-1 rounded-lg bg-purple-500/20 border border-purple-400/50 text-purple-300 font-extrabold cursor-pointer hover:brightness-110' },
+    { id: 'btnResSwitchAmd',   code: 'AMD_MMXM',     on: 'px-2.5 py-1 rounded-lg bg-rose-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(251,113,133,0.45)]',   off: 'px-2.5 py-1 rounded-lg bg-rose-500/20 border border-rose-400/50 text-rose-300 font-extrabold cursor-pointer hover:brightness-110' }
+  ];
 
-    resSwing.className = state.tradeStyle === 'SWING'
-      ? 'px-3 py-1 rounded-lg bg-amber-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(251,191,36,0.45)]'
-      : 'px-3 py-1 rounded-lg bg-amber-500/20 border border-amber-400/50 text-amber-300 font-extrabold cursor-pointer hover:brightness-110';
-
-    if (resAPlus) {
-      resAPlus.className = state.tradeStyle === 'APLUS_ICT'
-        ? 'px-3 py-1 rounded-lg bg-emerald-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(52,211,153,0.45)]'
-        : 'px-3 py-1 rounded-lg bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 font-extrabold cursor-pointer hover:brightness-110';
-    }
-  }
+  resBtnConfigs.forEach((cfg) => {
+    const el = $(cfg.id);
+    if (el) el.className = state.tradeStyle === cfg.code ? cfg.on : cfg.off;
+  });
 
   const meta = getStyleDisplayMeta(state.tradeStyle);
+  const badge = $('activeTradeStyleBadge');
   if (badge) {
     badge.textContent = meta.badgeText;
     badge.className = meta.badgeClass;
@@ -354,28 +377,44 @@ function setTradeStyle(style, userClickedChoice = false) {
 $('btnModeScalping')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('SCALPING', true); });
 $('btnModeSwing')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('SWING', true); });
 $('btnModeAPlus')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('APLUS_ICT', true); });
+$('btnModeMsnr')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('MSNR_EMPEROR', true); });
+$('btnModeAmd')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('AMD_MMXM', true); });
 
 $('btnResSwitchScalp')?.addEventListener('click', () => setTradeStyle('SCALPING', true));
 $('btnResSwitchSwing')?.addEventListener('click', () => setTradeStyle('SWING', true));
 $('btnResSwitchAPlus')?.addEventListener('click', () => setTradeStyle('APLUS_ICT', true));
+$('btnResSwitchMsnr')?.addEventListener('click', () => setTradeStyle('MSNR_EMPEROR', true));
+$('btnResSwitchAmd')?.addEventListener('click', () => setTradeStyle('AMD_MMXM', true));
 
 $('newsFlipMode')?.addEventListener('change', (e) => {
   const v = e.target.value;
   if (v === 'SCALP_PERFECT') setTradeStyle('SCALPING', true);
   else if (v === 'ICT_APLUS') setTradeStyle('APLUS_ICT', true);
+  else if (v === 'MSNR_EMPEROR') setTradeStyle('MSNR_EMPEROR', true);
+  else if (v === 'AMD_MMXM') setTradeStyle('AMD_MMXM', true);
+  else if (v === 'NON_FARM') setTradeStyle('SWING', true);
 });
 
 $('tradeStyleBox')?.addEventListener('click', (e) => e.stopPropagation());
-$('livePairSelect')?.addEventListener('change', (e) => { state.selectedPair = e.target.value || 'AUTO'; });
-
-$('ictConfluenceFilter')?.addEventListener('change', (e) => {
-  state.ictConfluenceFilter = e.target.value || 'ALL_APLUS';
+$('livePairSelect')?.addEventListener('change', (e) => {
+  state.selectedPair = e.target.value || 'AUTO';
   if (state.result && typeof window.recalculateResultForTradeStyle === 'function') {
     window.recalculateResultForTradeStyle(state.tradeStyle);
   }
 });
 
-['chkConfSweep', 'chkConfSmt', 'chkConfDisplacement'].forEach((chkId) => {
+$('ictConfluenceFilter')?.addEventListener('change', (e) => {
+  const val = e.target.value || 'ALL_APLUS';
+  state.ictConfluenceFilter = val;
+  if (val === 'MSNR_QMX' || val === 'MSNR_GAP_GCE') setTradeStyle('MSNR_EMPEROR', true);
+  else if (val === 'AMD_PO3') setTradeStyle('AMD_MMXM', true);
+  else if (val === 'ERL_TO_IRL' || val === 'DEALING_PD') setTradeStyle('APLUS_ICT', true);
+  else if (state.result && typeof window.recalculateResultForTradeStyle === 'function') {
+    window.recalculateResultForTradeStyle(state.tradeStyle);
+  }
+});
+
+['chkConfSweep', 'chkConfSmt', 'chkConfDisplacement', 'chkConfQmx'].forEach((chkId) => {
   $(chkId)?.addEventListener('change', () => {
     if (state.result && typeof window.recalculateResultForTradeStyle === 'function') {
       window.recalculateResultForTradeStyle(state.tradeStyle);
@@ -392,11 +431,11 @@ document.querySelectorAll('#tfSelectorBar .tf-btn').forEach((btn) => {
         ? 'tf-btn py-1.5 rounded-xl bg-cyan-500 text-slate-950 border border-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.4)] cursor-pointer'
         : 'tf-btn py-1.5 rounded-xl bg-[#131d31] text-slate-300 border border-slate-700 hover:border-cyan-400 cursor-pointer';
     });
-    if (state.tradeStyle !== 'APLUS_ICT') {
+    if (['SCALPING', 'SWING'].includes(state.tradeStyle)) {
       if (['1m', '3m', '5m', '15m'].includes(tf)) setTradeStyle('SCALPING', true);
       else if (['30m', '1h', '4h', '1d', '1w'].includes(tf)) setTradeStyle('SWING', true);
     } else if (state.result && typeof window.recalculateResultForTradeStyle === 'function') {
-      window.recalculateResultForTradeStyle('APLUS_ICT');
+      window.recalculateResultForTradeStyle(state.tradeStyle);
     }
   });
 });
@@ -487,11 +526,9 @@ function updateWinrateUI() {
   const svgEl = wavePath?.closest('svg');
 
   if (pillText) {
-    if (isGreenState) {
-      pillText.innerHTML = `Winrate <span class="text-[#00e676] transition-colors duration-300">${numStr}</span>%`;
-    } else {
-      pillText.innerHTML = `Winrate <span class="text-[#ff686b] transition-colors duration-300">${numStr}</span>%`;
-    }
+    pillText.innerHTML = isGreenState
+      ? `Winrate <span class="text-[#00e676] transition-colors duration-300">${numStr}</span>%`
+      : `Winrate <span class="text-[#ff686b] transition-colors duration-300">${numStr}</span>%`;
   }
 
   const waveHex = isGreenState ? '#00e676' : '#ff5252';
@@ -598,18 +635,20 @@ const I18N = {
     flag: 'GB', label: 'English',
     backDashboardTop: 'Back to Main Dashboard',
     backDashboardBottom: '← Back to Main Dashboard',
-    subtitle: 'Transform market complexity into precise entry points',
+    subtitle: 'Transform market complexity into precise institutional entry points',
     buyKey: 'BUY KEY', locked: 'Locked • No KEY',
     buyWithSupport: 'How to buy KEY with support',
     buySelfGuide: 'How to buy KEY by yourself',
     dropTitle: 'Drop your Chart image here',
     dropSub: 'Members must Login and activate a <span class="text-[#facc15] font-bold">Special KEY</span> to scan (Admin Unlimited Scan)',
     enterKeyBtn: 'Enter KEY to Scan',
-    imgReadyNotice: '✅ Chart Image Ready! Choose Scalping Perfect Entry, Swing, or A+ ICT Setup below:',
-    chooseTradeStyle: '🎯 Choose What You Want To Trade (Scalping Perfect Entry / Swing / A+ ICT):',
-    scalpDesc: 'Sniper Perfect Entry • Zero Drawdown Zone • Tight SL (1.0x ATR) • Join Trade Immediately (R:R 1:2.8)',
-    swingDesc: 'Hold bigger trend moves • Wide Structural SL • Big TP targets (R:R 1:4.5)',
-    aplusDesc: 'HTF Liquidity Sweep (BSL/SSL) + SMT Divergence + Displacement FVG (IRL) in Discount/Premium → Straight to TP (R:R 1:3.5)'
+    imgReadyNotice: '✅ Chart Image Ready! Choose one of the 5 Pro Strategies below for a clear Perfect Entry:',
+    chooseTradeStyle: '🎯 Choose Scanning Strategy (5 Pro Strategies for Clear Perfect Entry):',
+    scalpDesc: 'Sniper Perfect Entry • 1m Ping-Pong & Micro OB + FVG • Tight SL (1.0x ATR) • Join Trade Immediately (R:R 1:2.8)',
+    swingDesc: 'Hold bigger trend moves via Storyline (WRW / DRD) • Major Liquidity (PWH/PDH) • Wide SL (R:R 1:4.5)',
+    aplusDesc: 'ERL Liquidity Sweep (BSL/SSL) + SMT Divergence + Algo Candle FVG at 50% C.E. in Discount/Premium (R:R 1:3.5)',
+    msnrDesc: 'Fresh A/V & Gap SNR + Shadow Wick Touch + Missed Candles + QML Crossing Trendline Point #3 ("X") & GCE (R:R 1:4.0)',
+    amdDesc: 'Asia Accumulation Build-Up → Frankfurt/London Manipulation Sweep (Inducement) → NY Distribution + Breaker Block (R:R 1:3.8)'
   },
   km: {
     flag: 'KH', label: 'ភាសាខ្មែរ',
@@ -622,11 +661,13 @@ const I18N = {
     dropTitle: 'ទាញរូបភាព Chart ទម្លាក់ទីនេះ',
     dropSub: 'សមាជិកត្រូវ Login គណនី និងមាន <span class="text-[#facc15] font-bold">KEY ពិសេស</span> ដើម្បីស្កេន (Admin ស្កេនឥតដែនកំណត់)',
     enterKeyBtn: 'បញ្ចូល KEY ដើម្បីស្កេន',
-    imgReadyNotice: '✅ រូបភាព Chart រួចរាល់! សូមជ្រើសរើស Scalping Perfect Entry, Swing ឬ A+ ICT Setup ខាងក្រោម៖',
-    chooseTradeStyle: '🎯 ជ្រើសរើសទម្រង់ជួញដូរ (Scalping Perfect Entry / Swing / A+ ICT)៖',
-    scalpDesc: 'Sniper Perfect Entry • Zero Drawdown Zone • Tight SL (1.0x ATR) • Join Trade ភ្លាមៗ (R:R 1:2.8)',
-    swingDesc: 'កាន់វែងតាម Trend ធំ • Wide Structural SL • TP ធំ (R:R 1:4.5)',
-    aplusDesc: 'បោសសម្អាត HTF Liquidity (BSL/SSL) + SMT Divergence + Displacement បង្កើត FVG (IRL) ក្នុងតំបន់ Discount/Premium → គោលដៅ Straight to TP (R:R 1:3.5)'
+    imgReadyNotice: '✅ រូបភាព Chart រួចរាល់! សូមជ្រើសរើសយុទ្ធសាស្ត្រស្កេនរក Perfect Entry ខាងក្រោម៖',
+    chooseTradeStyle: '🎯 ជ្រើសរើសយុទ្ធសាស្ត្រស្កេន (5 Pro Strategies for Clear Perfect Entry)៖',
+    scalpDesc: 'Sniper Perfect Entry • 1m Ping-Pong & Micro OB + FVG • Tight SL (1.0x ATR) • Join Trade ភ្លាមៗ (R:R 1:2.8)',
+    swingDesc: 'កាន់វែងតាម Storyline (WRW / DRD) • Major Liquidity (PWH/PDH) • Wide Structural SL • TP ធំ (R:R 1:4.5)',
+    aplusDesc: 'ERL Liquidity Sweep (BSL/SSL) + SMT Divergence + Algo Candle FVG ត្រង់ 50% C.E. ក្នុងតំបន់ Discount/Premium',
+    msnrDesc: 'Fresh A/V & Gap SNR + Shadow Touch + Missed Candles + QML ប្រសព្វ Trendline Point #3 (\'X\' Factor) & GCE',
+    amdDesc: 'Asia Accumulation Build-Up → Frankfurt/London Manipulation Sweep (Inducement Trap) → NY Open Distribution + Breaker/Rejection Block & HVI'
   }
 };
 
@@ -651,6 +692,8 @@ function applyLanguage(lang) {
   if ($('txtScalpDesc')) $('txtScalpDesc').textContent = t.scalpDesc;
   if ($('txtSwingDesc')) $('txtSwingDesc').textContent = t.swingDesc;
   if ($('txtAplusDesc')) $('txtAplusDesc').textContent = t.aplusDesc;
+  if ($('txtMsnrDesc')) $('txtMsnrDesc').textContent = t.msnrDesc;
+  if ($('txtAmdDesc')) $('txtAmdDesc').textContent = t.amdDesc;
   renderScanButton();
 }
 
@@ -1069,7 +1112,7 @@ function renderScanButton() {
   const styleLabel = meta.scanBtnLabel;
 
   if (state.scanning) {
-    btn.innerHTML = `<i data-lucide="refresh-cw" class="spin"></i><span>កំពុងវិភាគ ${styleLabel} និងរក Perfect Entry...</span>`;
+    btn.innerHTML = `<i data-lucide="refresh-cw" class="spin"></i><span>កំពុងវិភាគ ${styleLabel} និងគូសបន្ទាត់ Perfect Entry...</span>`;
   } else if (!state.imageBase64) {
     btn.innerHTML = `<i data-lucide="image"></i><span>ជ្រើសរើសរូបភាព Chart (${styleLabel})</span>`;
   } else {
@@ -1426,7 +1469,6 @@ function handleFile(file) {
     $('tradeStyleBox')?.classList.add('image-ready-glow');
     renderScanButton();
 
-    // 1. AUTO UPLOAD TO TELEGRAM BEFORE SCAN (រូបភាព Chart ត្រូវបានទម្លាក់ចូលត្រៀមស្កេន)
     autoSendScanStatusToTelegram({
       pair: state.selectedPair !== 'AUTO' ? state.selectedPair : 'CHART',
       timeframe: state.selectedTf !== 'AUTO' ? state.selectedTf.toUpperCase() : 'AUTO',
@@ -1483,32 +1525,279 @@ $('fileInput')?.addEventListener('click', (e) => e.stopPropagation());
 $('fileInput')?.addEventListener('change', (e) => { if (e.target.files?.[0]) handleFile(e.target.files[0]); });
 $('btnRemoveImg')?.addEventListener('click', (e) => { e.stopPropagation(); clearImage(); });
 
-// ==========================================
-// 10. RENDER RESULT (WITH SCALPING PERFECT ENTRY JOIN TRADE BAR + ICT ERL/IRL)
-// ==========================================
+// =========================================================
+// 10. VISUAL ANNOTATED CHART RENDERER (#annotatedChartCanvas)
+// DRAWS CLEAR PERFECT ENTRY, 3-TIER ZONES, SL/TP & TRENDLINE 'X'
+// =========================================================
 function parseNum(v) {
   const m = String(v || '').replace(/,/g, '').match(/-?\d+(\.\d+)?/);
   return m ? parseFloat(m[0]) : NaN;
 }
 
+window.drawAnnotatedChartCanvas = function(r) {
+  const canvas = $('annotatedChartCanvas');
+  const srcImgEl = $('previewImg');
+  if (!canvas || !r) return;
+
+  const srcUrl = srcImgEl?.src || (state.imageBase64 ? `data:${state.mime};base64,${state.imageBase64}` : '');
+  if (!srcUrl) return;
+
+  const img = new Image();
+  img.onload = () => {
+    const maxW = 1100;
+    const scale = Math.min(1, maxW / Math.max(1, img.naturalWidth || img.width));
+    const w = Math.max(640, Math.round((img.naturalWidth || img.width) * scale));
+    const h = Math.max(380, Math.round((img.naturalHeight || img.height) * scale));
+
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, w, h);
+    ctx.drawImage(img, 0, 0, w, h);
+
+    const meta = getStyleDisplayMeta(r.tradeStyle || state.tradeStyle);
+    if ($('chartOverlayStrategyTag')) {
+      $('chartOverlayStrategyTag').textContent = meta.overlayTag;
+    }
+
+    if (!state.showChartOverlay) {
+      if ($('annotatedChartStatusText')) $('annotatedChartStatusText').textContent = '○ OVERLAY HIDDEN (RAW CHART)';
+      return;
+    }
+
+    if ($('annotatedChartStatusText')) {
+      $('annotatedChartStatusText').textContent = `● ${meta.overlayTag} CALIBRATED`;
+    }
+
+    const isBuy = String(r.action || 'BUY').toUpperCase().includes('BUY');
+    const entry = parseNum(r.entry);
+    const sl = parseNum(r.sl);
+    const tp1 = parseNum(r.tp1);
+    const tp2 = parseNum(r.tp2);
+    const fib50 = parseNum(r.ictLiquidity?.equilibrium50);
+    const tier1 = parseNum(r.tierEntries?.tier1Iofed);
+    const tier3 = parseNum(r.tierEntries?.tier3Golden);
+
+    const allPrices = [entry, sl, tp1, tp2, fib50, tier1, tier3].filter((v) => !isNaN(v));
+    if (allPrices.length < 3) return;
+
+    const minP = Math.min(...allPrices);
+    const maxP = Math.max(...allPrices);
+    const pad = Math.max((maxP - minP) * 0.16, 0.0001);
+    const topP = maxP + pad;
+    const botP = minP - pad;
+
+    const chartTop = h * 0.10;
+    const chartBot = h * 0.88;
+    const priceToY = (p) => {
+      const ratio = (topP - p) / Math.max(0.000001, topP - botP);
+      return Math.max(chartTop, Math.min(chartBot, chartTop + ratio * (chartBot - chartTop)));
+    };
+
+    const yEntry = priceToY(entry);
+    const ySl = priceToY(sl);
+    const yTp1 = priceToY(tp1);
+    const yTp2 = priceToY(tp2);
+    const yFib = !isNaN(fib50) ? priceToY(fib50) : (yEntry + yTp1) / 2;
+    const yT1 = !isNaN(tier1) ? priceToY(tier1) : yEntry - 8;
+    const yT3 = !isNaN(tier3) ? priceToY(tier3) : yEntry + 8;
+
+    const zoneLeft = Math.floor(w * 0.42);
+    const zoneRight = Math.floor(w * 0.86);
+
+    // 1. Subtle Dark Vignette for Contrast
+    ctx.fillStyle = 'rgba(4, 9, 20, 0.24)';
+    ctx.fillRect(0, 0, w, h);
+
+    // 2. Shaded Profit Box (Entry to TP2) & Risk Box (Entry to SL)
+    ctx.fillStyle = 'rgba(16, 185, 129, 0.13)';
+    ctx.fillRect(zoneLeft, Math.min(yEntry, yTp2), zoneRight - zoneLeft, Math.abs(yTp2 - yEntry));
+
+    ctx.fillStyle = 'rgba(244, 63, 94, 0.15)';
+    ctx.fillRect(zoneLeft, Math.min(yEntry, ySl), zoneRight - zoneLeft, Math.abs(ySl - yEntry));
+
+    // 3. Highlighted Sniper FVG / OrderBlock / MSNR Perfect Entry Zone Box
+    const boxTop = Math.min(yT1, yEntry, yT3) - 6;
+    const boxHeight = Math.max(14, Math.abs(yT3 - yT1) + 12);
+    ctx.fillStyle = isBuy ? 'rgba(0, 229, 255, 0.22)' : 'rgba(244, 63, 94, 0.22)';
+    ctx.strokeStyle = '#18ffff';
+    ctx.lineWidth = 1.6;
+    ctx.fillRect(Math.floor(w * 0.30), boxTop, zoneRight - Math.floor(w * 0.30), boxHeight);
+    ctx.strokeRect(Math.floor(w * 0.30), boxTop, zoneRight - Math.floor(w * 0.30), boxHeight);
+
+    // 4. Draw Malaysian SNR Trendline 'X' (Point 1 -> Point 2 -> Point 3 QMX Intersection at Perfect Entry)
+    const pt3X = Math.floor(w * 0.64);
+    const pt3Y = yEntry;
+    const pt1X = Math.floor(w * 0.22);
+    const pt1Y = isBuy ? Math.min(chartBot - 15, yEntry + (chartBot - chartTop) * 0.22) : Math.max(chartTop + 15, yEntry - (chartBot - chartTop) * 0.22);
+    const pt2X = Math.floor((pt1X + pt3X) / 2);
+    const pt2Y = (pt1Y + pt3Y) / 2;
+
+    ctx.save();
+    ctx.strokeStyle = '#fbbf24';
+    ctx.lineWidth = 2.2;
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    ctx.moveTo(pt1X, pt1Y);
+    ctx.lineTo(pt3X + Math.floor(w * 0.14), pt3Y + (pt3Y - pt1Y) * 0.33);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Draw Points #1, #2, #3 ('X' Factor Confluence)
+    [
+      { x: pt1X, y: pt1Y, lbl: '#1 SNR' },
+      { x: pt2X, y: pt2Y, lbl: '#2 MISS' },
+      { x: pt3X, y: pt3Y, lbl: '#3 QMX PERFECT ENTRY "X"' }
+    ].forEach((pt, idx) => {
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, idx === 2 ? 7 : 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = idx === 2 ? '#18ffff' : '#fbbf24';
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#050811';
+      ctx.stroke();
+
+      ctx.font = '800 11px Inter, sans-serif';
+      ctx.fillStyle = idx === 2 ? '#18ffff' : '#fde047';
+      ctx.fillText(pt.lbl, pt.x - 18, pt.y + (isBuy ? 18 : -10));
+    });
+    ctx.restore();
+
+    // 5. Draw Future Projection Trajectory Arrow (Sweep -> Perfect Entry -> TP1 -> TP2)
+    ctx.save();
+    ctx.strokeStyle = isBuy ? '#34d399' : '#fb7185';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(pt3X, pt3Y);
+    ctx.lineTo(Math.floor(w * 0.73), yTp1);
+    ctx.lineTo(Math.floor(w * 0.82), yTp2);
+    ctx.stroke();
+
+    // Arrowhead at TP2
+    const endX = Math.floor(w * 0.82);
+    const endY = yTp2;
+    ctx.fillStyle = isBuy ? '#34d399' : '#fb7185';
+    ctx.beginPath();
+    ctx.moveTo(endX, endY);
+    ctx.lineTo(endX - 9, endY + (isBuy ? 10 : -10));
+    ctx.lineTo(endX + 7, endY + (isBuy ? 10 : -10));
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // 6. Helper to draw Horizontal Price Level Lines + Right Pill Badges
+    const drawLevelLine = (y, label, priceText, colorHex, bgRgba, dashed = false) => {
+      ctx.save();
+      ctx.strokeStyle = colorHex;
+      ctx.lineWidth = dashed ? 1.5 : 2.2;
+      if (dashed) ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(Math.floor(w * 0.18), y);
+      ctx.lineTo(zoneRight, y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      const tagText = `${label}: ${priceText}`;
+      ctx.font = '800 11.5px Inter, monospace';
+      const textW = ctx.measureText(tagText).width;
+      const pillW = textW + 16;
+      const pillH = 22;
+      const pillX = Math.min(w - pillW - 8, zoneRight - pillW + 40);
+      const pillY = Math.max(6, Math.min(h - pillH - 6, y - pillH / 2));
+
+      ctx.fillStyle = bgRgba;
+      ctx.strokeStyle = colorHex;
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.roundRect(pillX, pillY, pillW, pillH, 6);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(tagText, pillX + 8, pillY + pillH / 2);
+      ctx.restore();
+    };
+
+    drawLevelLine(yTp2, '💰 TP2 (ERL)', r.tp2, '#4ade80', 'rgba(6, 78, 59, 0.94)', false);
+    drawLevelLine(yTp1, '🎯 TP1 (IRL)', r.tp1, '#34d399', 'rgba(6, 95, 70, 0.90)', true);
+    if (!isNaN(fib50)) {
+      drawLevelLine(yFib, '⚖️ 0.5 EQ', r.ictLiquidity.equilibrium50, '#fbbf24', 'rgba(120, 53, 15, 0.90)', true);
+    }
+    drawLevelLine(yEntry, `⚡ PERFECT ${r.action} (C.E.)`, r.entry, '#18ffff', 'rgba(8, 51, 68, 0.96)', false);
+    drawLevelLine(ySl, '🛑 STOP LOSS (SL)', r.sl, '#fb7185', 'rgba(136, 19, 55, 0.94)', false);
+
+    // 7. Top-Left Institutional Strategy Watermark Header
+    ctx.save();
+    ctx.fillStyle = 'rgba(8, 15, 30, 0.88)';
+    ctx.strokeStyle = 'rgba(24, 255, 255, 0.55)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(14, 14, Math.min(w - 28, 450), 56, 12);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#18ffff';
+    ctx.font = '800 13.5px Inter, sans-serif';
+    ctx.fillText(`POR - SNR SCANNER • ${r.pair || 'XAU/USD'} (${r.timeframe || 'M15'}) • ${r.action} NOW`, 26, 35);
+
+    ctx.fillStyle = '#fde047';
+    ctx.font = '700 11.5px Inter, sans-serif';
+    ctx.fillText(`${meta.overlayTag} | Entry: ${r.entry} | SL: ${r.sl} | TP2: ${r.tp2} (${r.rrRatio || '1:3.5'})`, 26, 55);
+    ctx.restore();
+  };
+  img.src = srcUrl;
+};
+
+$('btnToggleChartOverlay')?.addEventListener('click', () => {
+  state.showChartOverlay = !state.showChartOverlay;
+  if ($('txtToggleOverlayBtn')) {
+    $('txtToggleOverlayBtn').textContent = state.showChartOverlay ? 'លាក់បន្ទាត់ (Hide)' : 'បង្ហាញបន្ទាត់ (Show)';
+  }
+  if (state.result) window.drawAnnotatedChartCanvas(state.result);
+});
+
+$('btnDownloadAnnotatedChart')?.addEventListener('click', () => {
+  const canvas = $('annotatedChartCanvas');
+  if (!canvas || !state.result) return;
+  const link = document.createElement('a');
+  const cleanPair = String(state.result.pair || 'CHART').replace(/[^A-Z0-9]/gi, '');
+  link.download = `POR-SNR-PERFECT-ENTRY-${cleanPair}-${Date.now()}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
+
+// ==========================================
+// 10B. RENDER RESULT (WITH 3-TIER PERFECT ENTRY + 5 STRATEGIES + VISUAL CHART)
+// ==========================================
 function buildSignalCopyText(r) {
   const isBuy = (r.action || '').toUpperCase().includes('BUY');
   const styleCode = r.tradeStyle || state.tradeStyle;
-  let styleText = '⚡ SCALPING PERFECT ENTRY (High Quality Join Trade • R:R 1:2.8)';
-  if (styleCode === 'SWING') styleText = '🌊 SWING TRADE (Hold Trend • R:R 1:4.5)';
-  else if (styleCode === 'APLUS_ICT') styleText = '🏆 A+ ICT LIQUIDITY SETUP (Sweep + SMT + FVG • Min 1:3 RR)';
+  const meta = getStyleDisplayMeta(styleCode);
 
   const ict = r.ictLiquidity || {};
   const sp = r.scalpPerfect || {};
+  const te = r.tierEntries || {};
+  const msnr = r.msnrEmperor || {};
+
   return `🔥 លទ្ធផលស្កេន High Probability Setup (Por - SNR Scanner) 🔥
 📈 ${isBuy ? 'ENTRY BUY NOW' : 'ENTRY SELL NOW'}: ${r.entry}
-🎯 Perfect Sniper Zone: ${sp.zone || r.entry} (${sp.qualityScore || '96.8% HIGH QUALITY'})
-💰 TAKE PROFIT (TP1): ${r.tp1} | TP2 (ERL): ${r.tp2}
+🎯 3-Tier Perfect Entry Matrix:
+  • ⚡ Tier 1 (IOFED / Shadow Touch): ${te.tier1Iofed || r.entry}
+  • 🎯 Tier 2 (Sniper 50% C.E. / QMX Best): ${te.tier2SniperCe || r.entry}
+  • 👑 Tier 3 (Golden Confirm GCE): ${te.tier3Golden || r.entry}
+💰 TAKE PROFIT 1 (TP1): ${r.tp1} | TP2 (ERL): ${r.tp2}
 🛑 STOP LOSS (SL): ${r.sl}
 
-📊 Pair: ${r.pair} (${r.timeframe}) | Style: ${styleText}
+📊 Pair: ${r.pair} (${r.timeframe}) | Strategy: ${meta.resBadgeText}
 📈 និន្នាការ (Trend): ${r.trend}
 📝 ការវិភាគលម្អិត: ${r.detailedAnalysis || ''}
+
+👑 Malaysian SNR Emperor & 🔥 ICT AMD Matrix:
+- MSNR Level & MISS: ${msnr.levelType || 'Fresh A/V + Gap SNR (Shadow Touch + Missed Candles)'}
+- Trendline 'X' Factor: ${msnr.trendlineX || 'QML + Point #3 Trendline Crossing (QMX)'}
+- Engulfing & GCE: ${msnr.engulfingGce || 'EG-to-EG Retest + Golden Confirmation Entry'}
+- ICT AMD Cycle: ${msnr.amdCycle || 'Asia Build-Up → London Sweep → NY Distribution'}
 
 🧲 ICT Liquidity & Dealing Range:
 - Dealing Range Zone: ${ict.pdZone || (isBuy ? 'DISCOUNT (< 0.5 Fib)' : 'PREMIUM (> 0.5 Fib)')}
@@ -1516,10 +1805,6 @@ function buildSignalCopyText(r) {
 - Buy-Side Liquidity (BSL / ERL): ${ict.bsl || r.snrZones?.resistance || '-'}
 - Internal Liquidity (IRL - FVG): ${ict.irlFvg || r.entry || '-'}
 - Sell-Side Liquidity (SSL / ERL): ${ict.ssl || r.snrZones?.support || '-'}
-
-🧱 តំបន់ KEY Por - SNR:
-- KEY Resistance: ${r.snrZones?.resistance}
-- KEY Support: ${r.snrZones?.support}
 
 📲 Telegram Admin: @KaingChungpor`;
 }
@@ -1537,7 +1822,9 @@ function renderResult() {
     hpBanner.innerHTML = `<i data-lucide="${isBuy ? 'trending-up' : 'trending-down'}" class="w-5 h-5"></i><span>${isBuy ? 'ENTRY BUY NOW' : 'ENTRY SELL NOW'}</span>`;
   }
 
+  // Populate 3-Tier Perfect Entry Matrix & Scalping Box
   const sp = r.scalpPerfect || {};
+  const te = r.tierEntries || {};
   const perfectBox = $('scalpPerfectEntryBox');
   if (perfectBox) {
     show(perfectBox, true);
@@ -1546,8 +1833,8 @@ function renderResult() {
     }
     if ($('scalpExecutionNote')) {
       $('scalpExecutionNote').textContent = sp.executionNote || (isBuy
-        ? `តំបន់ចូល BUY ដ៏ល្អឥតខ្ចោះ (Micro OB + ${r.timeframe || 'M15'} Bullish FVG Confluence) — ហានិភ័យទាបបំផុត!`
-        : `តំបន់ចូល SELL ដ៏ល្អឥតខ្ចោះ (Micro OB + ${r.timeframe || 'M15'} Bearish FVG Confluence) — ហានិភ័យទាបបំផុត!`);
+        ? `តំបន់ចូល BUY ដ៏ល្អឥតខ្ចោះ (Micro OB + FVG + MSNR Shadow Touch + QMX Confluence) — ហានិភ័យទាបបំផុត!`
+        : `តំបន់ចូល SELL ដ៏ល្អឥតខ្ចោះ (Micro OB + FVG + MSNR Shadow Touch + QMX Confluence) — ហានិភ័យទាបបំផុត!`);
     }
     if ($('scalpJoinStatusBadge')) {
       $('scalpJoinStatusBadge').textContent = isBuy ? '🚀 JOIN BUY READY' : '🚀 JOIN SELL READY';
@@ -1555,15 +1842,18 @@ function renderResult() {
         ? 'px-2.5 py-1 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-[11px] tracking-wide uppercase shadow-[0_0_15px_rgba(16,185,129,0.5)]'
         : 'px-2.5 py-1 rounded-xl bg-rose-500 text-white font-extrabold text-[11px] tracking-wide uppercase shadow-[0_0_15px_rgba(244,63,94,0.5)]';
     }
-    if ($('scalpPerfectZoneText')) {
-      $('scalpPerfectZoneText').textContent = sp.zone || `${r.entry}`;
-    }
-    if ($('scalpLotAdviceText')) {
-      $('scalpLotAdviceText').textContent = sp.lotAdvice || (styleCode === 'SCALPING' ? '1.0% Risk (Tight 1.0x ATR SL)' : `1.0% Risk (${r.rrRatio || '1:3.5'})`);
-    }
-    if ($('scalpQuickTargetText')) {
-      $('scalpQuickTargetText').textContent = sp.quickTarget || `TP1 @ ${r.tp1} (+Breakeven)`;
-    }
+
+    // 3-Tier Perfect Entry values
+    if ($('tier1IofedPrice')) $('tier1IofedPrice').textContent = te.tier1Iofed || r.entry || '-';
+    if ($('tier1IofedNote')) $('tier1IofedNote').textContent = te.tier1Note || 'គែមដំបូងនៃ FVG (IOFED) / Fresh SNR Wick Touch';
+    if ($('tier2SniperCePrice')) $('tier2SniperCePrice').textContent = te.tier2SniperCe || r.entry || '-';
+    if ($('tier2SniperCeNote')) $('tier2SniperCeNote').textContent = te.tier2Note || '50% FVG Equilibrium (C.E.) & Trendline Point #3 "X"';
+    if ($('tier3GoldenPrice')) $('tier3GoldenPrice').textContent = te.tier3Golden || r.entry || '-';
+    if ($('tier3GoldenNote')) $('tier3GoldenNote').textContent = te.tier3Note || 'Golden Confirmation (GCE) ទៀន Engulfing បិទតួពេញ';
+
+    if ($('scalpPerfectZoneText')) $('scalpPerfectZoneText').textContent = sp.zone || `${r.entry}`;
+    if ($('scalpLotAdviceText')) $('scalpLotAdviceText').textContent = sp.lotAdvice || `1.0% Risk (${r.rrRatio || '1:3.5'})`;
+    if ($('scalpQuickTargetText')) $('scalpQuickTargetText').textContent = sp.quickTarget || `TP1 @ ${r.tp1} (+Move SL to BE)`;
   }
 
   const hpEntryCard = $('hpEntryPriceCard');
@@ -1571,7 +1861,7 @@ function renderResult() {
     hpEntryCard.className = `hp-entry-box ${isBuy ? '' : 'sell-mode'} w-full py-5 px-4 rounded-2xl text-center mb-3.5`;
   }
   if ($('hpEntryBoxLabel')) {
-    $('hpEntryBoxLabel').textContent = isBuy ? 'ENTRY BUY NOW (PERFECT ZONE)' : 'ENTRY SELL NOW (PERFECT ZONE)';
+    $('hpEntryBoxLabel').textContent = isBuy ? 'ENTRY BUY NOW (SNIPER 50% C.E. / QMX)' : 'ENTRY SELL NOW (SNIPER 50% C.E. / QMX)';
     $('hpEntryBoxLabel').className = isBuy ? 'text-emerald-400 font-extrabold' : 'text-rose-400 font-extrabold';
   }
   if ($('hpEntryBigPrice')) {
@@ -1579,26 +1869,10 @@ function renderResult() {
     $('hpEntryBigPrice').className = 'hp-entry-price text-3xl sm:text-5xl font-extrabold tracking-tight';
   }
 
-  const tpCard = $('hpTpBigPrice')?.parentElement;
-  if (tpCard) tpCard.className = 'hp-tp-box py-4 px-3 sm:px-4 rounded-2xl text-center';
-  if ($('hpTpBigPrice')) {
-    $('hpTpBigPrice').textContent = r.tp2 || r.tp1 || '-';
-    $('hpTpBigPrice').className = 'hp-tp-price text-2xl sm:text-3xl font-extrabold tracking-tight';
-  }
-
-  const slCard = $('hpSlBigPrice')?.parentElement;
-  if (slCard) slCard.className = 'hp-sl-box py-4 px-3 sm:px-4 rounded-2xl text-center';
-  if ($('hpSlBigPrice')) {
-    $('hpSlBigPrice').textContent = r.sl || '-';
-    $('hpSlBigPrice').className = 'hp-sl-price text-2xl sm:text-3xl font-extrabold tracking-tight';
-  }
-
-  const analysisBox = $('hpAnalysisSummaryText')?.parentElement;
-  if (analysisBox) analysisBox.className = 'hp-reason-box p-4 rounded-2xl text-xs sm:text-sm leading-relaxed text-slate-200 mb-5';
+  if ($('hpTpBigPrice')) $('hpTpBigPrice').textContent = r.tp2 || r.tp1 || '-';
+  if ($('hpSlBigPrice')) $('hpSlBigPrice').textContent = r.sl || '-';
   if ($('hpAnalysisSummaryText')) {
-    $('hpAnalysisSummaryText').textContent = r.detailedAnalysis || (isBuy
-      ? `ទីផ្សារមានទំនោរកើនឡើងបន្ទាប់ពីតម្លៃបានប៉ះតំបន់ Support (${r.snrZones?.support || r.sl}) និងបោសសម្អាត Sell-Side Liquidity (SSL)។ Entry ត្រូវបានកំណត់នៅចំណុច ${r.entry} ដើម្បីចូលតាមទិសដៅកើនឡើង។ TP នៅក្បែរតំបន់ខ្ពស់ចាស់ (${r.tp2 || r.tp1}) និង SL នៅក្រោមតំបន់ទាបចុងក្រោយ (${r.sl}) ដើម្បីការពារហានិភ័យ។`
-      : `ទីផ្សារមានទំនោរថយចុះបន្ទាប់ពីតម្លៃបានប៉ះតំបន់ Resistance (${r.snrZones?.resistance || r.sl}) និងបោសសម្អាត Buy-Side Liquidity (BSL)។ Entry ត្រូវបានកំណត់នៅចំណុច ${r.entry} ដើម្បីចូលតាមទិសដៅថយចុះ។ TP នៅក្បែរតំបន់ទាបចាស់ (${r.tp2 || r.tp1}) និង SL នៅលើតំបន់ខ្ពស់ចុងក្រោយ (${r.sl}) ដើម្បីការពារហានិភ័យ។`);
+    $('hpAnalysisSummaryText').textContent = r.detailedAnalysis || '';
   }
 
   $('rPair').textContent = r.pair || '';
@@ -1613,27 +1887,25 @@ function renderResult() {
   $('rSup').textContent = r.snrZones?.support || '';
 
   const meta = getStyleDisplayMeta(styleCode);
-  const styleBadge = $('rTradeStyleBadge');
-  if (styleBadge) {
-    styleBadge.textContent = meta.resBadgeText;
-    styleBadge.className = meta.resBadgeClass;
+  if ($('rTradeStyleBadge')) {
+    $('rTradeStyleBadge').textContent = meta.resBadgeText;
+    $('rTradeStyleBadge').className = meta.resBadgeClass;
   }
-
-  const gradeBadge = $('rSetupGradeBadge');
-  if (gradeBadge) {
-    gradeBadge.textContent = r.setupGrade || (styleCode === 'APLUS_ICT' ? '🏆 A+ ICT (MIN 1:3 RR)' : '🏆 A+ HIGH QUALITY');
+  if ($('rSetupGradeBadge')) {
+    $('rSetupGradeBadge').textContent = r.setupGrade || '🏆 A+ HIGH QUALITY';
   }
 
   const tag = $('rAction');
-  tag.className = 'action-tag ' + (isBuy ? 'buy' : 'sell');
-  tag.innerHTML = `<i data-lucide="${isBuy ? 'trending-up' : 'trending-down'}"></i><span>${r.action} (${isBuy ? 'NEW BUY' : 'NEW SELL'})</span>`;
-
-  if ($('rFlipText')) {
-    $('rFlipText').textContent = r.keyFlipRule || (isBuy
-      ? 'KEY Por - SNR FLOW: Candle/Wick ចាក់ KEY BUY = NEW BUY 💸'
-      : 'KEY Por - SNR FLOW: Candle/Wick ចាក់ KEY SELL = NEW SELL 💸');
+  if (tag) {
+    tag.className = 'action-tag ' + (isBuy ? 'buy' : 'sell');
+    tag.innerHTML = `<i data-lucide="${isBuy ? 'trending-up' : 'trending-down'}"></i><span>${r.action} (${isBuy ? 'NEW BUY' : 'NEW SELL'})</span>`;
   }
 
+  if ($('rFlipText')) {
+    $('rFlipText').textContent = r.keyFlipRule || '';
+  }
+
+  // ICT Dealing Range & Liquidity Map
   const ict = r.ictLiquidity || {};
   if ($('rPdZoneBadge')) {
     const isDiscount = ict.isDiscount !== undefined ? ict.isDiscount : isBuy;
@@ -1649,44 +1921,66 @@ function renderResult() {
   if ($('rIctIrlFvg')) $('rIctIrlFvg').textContent = ict.irlFvg || `${r.entry}` || '-';
   if ($('rIctSsl')) $('rIctSsl').textContent = ict.ssl || r.snrZones?.support || '-';
 
-  if ($('rConfSweepText')) {
-    $('rConfSweepText').textContent = ict.confSweep || (isBuy ? '#1 SSL Swept (HTF LQ)' : '#1 BSL Swept (HTF LQ)');
+  if ($('rConfSweepText')) $('rConfSweepText').textContent = ict.confSweep || '#1 HTF Liquidity Sweep';
+  if ($('rConfSmtText')) $('rConfSmtText').textContent = ict.confSmt || '#2 SMT Divergence Confirmed';
+  if ($('rConfDispText')) $('rConfDispText').textContent = ict.confDisp || '#3 Displacement + FVG Entry';
+
+  // Malaysian SNR Emperor & ICT AMD Matrix
+  const msnr = r.msnrEmperor || {};
+  if ($('rMsnrStorylineBadge')) {
+    $('rMsnrStorylineBadge').textContent = msnr.storylineBadge || '📐 STORYLINE + QMX CONFIRMED';
   }
-  if ($('rConfSmtText')) {
-    $('rConfSmtText').textContent = ict.confSmt || '#2 SMT Divergence Confirmed';
+  if ($('rMsnrLevelType')) {
+    $('rMsnrLevelType').textContent = msnr.levelType || (isBuy
+      ? 'Fresh V-Support + Gap SNR (Shadow Touch + 3 Missed Candles)'
+      : 'Fresh A-Resistance + Gap SNR (Shadow Touch + 3 Missed Candles)');
   }
-  if ($('rConfDispText')) {
-    $('rConfDispText').textContent = ict.confDisp || '#3 Displacement + FVG Entry';
+  if ($('rMsnrTrendlineX')) {
+    $('rMsnrTrendlineX').textContent = msnr.trendlineX || (isBuy
+      ? 'Bullish QML / RBS + Point #3 Trendline Crossing ("X" Factor)'
+      : 'Bearish QML / SBR + Point #3 Trendline Crossing ("X" Factor)');
+  }
+  if ($('rMsnrEngulfingGce')) {
+    $('rMsnrEngulfingGce').textContent = msnr.engulfingGce || 'EG-to-EG Perfect Zone + Golden Confirmation Entry (GCE)';
+  }
+  if ($('rIctAmdCycle')) {
+    $('rIctAmdCycle').textContent = msnr.amdCycle || 'Asia Build-Up → London Inducement Sweep → NY Distribution + Breaker';
   }
 
   const box = $('rConfluence');
-  box.innerHTML = '';
-  (r.confluence || []).forEach((c) => {
-    const row = document.createElement('div');
-    row.className = 'conf-item';
-    row.innerHTML = '<span>✔</span><span></span>';
-    row.lastChild.textContent = c;
-    box.appendChild(row);
-  });
+  if (box) {
+    box.innerHTML = '';
+    (r.confluence || []).forEach((c) => {
+      const row = document.createElement('div');
+      row.className = 'conf-item';
+      row.innerHTML = '<span>✔</span><span></span>';
+      row.lastChild.textContent = c;
+      box.appendChild(row);
+    });
+  }
 
   setTradeStyle(styleCode, false);
   show($('resultCard'), true);
+  window.drawAnnotatedChartCanvas(r);
   icons();
 }
 
-const JOIN_TRADE_BTN_HTML = '<i data-lucide="rocket" class="w-4 h-4"></i><span>🚀 JOIN TRADE NOW (ចម្លង Perfect Entry យកទៅដាក់ក្នុង MT4/MT5)</span>';
+const JOIN_TRADE_BTN_HTML = '<i data-lucide="rocket" class="w-4 h-4"></i><span>🚀 JOIN TRADE NOW (ចម្លង 3-Tier Perfect Entry យកទៅដាក់ក្នុង MT4/MT5)</span>';
 $('btnJoinTradeNow')?.addEventListener('click', () => {
   const r = state.result;
   if (!r) return;
   const isBuy = String(r.action || 'BUY').toUpperCase().includes('BUY');
   const sp = r.scalpPerfect || {};
+  const te = r.tierEntries || {};
   const ticketText = `🚀 JOIN TRADE NOW — ${r.pair} (${r.timeframe})
 ⚡ Action: ${isBuy ? 'BUY MARKET / LIMIT' : 'SELL MARKET / LIMIT'}
-🎯 Perfect Entry: ${r.entry} (Zone: ${sp.zone || r.entry})
+🎯 Tier 1 (IOFED / Shadow Touch): ${te.tier1Iofed || r.entry}
+🎯 Tier 2 (Sniper 50% C.E. / QMX Best): ${te.tier2SniperCe || r.entry}
+👑 Tier 3 (Golden Confirm GCE): ${te.tier3Golden || r.entry}
 🛑 Stop Loss (SL): ${r.sl}
-💰 Take Profit 1 (TP1): ${r.tp1}
-💰 Take Profit 2 (TP2): ${r.tp2}
-🏆 Quality: ${sp.qualityScore || '96.8% HIGH QUALITY'} | R:R ${r.rrRatio || '1:2.8'}`;
+💰 Take Profit 1 (TP1 - Move SL to BE): ${r.tp1}
+💰 Take Profit 2 (TP2 - External ERL): ${r.tp2}
+🏆 Quality: ${sp.qualityScore || '96.8% HIGH QUALITY'} | R:R ${r.rrRatio || '1:3.5'}`;
 
   navigator.clipboard.writeText(ticketText);
   if (typeof playTelegramSuccessBeep === 'function') playTelegramSuccessBeep();
@@ -1694,7 +1988,7 @@ $('btnJoinTradeNow')?.addEventListener('click', () => {
 
   flashButton(
     $('btnJoinTradeNow'),
-    '<i data-lucide="check-circle-2" class="w-4 h-4"></i><span>✅ JOINED TRADE! បានចម្លង Perfect Entry ទៅ Clipboard!</span>',
+    '<i data-lucide="check-circle-2" class="w-4 h-4"></i><span>✅ JOINED TRADE! បានចម្លង 3-Tier Perfect Entry ទៅ Clipboard!</span>',
     JOIN_TRADE_BTN_HTML
   );
 });
@@ -1707,7 +2001,7 @@ $('btnCopySignal')?.addEventListener('click', () => {
 });
 
 // =========================================================
-// 10B. AFTER-SCAN HISTORY LOBBY ENGINE (QUOTA-SAFE + UPDATE + SMOOTH DELETE + AUTO TELEGRAM TP/SL)
+// 10C. AFTER-SCAN HISTORY LOBBY ENGINE
 // =========================================================
 const GLOBAL_LOBBY_STORAGE_KEY = 'ksnr_scan_lobby_all_v2';
 let lastDeletedLobbyBackup = null;
@@ -1770,7 +2064,6 @@ function saveScanLobbyList(list) {
         localStorage.setItem(GLOBAL_LOBBY_STORAGE_KEY, JSON.stringify(textOnlyList));
         return true;
       } catch (err3) {
-        console.error('History storage full:', err3);
         return false;
       }
     }
@@ -1834,11 +2127,7 @@ function openUpdateScanModalById(targetId) {
   let item = list.find((x) => x.id === targetId);
 
   if (!item && state.result) {
-    item = {
-      id: 'CURRENT_ACTIVE',
-      outcome: 'PENDING',
-      result: state.result
-    };
+    item = { id: 'CURRENT_ACTIVE', outcome: 'PENDING', result: state.result };
   }
   if (!item || !item.result) return;
 
@@ -1847,7 +2136,7 @@ function openUpdateScanModalById(targetId) {
   if ($('updPairInput')) $('updPairInput').value = r.pair || 'XAU/USD';
   if ($('updTfInput')) $('updTfInput').value = r.timeframe || 'M15';
   if ($('updActionInput')) $('updActionInput').value = String(r.action || 'BUY').toUpperCase().includes('SELL') ? 'SELL' : 'BUY';
-  if ($('updStyleInput')) $('updStyleInput').value = ['SCALPING', 'SWING', 'APLUS_ICT'].includes(r.tradeStyle) ? r.tradeStyle : 'SCALPING';
+  if ($('updStyleInput')) $('updStyleInput').value = VALID_TRADE_STYLES.includes(r.tradeStyle) ? r.tradeStyle : 'SCALPING';
   if ($('updOutcomeInput')) $('updOutcomeInput').value = ['PENDING', 'WIN', 'LOSS'].includes(item.outcome) ? item.outcome : 'PENDING';
   if ($('updEntryInput')) $('updEntryInput').value = r.entry || '';
   if ($('updSlInput')) $('updSlInput').value = r.sl || '';
@@ -1860,11 +2149,8 @@ function openUpdateScanModalById(targetId) {
 }
 
 $('btnEditCurrentScan')?.addEventListener('click', () => {
-  if (state.activeLobbyItemId) {
-    openUpdateScanModalById(state.activeLobbyItemId);
-  } else if (state.result) {
-    openUpdateScanModalById('CURRENT_ACTIVE');
-  }
+  if (state.activeLobbyItemId) openUpdateScanModalById(state.activeLobbyItemId);
+  else if (state.result) openUpdateScanModalById('CURRENT_ACTIVE');
 });
 
 $('updateScanForm')?.addEventListener('submit', (e) => {
@@ -1896,19 +2182,27 @@ $('updateScanForm')?.addEventListener('submit', (e) => {
     r.sl = sl;
     r.tp1 = tp1;
     r.tp2 = tp2;
-    r.rrRatio = tradeStyle === 'SWING' ? '1:4.5' : (tradeStyle === 'APLUS_ICT' ? '1:3.5' : '1:2.8');
+    const rrMap = { SCALPING: '1:2.8', SWING: '1:4.5', APLUS_ICT: '1:3.5', MSNR_EMPEROR: '1:4.0', AMD_MMXM: '1:3.8' };
+    r.rrRatio = rrMap[tradeStyle] || '1:3.5';
     if (note) r.detailedAnalysis = note;
 
     const eNum = parseNum(entry);
     const slNum = parseNum(sl);
     const dec = (entry.split('.')[1] || '').length || 2;
     if (!isNaN(eNum) && !isNaN(slNum)) {
-      const microHalf = Math.abs(eNum - slNum) * 0.12;
+      const risk = Math.abs(eNum - slNum);
+      const microHalf = risk * 0.12;
       r.scalpPerfect = {
         ...(r.scalpPerfect || {}),
         zone: `${(eNum - microHalf).toFixed(dec)} – ${(eNum + microHalf).toFixed(dec)}`,
-        qualityScore: '97.2% HIGH QUALITY (UPDATED)',
-        quickTarget: `TP1 @ ${tp1} (+Breakeven)`
+        qualityScore: '97.5% HIGH QUALITY (UPDATED)',
+        quickTarget: `TP1 @ ${tp1} (+Move SL to BE)`
+      };
+      r.tierEntries = {
+        ...(r.tierEntries || {}),
+        tier1Iofed: (isBuy ? eNum + microHalf : eNum - microHalf).toFixed(dec),
+        tier2SniperCe: eNum.toFixed(dec),
+        tier3Golden: (isBuy ? eNum + microHalf * 1.4 : eNum - microHalf * 1.4).toFixed(dec)
       };
     }
     return r;
@@ -1992,9 +2286,7 @@ window.saveScanToHistoryLobby = async function(scanResult, previewDataUrl) {
   saveScanLobbyList(list);
   state.activeLobbyItemId = newEntry.id;
 
-  if (state.lobbyFilter !== 'ALL') {
-    state.lobbyFilter = 'ALL';
-  }
+  if (state.lobbyFilter !== 'ALL') state.lobbyFilter = 'ALL';
   renderScanHistoryLobby();
 
   const lobbyShell = $('scanHistoryLobby');
@@ -2026,7 +2318,7 @@ function renderScanHistoryLobby() {
   const list = getScanLobbyList();
   const total = list.length;
   const scalpCount = list.filter((i) => (i.result?.tradeStyle || 'SCALPING') === 'SCALPING').length;
-  const swingOrAplusCount = list.filter((i) => ['SWING', 'APLUS_ICT'].includes(i.result?.tradeStyle)).length;
+  const proStratCount = list.filter((i) => ['SWING', 'APLUS_ICT', 'MSNR_EMPEROR', 'AMD_MMXM'].includes(i.result?.tradeStyle)).length;
   const winCount = list.filter((i) => i.outcome === 'WIN').length;
   const lossCount = list.filter((i) => i.outcome === 'LOSS').length;
 
@@ -2034,7 +2326,7 @@ function renderScanHistoryLobby() {
   if ($('lobbyCountBadge')) $('lobbyCountBadge').textContent = `${total} Scans`;
   if ($('lobbyStatTotal')) $('lobbyStatTotal').textContent = String(total);
   if ($('lobbyStatScalp')) $('lobbyStatScalp').textContent = String(scalpCount);
-  if ($('lobbyStatSwing')) $('lobbyStatSwing').textContent = String(swingOrAplusCount);
+  if ($('lobbyStatSwing')) $('lobbyStatSwing').textContent = String(proStratCount);
   if ($('lobbyStatWin')) $('lobbyStatWin').textContent = String(winCount);
   if ($('lobbyStatWL')) $('lobbyStatWL').textContent = `(${winCount}W / ${lossCount}L)`;
 
@@ -2049,9 +2341,7 @@ function renderScanHistoryLobby() {
     const r = item.result || {};
     const style = (r.tradeStyle || 'SCALPING').toUpperCase();
     const act = (r.action || 'BUY').toUpperCase();
-    if (state.lobbyFilter === 'SCALPING') return style === 'SCALPING';
-    if (state.lobbyFilter === 'SWING') return style === 'SWING';
-    if (state.lobbyFilter === 'APLUS_ICT') return style === 'APLUS_ICT';
+    if (VALID_TRADE_STYLES.includes(state.lobbyFilter)) return style === state.lobbyFilter;
     if (state.lobbyFilter === 'BUY') return act.includes('BUY');
     if (state.lobbyFilter === 'SELL') return act.includes('SELL');
     if (state.lobbyFilter === 'WIN') return item.outcome === 'WIN';
@@ -2085,6 +2375,10 @@ function renderScanHistoryLobby() {
       stylePill = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 border border-amber-400/50 text-amber-300">🌊 SWING</span>`;
     } else if (styleCode === 'APLUS_ICT') {
       stylePill = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 border border-emerald-400/50 text-emerald-300">🏆 A+ ICT</span>`;
+    } else if (styleCode === 'MSNR_EMPEROR') {
+      stylePill = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-500/20 border border-purple-400/50 text-purple-300">👑 MSNR EMPEROR</span>`;
+    } else if (styleCode === 'AMD_MMXM') {
+      stylePill = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/20 border border-rose-400/50 text-rose-300">🔥 ICT AMD</span>`;
     }
 
     let outcomeBadge = `<span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-[10px] font-bold">⏳ កំពុងរង់ចាំ</span>`;
@@ -2109,7 +2403,7 @@ function renderScanHistoryLobby() {
               <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${isBuy ? 'bg-emerald-500/20 border border-emerald-400/50 text-emerald-300' : 'bg-rose-500/20 border border-rose-400/50 text-rose-300'}">${isBuy ? '🟢 BUY' : '🔴 SELL'}</span>
               ${outcomeBadge}
             </div>
-            <div class="text-[11px] text-slate-400 mt-1">🕒 ${item.timeText || ''} • Trend: <strong class="text-slate-200">${r.trend || '-'}</strong> • R:R <strong class="text-amber-300">${r.rrRatio || '1:2.8'}</strong></div>
+            <div class="text-[11px] text-slate-400 mt-1">🕒 ${item.timeText || ''} • Trend: <strong class="text-slate-200">${r.trend || '-'}</strong> • R:R <strong class="text-amber-300">${r.rrRatio || '1:3.5'}</strong></div>
           </div>
         </div>
 
@@ -2142,7 +2436,6 @@ function renderScanHistoryLobby() {
     container.appendChild(card);
   });
 
-  // View Action
   container.querySelectorAll('[data-lobby-view]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const found = getScanLobbyList().find((x) => x.id === btn.dataset.lobbyView);
@@ -2162,7 +2455,6 @@ function renderScanHistoryLobby() {
     });
   });
 
-  // Update / Edit Action
   container.querySelectorAll('[data-lobby-edit]').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -2170,7 +2462,6 @@ function renderScanHistoryLobby() {
     });
   });
 
-  // Copy Action
   container.querySelectorAll('[data-lobby-copy]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const found = getScanLobbyList().find((x) => x.id === btn.dataset.lobbyCopy);
@@ -2180,7 +2471,6 @@ function renderScanHistoryLobby() {
     });
   });
 
-  // Telegram Action (✈️ TG Button) -> Auto Upload Chart + Signal
   container.querySelectorAll('[data-lobby-tg]').forEach((btn) => {
     btn.addEventListener('click', async (e) => {
       e.stopPropagation();
@@ -2195,7 +2485,6 @@ function renderScanHistoryLobby() {
     });
   });
 
-  // Mark TP Win (✅ TP Button) -> Auto Upload Chart + TP HIT WIN to Telegram
   container.querySelectorAll('[data-lobby-win]').forEach((btn) => {
     btn.addEventListener('click', async (e) => {
       e.stopPropagation();
@@ -2220,7 +2509,6 @@ function renderScanHistoryLobby() {
     });
   });
 
-  // Mark SL Loss (🛑 SL Button) -> Auto Upload Chart + SL HIT LOSS to Telegram
   container.querySelectorAll('[data-lobby-loss]').forEach((btn) => {
     btn.addEventListener('click', async (e) => {
       e.stopPropagation();
@@ -2245,7 +2533,6 @@ function renderScanHistoryLobby() {
     });
   });
 
-  // Smooth Single Card Delete Action with Undo
   container.querySelectorAll('[data-lobby-del]').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -2301,7 +2588,6 @@ $('btnClearScanLobby')?.addEventListener('click', () => {
     onConfirm: () => {
       const container = $('scanLobbyList');
       const cards = container ? Array.from(container.querySelectorAll('.scan-lobby-card')) : [];
-
       cards.forEach((card, idx) => {
         setTimeout(() => card.classList.add('deleting-smooth'), idx * 45);
       });
@@ -2446,8 +2732,8 @@ $('keyForm')?.addEventListener('submit', (e) => {
   }
 
   const TAGS = [
-    'XAUUSD ▲', 'BTCUSD ▲', 'ETHUSDT ▲', 'USOIL ▲', 'SCALP PERFECT ENTRY',
-    'A+ MIN 1:3 RR', 'LIQUIDITY SWEEP', 'SMT + FVG', 'WINRATE 91.9%'
+    'XAUUSD ▲', 'BTCUSD ▲', 'MSNR QMX "X"', '50% C.E. FVG', 'SCALP PERFECT ENTRY',
+    'AMD POWER OF 3', 'LIQUIDITY SWEEP', 'GOLDEN CONFIRM GCE', 'WINRATE 91.9%'
   ];
   const nodes = Array.from({ length: 22 }, (_, i) => ({
     x: Math.random(),
@@ -2944,17 +3230,21 @@ function playTelegramSuccessBeep() {
     tgBtn.id = 'btnSendSignalToTg';
     tgBtn.type = 'button';
     tgBtn.className = 'w-full mt-2.5 py-3 rounded-xl bg-gradient-to-r from-[#00e5ff] to-[#0284c7] hover:brightness-110 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-[0_0_20px_rgba(0,229,255,0.25)]';
-    tgBtn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i><span>📲 ផ្ញើ Signal នេះទៅ Telegram Bot ផ្ទាល់</span>';
+    tgBtn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i><span>📲 ផ្ញើ Signal + Annotated Chart នេះទៅ Telegram Bot ផ្ទាល់</span>';
     copyBtn.parentNode.insertBefore(tgBtn, copyBtn.nextSibling);
 
     tgBtn.addEventListener('click', async () => {
       const r = state.result;
       if (!r) return;
       try {
+        const annotatedCanvas = $('annotatedChartCanvas');
+        const imgPayload = (annotatedCanvas && annotatedCanvas.width > 0)
+          ? annotatedCanvas.toDataURL('image/png')
+          : state.imageBase64;
         await autoSendScanStatusToTelegram({
           ...r,
-          imageBase64: state.imageBase64,
-          mime: state.mime
+          imageBase64: imgPayload,
+          mime: 'image/png'
         }, 'SCAN');
         playTelegramSuccessBeep();
       } catch (err) {
@@ -2969,8 +3259,7 @@ function playTelegramSuccessBeep() {
 })();
 
 // =========================================================
-// 15. REAL-TIME CHART VISION & KEY POR - SNR SCANNER ENGINE
-// + AUTO UPLOAD TO TELEGRAM (BEFORE SCAN, ON SCAN, HIT TP, HIT SL)
+// 15. TELEGRAM AUTO-UPLOAD HELPER (BEFORE SCAN, ON SCAN, TP, SL)
 // =========================================================
 function base64ToBlob(base64Str, mimeType = 'image/png') {
   const clean = String(base64Str || '').replace(/^data:image\/\w+;base64,/, '');
@@ -2990,13 +3279,14 @@ function base64ToBlob(base64Str, mimeType = 'image/png') {
 function formatStatusTelegramCaption(r, statusType = 'SCAN') {
   const cleanSym = String(r?.pair || 'GOLD').replace('/', '').toUpperCase();
   const isBuy = String(r?.action || 'BUY').toUpperCase().includes('BUY');
-  const tf = r?.timeframe || '5M';
+  const tf = r?.timeframe || 'M15';
+  const te = r?.tierEntries || {};
 
   if (statusType === 'BEFORE_SCAN') {
     return `📥📸 BEFORE SCAN (បានទម្លាក់រូបភាព Chart ត្រៀមស្កេន)
 📊 Pair: ${r?.pair || 'AUTO'} (${tf})
-🎯 Mode: ${r?.tradeStyle || state.tradeStyle || 'SCALPING'}
-⏳ ស្ថានភាព: កំពុងត្រៀមវិភាគរក Perfect Entry, SL និង TP...
+🎯 Strategy: ${r?.tradeStyle || state.tradeStyle || 'SCALPING'}
+⏳ ស្ថានភាព: កំពុងត្រៀមវិភាគរក 3-Tier Perfect Entry, SL និង TP...
 🕒 ពេលវេលា: ${new Date().toLocaleString()}
 📲 Admin: @KaingChungpor`;
   }
@@ -3015,21 +3305,23 @@ function formatStatusTelegramCaption(r, statusType = 'SCAN') {
       ? `Ranging ↔️ → trending up 📈`
       : `Trending down 📉 → ranging ↔️`;
     statusHeader = `🔀 Regime change — ${cleanSym}\n${regimeTransition}\nReview open positions and pending setups on this symbol.`;
-    statusBadge = `⏳ ស្ថានភាព: កំពុងរង់ចាំ (Pending / Active Signal)`;
+    statusBadge = `⏳ ស្ថានភាព: កំពុងរង់ចាំ (Active Perfect Entry Signal)`;
   }
 
   return `${statusHeader}
 
 ⚡ លទ្ធផលស្កេនពី Por - SNR Scanner ⚡
-📊 Pair: ${r?.pair || 'GOLD'} (${tf})
-📈 និន្នាការ: ${r?.trend || '-'} | R:R ${r?.rrRatio || '1:2.8'}
+📊 Pair: ${r?.pair || 'GOLD'} (${tf}) | Strategy: ${r?.tradeStyle || 'SCALPING'}
+📈 និន្នាការ: ${r?.trend || '-'} | R:R ${r?.rrRatio || '1:3.5'}
 🔔 បញ្ជា: ${r?.action || 'BUY'} (${isBuy ? 'NEW BUY' : 'NEW SELL'})
 ${statusBadge}
 
-🎯 Entry: ${r?.entry || '-'}
+🎯 Tier 1 (IOFED / Shadow): ${te.tier1Iofed || r?.entry || '-'}
+🎯 Tier 2 (Sniper 50% C.E. / QMX): ${r?.entry || '-'}
+👑 Tier 3 (Golden Confirm GCE): ${te.tier3Golden || r?.entry || '-'}
 🛑 SL: ${r?.sl || '-'}
-💰 TP 1: ${r?.tp1 || '-'}
-💰 TP 2: ${r?.tp2 || '-'}
+💰 TP 1 (IRL): ${r?.tp1 || '-'}
+💰 TP 2 (ERL): ${r?.tp2 || '-'}
 
 🧱 KEY Resistance: ${r?.snrZones?.resistance || '-'}
 🧱 KEY Support: ${r?.snrZones?.support || '-'}
@@ -3109,542 +3401,7 @@ async function autoSendScanStatusToTelegram(scanItem, statusType = 'SCAN') {
   } catch (e) {}
 }
 
-window.sendChartPhotoToTelegramBot = async function(base64Image, mimeType, scanResult, statusType = 'SCAN') {
-  await autoSendScanStatusToTelegram({
-    ...(scanResult || {}),
-    imageBase64: base64Image,
-    mime: mimeType || 'image/png'
-  }, statusType);
-};
-
-// Auto check live price to trigger TP or SL automatically when live feed is connected
-window.checkAndAutoTriggerTpSl = function(livePrice, scanItem) {
-  if (!scanItem || scanItem._tgOutcomeSent) return;
-
-  const price = parseFloat(String(livePrice).replace(/,/g, ''));
-  const entry = parseFloat(String(scanItem.entry).replace(/,/g, ''));
-  const sl = parseFloat(String(scanItem.sl).replace(/,/g, ''));
-  const tp1 = parseFloat(String(scanItem.tp1).replace(/,/g, ''));
-
-  if (isNaN(price) || isNaN(entry) || isNaN(sl) || isNaN(tp1)) return;
-
-  const isBuy = String(scanItem.action || 'BUY').toUpperCase().includes('BUY');
-
-  if (isBuy) {
-    if (price >= tp1) {
-      scanItem._tgOutcomeSent = 'TP';
-      autoSendScanStatusToTelegram(scanItem, 'TP');
-    } else if (price <= sl) {
-      scanItem._tgOutcomeSent = 'SL';
-      autoSendScanStatusToTelegram(scanItem, 'SL');
-    }
-  } else {
-    if (price <= tp1) {
-      scanItem._tgOutcomeSent = 'TP';
-      autoSendScanStatusToTelegram(scanItem, 'TP');
-    } else if (price >= sl) {
-      scanItem._tgOutcomeSent = 'SL';
-      autoSendScanStatusToTelegram(scanItem, 'SL');
-    }
-  }
-};
-
-function buildSniperPrompt(newsMode = 'ALL', tradeStyle = 'SCALPING') {
-  return `You are Por - SNR Scanner Pro, an institutional price-action, Smart Money Concepts (SMC), and KEY Por - SNR News Flip trading analyst for MT4, MT5, and TradingView charts.
-
-SELECTED NEWS FLIP MODE: ${newsMode}
-SELECTED TRADE STYLE: ${tradeStyle}
-
-CRITICAL STEP 1 — EXACT PRICE AXIS OCR (DO NOT GUESS PRICES):
-- Look at the right-hand vertical price axis (Y-axis) of the uploaded chart image.
-- Locate the CURRENT LIVE PRICE badge/tag highlighted on the right axis and set it as "currentPrice".
-- ALL prices you output (entry, sl, tp1, tp2, resistance, support) MUST lie strictly within the visible Y-axis price scale of this chart and use the exact same decimal precision.
-
-CRITICAL STEP 2 — KEY POR - SNR & MARKET STRUCTURE SNIPER ENTRY:
-- Check if the latest Candle or Wick pierces/rejects a KEY Por - SNR Support (KEY BUY) or Resistance (KEY SELL) zone, Order Block, or FVG.
-- Calculate mathematically valid levels:
-  * For BUY: sl < entry < tp1 < tp2
-  * For SELL: sl > entry > tp1 > tp2
-
-CRITICAL STEP 3 — OUTPUT FORMAT:
-Return ONLY a valid JSON object matching this exact schema:
-{
-  "pair": "Symbol read from chart (e.g. GOLD, XAU/USD, BTC/USDT)",
-  "timeframe": "Timeframe read from chart (e.g. 5M, 15M, 1H, 4H)",
-  "currentPrice": "Exact current price on right axis",
-  "axisHigh": "Highest price visible on right Y-axis",
-  "axisLow": "Lowest price visible on right Y-axis",
-  "trend": "ឡើង (Bullish) or ចុះ (Bearish)",
-  "action": "BUY or SELL",
-  "orderType": "Market Execution or Limit Order",
-  "keyFlipRule": "Explain in Khmer which KEY Por - SNR timeframe rule triggered",
-  "entry": "Exact sniper entry price (single number)",
-  "sl": "Exact stop loss price (single number)",
-  "tp1": "Exact take profit 1 price (single number)",
-  "tp2": "Exact take profit 2 price (single number)",
-  "rrRatio": "1:2.8",
-  "confidence": "91.8%",
-  "snrZones": {
-    "resistance": "Exact KEY SELL / resistance level",
-    "support": "Exact KEY BUY / support level"
-  },
-  "confluence": [
-    "មូលហេតុទី១ ជាភាសាខ្មែរ",
-    "មូលហេតុទី២ ជាភាសាខ្មែរ",
-    "មូលហេតុទី៣ ជាភាសាខ្មែរ"
-  ]
-}`;
-}
-
-function isValidGeminiKeyFormat(key) {
-  return typeof key === 'string' && /^AIza[0-9A-Za-z_-]{30,}$/.test(key.trim());
-}
-
-async function callGeminiWithFallback(apiKey, payload) {
-  const modelsToTry = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
-  let lastError = '';
-
-  for (let i = 0; i < modelsToTry.length; i++) {
-    const model = modelsToTry[i];
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey.trim())}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }
-    );
-
-    if (res.ok) return await res.json();
-    let detail = '';
-    try { detail = (await res.json()).error?.message || ''; } catch (e) {}
-    lastError = `API ${res.status}: ${detail}`;
-    if (res.status !== 404) break;
-  }
-  throw new Error(lastError);
-}
-
-let tesseractLoadingPromise = null;
-function loadTesseractIfNeeded() {
-  if (window.Tesseract) return Promise.resolve(window.Tesseract);
-  if (tesseractLoadingPromise) return tesseractLoadingPromise;
-  tesseractLoadingPromise = new Promise((resolve) => {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-    script.onload = () => resolve(window.Tesseract || null);
-    script.onerror = () => resolve(null);
-    document.head.appendChild(script);
-  });
-  return tesseractLoadingPromise;
-}
-
-function cropCanvasRegion(img, rx, ry, rw, rh, scale = 2, highContrast = false) {
-  const sx = Math.floor(img.width * rx);
-  const sy = Math.floor(img.height * ry);
-  const sw = Math.max(1, Math.floor(img.width * rw));
-  const sh = Math.max(1, Math.floor(img.height * rh));
-
-  const c = document.createElement('canvas');
-  c.width = sw * scale;
-  c.height = sh * scale;
-  const ctx = c.getContext('2d');
-  ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, c.width, c.height);
-
-  if (highContrast) {
-    const imgData = ctx.getImageData(0, 0, c.width, c.height);
-    const d = imgData.data;
-    for (let i = 0; i < d.length; i += 4) {
-      const lum = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-      const v = lum > 105 ? 0 : 255;
-      d[i] = v; d[i + 1] = v; d[i + 2] = v;
-    }
-    ctx.putImageData(imgData, 0, 0);
-  }
-  return c;
-}
-
-function extractPairAndTimeframeFromText(rawText) {
-  const up = String(rawText || '').toUpperCase();
-  const pairPatterns = [
-    /\b(XAU\s*\/?\s*USD|GOLD)\b/,
-    /\b(ETH\s*\/?\s*USDT(?:\.P)?|ETH\s*\/?\s*USD)\b/,
-    /\b(BTC\s*\/?\s*USDT(?:\.P)?|BTC\s*\/?\s*USD)\b/,
-    /\b(SOL\s*\/?\s*USDT|BNB\s*\/?\s*USDT|XRP\s*\/?\s*USDT)\b/,
-    /\b(EUR\s*\/?\s*USD|GBP\s*\/?\s*USD|USD\s*\/?\s*JPY|GBP\s*\/?\s*JPY|AUD\s*\/?\s*USD|USD\s*\/?\s*CAD)\b/,
-    /\b(US30|NAS100|NASDAQ|USOIL|XAG\s*\/?\s*USD)\b/
-  ];
-  let pair = state.selectedPair !== 'AUTO' ? state.selectedPair : 'GOLD';
-  for (const pat of pairPatterns) {
-    const m = up.match(pat);
-    if (m) {
-      pair = m[1].replace(/\s+/g, '').replace('.P', '');
-      break;
-    }
-  }
-
-  let tf = state.selectedTf !== 'AUTO' ? state.selectedTf.toUpperCase() : '5M';
-  const tfMatch = up.match(/\b(1M|3M|5M|15M|30M|45M|1H|2H|4H|1D|M1|M5|M15|M30|H1|H4|D1)\b/);
-  if (tfMatch) tf = tfMatch[1];
-  return { pair, timeframe: tf };
-}
-
-function extractPricesFromAxisText(axisText) {
-  const cleaned = String(axisText || '').replace(/,/g, '').replace(/[^\d.\n\s]/g, ' ');
-  const tokens = cleaned.split(/\s+/).filter(Boolean);
-  const nums = [];
-
-  for (const tok of tokens) {
-    if (!/^\d{1,6}(\.\d{1,5})?$/.test(tok)) continue;
-    const val = parseFloat(tok);
-    if (!isNaN(val) && val > 0.05 && val < 250000) {
-      nums.push({ raw: tok, val });
-    }
-  }
-  if (nums.length < 2) return null;
-
-  nums.sort((a, b) => a.val - b.val);
-  let bestCluster = [];
-  for (let i = 0; i < nums.length; i++) {
-    const base = nums[i].val;
-    const cluster = nums.filter((n) => n.val >= base * 0.85 && n.val <= base * 1.18);
-    if (cluster.length > bestCluster.length) bestCluster = cluster;
-  }
-
-  const validList = bestCluster.length >= 2 ? bestCluster : nums;
-  const vals = validList.map((n) => n.val);
-  const axisLow = Math.min(...vals);
-  const axisHigh = Math.max(...vals);
-
-  let dec = 3;
-  const decCounts = {};
-  validList.forEach((n) => {
-    const dot = n.raw.indexOf('.');
-    if (dot !== -1) {
-      const d = n.raw.length - dot - 1;
-      decCounts[d] = (decCounts[d] || 0) + 1;
-    }
-  });
-  const bestDec = Object.entries(decCounts).sort((a, b) => b[1] - a[1])[0];
-  if (bestDec) dec = Number(bestDec[0]);
-
-  return { axisHigh, axisLow, dec, allValues: vals };
-}
-
-function analyzeCandlestickPixels(img) {
-  const c = document.createElement('canvas');
-  const w = 360, h = 260;
-  c.width = w; c.height = h;
-  const ctx = c.getContext('2d');
-  ctx.drawImage(img, 0, 0, w, h);
-  const data = ctx.getImageData(0, 0, w, h).data;
-
-  let leftSumY = 0, leftCount = 0;
-  let rightSumY = 0, rightCount = 0;
-  let recentBullPixels = 0, recentBearPixels = 0;
-  let lastCandleSumY = 0, lastCandleCount = 0;
-
-  const yStart = Math.floor(h * 0.12), yEnd = Math.floor(h * 0.86);
-  const xStart = Math.floor(w * 0.15), xMid = Math.floor(w * 0.55);
-  const xRecent = Math.floor(w * 0.66), xEnd = Math.floor(w * 0.83);
-
-  for (let y = yStart; y < yEnd; y++) {
-    for (let x = xStart; x < xEnd; x++) {
-      const idx = (y * w + x) * 4;
-      const r = data[idx], g = data[idx + 1], b = data[idx + 2];
-      const isGreen = (g > r + 24 && g > 75) || (g > 140 && b > 120 && r < 90);
-      const isRed = (r > g + 26 && r > 85 && b < r - 15);
-
-      if (isGreen || isRed) {
-        const normY = (y - yStart) / Math.max(1, yEnd - yStart);
-        if (x < xMid) { leftSumY += normY; leftCount++; }
-        else { rightSumY += normY; rightCount++; }
-        if (x >= xRecent) {
-          if (isGreen) recentBullPixels++;
-          if (isRed) recentBearPixels++;
-          lastCandleSumY += normY;
-          lastCandleCount++;
-        }
-      }
-    }
-  }
-
-  const leftAvgY = leftCount > 10 ? leftSumY / leftCount : 0.45;
-  const rightAvgY = rightCount > 10 ? rightSumY / rightCount : 0.55;
-  const liveNormY = lastCandleCount > 8 ? lastCandleSumY / lastCandleCount : rightAvgY;
-
-  const isOverallBullish = rightAvgY < leftAvgY;
-  let isBuySignal = recentBullPixels >= recentBearPixels * 0.92;
-  if (liveNormY > 0.68 && recentBullPixels > recentBearPixels * 0.55) isBuySignal = true;
-  else if (liveNormY < 0.32 && recentBearPixels > recentBullPixels * 0.55) isBuySignal = false;
-
-  return {
-    isOverallBullish,
-    isBuySignal,
-    liveNormY: Math.max(0.15, Math.min(0.85, liveNormY))
-  };
-}
-
-function getDecimals(valStr, pairStr = '') {
-  const s = String(valStr || '').replace(/,/g, '').trim();
-  const dot = s.indexOf('.');
-  if (dot !== -1) {
-    const dec = s.length - dot - 1;
-    if (dec >= 1 && dec <= 6) return dec;
-  }
-  const p = String(pairStr).toUpperCase();
-  if (p.includes('XAU') || p.includes('GOLD')) return 3;
-  if (p.includes('BTC') || p.includes('ETH') || p.includes('US30') || p.includes('NAS')) return 2;
-  if (p.includes('JPY')) return 3;
-  return 5;
-}
-
-function calibrateSniperResult(r, styleOverride = null) {
-  const tradeStyle = styleOverride || r.tradeStyle || state.tradeStyle || 'SCALPING';
-  const dec = getDecimals(r.currentPrice || r.entry, r.pair);
-  const fmt = (n) => Number(n).toFixed(dec);
-
-  let cur = parseNum(r.currentPrice);
-  let entry = parseNum(r.entry);
-  let sl = parseNum(r.sl);
-  let tp1 = parseNum(r.tp1);
-  let tp2 = parseNum(r.tp2);
-  let res = parseNum(r.snrZones?.resistance);
-  let sup = parseNum(r.snrZones?.support);
-
-  if (isNaN(cur) && !isNaN(entry)) cur = entry;
-  if (isNaN(entry) && !isNaN(cur)) entry = cur;
-  if (isNaN(entry)) entry = 4023.553;
-  if (isNaN(cur)) cur = entry;
-
-  const isBuy = String(r.action || 'BUY').toUpperCase().includes('BUY');
-  r.action = isBuy ? 'BUY' : 'SELL';
-  r.tradeStyle = tradeStyle;
-
-  const axisHigh = parseNum(r.axisHigh);
-  const axisLow = parseNum(r.axisLow);
-  let chartSpan = (!isNaN(axisHigh) && !isNaN(axisLow) && axisHigh > axisLow)
-    ? (axisHigh - axisLow)
-    : entry * 0.005;
-  if (chartSpan <= 0 || isNaN(chartSpan)) chartSpan = entry * 0.005;
-
-  const riskFactor = tradeStyle === 'SWING' ? 0.18 : (tradeStyle === 'APLUS_ICT' ? 0.14 : 0.11);
-  const tp1Mult = tradeStyle === 'SWING' ? 2.2 : (tradeStyle === 'APLUS_ICT' ? 1.8 : 1.5);
-  const tp2Mult = tradeStyle === 'SWING' ? 4.5 : (tradeStyle === 'APLUS_ICT' ? 3.5 : 2.8);
-  const rrLabel = tradeStyle === 'SWING' ? '1:4.5' : (tradeStyle === 'APLUS_ICT' ? '1:3.5' : '1:2.8');
-
-  const risk = Math.max(chartSpan * riskFactor, Math.pow(10, -dec) * 15);
-
-  if (isBuy) {
-    sl = entry - risk;
-    tp1 = entry + risk * tp1Mult;
-    tp2 = entry + risk * tp2Mult;
-    sup = entry - risk * 0.75;
-    res = tp2;
-  } else {
-    sl = entry + risk;
-    tp1 = entry - risk * tp1Mult;
-    tp2 = entry - risk * tp2Mult;
-    res = entry + risk * 0.75;
-    sup = tp2;
-  }
-
-  const microHalf = risk * 0.12;
-  r.currentPrice = fmt(cur);
-  r.entry = fmt(entry);
-  r.sl = fmt(sl);
-  r.tp1 = fmt(tp1);
-  r.tp2 = fmt(tp2);
-  r.rrRatio = rrLabel;
-  r.snrZones = {
-    resistance: fmt(res),
-    support: fmt(sup)
-  };
-  r.scalpPerfect = {
-    zone: `${fmt(entry - microHalf)} – ${fmt(entry + microHalf)}`,
-    qualityScore: tradeStyle === 'APLUS_ICT' ? '98.2% A+ ICT SETUP' : '96.8% HIGH QUALITY',
-    quickTarget: `TP1 @ ${fmt(tp1)} (+Breakeven)`
-  };
-  r.ictLiquidity = {
-    isDiscount: isBuy,
-    pdZone: isBuy ? 'DISCOUNT (< 0.5 Fib)' : 'PREMIUM (> 0.5 Fib)',
-    equilibrium50: fmt((res + sup) / 2),
-    bsl: fmt(res),
-    irlFvg: fmt(entry),
-    ssl: fmt(sup)
-  };
-
-  return r;
-}
-
-window.recalculateResultForTradeStyle = function(newStyle) {
-  if (!state.result) return;
-  state.result = calibrateSniperResult(state.result, newStyle);
-  renderResult();
-  if (typeof window.updateActiveLobbyItemResult === 'function') {
-    window.updateActiveLobbyItemResult(state.result);
-  }
-};
-
-async function analyzeChartLocallyWithVision(dataUrl, newsMode = 'ALL') {
-  const img = await new Promise((resolve, reject) => {
-    const im = new Image();
-    im.onload = () => resolve(im);
-    im.onerror = reject;
-    im.src = dataUrl;
-  });
-
-  const pixelStats = analyzeCandlestickPixels(img);
-  let pair = state.selectedPair !== 'AUTO' ? state.selectedPair : 'GOLD';
-  let timeframe = state.selectedTf !== 'AUTO' ? state.selectedTf.toUpperCase() : '5M';
-  let axisInfo = null;
-
-  try {
-    const Tesseract = await loadTesseractIfNeeded();
-    if (Tesseract) {
-      const headerCanvas = cropCanvasRegion(img, 0.0, 0.0, 0.62, 0.14, 2, true);
-      const axisCanvas = cropCanvasRegion(img, 0.78, 0.06, 0.22, 0.88, 2, true);
-
-      const [headerRes, axisRes] = await Promise.all([
-        Tesseract.recognize(headerCanvas, 'eng'),
-        Tesseract.recognize(axisCanvas, 'eng')
-      ]);
-
-      const meta = extractPairAndTimeframeFromText(headerRes?.data?.text || '');
-      if (meta.pair) pair = meta.pair;
-      if (meta.timeframe) timeframe = meta.timeframe;
-      axisInfo = extractPricesFromAxisText(axisRes?.data?.text || '');
-    }
-  } catch (e) {
-    console.warn('Local OCR fallback warning:', e);
-  }
-
-  if (!axisInfo || !(axisInfo.axisHigh > axisInfo.axisLow)) {
-    axisInfo = { axisHigh: 4042.000, axisLow: 4005.000, dec: 3 };
-  }
-
-  const span = axisInfo.axisHigh - axisInfo.axisLow;
-  const currentPrice = axisInfo.axisHigh - pixelStats.liveNormY * span;
-  const isBuy = pixelStats.isBuySignal;
-  const fmt = (n) => Number(n).toFixed(axisInfo.dec);
-
-  return calibrateSniperResult({
-    pair,
-    timeframe,
-    currentPrice: fmt(currentPrice),
-    axisHigh: fmt(axisInfo.axisHigh),
-    axisLow: fmt(axisInfo.axisLow),
-    trend: pixelStats.isOverallBullish ? 'ឡើង (Bullish)' : 'ចុះ (Bearish)',
-    action: isBuy ? 'BUY' : 'SELL',
-    tradeStyle: state.tradeStyle,
-    entry: fmt(currentPrice),
-    confluence: [
-      `Candle/Wick បានចាក់តំបន់ ${isBuy ? 'KEY Support (KEY BUY = NEW BUY)' : 'KEY Resistance (KEY SELL = NEW SELL)'} នៅជិតតម្លៃ ${fmt(currentPrice)}`,
-      `ស្របតាមរចនាសម្ព័ន្ធទីផ្សារ និងទិសដៅ Liquidity Sweep & Order Block`,
-      `សមាមាត្រហានិភ័យ និងផលចំណេញ (Risk:Reward) មានសុវត្ថិភាពខ្ពស់`
-    ]
-  }, state.tradeStyle);
-}
-
-function optimizeChartImage(dataUrl) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      const maxDim = 2048;
-      let w = img.naturalWidth || img.width;
-      let h = img.naturalHeight || img.height;
-      if (w > maxDim || h > maxDim) {
-        const scale = maxDim / Math.max(w, h);
-        w = Math.round(w * scale);
-        h = Math.round(h * scale);
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(img, 0, 0, w, h);
-      const out = canvas.toDataURL('image/png', 1.0);
-      resolve(out.split(',')[1]);
-    };
-    img.onerror = () => resolve(state.imageBase64);
-    img.src = dataUrl;
-  });
-}
-
-async function scanChart() {
-  if (!state.user) return openModal('loginModal');
-  if (!state.unlocked && !isAdminUser(state.user)) return openModal('keyModal');
-  if (!state.imageBase64) return showError('សូមទម្លាក់រូបភាព Chart ជាមុនសិន មុននឹងចុចស្កេន!');
-
-  const apiKey = getApiKey();
-  const previewSrc = $('previewImg')?.src || `data:${state.mime};base64,${state.imageBase64}`;
-  const newsMode = $('newsFlipMode')?.value || 'ALL';
-
-  state.scanning = true;
-  state.result = null;
-  showError('');
-  show($('resultCard'), false);
-  renderScanButton();
-
-  try {
-    let parsedResult = null;
-
-    if (isValidGeminiKeyFormat(apiKey)) {
-      try {
-        const hiResBase64 = await optimizeChartImage(previewSrc);
-        const payload = {
-          contents: [{
-            role: 'user',
-            parts: [
-              { inlineData: { mimeType: 'image/png', data: hiResBase64 } },
-              { text: buildSniperPrompt(newsMode, state.tradeStyle) }
-            ]
-          }],
-          generationConfig: {
-            responseMimeType: 'application/json',
-            temperature: 0.1
-          }
-        };
-
-        const data = await callGeminiWithFallback(apiKey, payload);
-        const raw = data?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') || '';
-        const cleanJson = raw.replace(/```json|```/g, '').trim();
-        parsedResult = JSON.parse(cleanJson);
-      } catch (geminiErr) {
-        console.warn('Gemini API failed, switching to Local Smart Chart Vision Engine:', geminiErr);
-      }
-    }
-
-    if (!parsedResult) {
-      parsedResult = await analyzeChartLocallyWithVision(previewSrc, newsMode);
-    }
-
-    state.result = calibrateSniperResult(parsedResult, state.tradeStyle);
-    consumeKeyScanIfNeeded();
-    renderResult();
-
-    // Save to Scan History Lobby
-    if (typeof window.saveScanToHistoryLobby === 'function') {
-      await window.saveScanToHistoryLobby(state.result, previewSrc);
-    }
-
-    // 2. AUTO UPLOAD TO TELEGRAM ON SCAN COMPLETE (ផ្ញើរូបភាព + Entry/SL/TP1/TP2 ទៅ Telegram ភ្លាមៗ)
-    await autoSendScanStatusToTelegram({
-      ...state.result,
-      imageBase64: state.imageBase64,
-      mime: state.mime
-    }, 'SCAN');
-  } catch (err) {
-    console.error(err);
-    showError(err.message || 'មានបញ្ហាក្នុងការស្កេនរូបភាព សូមសាកល្បងម្តងទៀត។');
-  } finally {
-    state.scanning = false;
-    renderScanButton();
-  }
-}
-window.scanChart = scanChart;
+window.autoSendScanStatusToTelegram = autoSendScanStatusToTelegram;
 
 // Initialize UI
 setTradeStyle(state.tradeStyle, false);
