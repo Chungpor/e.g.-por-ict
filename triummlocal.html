@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Triumm Local Super LLM — Institutional Algorithmic Engine</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Browser Tab Favicon -->
+  <link rel="icon" type="image/jpeg" href="por.jpg" />
+  <link rel="apple-touch-icon" href="por.jpg" />
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <!-- Official TradingView Widget Script -->
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  <!-- External Custom Stylesheet -->
+  <link rel="stylesheet" href="triummlocal.css" />
+</head>
+<body class="pb-20 selection:bg-emerald-500 selection:text-black">
+
+  <!-- DYNAMIC SMOOTH PING BACKGROUND -->
+  <div class="bg-dynamic" aria-hidden="true">
+    <span class="bg-orb orb-1"></span>
+    <span class="bg-orb orb-2"></span>
+    <span class="bg-orb orb-3"></span>
+    <span class="bg-ping ping-1"></span>
+    <span class="bg-ping ping-2"></span>
+    <span class="bg-ping ping-3"></span>
+    <span class="bg-ping ping-4"></span>
+    <span class="bg-ping ping-5"></span>
+    <span class="bg-sweep"></span>
+  </div>
+
+  <!-- TOP WORKSPACE BAR -->
+  <div class="w-full bg-black/95 border-b border-white/5 py-1.5 px-4 text-center text-xs tracking-wide flex items-center justify-center gap-2 sticky top-0 z-40 backdrop-blur-md">
+    <span class="text-emerald-400 font-medium">Private Workspace:</span>
+    <span class="text-white font-semibold">Trading Journal</span>
+    <span class="text-slate-600">·</span>
+    <button id="openJournalBtn" class="text-emerald-400 hover:text-emerald-300 font-medium inline-flex items-center gap-1 transition">
+      Open Journal <i class="fa-solid fa-arrow-right text-[10px]"></i>
+    </button>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+
+    <!-- Back Navigation & Live Exchange Telemetry Status -->
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+      <a href="index.html" id="backToDashboardLink" class="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-emerald-400 transition">
+        <i class="fa-solid fa-arrow-left text-xs"></i>
+        <span>Back to Dashboard</span>
+      </a>
+      <div class="flex flex-wrap items-center gap-3 text-xs text-slate-300 bg-black/60 border border-emerald-500/25 px-3 py-1.5 rounded-full">
+        <span id="wsStatusDot" class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        <span id="liveFeedStatusText" class="font-mono-code text-[11px] text-emerald-300 font-semibold">LIVE STREAM: CONNECTING...</span>
+        <span class="text-slate-600">|</span>
+        <span id="liveLatencyBadge" class="font-mono-code text-[11px] text-slate-400">Ping: -- ms</span>
+        <span class="text-slate-600 hidden sm:inline">|</span>
+        <span id="liveTickCounter" class="font-mono-code text-[11px] text-cyan-400 hidden sm:inline">Ticks: 0</span>
+      </div>
+    </div>
+
+    <!-- HEADER SECTION -->
+    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-7">
+      <div>
+        <!-- Pill Badge -->
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-400 text-[11px] font-semibold tracking-wider uppercase mb-3">
+          <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
+          <span>INSTITUTIONAL SUPER AI AGENT • <strong class="text-emerald-300">100% PRIVATE RUNNER</strong></span>
+        </div>
+
+        <!-- Main Title -->
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-2">
+          Triumm Local <span class="text-[#10e886]">Super LLM</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="text-sm text-slate-400 max-w-2xl leading-relaxed">
+          Institutional algorithmic reasoning engine. Combines Wyckoff phase diagnostics, Elliott Wave cycles, geometric Harmonics, Smart Money Concepts (SMC), and interactive bar replay on 100% real-time exchange data.
+        </p>
+      </div>
+
+      <!-- Top Right Controls: Market Replay Toggle + Live ETH/Multi-Asset Liquidity Scanner Button -->
+      <div class="flex flex-wrap items-center gap-2.5 self-start lg:self-end">
+        <button id="toggleScannerModalBtn" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-2 transition">
+          <i class="fa-brands fa-ethereum text-emerald-400"></i>
+          <span>Live ETH/USDT Sweep Scanner</span>
+          <span class="px-1.5 py-0.5 text-[10px] rounded bg-emerald-400/20 text-emerald-300 font-bold">LIVE</span>
+        </button>
+
+        <button id="replayModeToggleBtn" class="px-4 py-2 rounded-xl text-xs font-semibold bg-[#0b1913] hover:bg-[#11261d] text-slate-200 border border-white/10 flex items-center gap-2 transition">
+          <i class="fa-regular fa-compass text-purple-400"></i>
+          <span id="replayModeBtnText">Enable Market Replay</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN GRID: LEFT (7 cols) & RIGHT (5 cols) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- ================= LEFT COLUMN ================= -->
+      <div class="lg:col-span-7 flex flex-col gap-6">
+
+        <!-- 1. TRADINGVIEW LIVE FEEDS CARD -->
+        <div class="triumm-card p-5">
+          <!-- Card Top Header -->
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <i class="fa-solid fa-arrow-trend-up text-xs"></i>
+              </div>
+              <div>
+                <h2 class="text-base font-bold text-white tracking-tight leading-none">TradingView Live Feeds</h2>
+                <div class="text-[10px] text-emerald-400 font-mono-code mt-1 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span id="exchangeProviderSubtext">100% Real-Time Market OHLCV + WebSocket</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dropdowns & Refresh -->
+            <div class="flex flex-wrap items-center gap-2">
+              <select id="symbolSelect" aria-label="Trading Pair" class="triumm-select text-xs font-semibold rounded-xl px-3.5 py-2 min-w-[152px]">
+                <option value="XAU/USD">XAU/USD (Gold)</option>
+                <option value="EUR/USD">EUR/USD</option>
+                <option value="GBP/USD">GBP/USD</option>
+                <option value="USD/JPY">USD/JPY</option>
+                <option value="BTC/USDT" selected>BTC/USDT</option>
+                <option value="ETH/USDT">ETH/USDT</option>
+                <option value="SOL/USDT">SOL/USDT</option>
+              </select>
+
+              <select id="timeframeSelect" aria-label="Timeframe" class="triumm-select text-xs font-semibold rounded-xl px-3 py-2">
+                <option value="1m">1M</option>
+                <option value="5m">5M</option>
+                <option value="15m">15M</option>
+                <option value="1h" selected>1H</option>
+                <option value="4h">4H</option>
+                <option value="1d">1D</option>
+              </select>
+
+              <button id="refreshFeedBtn" title="Force Resync Live Exchange Candles" class="w-8 h-8 rounded-xl bg-[#0b1913] hover:bg-emerald-950 border border-white/10 hover:border-emerald-500/40 text-slate-400 hover:text-emerald-300 flex items-center justify-center transition">
+                <i id="refreshIcon" class="fa-solid fa-arrows-rotate text-xs"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Real-Time 24h Market Stats + Chart Mode Switcher Bar -->
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5 px-2.5 py-1.5 rounded-xl bg-black/40 border border-white/5 text-[11px]">
+            <div class="flex flex-wrap items-center gap-3 font-mono-code">
+              <span class="text-slate-400">24h Chg: <strong id="stat24hChange" class="text-emerald-400">--%</strong></span>
+              <span class="text-slate-400">24h High: <strong id="stat24hHigh" class="text-slate-200">--</strong></span>
+              <span class="text-slate-400">24h Low: <strong id="stat24hLow" class="text-slate-200">--</strong></span>
+              <span class="text-slate-400 hidden sm:inline">Vol: <strong id="stat24hVol" class="text-slate-300">--</strong></span>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <button id="viewModeCanvasBtn" onclick="switchChartMode('canvas')" class="text-[10px] px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold transition">
+                AI SMC Live Canvas
+              </button>
+              <button id="viewModeTvBtn" onclick="switchChartMode('tv')" class="text-[10px] px-2.5 py-1 rounded-lg bg-white/5 text-slate-400 hover:text-white border border-white/10 font-medium transition">
+                TradingView Widget
+              </button>
+            </div>
+          </div>
+
+          <!-- Chart Overlay Indicator Bar -->
+          <div id="canvasOverlayControls" class="flex flex-wrap items-center justify-between gap-2 mb-2 px-1 text-[11px] text-slate-400">
+            <div class="flex items-center gap-3">
+              <span class="inline-flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> EMA 20
+              </span>
+              <span class="inline-flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-cyan-400"></span> EMA 50
+              </span>
+              <span class="inline-flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-sm bg-emerald-500/40 border border-emerald-400"></span> SMC Order Block
+              </span>
+              <span class="inline-flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-amber-400"></span> Liquidity Sweep
+              </span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="toggleSmcZonesBtn" class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 transition">
+                SMC Overlay: ON
+              </button>
+              <button id="quickSwitchEthBtn" class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500/25 transition">
+                Switch to ETH/USDT
+              </button>
+            </div>
+          </div>
+
+          <!-- Interactive Candlestick Chart Container -->
+          <div class="relative w-full h-[290px] sm:h-[320px] rounded-xl bg-[#080b0a] border border-white/5 overflow-hidden mb-4">
+            <canvas id="candlestickCanvas" class="w-full h-full block cursor-crosshair"></canvas>
+            <div id="tvWidgetContainer" class="hidden w-full h-full"></div>
+
+            <!-- Floating Crosshair Readout -->
+            <div id="chartCrosshairInfo" class="pointer-events-none absolute top-2.5 left-3 flex flex-wrap items-center gap-2.5 text-[11px] font-mono-code bg-black/75 px-2.5 py-1 rounded-lg border border-white/10">
+              <span id="chartPairLabel" class="text-white font-bold">BTC/USDT • 1H</span>
+              <span class="text-slate-400">O: <strong id="hoverO" class="text-slate-200">--</strong></span>
+              <span class="text-slate-400">H: <strong id="hoverH" class="text-slate-200">--</strong></span>
+              <span class="text-slate-400">L: <strong id="hoverL" class="text-slate-200">--</strong></span>
+              <span class="text-slate-400">C: <strong id="hoverC" class="text-emerald-400">--</strong></span>
+              <span class="text-slate-400 hidden sm:inline">V: <strong id="hoverV" class="text-cyan-300">--</strong></span>
+            </div>
+
+            <!-- Live WebSocket / API Badge -->
+            <div id="chartBottomBadgeWrap" class="pointer-events-none absolute bottom-2.5 left-3 flex items-center gap-1.5 text-[10px] font-mono-code text-slate-300 bg-black/75 px-2.5 py-1 rounded border border-emerald-500/30">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+              <span id="chartSourceBadge">CONNECTING TO LIVE EXCHANGE...</span>
+            </div>
+          </div>
+
+          <!-- MARKET BAR REPLAY SIMULATOR -->
+          <div id="replaySimulatorPanel" class="hidden mb-4 p-4 rounded-xl bg-[#100e20]/90 border border-purple-500/40 shadow-[0_0_25px_rgba(139,92,246,0.12)] transition-all">
+            <div class="flex items-center justify-between text-[11px] mb-3">
+              <span class="font-bold uppercase tracking-wider text-purple-300">MARKET BAR REPLAY SIMULATOR (REAL HISTORICAL FEED)</span>
+              <span id="replayCandleCounter" class="font-mono-code text-slate-400">Candle 100 / 100</span>
+            </div>
+
+            <div class="flex items-center gap-2.5 mb-3.5">
+              <button id="replayStartBtn" title="Jump to Start Bar" class="w-9 h-9 rounded-full bg-white/5 hover:bg-purple-500/20 border border-white/10 hover:border-purple-400/40 text-slate-300 flex items-center justify-center transition">
+                <i class="fa-solid fa-backward-step text-xs"></i>
+              </button>
+
+              <button id="replayAutoPlayBtn" class="flex-1 h-9 rounded-full bg-white/5 hover:bg-purple-500/20 border border-white/10 hover:border-purple-400/40 text-white text-xs font-semibold flex items-center justify-center gap-2 transition">
+                <i id="replayPlayIcon" class="fa-solid fa-play text-[10px]"></i>
+                <span id="replayPlayText">Auto Replay</span>
+              </button>
+
+              <button id="replayStepForwardBtn" title="Next Candle (+1 Bar)" class="w-9 h-9 rounded-full bg-white/5 hover:bg-purple-500/20 border border-white/10 hover:border-purple-400/40 text-slate-300 flex items-center justify-center transition">
+                <i class="fa-solid fa-forward-step text-xs"></i>
+              </button>
+
+              <button id="replayResetBtn" title="Reset to Latest Real-Time Candle" class="w-9 h-9 rounded-full bg-white/5 hover:bg-purple-500/20 border border-white/10 hover:border-purple-400/40 text-slate-300 flex items-center justify-center transition">
+                <i class="fa-solid fa-rotate-right text-xs"></i>
+              </button>
+            </div>
+
+            <div class="mb-3 px-1">
+              <input id="replayRangeSlider" type="range" min="25" max="100" value="100" class="replay-slider" />
+            </div>
+
+            <div class="grid grid-cols-4 gap-2 text-center text-[11px] font-mono-code pt-1">
+              <div class="text-slate-400">O: <strong id="replayO" class="text-white">--</strong></div>
+              <div class="text-slate-400">H: <strong id="replayH" class="text-white">--</strong></div>
+              <div class="text-slate-400">L: <strong id="replayL" class="text-white">--</strong></div>
+              <div class="text-slate-400">C: <strong id="replayC" class="text-emerald-400">--</strong></div>
+            </div>
+          </div>
+
+          <!-- 3 BOTTOM LIVE METRIC BOXES -->
+          <div class="grid grid-cols-3 gap-3">
+            <div id="activePriceCardWrap" class="triumm-subcard py-3.5 px-3 text-center transition-colors duration-300">
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">ACTIVE PRICE</div>
+              <div id="metricActivePrice" class="text-base sm:text-lg font-extrabold font-mono-code text-white">LOADING...</div>
+            </div>
+            <div class="triumm-subcard py-3.5 px-3 text-center">
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">RSI MOMENTUM</div>
+              <div id="metricRsi" class="text-base sm:text-lg font-extrabold font-mono-code text-[#00e676]">--</div>
+            </div>
+            <div class="triumm-subcard py-3.5 px-3 text-center">
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">TREND STATE</div>
+              <div id="metricTrend" class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400 mt-1">--</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. INTERACTIVE SUPER LLM PROMPT CARD -->
+        <div class="triumm-card p-5">
+          <div class="flex items-start gap-3 mb-4">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
+              <i class="fa-regular fa-message text-xs"></i>
+            </div>
+            <div>
+              <h2 class="text-base font-bold text-white tracking-tight">Interactive Super LLM Prompt</h2>
+              <p class="text-xs text-slate-400 mt-0.5">Ask any question or click a strategy chip to analyze real-time market conditions dynamically.</p>
+            </div>
+          </div>
+
+          <!-- Strategy Chips Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4">
+            <button onclick="runPromptStrategy('wyckoff')" class="strategy-chip rounded-full px-3.5 py-2 text-xs font-medium flex items-center gap-2 text-left truncate">
+              <i class="fa-solid fa-wave-square text-emerald-400 text-[11px]"></i>
+              <span class="truncate">Full Wyckoff & SMC Institutional Audit</span>
+            </button>
+
+            <button onclick="runPromptStrategy('rr13')" class="strategy-chip rounded-full px-3.5 py-2 text-xs font-medium flex items-center gap-2 text-left truncate">
+              <i class="fa-solid fa-bullseye text-emerald-400 text-[11px]"></i>
+              <span class="truncate">1:3 Risk:Reward Trade Plan with Dynamic ATR</span>
+            </button>
+
+            <button onclick="runPromptStrategy('elliott')" class="strategy-chip rounded-full px-3.5 py-2 text-xs font-medium flex items-center gap-2 text-left truncate">
+              <i class="fa-solid fa-chart-line text-indigo-400 text-[11px]"></i>
+              <span class="truncate">Elliott Wave Motive & Corrective Targets</span>
+            </button>
+
+            <button onclick="runPromptStrategy('harmonics')" class="strategy-chip rounded-full px-3.5 py-2 text-xs font-medium flex items-center gap-2 text-left truncate">
+              <i class="fa-solid fa-atom text-cyan-400 text-[11px]"></i>
+              <span class="truncate">Geometric Harmonics & Reversal Zones</span>
+            </button>
+
+            <button onclick="runPromptStrategy('rsi_div')" class="strategy-chip rounded-full px-3.5 py-2 text-xs font-medium flex items-center gap-2 text-left truncate">
+              <i class="fa-solid fa-bolt text-amber-400 text-[11px]"></i>
+              <span class="truncate">Check RSI Momentum Divergence</span>
+            </button>
+
+            <button onclick="runPromptStrategy('pdf_rules')" class="strategy-chip rounded-full px-3.5 py-2 text-xs font-medium flex items-center gap-2 text-left truncate">
+              <i class="fa-solid fa-book-open text-emerald-400 text-[11px]"></i>
+              <span class="truncate">PDF Strategy & Psychological Rules</span>
+            </button>
+
+            <button onclick="runPromptStrategy('eth_smt')" class="strategy-chip rounded-full px-3.5 py-2 text-xs font-medium flex items-center gap-2 text-left truncate border-emerald-500/30 bg-emerald-950/30">
+              <i class="fa-brands fa-ethereum text-emerald-400 text-xs"></i>
+              <span class="truncate text-emerald-200 font-semibold">ETH/USDT Liquidity Sweep & ETH/BTC SMT</span>
+            </button>
+
+            <button onclick="runPromptStrategy('lot_calc')" class="strategy-chip rounded-full px-3.5 py-2 text-xs font-medium flex items-center gap-2 text-left truncate border-cyan-500/30 bg-cyan-950/20">
+              <i class="fa-solid fa-calculator text-cyan-400 text-[11px]"></i>
+              <span class="truncate text-cyan-200 font-semibold">Dynamic Position Size & Margin Calculator</span>
+            </button>
+          </div>
+
+          <!-- Input Row -->
+          <form id="superLlmForm" class="flex items-center gap-2.5">
+            <input
+              id="superLlmInput"
+              type="text"
+              placeholder="Ask Super LLM (e.g., 'What is the optimal entry on ETH/USDT or Gold right now?')"
+              class="flex-1 bg-[#07110d] border border-white/10 focus:border-emerald-500/60 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 outline-none transition"
+            />
+            <button type="submit" class="btn-neon-green rounded-xl px-5 py-3 text-xs font-bold inline-flex items-center gap-2 shrink-0">
+              <i class="fa-regular fa-paper-plane"></i>
+              <span>Ask</span>
+            </button>
+          </form>
+
+          <!-- Dynamic AI Prompt Output Box -->
+          <div id="promptResponseContainer" class="mt-4 pt-4 border-t border-white/10 hidden">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2 text-xs font-bold text-emerald-400">
+                <i class="fa-solid fa-microchip"></i>
+                <span id="promptResponseTitle">SUPER LLM INSTITUTIONAL SYNTHESIS</span>
+              </div>
+              <button id="copyPromptOutputBtn" class="text-[11px] text-slate-400 hover:text-emerald-300 flex items-center gap-1 transition">
+                <i class="fa-regular fa-copy"></i> Copy Report
+              </button>
+            </div>
+            <div id="promptResponseBody" class="p-3.5 rounded-xl bg-black/50 border border-emerald-500/20 text-xs text-slate-200 leading-relaxed font-mono-code whitespace-pre-line"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================= RIGHT COLUMN ================= -->
+      <div class="lg:col-span-5 flex flex-col gap-5">
+
+        <!-- 1. SUPER LLM EXECUTION CONTROL CARD -->
+        <div class="triumm-card p-5">
+          <div class="flex items-center justify-between mb-3.5">
+            <h2 class="text-sm font-bold text-white tracking-tight">Super LLM Execution Control</h2>
+            <span id="activeEngineBadge" class="text-[10px] font-mono-code px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              LIVE-QUANT v4.5
+            </span>
+          </div>
+
+          <!-- Engine Switcher -->
+          <div class="grid grid-cols-2 gap-2 p-1 rounded-full bg-[#060f0b] border border-white/5 mb-3.5">
+            <button id="engineNeuralBtn" onclick="switchEngine('neural')" class="btn-neon-green py-2 px-3 rounded-full text-xs font-bold transition">
+              Neural JS Engine
+            </button>
+            <button id="engineWebGpuBtn" onclick="switchEngine('webgpu')" class="py-2 px-3 rounded-full text-xs font-medium text-slate-400 hover:text-white transition">
+              Local WebGPU (LLM)
+            </button>
+          </div>
+
+          <!-- Primary Execution Buttons -->
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <button id="runAnalysisBtn" class="btn-neon-green py-3 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+              <i class="fa-solid fa-play text-[10px]"></i>
+              <span id="runAnalysisBtnText">Run Full Analysis</span>
+            </button>
+
+            <button id="autopilotBtn" class="py-3 px-4 rounded-xl text-xs font-semibold bg-[#0b1913] hover:bg-[#12281e] text-slate-200 border border-white/10 flex items-center justify-center gap-2 transition">
+              <i id="autopilotIcon" class="fa-solid fa-rotate text-xs text-slate-400"></i>
+              <span>Autopilot <strong>24/7</strong></span>
+            </button>
+          </div>
+
+          <button id="openRiskSizerQuickBtn" onclick="switchOutputTab('sizer')" class="w-full py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-emerald-950/90 via-teal-950/80 to-emerald-950/90 hover:from-emerald-900/80 hover:to-teal-900/80 border border-emerald-500/35 text-xs font-semibold text-emerald-300 flex items-center justify-between transition">
+            <span class="flex items-center gap-2">
+              <i class="fa-brands fa-ethereum text-emerald-400 text-sm"></i>
+              <span>Live ETH/USDT & Multi-Pair Position Sizer + Radar</span>
+            </span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-200 font-bold">OPEN →</span>
+          </button>
+        </div>
+
+        <!-- 2. AGENT TELEMETRY LOGS CARD -->
+        <div class="triumm-card p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#ff5f56]"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-[#27c93f]"></span>
+              <span class="text-[10px] font-mono-code uppercase tracking-widest text-slate-400 ml-1.5">AGENT TELEMETRY LOGS (REAL-TIME)</span>
+            </div>
+            <button id="clearLogsBtn" class="text-[10px] text-slate-500 hover:text-slate-300 font-mono-code transition">Clear</button>
+          </div>
+
+          <div id="telemetryLogBox" class="telemetry-scroll h-[135px] overflow-y-auto pr-2 space-y-2 text-[11px] font-mono-code text-[#00e676] leading-relaxed">
+            <!-- Populated dynamically via live exchange events -->
+          </div>
+        </div>
+
+        <!-- 3. OUTPUT VIEW TABS -->
+        <div class="grid grid-cols-4 gap-1.5 p-1 rounded-2xl bg-[#07120d]/90 border border-white/10">
+          <button id="tabBtn-decision" onclick="switchOutputTab('decision')" class="py-2 px-2 rounded-xl text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center gap-1.5 transition">
+            <i class="fa-solid fa-bullseye text-[11px]"></i>
+            <span>Decision</span>
+          </button>
+          <button id="tabBtn-matrix" onclick="switchOutputTab('matrix')" class="py-2 px-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white flex items-center justify-center gap-1.5 transition">
+            <i class="fa-solid fa-layer-group text-[11px]"></i>
+            <span>Matrix</span>
+          </button>
+          <button id="tabBtn-reasoning" onclick="switchOutputTab('reasoning')" class="py-2 px-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white flex items-center justify-center gap-1.5 transition">
+            <i class="fa-regular fa-file-lines text-[11px]"></i>
+            <span>Reasoning</span>
+          </button>
+          <button id="tabBtn-sizer" onclick="switchOutputTab('sizer')" class="py-2 px-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white flex items-center justify-center gap-1.5 transition">
+            <i class="fa-solid fa-calculator text-[11px] text-emerald-400"></i>
+            <span>Lot Sizer</span>
+          </button>
+        </div>
+
+        <!-- 4. SUPER LLM CONVICTION CARD (TAB PANELS) -->
+        <div class="triumm-card p-5">
+
+          <!-- TAB 1: DECISION PANEL -->
+          <div id="tabPanel-decision">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <div class="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-0.5">SUPER LLM CONVICTION</div>
+                <div id="convictionPairTitle" class="text-base font-extrabold text-white tracking-tight">BTCUSDT • 1h</div>
+              </div>
+              <div id="convictionSignalBadge" class="px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-xs font-extrabold tracking-wide">
+                SYNCING...
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-3">
+              <div class="triumm-subcard p-4 text-center">
+                <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">ENTRY RANGE</div>
+                <div id="decisionEntryRange" class="text-sm font-extrabold font-mono-code text-white leading-snug">
+                  --
+                </div>
+              </div>
+
+              <div class="triumm-subcard p-4 text-center flex flex-col justify-center">
+                <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">STOP LOSS</div>
+                <div id="decisionStopLoss" class="text-sm font-extrabold font-mono-code text-[#ff6b6b]">
+                  --
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2.5 mb-4">
+              <div class="triumm-subcard p-3 text-center">
+                <div class="text-[10px] font-medium text-slate-400 mb-1">TP 1 (1:1.3)</div>
+                <div id="decisionTp1" class="text-xs sm:text-sm font-extrabold font-mono-code text-[#00e676]">--</div>
+              </div>
+              <div class="triumm-subcard p-3 text-center">
+                <div class="text-[10px] font-medium text-slate-400 mb-1">TP 2 (1:2.2)</div>
+                <div id="decisionTp2" class="text-xs sm:text-sm font-extrabold font-mono-code text-[#00e676]">--</div>
+              </div>
+              <div class="triumm-subcard p-3 text-center">
+                <div class="text-[10px] font-medium text-slate-400 mb-1">TP 3 (1:3.5)</div>
+                <div id="decisionTp3" class="text-xs sm:text-sm font-extrabold font-mono-code text-[#00e676]">--</div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-2 pt-2 border-t border-white/5">
+              <button id="copySignalBtn" class="flex-1 py-2 px-3 rounded-xl bg-white/5 hover:bg-emerald-500/15 border border-white/10 hover:border-emerald-500/30 text-xs font-semibold text-slate-200 flex items-center justify-center gap-1.5 transition">
+                <i class="fa-regular fa-copy text-emerald-400"></i>
+                <span>Copy Live Signal Ticket</span>
+              </button>
+              <button onclick="switchOutputTab('sizer')" class="py-2 px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-xs font-semibold text-emerald-300 flex items-center justify-center gap-1.5 transition">
+                <i class="fa-solid fa-calculator"></i>
+                <span>Calc Risk Size</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- TAB 2: MATRIX PANEL -->
+          <div id="tabPanel-matrix" class="hidden space-y-3">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Real-Time Institutional Matrix</span>
+              <span id="matrixPairBadge" class="text-xs font-mono-code text-slate-400">BTCUSDT • 1h</span>
+            </div>
+            <div id="matrixListContainer" class="space-y-2.5 text-xs"></div>
+          </div>
+
+          <!-- TAB 3: REASONING PANEL -->
+          <div id="tabPanel-reasoning" class="hidden">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Algorithmic Chain-of-Thought</span>
+              <span id="reasoningPairBadge" class="text-xs font-mono-code text-slate-400">BTCUSDT • 1h</span>
+            </div>
+            <div id="reasoningTextContainer" class="p-3.5 rounded-xl bg-black/40 border border-white/10 text-xs text-slate-300 leading-relaxed space-y-2.5 font-mono-code"></div>
+          </div>
+
+          <!-- TAB 4: INSTITUTIONAL LOT SIZER & LIVE MULTI-ASSET SWEEP RADAR -->
+          <div id="tabPanel-sizer" class="hidden space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">REAL-TIME RISK & RADAR MODULE</span>
+                <h3 class="text-sm font-bold text-white">Dynamic Position Sizer & Live Multi-Pair Radar</h3>
+              </div>
+              <span id="sizerActivePairTag" class="px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-mono-code text-xs font-bold">
+                BTC/USDT
+              </span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2.5">
+              <div class="triumm-subcard p-2.5">
+                <label class="block text-[10px] uppercase text-slate-400 mb-1">Account Equity ($)</label>
+                <input id="calcEquityInput" type="number" value="25000" min="100" step="500" class="w-full bg-black/50 border border-white/10 rounded-lg px-2 py-1.5 text-xs font-mono-code text-white outline-none focus:border-emerald-400" />
+              </div>
+              <div class="triumm-subcard p-2.5">
+                <label class="block text-[10px] uppercase text-slate-400 mb-1">Risk Per Trade (%)</label>
+                <input id="calcRiskPctInput" type="number" value="1.0" min="0.1" max="10" step="0.25" class="w-full bg-black/50 border border-white/10 rounded-lg px-2 py-1.5 text-xs font-mono-code text-emerald-400 outline-none focus:border-emerald-400" />
+              </div>
+              <div class="triumm-subcard p-2.5">
+                <label class="block text-[10px] uppercase text-slate-400 mb-1">Leverage</label>
+                <select id="calcLeverageInput" class="w-full bg-black/50 border border-white/10 rounded-lg px-2 py-1.5 text-xs font-mono-code text-white outline-none focus:border-emerald-400">
+                  <option value="5">5x</option>
+                  <option value="10" selected>10x</option>
+                  <option value="20">20x</option>
+                  <option value="50">50x</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 grid grid-cols-3 gap-2 text-center">
+              <div>
+                <div class="text-[10px] text-slate-400 uppercase">Risk Capital</div>
+                <div id="calcRiskDollar" class="text-sm font-extrabold font-mono-code text-rose-400">$250.00</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-400 uppercase">Optimal Size</div>
+                <div id="calcPositionUnits" class="text-sm font-extrabold font-mono-code text-emerald-400">--</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-400 uppercase">Margin Req</div>
+                <div id="calcMarginReq" class="text-sm font-extrabold font-mono-code text-white">--</div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between text-[11px] mb-2">
+                <span class="text-slate-300 font-semibold">Live Exchange Tickers & SMC Radar (Click to Switch)</span>
+                <button onclick="fetchLiveMultiPairRadar()" class="text-emerald-400 hover:underline text-[10px]">
+                  <i class="fa-solid fa-rotate"></i> Refresh Live Quotes
+                </button>
+              </div>
+              <div id="multiPairRadarList" class="space-y-1.5 max-h-[175px] overflow-y-auto telemetry-scroll pr-1"></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- NON-BLOCKING TOAST NOTIFICATION -->
+  <div id="toastNotification" class="fixed bottom-6 right-6 z-50 hidden px-4 py-3 rounded-xl bg-[#0b1f17] border border-emerald-500/50 text-emerald-200 text-xs font-medium shadow-2xl flex items-center gap-2.5">
+    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toastMessage">Action completed</span>
+  </div>
+
+  <!-- External Application Logic -->
+  <script src="triummlocal.js"></script>
+</body>
+</html>

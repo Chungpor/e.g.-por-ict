@@ -5403,3 +5403,94 @@ button.product-chart-btn {
     width: min(260px, calc(100vw - 28px));
   }
 }
+
+/* ========================================================
+   11. TRIUMM LOCAL FEATURE CARD (DarkGray #A9A9A9)
+   ======================================================== */
+.por-triummlocal-promo-card {
+  --card-accent: #A9A9A9;
+  --card-accent-rgb: 169, 169, 169;
+  --card-eyebrow-color: #A9A9A9;
+  --card-title-color: #A9A9A9;
+  --card-hover-text: #111111;
+}
+.por-triummlocal-promo-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--card-accent);
+  opacity: 0.95;
+  z-index: 2;
+}
+.por-triummlocal-promo-card .product-card-title {
+  color: #A9A9A9 !important;
+}
+.por-triummlocal-promo-card .promo-sub-label {
+  color: #A9A9A9 !important;
+}
+
+.nav-link-darkgray {
+  color: #A9A9A9 !important;
+  font-weight: 700 !important;
+}
+.nav-link-darkgray:hover,
+.nav-link-darkgray.active {
+  color: #d1d5db !important;
+  background: rgba(169, 169, 169, 0.12);
+  text-shadow: 0 0 12px rgba(169, 169, 169, 0.45);
+}
+
+[data-theme="light"] .por-triummlocal-promo-card {
+  --card-accent: #6b6b6b;
+  --card-accent-rgb: 107, 107, 107;
+  --card-eyebrow-color: #5a5a5a;
+  --card-title-color: #555555;
+}
+[data-theme="light"] .por-triummlocal-promo-card .product-card-title {
+  color: #555555 !important;
+}
+[data-theme="light"] .por-triummlocal-promo-card .promo-sub-label {
+  color: #5a5a5a !important;
+}
+[data-theme="light"] .nav-link-darkgray {
+  color: #5a5a5a !important;
+}
+
+/* ========================================================
+   LIVE MARKET MONITOR: CONNECTING STATE + SOURCE TAG
+   ======================================================== */
+.trend-pulse-card.is-pending-card { opacity: 0.78; }
+.trend-direction-pill.pill-pending,
+.trend-pct-badge.pct-pending,
+.t-trend-badge.trend-pending {
+  color: #94a3b8;
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.trend-source-tag {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-sub);
+  background: var(--input-bg);
+  border: 1px solid var(--card-border);
+  padding: 4px 9px;
+  border-radius: 8px;
+  white-space: nowrap;
+  max-width: 62%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.trend-empty-note {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text-sub);
+  font-size: 13px;
+  padding: 18px 0;
+}

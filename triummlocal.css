@@ -1,0 +1,286 @@
+:root {
+  --bg-deep: #12080c;
+  --bg-card: rgba(9, 22, 16, 0.82);
+  --bg-card-inner: rgba(6, 15, 11, 0.9);
+  --border-emerald: rgba(16, 185, 129, 0.18);
+  --border-emerald-bright: rgba(16, 185, 129, 0.45);
+  --neon-green: #00e676;
+  --emerald-accent: #10b981;
+  --purple-replay: #8b5cf6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-deep);
+  color: #e2e8f0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  /* Cyber emerald matrix background grid + ambient radial lighting */
+  background-image:
+    radial-gradient(circle at 18% 18%, rgba(255, 182, 193, 0.18) 0%, transparent 45%),
+    radial-gradient(circle at 82% 75%, rgba(255, 182, 193, 0.10) 0%, transparent 50%),
+    linear-gradient(to right, rgba(255, 182, 193, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 182, 193, 0.05) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 38px 38px, 38px 38px;
+  background-attachment: fixed;
+}
+
+.font-mono-code {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Glassmorphic Dark Emerald Card */
+.triumm-card {
+  background: linear-gradient(180deg, rgba(13, 31, 23, 0.78) 0%, rgba(7, 17, 13, 0.88) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.7), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+}
+
+.triumm-subcard {
+  background: rgba(8, 18, 14, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+}
+
+/* Neon Emerald Button */
+.btn-neon-green {
+  background: linear-gradient(180deg, #00e676 0%, #00c864 100%);
+  color: #03140b;
+  font-weight: 700;
+  box-shadow: 0 0 22px rgba(0, 230, 118, 0.35);
+  transition: all 0.2s ease;
+}
+.btn-neon-green:hover {
+  background: linear-gradient(180deg, #1eff8f 0%, #00e676 100%);
+  box-shadow: 0 0 28px rgba(0, 230, 118, 0.55);
+  transform: translateY(-1px);
+}
+.btn-neon-green:active {
+  transform: translateY(0);
+}
+
+/* Strategy Chip Button */
+.strategy-chip {
+  background: rgba(14, 29, 22, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  transition: all 0.18s ease;
+}
+.strategy-chip:hover {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Custom Scrollbar for Agent Telemetry Logs */
+.telemetry-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.telemetry-scroll::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 6px;
+}
+.telemetry-scroll::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  border-radius: 6px;
+}
+.telemetry-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.7);
+}
+
+/* Purple Replay Range Slider */
+input[type=range].replay-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: rgba(139, 92, 246, 0.22);
+  border-radius: 999px;
+  outline: none;
+}
+input[type=range].replay-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #a78bfa;
+  border: 2px solid #ede9fe;
+  box-shadow: 0 0 12px rgba(167, 139, 250, 0.9);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+input[type=range].replay-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+/* Select Dropdown Styling */
+select.triumm-select {
+  background-color: #0b1913;
+  color: #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+select.triumm-select:hover, select.triumm-select:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+}
+select.triumm-select option {
+  background-color: #121514;
+  color: #f8fafc;
+  padding: 8px;
+}
+
+/* Subtle pulse for Autopilot */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.4); }
+  50% { box-shadow: 0 0 16px 3px rgba(0, 230, 118, 0.25); }
+}
+.autopilot-active {
+  animation: pulseGlow 2s infinite;
+  border-color: #00e676 !important;
+  color: #00e676 !important;
+  background: rgba(0, 230, 118, 0.1) !important;
+}
+
+/* Real-time Price Tick Flash Animations */
+@keyframes flashUp {
+  0% { background-color: rgba(0, 230, 118, 0.35); color: #ffffff; }
+  100% { background-color: transparent; }
+}
+@keyframes flashDown {
+  0% { background-color: rgba(255, 82, 82, 0.35); color: #ffffff; }
+  100% { background-color: transparent; }
+}
+.tick-up {
+  animation: flashUp 0.55s ease-out;
+}
+.tick-down {
+  animation: flashDown 0.55s ease-out;
+}
+
+/* ========================================================
+   DYNAMIC SMOOTH PING BACKGROUND
+   Sits behind all content (z-index: -1), never blocks clicks.
+   ======================================================== */
+.bg-dynamic {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Soft drifting glow orbs */
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.55;
+  will-change: transform;
+}
+.orb-1 {
+  width: 520px; height: 520px;
+  top: -140px; left: -120px;
+  background: radial-gradient(circle, rgba(255, 182, 193, 0.45) 0%, transparent 70%);
+  animation: orbDrift1 22s ease-in-out infinite alternate;
+}
+.orb-2 {
+  width: 600px; height: 600px;
+  bottom: -200px; right: -160px;
+  background: radial-gradient(circle, rgba(255, 182, 193, 0.32) 0%, transparent 70%);
+  animation: orbDrift2 28s ease-in-out infinite alternate;
+}
+.orb-3 {
+  width: 420px; height: 420px;
+  top: 40%; left: 45%;
+  background: radial-gradient(circle, rgba(255, 192, 203, 0.26) 0%, transparent 70%);
+  animation: orbDrift3 32s ease-in-out infinite alternate;
+}
+@keyframes orbDrift1 {
+  0%   { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(35vw, 22vh) scale(1.25); }
+}
+@keyframes orbDrift2 {
+  0%   { transform: translate(0, 0) scale(1.1); }
+  100% { transform: translate(-38vw, -26vh) scale(0.9); }
+}
+@keyframes orbDrift3 {
+  0%   { transform: translate(-20vw, 10vh) scale(0.9); }
+  100% { transform: translate(18vw, -18vh) scale(1.2); }
+}
+
+/* Smooth expanding ping rings (radar / sonar pulse) */
+.bg-ping {
+  position: absolute;
+  width: 14px; height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 182, 193, 0.65);
+  box-shadow: 0 0 18px rgba(255, 182, 193, 0.30), inset 0 0 12px rgba(255, 182, 193, 0.18);
+  opacity: 0;
+  animation: bgPing 7s cubic-bezier(0.16, 0.6, 0.3, 1) infinite;
+  will-change: transform, opacity;
+}
+.bg-ping::after {
+  /* small bright core dot */
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 6px; height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: #FFB6C1;
+  box-shadow: 0 0 12px 2px rgba(255, 182, 193, 0.8);
+}
+.ping-1 { top: 18%; left: 14%; animation-delay: 0s; }
+.ping-2 { top: 28%; left: 82%; animation-delay: 1.4s; }
+.ping-3 { top: 66%; left: 24%; animation-delay: 2.8s; }
+.ping-4 { top: 78%; left: 74%; animation-delay: 4.2s; }
+.ping-5 { top: 46%; left: 52%; animation-delay: 5.6s; }
+
+@keyframes bgPing {
+  0%   { transform: scale(1);  opacity: 0; }
+  8%   { opacity: 0.9; }
+  100% { transform: scale(30); opacity: 0; }
+}
+
+/* Slow vertical scan sweep */
+.bg-sweep {
+  position: absolute;
+  left: 0; right: 0;
+  height: 160px;
+  top: -160px;
+  background: linear-gradient(to bottom, transparent 0%, rgba(255, 182, 193, 0.09) 50%, transparent 100%);
+  animation: bgSweep 14s linear infinite;
+}
+@keyframes bgSweep {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(calc(100vh + 320px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-orb, .bg-ping, .bg-sweep { animation: none; }
+  .bg-ping, .bg-sweep { display: none; }
+}
+
+/* Smooth ping readout */
+#liveLatencyBadge {
+  display: inline-block;
+  min-width: 82px;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.6s ease, text-shadow 0.6s ease;
+}
+#liveLatencyBadge.ping-good { color: #00e676; text-shadow: 0 0 8px rgba(0, 230, 118, 0.35); }
+#liveLatencyBadge.ping-ok   { color: #fbbf24; text-shadow: 0 0 8px rgba(251, 191, 36, 0.3); }
+#liveLatencyBadge.ping-bad  { color: #ff5252; text-shadow: 0 0 8px rgba(255, 82, 82, 0.35); }
