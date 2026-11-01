@@ -527,7 +527,68 @@ const externalHeadlines = rawHeadlines.map((item) => ({
   impact: (item.impact || "LOW").toUpperCase()
 }));
 
-const porIctNewsData = [...curatedMacroHotFeed, ...externalHeadlines];
+let liveNewsItems = [];
+let newsLastUpdated = null;
+let porIctNewsData = [...curatedMacroHotFeed, ...externalHeadlines];
+
+function rebuildNewsData() {
+  // Once real live news arrives, drop the static demo seed so stale items never show as "LIVE".
+  porIctNewsData = liveNewsItems.length > 0
+    ? [...liveNewsItems, ...externalHeadlines]
+    : [...curatedMacroHotFeed, ...externalHeadlines];
+}
+
+function formatIctStamp(iso) {
+  const d = new Date(iso);
+  const day = d.toLocaleDateString("en-GB", { timeZone: "Asia/Phnom_Penh", day: "2-digit", month: "short" });
+  const time = d.toLocaleTimeString("en-GB", { timeZone: "Asia/Phnom_Penh", hour: "2-digit", minute: "2-digit", hour12: false });
+  const mins = Math.max(0, Math.round((Date.now() - d.getTime()) / 60000));
+  const ago = mins < 1 ? "just now" : mins < 60 ? `${mins} min ago` : mins < 1440 ? `${Math.floor(mins / 60)} hour${mins >= 120 ? "s" : ""} ago` : `${Math.floor(mins / 1440)} day ago`;
+  return `${day} • ${time} ICT · ${ago}`;
+}
+
+function itemTimeLabel(item) {
+  return item.published_iso ? formatIctStamp(item.published_iso) : item.published_at_ict;
+}
+
+let newsLoading = false;
+async function loadLiveNews() {
+  if (newsLoading) return;
+  newsLoading = true;
+  try {
+    const isGithub = window.location.hostname.includes("github.io");
+    if (isGithub) return; // static hosting has no /api/news
+    const data = await fetchWithTimeout("/api/news", 15000);
+    if (!data || !data.success || !Array.isArray(data.data)) return;
+    liveNewsItems = data.data.map((n) => {
+      const sentiments = Array.isArray(n.sentiments) ? n.sentiments : [];
+      return {
+        id: n.id,
+        impact: String(n.impact || "LOW").toUpperCase(),
+        category: n.category || "MACRO",
+        usd_focus: sentiments.some((s) => s.asset === "USD" || s.asset === "Gold"),
+        title_en: n.title_en,
+        title_km: n.title_km || "",
+        sentiments,
+        source: n.source || "Por ICT Newswire",
+        published_iso: n.published_iso,
+        url: n.url || "#",
+        catalyst_label: n.catalyst_label || "",
+        why: n.why || "",
+        action: n.action || "",
+        is_mover: String(n.impact).toUpperCase() === "HIGH"
+      };
+    });
+    newsLastUpdated = data.updated_at;
+    rebuildNewsData();
+    renderHotNewsSection();
+    renderWireNewsSection();
+  } catch (err) {
+    console.warn("Live news fetch failed:", err.message || err);
+  } finally {
+    newsLoading = false;
+  }
+}
 
 const USD_SYMBOLS = new Set(["USD", "XAUUSD", "DXY", "US500", "US30", "NAS100", "US10Y", "BTCUSD"]);
 
@@ -893,7 +954,7 @@ function headlineCardHot(item) {
         <h3 class="hot-item-title">${esc(titleText)}</h3>
         <div class="hot-meta-tags-row">
           ${sentimentsHtml}
-          <span class="por-wire-source-tag">${esc(item.source)}</span>
+          <span class="por-wire-source-tag">${esc(item.source)}${item.published_iso ? " · " + esc(itemTimeLabel(item)) : ""}</span>
         </div>
         ${whyHtml}
         <div class="hot-ict-action-row">
@@ -937,7 +998,7 @@ function renderWireNewsSection() {
   const headlines = porIctNewsData.filter(matchesHeadlineFilter);
 
   if (newsFeedCounter) {
-    newsFeedCounter.textContent = `Showing ${events.length} Forex Factory events · ${headlines.length} macro flashes`;
+    newsFeedCounter.textContent = `Showing ${events.length} Forex Factory events · ${headlines.length} macro flashes${newsLastUpdated ? " · updated " + new Date(newsLastUpdated).toLocaleTimeString("en-GB", { timeZone: "Asia/Phnom_Penh", hour12: false }) + " ICT" : ""}`;
   }
 
   if (events.length === 0 && headlines.length === 0) {
@@ -975,10 +1036,10 @@ function renderWireNewsSection() {
         <div class="wire-card-top-bar">
           <span class="impact-badge-pill ${item.impact.toLowerCase()}">${esc(item.impact)}</span>
           <span class="wire-category-tag">${esc(item.catalyst_label || item.category || "MACRO")}</span>
-          <span class="wire-time-ago">${esc(item.published_at_ict)}</span>
+          <span class="wire-time-ago">${esc(itemTimeLabel(item))}</span>
         </div>
         <h4 class="wire-english-title">${esc(item.title_en)}</h4>
-        <p class="wire-khmer-title">${esc(item.why || item.title_km || item.title_en)}</p>
+        <p class="wire-khmer-title">${esc(item.title_km || item.why || item.title_en)}</p>
         <div class="wire-asset-tags-group">${pills}</div>
       </article>`;
   }).join("");
@@ -1016,7 +1077,7 @@ on(syncForexFactoryBtn, "click", async () => {
     syncForexFactoryBtn.textContent = "⏳ Syncing Forex Factory...";
     syncForexFactoryBtn.disabled = true;
   }
-  await loadCalendarEvents();
+  await Promise.all([loadCalendarEvents(), loadLiveNews()]);
   if (syncForexFactoryBtn) {
     syncForexFactoryBtn.innerHTML = "<span>✓ Synced Forex Factory</span>";
     setTimeout(() => {
@@ -2274,7 +2335,15 @@ lcvInit();
 if (window.YT && window.YT.Player) initYouTubeAudio();
 
 loadCalendarEvents();
+loadLiveNews();
 setInterval(recalculateCountdowns, 15 * 1000);
+
+// Auto-refresh: news every 60s, calendar every 5 min. Paused while the tab is hidden.
+setInterval(() => { if (!document.hidden) loadLiveNews(); }, 60 * 1000);
+setInterval(() => { if (!document.hidden) loadCalendarEvents(); }, 5 * 60 * 1000);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) { loadLiveNews(); loadCalendarEvents(); }
+});
 
 if (isLoggedIn()) {
   enterDashboard();
