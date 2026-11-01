@@ -3044,9 +3044,15 @@ $('keyForm')?.addEventListener('submit', (e) => {
   window.addEventListener('wheel', markBusy, { passive: true });
   window.addEventListener('touchmove', markBusy, { passive: true });
 
+  let skipFrame = false;
   function animate() {
     requestAnimationFrame(animate);
-    if (document.hidden || performance.now() < busyUntil) return;
+    if (document.hidden) return;
+    // ពេលកំពុងអូស៖ Background នៅតែដំណើរការ ប៉ុន្តែគូរ 1 ក្នុងចំណោម 2 frame ដើម្បីកុំឲ្យទាក់ទាក់
+    if (performance.now() < busyUntil) {
+      skipFrame = !skipFrame;
+      if (skipFrame) return;
+    }
     tick += 1;
     mouse.x += (mouse.targetX - mouse.x) * 0.05;
     mouse.y += (mouse.targetY - mouse.y) * 0.05;
@@ -3935,4 +3941,131 @@ icons();
   window.__lobbyFx = createDepthScroller(lobbyList, '.scan-lobby-card');
   window.__historyFx = createDepthScroller(historyBox, '.fx-row');
   setupFilterBar(document.getElementById('lobbyFilterBar'));
+})();
+
+// =========================================================
+// 18. LIVE MARKET TICKER (ព្រួញ ▲▼ និងពណ៌ ប្តូរតាមទីផ្សារពិត)
+// =========================================================
+(function initLiveMarketTicker() {
+  const track = document.getElementById('tickerTrack');
+  if (!track) return;
+
+  // ឈ្មោះក្នុង Ticker  ->  ប្រភពទិន្នន័យ
+  //   spot : Binance Spot  | fut : Binance Futures | fx : Frankfurter (ប្រចាំថ្ងៃ)
+  // NASDAQ មិនមាន API ឥតគិតថ្លៃដែលអាចប្រើពី Browser បានទេ → នៅតែជា ▬ រហូតដល់មានប្រភព
+  const SOURCES = {
+    USDC:    { spot: 'USDCUSDT' },
+    SOL:     { spot: 'SOLUSDT' },
+    BNB:     { spot: 'BNBUSDT' },
+    XRP:     { spot: 'XRPUSDT' },
+    ETHUSDT: { spot: 'ETHUSDT' },
+    BTCUSD:  { spot: 'BTCUSDT' },
+    XAUUSD:  { fut: 'XAUUSDT', spot: 'PAXGUSDT' },
+    XAGUSD:  { fut: 'XAGUSDT' },
+    USOIL:   { fut: 'CLUSDT' },
+    EURUSD:  { spot: 'EURUSDT' },
+    GBPUSD:  { spot: 'GBPUSDT' },
+    USDJPY:  { fx: 'JPY' }
+  };
+  const REFRESH_MS = 15000;
+  const FLAT_EPS = 0.005; // % តិចជាងនេះ = ▬
+
+  const rows = new Map();
+  track.querySelectorAll(':scope > span').forEach((span) => {
+    const name = (span.firstChild && span.firstChild.textContent || '').trim();
+    if (!SOURCES[name]) return;
+    const arrow = span.querySelector('span');
+    if (!arrow) return;
+    const pct = document.createElement('span');
+    pct.className = 'tk-pct';
+    span.appendChild(pct);
+    rows.set(name, { span, arrow, pct, last: null });
+  });
+  if (!rows.size) return;
+
+  const fetchJson = async (url) => {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 7000);
+    try {
+      const r = await fetch(url, { signal: ctrl.signal, cache: 'no-store' });
+      if (!r.ok) throw new Error(r.status);
+      return await r.json();
+    } finally { clearTimeout(t); }
+  };
+
+  const paint = (name, price, pct) => {
+    const row = rows.get(name);
+    if (!row || !isFinite(pct)) return;
+    const dir = pct > FLAT_EPS ? 'up' : pct < -FLAT_EPS ? 'down' : 'flat';
+    row.arrow.textContent = dir === 'up' ? '▲' : dir === 'down' ? '▼' : '▬';
+    row.arrow.className = 'text-[10px] ' + (dir === 'up' ? 'text-emerald-400' : dir === 'down' ? 'text-rose-500' : 'text-slate-500');
+    row.pct.textContent = (pct > 0 ? '+' : '') + pct.toFixed(2) + '%';
+    row.pct.className = 'tk-pct ' + (dir === 'up' ? 'text-emerald-400' : dir === 'down' ? 'text-rose-400' : 'text-slate-500');
+    row.span.title = name + (price ? ' • ' + price : '') + ' • 24h ' + row.pct.textContent;
+    if (row.last !== null && row.last !== dir) {
+      row.span.classList.remove('tk-flip');
+      void row.span.offsetWidth;
+      row.span.classList.add('tk-flip');
+    }
+    row.last = dir;
+  };
+
+  async function loadSpot(list) {
+    if (!list.length) return;
+    const q = encodeURIComponent(JSON.stringify(list.map((x) => x.id)));
+    let data = null;
+    for (const base of ['https://api.binance.com', 'https://data-api.binance.vision']) {
+      try { data = await fetchJson(`${base}/api/v3/ticker/24hr?symbols=${q}`); break; } catch (_) {}
+    }
+    if (!Array.isArray(data)) return false;
+    data.forEach((d) => {
+      list.filter((x) => x.id === d.symbol).forEach((x) =>
+        paint(x.name, d.lastPrice, parseFloat(d.priceChangePercent)));
+    });
+    return true;
+  }
+
+  async function loadFut(name, id, fallbackSpot) {
+    try {
+      const d = await fetchJson(`https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=${id}`);
+      paint(name, d.lastPrice, parseFloat(d.priceChangePercent));
+      return;
+    } catch (_) {}
+    if (fallbackSpot) await loadSpot([{ name, id: fallbackSpot }]);
+  }
+
+  async function loadFx(name, code) {
+    try {
+      const latest = await fetchJson(`https://api.frankfurter.app/latest?from=USD&to=${code}`);
+      const prev = new Date(latest.date + 'T00:00:00Z');
+      prev.setUTCDate(prev.getUTCDate() - 4);
+      const hist = await fetchJson(`https://api.frankfurter.app/${prev.toISOString().slice(0, 10)}..${latest.date}?from=USD&to=${code}`);
+      const days = Object.keys(hist.rates || {}).sort();
+      if (days.length < 2) return;
+      const now = hist.rates[days[days.length - 1]][code];
+      const before = hist.rates[days[days.length - 2]][code];
+      paint(name, String(now), ((now - before) / before) * 100);
+    } catch (_) {}
+  }
+
+  let busy = false;
+  async function refresh() {
+    if (busy || document.hidden) return;
+    busy = true;
+    try {
+      const spot = [], tasks = [];
+      rows.forEach((_, name) => {
+        const s = SOURCES[name];
+        if (s.fut) tasks.push(loadFut(name, s.fut, s.spot));
+        else if (s.spot) spot.push({ name, id: s.spot });
+        else if (s.fx) tasks.push(loadFx(name, s.fx));
+      });
+      tasks.push(loadSpot(spot));
+      await Promise.allSettled(tasks);
+    } finally { busy = false; }
+  }
+
+  refresh();
+  setInterval(refresh, REFRESH_MS);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
 })();
