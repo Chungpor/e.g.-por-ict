@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Por AI Chat | LightCyan &amp; Aquamarine Trading Mentor</title>
+  <title>Por AI Chat | AI Analyst Team &amp; Trading Mentor</title>
 
   <!-- Favicon -->
   <link rel="icon" type="image/jpeg" href="por.jpg" />
@@ -58,7 +58,7 @@
   </header>
 
   <!-- ==========================================
-       2. SUB-HEADER BAR (Chats | New chat | +)
+       2. SUB-HEADER BAR (Chats | Active Team | +)
        ========================================== -->
   <div class="pac-subheader">
     <button type="button" class="pac-chats-history-btn" id="pacToggleHistoryBtn">
@@ -71,7 +71,10 @@
       <span class="pac-chat-count-pill" id="pacHistoryCount">0</span>
     </button>
 
-    <div class="pac-subheader-title" id="pacCurrentChatTitle">New chat</div>
+    <div class="pac-subheader-center">
+      <div class="pac-subheader-title" id="pacCurrentChatTitle">New chat</div>
+      <span class="pac-active-team-pill" id="pacSubheaderAnalystBadge">👥 Full AI Analyst Team</span>
+    </div>
 
     <button type="button" class="pac-new-chat-btn" id="pacNewChatBtn" title="Start New Chat">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
@@ -118,13 +121,12 @@
           </div>
 
           <div class="pac-hero-title-row">
-            <h1 class="pac-hero-title">Por AI</h1>
-            <span class="pac-model-badge">POR1.0</span>
+            <h1 class="pac-hero-title">Por AI Analyst Team</h1>
+            <span class="pac-model-badge">POR1.0 · 7 AGENTS</span>
           </div>
 
           <p class="pac-hero-subtitle">
-            Your trading mentor. Ask anything about markets, strategies, risk management,
-            smart-money concepts or how to use the platform.
+            Your 24/7 multi-agent trading desk. Ask <strong>any question</strong> about markets, XAUUSD, BTCUSDT, SMC/ICT concepts, risk math, coding, or general topics — our AI Analyst Team replies to everything.
           </p>
 
           <div class="pac-hero-links-row">
@@ -147,6 +149,23 @@
           </div>
         </div>
 
+        <!-- ==========================================
+             NEW: AI ANALYST TEAM ROSTER SELECTOR
+             ========================================== -->
+        <div class="pac-team-section">
+          <div class="pac-team-header">
+            <div>
+              <h2 class="pac-team-title">🤖 Select Your AI Analyst Desk</h2>
+              <p class="pac-team-subtitle">Choose <strong>Full Analyst Team</strong> for multi-desk consensus on every question, or pick a specialist.</p>
+            </div>
+            <span class="pac-team-online-pill">● 7 AI Analysts Online</span>
+          </div>
+
+          <div class="pac-team-grid" id="pacAnalystTeamGrid">
+            <!-- Dynamically populated by por-ai-chat.js -->
+          </div>
+        </div>
+
         <!-- CHART SNAP UPLOAD BANNER CARD -->
         <div class="pac-chart-snap-card" id="pacChartSnapCard" role="button" tabindex="0">
           <div class="pac-snap-icon-box">
@@ -159,7 +178,7 @@
           <div class="pac-snap-content">
             <div class="pac-snap-title">Chart Snap — upload a chart screenshot</div>
             <div class="pac-snap-desc">
-              The AI reads your chart: trend, structure, key levels and patterns. Educational read — not a tracked signal.
+              The AI Analyst Team reads your chart: trend, structure, key levels and patterns. Educational read — not a tracked signal.
             </div>
           </div>
           <span class="pac-snap-action-tag">Upload Chart ↗</span>
@@ -168,17 +187,17 @@
         <!-- DIVIDER -->
         <div class="pac-divider">
           <span class="pac-divider-line"></span>
-          <span class="pac-divider-text">OR START WITH A QUESTION</span>
+          <span class="pac-divider-text">OR START WITH A TEAM QUESTION</span>
           <span class="pac-divider-line"></span>
         </div>
 
         <!-- FEATURE CARDS GRID (1 AQUAMARINE FEATURE CARD + 6 LIGHTCYAN CARDS) -->
         <div class="pac-feature-grid" id="pacFeatureGrid">
 
-          <!-- NEW AQUAMARINE FEATURE CARD: Por AI Chat -->
+          <!-- AQUAMARINE FEATURE CARD: Por AI Chat + Full Analyst Team -->
           <article
             class="pac-feature-card pac-card-aquamarine"
-            data-prompt="Open Por AI Chat Command Center — show me live XAUUSD & BTCUSDT setups, SMC Order Blocks, and how Por AI Chat can mentor my trading today."
+            data-prompt="Assemble the Full AI Analyst Team — give me a complete multi-desk briefing on XAUUSD, BTCUSDT, NAS100, macro news, and risk management today."
           >
             <div class="pac-card-icon">
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
@@ -188,11 +207,11 @@
             </div>
             <div class="pac-card-body">
               <div class="pac-card-head-row">
-                <h3 class="pac-card-title">Por AI Chat</h3>
-                <span class="pac-aquamarine-badge">AQUAMARINE · LIVE AI</span>
+                <h3 class="pac-card-title">Por AI Analyst Team Briefing</h3>
+                <span class="pac-aquamarine-badge">ALL 7 ANALYSTS · LIVE AI</span>
               </div>
               <p class="pac-card-text">
-                Launch your interactive 24/7 Por AI Chat mentor — analyze live XAUUSD &amp; BTCUSDT order blocks, calculate position risk, and get instant SMC/ICT trade guidance.
+                Launch your interactive 24/7 AI Analyst Council — get simultaneous SMC Structure, XAUUSD Gold Desk, BTC Quant, Macro News, and Risk Desk answers to any question you ask.
               </p>
             </div>
           </article>
@@ -302,6 +321,8 @@
 
       <!-- ACTIVE CONVERSATION STREAM -->
       <section class="pac-chat-stream" id="pacChatStream" style="display: none;">
+        <!-- Quick Compact Team Switcher inside active chat -->
+        <div class="pac-stream-team-bar" id="pacStreamTeamBar"></div>
         <div class="pac-messages-list" id="pacMessagesList"></div>
       </section>
 
@@ -322,7 +343,7 @@
         <img id="pacPreviewImg" src="" alt="Chart Screenshot Preview" />
         <div class="pac-preview-meta">
           <strong id="pacPreviewName">chart-screenshot.png</strong>
-          <span>Ready for POR1.0 Chart Snap structure analysis</span>
+          <span>Ready for AI Analyst Team Chart Snap structure analysis</span>
         </div>
         <button type="button" class="pac-remove-preview" id="pacRemovePreviewBtn">✕</button>
       </div>
@@ -330,15 +351,17 @@
       <!-- Input Box -->
       <form class="pac-input-bar" id="pacChatForm" autocomplete="off">
         <div class="pac-input-left">
-          <span class="pac-input-model-pill">
-            <img
-              src="por.jpg"
-              alt="POR1.0"
-              class="pac-custom-logo-img pac-mini-pill-logo"
-              onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80';"
-            />
-            <span>POR1.0</span>
-          </span>
+          <!-- Analyst Team Selector Dropdown inside Input Bar -->
+          <label for="pacDockAnalystSelect" class="pac-sr-only">Select AI Analyst</label>
+          <select id="pacDockAnalystSelect" class="pac-dock-team-select" title="Choose which AI Analyst replies">
+            <option value="all_team">👥 All Team (7 AI)</option>
+            <option value="por_lead">👑 POR1.0 Lead</option>
+            <option value="gold_desk">🥇 XAUUSD AI</option>
+            <option value="crypto_quant">₿ BTC Quant AI</option>
+            <option value="smc_chartist">🏦 SMC/ICT AI</option>
+            <option value="risk_manager">⚖️ Risk &amp; Prop AI</option>
+            <option value="macro_news">🌐 Macro News AI</option>
+          </select>
 
           <button type="button" class="pac-upload-icon-btn" id="pacBottomUploadBtn" title="Upload Chart Screenshot">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
@@ -353,7 +376,7 @@
           type="text"
           id="pacUserInput"
           class="pac-text-input"
-          placeholder="Ask POR1.0 anything..."
+          placeholder="Ask the AI Analyst Team anything (markets, setups, math, coding, general)..."
         />
 
         <button type="submit" class="pac-send-btn" id="pacSendBtn" aria-label="Send Message">
@@ -366,7 +389,7 @@
 
       <!-- Footer Disclaimer -->
       <p class="pac-disclaimer">
-        <strong>POR1.0</strong> by Por ICT — educational analysis, not financial advice. For a full trade setup use
+        <strong>POR1.0 AI ANALYST TEAM</strong> by Por ICT — educational analysis, not financial advice. For a full trade setup use
         <a href="live-charts.html">Generate Signal</a>.
       </p>
     </div>

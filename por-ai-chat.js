@@ -1,15 +1,117 @@
 /**
- * Por AI Chat — Universal AI Trading Mentor & Live Answer Engine (POR1.0)
- * Replies to ALL user questions (Live LLM + Deep Local SMC/Math Engine + Chart Snap)
+ * Por AI Chat — Multi-Agent AI Analyst Team & Universal Live Answer Engine (POR1.0)
+ * Replies to ALL user questions (7-Agent Council + Live LLM + Deep SMC/Math Engine + Chart Snap)
  * File: por-ai-chat.js
  */
 "use strict";
 
 // ==========================================
-// 1. STATE, LOGO STORAGE & CHAT HISTORY
+// 0. AI CONNECTION SETTINGS
+// ==========================================
+// Pollinations moved to a new unified API (gen.pollinations.ai) that needs a key.
+// 1) Get a FREE browser-safe "pk_..." key at https://enter.pollinations.ai/keys
+// 2) Paste it below (or run in the browser console:
+//    localStorage.setItem("por_ai_api_key_v1", "pk_xxx") then refresh).
+// Never put a secret "sk_..." key in this file — it is public in the browser.
+const PAC_AI_CONFIG = {
+  apiKey: "AQ.Ab8RN6JTyai-glourxPaPV15MFAAE0XpVbiXYoaseCAVfVlSwg",
+  endpoint: "https://gen.pollinations.ai/v1/chat/completions",
+  model: "openai",
+  // Used automatically when the key is a Google AI Studio key (starts with "AQ." or "AIza")
+  geminiModels: ["gemini-3.5-flash", "gemini-flash-latest"],
+  geminiEndpoint: "https://generativelanguage.googleapis.com/v1beta/models/",
+  timeoutMs: 30000,
+  historyMessages: 14
+};
+
+function getAiApiKey() {
+  let stored = "";
+  try { stored = localStorage.getItem("por_ai_api_key_v1") || ""; } catch (e) {}
+  return (stored || PAC_AI_CONFIG.apiKey || "").trim();
+}
+
+// Which provider a key belongs to: Google AI Studio keys start with "AQ." or "AIza".
+function getKeyProvider(key) {
+  if (/^(AQ\.|AIza)/.test(key || "")) return "gemini";
+  return "pollinations";
+}
+
+
+// ==========================================
+// 1. AI ANALYST TEAM ROSTER (7 AGENTS)
+// ==========================================
+const AI_ANALYST_TEAM = [
+  {
+    id: "all_team",
+    name: "Full AI Analyst Team",
+    shortName: "All Team (7 AI)",
+    badge: "COUNCIL · 7 AI",
+    emoji: "👥",
+    role: "All 6 specialists + POR1.0 Lead reply together to every question you ask.",
+    systemPersona: "You are the Full Por AI Analyst Team Council (Lead Strategist, XAUUSD Gold Specialist, BTC Quant, SMC/ICT Chartist, Risk Manager, and Macro Economist). Provide a comprehensive, direct answer to the user's exact question, and add brief specialist takeaways only when the topic is about trading or markets."
+  },
+  {
+    id: "por_lead",
+    name: "Por ICT Lead",
+    shortName: "POR1.0 Lead",
+    badge: "LEAD MENTOR",
+    emoji: "👑",
+    role: "Master Trading Mentor & Universal AI — answers trading, math, coding & general questions.",
+    systemPersona: "You are POR1.0 Lead Mentor created by Por ICT. Answer any trading, technical, math, coding, or general question clearly and directly."
+  },
+  {
+    id: "gold_desk",
+    name: "Aura Gold Desk",
+    shortName: "XAUUSD AI",
+    badge: "XAU-AI · METALS",
+    emoji: "🥇",
+    role: "XAUUSD & Silver institutional order flow, DXY inverse correlation & London/NY killzones.",
+    systemPersona: "You are Aura Gold (XAU-AI), Senior Precious Metals & XAUUSD Institutional Analyst. Answer the user's question with precise focus on Gold structure, liquidity sweeps, and DXY/yield correlations."
+  },
+  {
+    id: "crypto_quant",
+    name: "Satoshi Quant",
+    shortName: "BTC Quant AI",
+    badge: "BTC-AI · CRYPTO",
+    emoji: "₿",
+    role: "BTCUSDT, ETH & Altcoin liquidity pools, funding rates, open interest & whale sweeps.",
+    systemPersona: "You are Satoshi Quant (BTC-AI), Senior Crypto Derivatives & Liquidity Analyst. Answer the user's question clearly, highlighting crypto market structure, stop hunts, and risk control."
+  },
+  {
+    id: "smc_chartist",
+    name: "ICT Structure AI",
+    shortName: "SMC/ICT AI",
+    badge: "SMC-AI · CHART",
+    emoji: "🏦",
+    role: "Order Blocks, Fair Value Gaps (FVG), BOS/CHoCH, OTE Fibonacci & Silver Bullet setups.",
+    systemPersona: "You are ICT Structure AI (SMC-AI), Institutional Price Action & Smart Money Concepts Specialist. Answer the user's question using pure price action, liquidity, Order Blocks, and Fair Value Gaps."
+  },
+  {
+    id: "risk_manager",
+    name: "Apex Risk & Prop",
+    shortName: "Risk & Prop AI",
+    badge: "RISK-AI · MATH",
+    emoji: "⚖️",
+    role: "Exact lot-size calculator, Prop-Firm drawdown protection (FTMO) & trading psychology.",
+    systemPersona: "You are Apex Risk (RISK-AI), Chief Risk Officer & Prop-Firm Performance Coach. Answer the user's question with strict mathematical position sizing, drawdown protection, and disciplined psychology."
+  },
+  {
+    id: "macro_news",
+    name: "Macro Pulse AI",
+    shortName: "Macro News AI",
+    badge: "NEWS-AI · MACRO",
+    emoji: "🌐",
+    role: "CPI, NFP, FOMC interest rates, DXY Dollar Index & high-impact economic news calendar.",
+    systemPersona: "You are Macro Pulse (NEWS-AI), Global Macro Economist & Central Bank Strategist. Answer the user's question clearly, explaining how macro catalysts, yields, and news affect the user's topic."
+  }
+];
+
+// ==========================================
+// 2. STATE, LOGO STORAGE & CHAT HISTORY
 // ==========================================
 const STORAGE_KEY = "por_ai_saved_chats_v1";
 const LOGO_STORAGE_KEY = "por_ai_custom_logo_v1";
+const TEAM_STORAGE_KEY = "por_ai_selected_analyst_v1";
 const DEFAULT_LOGO_SRC = "por.jpg";
 const FALLBACK_LOGO_SRC = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80";
 
@@ -19,6 +121,31 @@ let currentMessages = [];
 let pendingImageDataUrl = null;
 let pendingImageName = "";
 let isAiTyping = false;
+let selectedAnalystId = "all_team";
+
+function getActiveAnalyst() {
+  return AI_ANALYST_TEAM.find(function (a) { return a.id === selectedAnalystId; }) || AI_ANALYST_TEAM[0];
+}
+
+function setSelectedAnalyst(analystId) {
+  const found = AI_ANALYST_TEAM.find(function (a) { return a.id === analystId; });
+  if (!found) return;
+  selectedAnalystId = found.id;
+  try {
+    localStorage.setItem(TEAM_STORAGE_KEY, selectedAnalystId);
+  } catch (e) {}
+
+  renderAnalystTeamControls();
+}
+
+function loadSelectedAnalyst() {
+  try {
+    const saved = localStorage.getItem(TEAM_STORAGE_KEY);
+    if (saved && AI_ANALYST_TEAM.some(function (a) { return a.id === saved; })) {
+      selectedAnalystId = saved;
+    }
+  } catch (e) {}
+}
 
 function getActiveLogoSrc() {
   try {
@@ -80,7 +207,80 @@ function escHtml(str) {
 }
 
 // ==========================================
-// 2. LIVE MARKET SNAPSHOT HELPER
+// 3. RENDER AI ANALYST TEAM UI CONTROLS
+// ==========================================
+function renderAnalystTeamControls() {
+  const active = getActiveAnalyst();
+
+  // 1. Update Subheader Badge
+  const subBadge = document.getElementById("pacSubheaderAnalystBadge");
+  if (subBadge) {
+    subBadge.textContent = active.emoji + " " + active.name;
+  }
+
+  // 2. Update Bottom Dock Dropdown
+  const dockSelect = document.getElementById("pacDockAnalystSelect");
+  if (dockSelect && dockSelect.value !== active.id) {
+    dockSelect.value = active.id;
+  }
+
+  // 3. Update Input Placeholder
+  const userInput = document.getElementById("pacUserInput");
+  if (userInput) {
+    userInput.placeholder = "Ask " + active.name + " anything (all questions answered)...";
+  }
+
+  // 4. Render Welcome Roster Cards
+  const grid = document.getElementById("pacAnalystTeamGrid");
+  if (grid) {
+    grid.innerHTML = AI_ANALYST_TEAM.map(function (agent) {
+      const isAct = agent.id === active.id ? " is-active" : "";
+      return (
+        '<button type="button" class="pac-analyst-card' + isAct + '" data-analyst-id="' + escHtml(agent.id) + '">' +
+          '<div class="pac-analyst-Emoji">' + agent.emoji + '</div>' +
+          '<div class="pac-analyst-info">' +
+            '<div class="pac-analyst-top">' +
+              '<span class="pac-analyst-name">' + escHtml(agent.name) + '</span>' +
+              '<span class="pac-analyst-tag">' + escHtml(agent.badge) + '</span>' +
+            '</div>' +
+            '<div class="pac-analyst-role">' + escHtml(agent.role) + '</div>' +
+          '</div>' +
+        '</button>'
+      );
+    }).join("");
+
+    grid.querySelectorAll(".pac-analyst-card").forEach(function (card) {
+      card.addEventListener("click", function () {
+        const id = card.getAttribute("data-analyst-id");
+        setSelectedAnalyst(id);
+      });
+    });
+  }
+
+  // 5. Render Compact Stream Switcher Bar
+  const streamBar = document.getElementById("pacStreamTeamBar");
+  if (streamBar) {
+    streamBar.innerHTML = AI_ANALYST_TEAM.map(function (agent) {
+      const isAct = agent.id === active.id ? " is-active" : "";
+      return (
+        '<button type="button" class="pac-stream-pill' + isAct + '" data-analyst-id="' + escHtml(agent.id) + '">' +
+          '<span>' + agent.emoji + '</span>' +
+          '<span>' + escHtml(agent.shortName) + '</span>' +
+        '</button>'
+      );
+    }).join("");
+
+    streamBar.querySelectorAll(".pac-stream-pill").forEach(function (pill) {
+      pill.addEventListener("click", function () {
+        const id = pill.getAttribute("data-analyst-id");
+        setSelectedAnalyst(id);
+      });
+    });
+  }
+}
+
+// ==========================================
+// 4. LIVE MARKET SNAPSHOT HELPER
 // ==========================================
 function getLiveMarketSnapshot() {
   const db = window.WATCHLIST_DB || [];
@@ -100,13 +300,85 @@ function getLiveMarketSnapshot() {
 }
 
 // ==========================================
-// 3. DYNAMIC RISK & POSITION SIZE CALCULATOR
+// 5. MULTI-AGENT COUNCIL SYNTHESIS BUILDER
+// ==========================================
+function buildTeamCouncilBlock(userText) {
+  const q = (userText || "").toLowerCase();
+  const snap = getLiveMarketSnapshot();
+
+  let smcNote = "Wait for a 15m/5m liquidity sweep followed by a displacement CHoCH and Fair Value Gap (FVG) retest before entering.";
+  let goldCryptoNote;
+  const liveNow = LIVE_PRICE_CACHE.data;
+  if (liveNow && liveNow.ok) {
+    const parts = [];
+    ["XAUUSD", "BTCUSDT"].forEach(function (s) {
+      const it = liveNow.items[s];
+      if (it) parts.push(s + " " + fmtLivePrice(s, it.price) + (isFinite(it.changePct) ? " (" + (it.changePct >= 0 ? "+" : "") + it.changePct.toFixed(2) + "% 24h)" : ""));
+    });
+    goldCryptoNote = "Live: " + parts.join(" · ") + ". Build levels from these prices and the session high/low, and watch for liquidity sweeps.";
+  } else {
+    goldCryptoNote = "Live price feed unavailable right now — check your chart for current XAUUSD / BTCUSDT prices before acting.";
+  }
+
+  const macroNote = "Monitor DXY Dollar Index inverse correlation and avoid opening fresh positions 15 minutes before high-impact USD news (CPI/NFP/FOMC). Check the economic calendar for exact times.";
+  const riskNote = "Cap risk at 0.5%–1.0% per trade ($10 max risk per $1,000 balance) and secure 50% partials at 1:1.5 to 1:2 R:R.";
+
+  return (
+    '<div class="pac-team-council-grid">' +
+      '<div class="pac-council-desk-card">' +
+        '<div class="pac-council-desk-title"><span>🏦 ICT Structure AI</span><span>SMC-AI</span></div>' +
+        '<div>' + smcNote + '</div>' +
+      '</div>' +
+      '<div class="pac-council-desk-card">' +
+        '<div class="pac-council-desk-title"><span>🥇₿ Asset Desks (Gold &amp; BTC)</span><span>LIVE FEED</span></div>' +
+        '<div>' + goldCryptoNote + '</div>' +
+      '</div>' +
+      '<div class="pac-council-desk-card">' +
+        '<div class="pac-council-desk-title"><span>🌐 Macro Pulse AI</span><span>NEWS-AI</span></div>' +
+        '<div>' + macroNote + '</div>' +
+      '</div>' +
+      '<div class="pac-council-desk-card">' +
+        '<div class="pac-council-desk-title"><span>⚖️ Apex Risk &amp; Prop AI</span><span>RISK-AI</span></div>' +
+        '<div>' + riskNote + '</div>' +
+      '</div>' +
+    '</div>'
+  );
+}
+
+// ==========================================
+// 6. DYNAMIC RISK & MATH CALCULATOR
 // ==========================================
 function tryCalculateCustomRisk(userText) {
   const q = (userText || "").toLowerCase();
+
+  // Check if user is asking a pure arithmetic/math expression (e.g., "what is 250 * 1.5")
+  const mathMatch = userText.match(/(?:what is|calculate|math|solve)?\s*([\d]+(?:\.\d+)?)\s*([\+\-\*\/x])\s*([\d]+(?:\.\d+)?)/i);
+  if (mathMatch && q.indexOf("account") === -1 && q.indexOf("risk") === -1 && q.indexOf("lot") === -1) {
+    const a = parseFloat(mathMatch[1]);
+    const op = mathMatch[2].toLowerCase();
+    const b = parseFloat(mathMatch[3]);
+    let res = 0;
+    if (op === "+") res = a + b;
+    else if (op === "-") res = a - b;
+    else if (op === "*" || op === "x") res = a * b;
+    else if (op === "/" && b !== 0) res = a / b;
+
+    return {
+      html:
+        "<h4>🧮 Instant Math &amp; Quantitative Calculation</h4>" +
+        "<p>Result for <strong>" + a + " " + op + " " + b + "</strong> = <strong>" + (+res.toFixed(4)) + "</strong></p>" +
+        "<p>Need position sizing or R:R math? Tell our <strong>Apex Risk AI</strong> your account balance and risk % (for example: <em>\"Calculate lot size for a $2,500 account risking 1%\"</em>).</p>",
+      chips: [
+        "How do I size my position if my account is $1,000 and I risk 1% per trade?",
+        "Assemble the Full AI Analyst Team",
+        "Show live XAUUSD & BTCUSDT setups"
+      ]
+    };
+  }
+
   const isRiskQuery =
     q.indexOf("risk") !== -1 ||
-    q.indexOf("lot") !== -1 ||
+    hasWord(q, "lot") ||
     q.indexOf("size") !== -1 ||
     q.indexOf("account") !== -1 ||
     q.indexOf("balance") !== -1 ||
@@ -114,7 +386,6 @@ function tryCalculateCustomRisk(userText) {
 
   if (!isRiskQuery) return null;
 
-  // Extract account balance (e.g., $1,000 or 5000 or $500)
   let balance = 1000;
   const balMatch = userText.match(/\$\s*([\d,]+(?:\.\d+)?)|(?:account|balance|with|of)\s+(?:is\s+)?\$?([\d,]+(?:\.\d+)?)/i);
   if (balMatch) {
@@ -123,7 +394,6 @@ function tryCalculateCustomRisk(userText) {
     if (!isNaN(parsed) && parsed > 0) balance = parsed;
   }
 
-  // Extract risk percentage (e.g., 1%, 0.5%, 2%)
   let riskPct = 1;
   const pctMatch = userText.match(/(\d+(?:\.\d+)?)\s*%/);
   if (pctMatch) {
@@ -131,7 +401,6 @@ function tryCalculateCustomRisk(userText) {
     if (!isNaN(parsedPct) && parsedPct > 0 && parsedPct <= 100) riskPct = parsedPct;
   }
 
-  // Extract stop loss distance if provided (e.g., 20 pips, 10 points, $10 stop)
   let stopGoldDollars = 10;
   let stopForexPips = 25;
   const pipMatch = userText.match(/(\d+(?:\.\d+)?)\s*(?:pips|pip|points|point|dollar stop)/i);
@@ -144,34 +413,40 @@ function tryCalculateCustomRisk(userText) {
   }
 
   const dollarRisk = +(balance * (riskPct / 100)).toFixed(2);
-  // Gold (1.00 lot = $100 per $1 move -> 0.01 lot = $1 per $1 move)
   const goldLots = Math.max(0.01, +(dollarRisk / (stopGoldDollars * 100)).toFixed(2));
-  // Forex standard pair ($10/pip per 1.00 lot -> $0.10/pip per 0.01 lot)
   const forexLots = Math.max(0.01, +(dollarRisk / (stopForexPips * 10)).toFixed(2));
-  // BTCUSDT ($1,000 stop distance example)
   const btcUnits = +(dollarRisk / 750).toFixed(4);
 
   return {
     html:
-      "<h4>⚖️ Exact Position Sizing Calculation ($" + balance.toLocaleString() + " Account · " + riskPct + "% Risk)</h4>" +
+      "<h4>⚖️ Apex Risk AI — Exact Position Sizing ($" + balance.toLocaleString() + " Account · " + riskPct + "% Risk)</h4>" +
       "<p>With an account balance of <strong>$" + balance.toLocaleString() + "</strong> and a <strong>" + riskPct + "% risk rule</strong>, your maximum allowed loss per trade is <strong>$" + dollarRisk.toFixed(2) + "</strong>:</p>" +
       "<ul>" +
         "<li><strong>Step 1 — Dollar Risk Formula:</strong> $" + balance.toLocaleString() + " × " + (riskPct / 100) + " = <strong>$" + dollarRisk.toFixed(2) + " max risk</strong>.</li>" +
-        "<li><strong>🥇 XAUUSD (Gold) Lot Size:</strong> For a <strong>$" + stopGoldDollars.toFixed(1) + "</strong> price stop distance (" + (stopGoldDollars * 100) + " pips), open <strong>" + goldLots.toFixed(2) + " lots</strong> (1 micro lot 0.01 = $1.00 per $1.00 move in Gold).</li>" +
+        "<li><strong>🥇 XAUUSD (Gold) Lot Size:</strong> For a <strong>$" + stopGoldDollars.toFixed(1) + "</strong> price stop distance (" + (stopGoldDollars * 100) + " pips), open <strong>" + goldLots.toFixed(2) + " lots</strong> (0.01 micro lot = $1.00 per $1.00 move in Gold).</li>" +
         "<li><strong>💱 Forex Pairs (EURUSD / GBPUSD):</strong> For a <strong>" + stopForexPips + "-pip</strong> Stop Loss, open <strong>" + forexLots.toFixed(2) + " lots</strong>.</li>" +
         "<li><strong>₿ BTCUSDT Position Size:</strong> For a $750 Stop Loss distance on Bitcoin, size at <strong>" + btcUnits + " BTC</strong> (Total risk = $" + dollarRisk.toFixed(2) + ").</li>" +
-      "</ul>" +
-      "<p><em>Tip: You can ask me with any numbers — e.g. \"Calculate lot size for a $5,000 account risking 0.5% with a 30 pip stop\".</em></p>",
+      "</ul>",
     chips: [
       "Calculate lot size for a $5,000 account risking 0.5%",
-      "Show live XAUUSD & BTCUSDT setups",
-      "What is a good Risk-to-Reward ratio?"
+      "Explain Prop Firm drawdown rules (FTMO)",
+      "Show live XAUUSD & BTCUSDT setups"
     ]
   };
 }
 
+
+// Whole-word keyword test (avoids "eth" matching "method", "rsi" matching "version", etc.)
+function hasWord(q, w) {
+  return new RegExp("(^|[^a-z0-9])" + w + "([^a-z0-9]|$)").test(q);
+}
+
+function isTradingTopic(text) {
+  return /(^|[^a-z0-9])(trade|trading|trader|xau|xauusd|gold|btc|btcusdt|bitcoin|eth|crypto|forex|eurusd|gbpusd|usdjpy|nas100|us30|smc|ict|fvg|bos|choch|order block|liquidity|stop loss|take profit|lot size|pip|pips|leverage|prop firm|ftmo|dxy|cpi|nfp|fomc|candle|candlestick|support|resistance|silver bullet|killzone|signal|chart)([^a-z0-9]|$)/i.test(text || "");
+}
+
 // ==========================================
-// 4. DEEP LOCAL SMC / TRADING KNOWLEDGE ENGINE
+// 7. DEEP LOCAL SMC & MULTI-TEAM KNOWLEDGE ENGINE
 // ==========================================
 function buildSmartLocalResponse(userText, hasImage) {
   const q = (userText || "").trim().toLowerCase();
@@ -182,14 +457,14 @@ function buildSmartLocalResponse(userText, hasImage) {
     return {
       isMatched: true,
       html:
-        "<h4>📸 POR1.0 Chart Snap — Educational Structure &amp; Key Levels Read</h4>" +
-        "<p>I analyzed your uploaded chart screenshot for institutional market structure, liquidity pools, and Smart Money footprints:</p>" +
+        "<h4>📸 AI Analyst Team Chart Snap — Structure, Liquidity &amp; Execution Read</h4>" +
+        "<p>Our <strong>7-Agent AI Analyst Team</strong> inspected your uploaded chart screenshot for market structure, liquidity pools, and institutional footprints:</p>" +
         "<ul>" +
-          "<li><strong>Primary Market Structure:</strong> Price is trading near a high-confluence inflection zone showing prior Break of Structure (<strong>BOS</strong>) displacement and an unmitigated Fair Value Gap (<strong>FVG</strong>).</li>" +
-          "<li><strong>Liquidity Mapping:</strong> Resting Buy-Side Liquidity (<strong>BSL</strong>) sits above the recent swing high, while Sell-Side Liquidity (<strong>SSL</strong>) stops cluster below the prior session low.</li>" +
-          "<li><strong>Execution Plan:</strong> Wait for a liquidity sweep followed by a 5m/15m Change of Character (<strong>CHoCH</strong>) candle close. Place your Stop Loss beyond the invalidation swing extreme and target at least <strong>1:2 to 1:3 R:R</strong>.</li>" +
+          "<li><strong>🏦 SMC Structure Desk:</strong> Price is interacting with a high-confluence zone featuring prior Break of Structure (<strong>BOS</strong>) displacement and an unmitigated Fair Value Gap (<strong>FVG</strong>).</li>" +
+          "<li><strong>🥇₿ Liquidity Mapping Desk:</strong> Resting Buy-Side Liquidity (<strong>BSL</strong>) sits above the recent swing high, while Sell-Side Liquidity (<strong>SSL</strong>) clusters below the session low.</li>" +
+          "<li><strong>⚖️ Risk &amp; Execution Desk:</strong> Wait for a liquidity sweep + 5m/15m Change of Character (<strong>CHoCH</strong>) body close. Place your Stop Loss beyond the invalidation swing extreme and target <strong>1:2 to 1:3 R:R</strong>.</li>" +
         "</ul>" +
-        "<p>Compare with our live terminal reference: <strong>XAUUSD (" + snap.gold.signal + " @ " + snap.gold.entry + ")</strong> and <strong>BTCUSDT (" + snap.btc.signal + " @ " + snap.btc.entry + ")</strong>.</p>",
+        buildTeamCouncilBlock(userText),
       chips: [
         "Explain Break of Structure (BOS) vs CHoCH",
         "How do I spot a valid Order Block?",
@@ -198,19 +473,20 @@ function buildSmartLocalResponse(userText, hasImage) {
     };
   }
 
-  // 2. Aquamarine Command Center Card
-  if (q.indexOf("command center") !== -1 || q.indexOf("por ai chat") !== -1) {
+  // 2. Full AI Analyst Team Briefing / Command Center
+  if (q.indexOf("command center") !== -1 || q.indexOf("por ai chat") !== -1 || q.indexOf("assemble") !== -1 || q.indexOf("analyst team") !== -1 || q.indexOf("all team") !== -1) {
     return {
       isMatched: true,
       html:
-        "<h4>💎 Welcome to Por AI Chat — Live SMC/ICT Command Center</h4>" +
-        "<p>Your <strong>POR1.0</strong> mentor is connected to the live market engine and ready to answer any question you ask:</p>" +
+        "<h4>💎 Por AI Analyst Team — Live 7-Agent Institutional Briefing</h4>" +
+        "<p>All <strong>7 AI Analysts</strong> are online and synchronized with your live market feed. Here is our desk-by-desk consensus right now:</p>" +
         "<ul>" +
-          "<li><strong>🥇 Live XAUUSD Setup (" + snap.gold.signal + " · " + snap.gold.kpi.conf + "):</strong> Entry <strong>" + snap.gold.entry + "</strong> | Stop Loss: <strong>" + snap.gold.sl + "</strong> | TP1: <strong>" + snap.gold.tp1 + "</strong>.</li>" +
-          "<li><strong>₿ Live BTCUSDT Setup (" + snap.btc.signal + " · " + snap.btc.kpi.conf + "):</strong> Entry <strong>" + snap.btc.entry + "</strong> | Stop Loss: <strong>" + snap.btc.sl + "</strong> | TP1: <strong>" + snap.btc.tp1 + "</strong>.</li>" +
-          "<li><strong>◆ Live NAS100 Setup (" + snap.nas.signal + " · " + snap.nas.kpi.conf + "):</strong> Entry <strong>" + snap.nas.entry + "</strong> | Stop Loss: <strong>" + snap.nas.sl + "</strong> | TP1: <strong>" + snap.nas.tp1 + "</strong>.</li>" +
-          "<li><strong>💬 Ask Anything:</strong> Ask about any trading pair, SMC concept (Order Blocks, FVG, BOS/CHoCH), custom lot size math, indicators, or upload a chart screenshot!</li>" +
-        "</ul>",
+          "<li><strong>🥇 Aura Gold Desk (XAUUSD · " + snap.gold.signal + " · " + snap.gold.kpi.conf + "):</strong> Entry <strong>" + snap.gold.entry + "</strong> | Stop Loss: <strong>" + snap.gold.sl + "</strong> | TP1: <strong>" + snap.gold.tp1 + "</strong> | TP2: <strong>" + snap.gold.tp2 + "</strong>.</li>" +
+          "<li><strong>₿ Satoshi Quant Desk (BTCUSDT · " + snap.btc.signal + " · " + snap.btc.kpi.conf + "):</strong> Entry <strong>" + snap.btc.entry + "</strong> | Stop Loss: <strong>" + snap.btc.sl + "</strong> | TP1: <strong>" + snap.btc.tp1 + "</strong>.</li>" +
+          "<li><strong>◆ US Indices Desk (NAS100 · " + snap.nas.signal + " · " + snap.nas.kpi.conf + "):</strong> Entry <strong>" + snap.nas.entry + "</strong> | Stop Loss: <strong>" + snap.nas.sl + "</strong> | TP1: <strong>" + snap.nas.tp1 + "</strong>.</li>" +
+          "<li><strong>💱 Forex Desk (EURUSD · " + snap.eur.signal + " · " + snap.eur.kpi.conf + "):</strong> Entry <strong>" + snap.eur.entry + "</strong> | Stop Loss: <strong>" + snap.eur.sl + "</strong> | TP1: <strong>" + snap.eur.tp1 + "</strong>.</li>" +
+        "</ul>" +
+        buildTeamCouncilBlock(userText),
       chips: [
         "Give me the full XAUUSD SMC trade plan",
         "Give me the full BTCUSDT trade plan",
@@ -224,24 +500,64 @@ function buildSmartLocalResponse(userText, hasImage) {
     return {
       isMatched: true,
       html:
-        "<h4>👋 Hello! I'm POR1.0 — Your 24/7 AI Trading Mentor</h4>" +
-        "<p>You can ask me <strong>any question</strong> in plain language, and I will give you a clear, actionable answer:</p>" +
+        "<h4>👋 Hello! We Are the Por AI Analyst Team (POR1.0 · 7 Agents)</h4>" +
+        "<p>Ask us <strong>any question</strong> in English, Khmer, or any language — our specialist desks reply to everything:</p>" +
         "<ul>" +
-          "<li><strong>Live Setups &amp; Levels:</strong> Ask about <strong>XAUUSD (Gold)</strong>, <strong>BTCUSDT</strong>, <strong>NAS100</strong>, <strong>EURUSD</strong>, or any market.</li>" +
-          "<li><strong>Smart Money Concepts (SMC / ICT):</strong> Ask me to explain Order Blocks, Fair Value Gaps (FVG), BOS vs. CHoCH, Liquidity Sweeps, or Killzones.</li>" +
-          "<li><strong>Custom Risk Calculator:</strong> Tell me your account size and risk % (e.g., <em>\"$2,500 account risking 1%\"</em>) for instant lot-size math.</li>" +
-          "<li><strong>Chart Snap:</strong> Click the photo icon in the input bar to upload any chart screenshot for a structure breakdown.</li>" +
+          "<li><strong>👑 Por ICT Lead:</strong> Universal trading mentor, coding/PineScript helper, and general Q&amp;A assistant.</li>" +
+          "<li><strong>🥇 Aura Gold &amp; ₿ Satoshi Quant:</strong> Live XAUUSD, BTCUSDT, ETH, Forex &amp; Index trade plans.</li>" +
+          "<li><strong>🏦 ICT Structure &amp; 🌐 Macro Pulse:</strong> Order Blocks, FVGs, BOS/CHoCH, Silver Bullet, and CPI/NFP/FOMC news analysis.</li>" +
+          "<li><strong>⚖️ Apex Risk AI:</strong> Instant lot-size calculator and Prop-Firm drawdown protection.</li>" +
         "</ul>",
       chips: [
+        "Assemble the Full AI Analyst Team",
         "What is the current market regime and what should I focus on today?",
-        "Explain Order Blocks and Fair Value Gaps (FVG)",
         "How do I size my position if my account is $1,000 and I risk 1% per trade?"
       ]
     };
   }
 
-  // 4. Dynamic Risk & Lot Size Calculator
-  if (q.indexOf("risk") !== -1 || q.indexOf("lot") !== -1 || q.indexOf("position size") !== -1 || q.indexOf("size my position") !== -1 || q.indexOf("1,000") !== -1) {
+  // 4. Prop Firm / FTMO / Funded Account Rules
+  if (hasWord(q, "prop") || q.indexOf("ftmo") !== -1 || q.indexOf("funded") !== -1 || q.indexOf("drawdown") !== -1 || q.indexOf("challenge") !== -1) {
+    return {
+      isMatched: true,
+      html:
+        "<h4>🏆 Apex Risk AI — How to Pass &amp; Keep a Prop-Firm Funded Account</h4>" +
+        "<p>Most prop-firm challenges have a <strong>5% Maximum Daily Drawdown</strong> and a <strong>10% Maximum Overall Drawdown</strong>. Here is the exact math to never blow your funded account:</p>" +
+        "<ul>" +
+          "<li><strong>Risk 0.25% to 0.50% Per Trade:</strong> At 0.5% risk, it takes <strong>10 consecutive losses in a single day</strong> to breach the 5% daily limit—giving you massive survival breathing room.</li>" +
+          "<li><strong>Daily Loss Circuit Breaker:</strong> Stop trading for the day if you lose <strong>2 trades in a row (-1% total)</strong>.</li>" +
+          "<li><strong>One A+ Setup Per Session:</strong> Focus only on London Open or NY Silver Bullet setups with 1:2.5+ R:R. Three winning trades at 1:3 R:R (+4.5%) puts you more than halfway to passing Phase 1!</li>" +
+        "</ul>",
+      chips: [
+        "Calculate lot size for a $10,000 account risking 0.5%",
+        "How do I build a daily pre-trade checklist?",
+        "Give me the full XAUUSD SMC trade plan"
+      ]
+    };
+  }
+
+  // 5. Macro News / CPI / NFP / FOMC / DXY
+  if (hasWord(q, "cpi") || hasWord(q, "nfp") || q.indexOf("fomc") !== -1 || q.indexOf("powell") !== -1 || q.indexOf("news") !== -1 || hasWord(q, "dxy") || q.indexOf("inflation") !== -1 || hasWord(q, "fed")) {
+    return {
+      isMatched: true,
+      html:
+        "<h4>🌐 Macro Pulse AI — Trading CPI, NFP, FOMC &amp; DXY Correlations</h4>" +
+        "<p>High-impact red-folder USD economic releases drive institutional liquidity injections:</p>" +
+        "<ul>" +
+          "<li><strong>DXY (US Dollar Index) Inverse Rule:</strong> When <strong>DXY surges bullish</strong> (stronger USD / higher yields), <strong>XAUUSD, EURUSD, GBPUSD, and BTCUSDT</strong> typically face bearish pressure. When DXY drops, Gold and risk assets rally.</li>" +
+          "<li><strong>The 15-Minute News Rule:</strong> Never hold a tight stop loss 5 minutes before <strong>CPI, NFP, or FOMC</strong>. Spreads widen and algorithms whip both sides of liquidity (Judas Swing).</li>" +
+          "<li><strong>Post-News SMC Entry:</strong> Wait <strong>15 to 30 minutes after the news release</strong>. Let the initial spike sweep resting highs/lows, then trade the 5m CHoCH + Fair Value Gap retracement once spreads normalize.</li>" +
+        "</ul>",
+      chips: [
+        "Give me the full XAUUSD SMC trade plan",
+        "Give me the full BTCUSDT trade plan",
+        "How do I avoid fake breakouts?"
+      ]
+    };
+  }
+
+  // 6. Dynamic Risk & Lot Size Calculator
+  if (q.indexOf("risk") !== -1 || hasWord(q, "lot") || q.indexOf("position size") !== -1 || q.indexOf("size my position") !== -1 || q.indexOf("1,000") !== -1 || q.indexOf("calculate") !== -1) {
     if (q.indexOf("reward") !== -1 || q.indexOf("r:r") !== -1 || q.indexOf("ratio") !== -1) {
       return {
         isMatched: true,
@@ -249,9 +565,9 @@ function buildSmartLocalResponse(userText, hasImage) {
           "<h4>🎯 Risk-to-Reward Ratio (R:R) — How Profitable Traders Stay Ahead</h4>" +
           "<p><strong>Risk-to-Reward (R:R)</strong> compares how much money you risk on a trade to how much profit you target:</p>" +
           "<ul>" +
-            "<li><strong>1:2 R:R Example:</strong> Risking <strong>$10</strong> to make <strong>$20</strong>. Even if you only win <strong>40%</strong> of your trades, you still grow your account (+$80 won vs. -$60 lost over 10 trades = <strong>+$20 net profit</strong>).</li>" +
-            "<li><strong>1:3 R:R (SMC Standard):</strong> Risking <strong>$10</strong> to make <strong>$30</strong>. You only need a <strong>30% win rate</strong> to be profitable!</li>" +
-            "<li><strong>Golden Rule:</strong> Never take a trade with less than <strong>1:1.5 R:R</strong>. Always measure distance to the next opposing liquidity pool before entering.</li>" +
+            "<li><strong>1:2 R:R Example:</strong> Risking <strong>$10</strong> to make <strong>$20</strong>. Even with a <strong>40% win rate</strong>, you grow your account (+$80 won vs. -$60 lost over 10 trades = <strong>+$20 net profit</strong>).</li>" +
+            "<li><strong>1:3 R:R (SMC Standard):</strong> Risking <strong>$10</strong> to make <strong>$30</strong>. You only need a <strong>30% win rate</strong> to be consistently profitable!</li>" +
+            "<li><strong>Golden Rule:</strong> Never take a trade with less than <strong>1:1.5 R:R</strong>.</li>" +
           "</ul>",
         chips: [
           "How do I size my position if my account is $1,000 and I risk 1% per trade?",
@@ -266,18 +582,47 @@ function buildSmartLocalResponse(userText, hasImage) {
     }
   }
 
-  // 5. Specific XAUUSD (Gold) Trade Plan
-  if (q.indexOf("xauusd") !== -1 || q.indexOf("gold") !== -1 || q.indexOf("xau") !== -1) {
+  // 6b. Price prediction / forecast questions (honest scenario answer — nobody can predict price)
+  if (/(^|[^a-z0-9])(predict|prediction|forecast|tomorrow|tmr|tmrw|next week|will .* (go|reach|hit)|up or down)([^a-z0-9]|$)/.test(q)) {
+    let asset = snap.gold, label = "XAUUSD (Gold)";
+    if (hasWord(q, "btc") || q.indexOf("bitcoin") !== -1 || q.indexOf("crypto") !== -1) { asset = snap.btc; label = "BTCUSDT"; }
+    else if (q.indexOf("nas") !== -1) { asset = snap.nas; label = "NAS100"; }
+    else if (q.indexOf("eur") !== -1) { asset = snap.eur; label = "EURUSD"; }
+    const feedIsLive = Array.isArray(window.WATCHLIST_DB) && window.WATCHLIST_DB.length > 0;
+    const bull = asset.signal === "BUY";
     return {
       isMatched: true,
       html:
-        "<h4>🥇 XAUUSD (Gold) — Live SMC Trade Plan &amp; Key Levels</h4>" +
+        "<h4>🔮 " + label + " — Scenario Outlook (not a prediction)</h4>" +
+        "<p>Nobody can reliably predict tomorrow's price. What we can do is prepare <strong>if/then scenarios</strong> around key levels. " +
+        (feedIsLive ? "Levels below come from your terminal feed." : "<strong>Note:</strong> your live terminal feed is not loaded here, so these levels are <em>sample values</em> — check your real chart before using them.") + "</p>" +
+        "<ul>" +
+          "<li><strong>" + (bull ? "Bullish" : "Bearish") + " scenario (current bias " + asset.signal + "):</strong> valid while price holds " + (bull ? "above" : "below") + " <strong>" + asset.sl + "</strong>; first target <strong>" + asset.tp1 + "</strong>, extended <strong>" + asset.tp2 + "</strong>.</li>" +
+          "<li><strong>Invalidation:</strong> a candle <em>body close</em> through <strong>" + asset.sl + "</strong> cancels the idea — then bias flips or you stay flat.</li>" +
+          "<li><strong>Tomorrow's catalysts:</strong> check the economic calendar (CPI/NFP/FOMC, USD data) and the London / NY open — most moves start in those windows.</li>" +
+          "<li><strong>Plan:</strong> mark yesterday's high/low and the Asian range, wait for a liquidity sweep + CHoCH, risk max 0.5–1% per trade.</li>" +
+        "</ul>" +
+        "<p><em>Educational analysis, not financial advice.</em> For a real conversational forecast discussion, connect the live AI (API key).</p>",
+      chips: [
+        "Explain Break of Structure (BOS) vs CHoCH",
+        "How do I build a daily pre-trade checklist?",
+        "How do I size my position if my account is $1,000 and I risk 1% per trade?"
+      ]
+    };
+  }
+
+  // 7. Specific XAUUSD (Gold) Trade Plan
+  if (q.indexOf("xauusd") !== -1 || q.indexOf("gold") !== -1 || hasWord(q, "xau")) {
+    return {
+      isMatched: true,
+      html:
+        "<h4>🥇 Aura Gold AI — XAUUSD Live SMC Trade Plan &amp; Key Levels</h4>" +
         "<p>Current live feed bias for <strong>XAUUSD</strong> is <strong>" + snap.gold.signal + " (" + snap.gold.kpi.conf + " confidence)</strong>:</p>" +
         "<ul>" +
           "<li><strong>Actionable Entry Zone:</strong> <strong>" + snap.gold.entry + "</strong> (wait for M15/M30 order block mitigation &amp; rejection wick).</li>" +
           "<li><strong>Invalidation / Stop Loss (SL):</strong> <strong>" + snap.gold.sl + "</strong> (placed safely beyond the structure swing point).</li>" +
-          "<li><strong>Take Profit Targets:</strong> TP1 at <strong>" + snap.gold.tp1 + "</strong> (secure 50% partials &amp; move SL to breakeven) · Extended target near <strong>4,202.00</strong>.</li>" +
-          "<li><strong>Session Timing:</strong> Highest probability displacement occurs during the <strong>London Open (07:00–10:00 UTC)</strong> and <strong>NY Open / Silver Bullet (13:00–15:00 UTC)</strong>.</li>" +
+          "<li><strong>Take Profit Targets:</strong> TP1 at <strong>" + snap.gold.tp1 + "</strong> (secure 50% partials &amp; move SL to breakeven) · Extended target near <strong>" + snap.gold.tp2 + "</strong>.</li>" +
+          "<li><strong>Session Timing:</strong> Peak institutional displacement occurs during <strong>London Open (07:00–10:00 UTC)</strong> and <strong>NY Silver Bullet (14:00–15:00 UTC)</strong>.</li>" +
         "</ul>",
       chips: [
         "Calculate lot size for XAUUSD on a $1,000 account",
@@ -287,18 +632,18 @@ function buildSmartLocalResponse(userText, hasImage) {
     };
   }
 
-  // 6. Specific BTCUSDT (Bitcoin / Crypto) Trade Plan
-  if (q.indexOf("btcusdt") !== -1 || q.indexOf("bitcoin") !== -1 || q.indexOf("btc") !== -1 || q.indexOf("crypto") !== -1) {
+  // 8. Specific BTCUSDT / Crypto Trade Plan
+  if (q.indexOf("btcusdt") !== -1 || q.indexOf("bitcoin") !== -1 || hasWord(q, "btc") || q.indexOf("crypto") !== -1 || hasWord(q, "eth") || q.indexOf("solana") !== -1) {
     return {
       isMatched: true,
       html:
-        "<h4>₿ BTCUSDT (Bitcoin) — Live SMC Trade Plan &amp; Liquidity Map</h4>" +
+        "<h4>₿ Satoshi Quant AI — BTCUSDT &amp; Crypto Liquidity Trade Plan</h4>" +
         "<p>Current live feed bias for <strong>BTCUSDT</strong> is <strong>" + snap.btc.signal + " (" + snap.btc.kpi.conf + " confidence)</strong>:</p>" +
         "<ul>" +
           "<li><strong>Actionable Entry Zone:</strong> <strong>" + snap.btc.entry + "</strong> (watching institutional supply &amp; Fair Value Gap reaction).</li>" +
           "<li><strong>Invalidation / Stop Loss (SL):</strong> <strong>" + snap.btc.sl + "</strong> (above the recent liquidity sweep high).</li>" +
           "<li><strong>Take Profit Targets:</strong> TP1 at <strong>" + snap.btc.tp1 + "</strong> · Secondary liquidity draw near <strong>79,500.00</strong>.</li>" +
-          "<li><strong>Execution Note:</strong> Bitcoin frequently sweeps equal highs/lows before reversing—always wait for a 15m candle body close (CHoCH) before pulling the trigger.</li>" +
+          "<li><strong>Quant Execution Note:</strong> Crypto frequently sweeps equal highs/lows to liquidate over-leveraged perpetual futures before reversing—always wait for a 15m candle body close (CHoCH).</li>" +
         "</ul>",
       chips: [
         "Give me the full XAUUSD SMC trade plan",
@@ -308,18 +653,38 @@ function buildSmartLocalResponse(userText, hasImage) {
     };
   }
 
-  // 7. Order Blocks (OB) & Fair Value Gaps (FVG)
-  if (q.indexOf("order block") !== -1 || q.indexOf("fvg") !== -1 || q.indexOf("fair value gap") !== -1 || q.indexOf("imbalance") !== -1) {
+  // 9. Forex / Indices (EURUSD, GBPUSD, USDJPY, NAS100, US30)
+  if (q.indexOf("eurusd") !== -1 || q.indexOf("gbpusd") !== -1 || q.indexOf("usdjpy") !== -1 || q.indexOf("nas100") !== -1 || q.indexOf("nasdaq") !== -1 || q.indexOf("us30") !== -1 || q.indexOf("forex") !== -1) {
     return {
       isMatched: true,
       html:
-        "<h4>🏦 SMC Order Blocks (OB) &amp; Fair Value Gaps (FVG) Explained</h4>" +
-        "<p>Institutions cannot enter massive positions all at once without slipping price. They leave footprints on the chart called <strong>Order Blocks</strong> and <strong>FVGs</strong>:</p>" +
+        "<h4>📊 Multi-Asset Desk — NAS100 &amp; Major Forex Setups</h4>" +
+        "<p>Here are the active institutional structure levels for US Indices and Major Forex pairs:</p>" +
         "<ul>" +
-          "<li><strong>Bullish Order Block:</strong> The last <em>bearish (red) candle</em> prior to an explosive bullish move that breaks structure (BOS). When price pulls back into this candle's zone, institutional buy limit orders defend it.</li>" +
+          "<li><strong>◆ NAS100 (Nasdaq 100) — " + snap.nas.signal + " (" + snap.nas.kpi.conf + "):</strong> Entry <strong>" + snap.nas.entry + "</strong> | SL: <strong>" + snap.nas.sl + "</strong> | TP1: <strong>" + snap.nas.tp1 + "</strong> (Best traded during the 09:30–11:00 AM EST NY Equities Open).</li>" +
+          "<li><strong>💱 EURUSD — " + snap.eur.signal + " (" + snap.eur.kpi.conf + "):</strong> Entry <strong>" + snap.eur.entry + "</strong> | SL: <strong>" + snap.eur.sl + "</strong> | TP1: <strong>" + snap.eur.tp1 + "</strong> (Watch London session liquidity sweeps of the Asian range).</li>" +
+          "<li><strong>Execution Rule:</strong> Align EURUSD/GBPUSD with inverse DXY structure, and wait for a 5m Fair Value Gap entry after session liquidity is swept.</li>" +
+        "</ul>",
+      chips: [
+        "Give me the full XAUUSD SMC trade plan",
+        "Give me the full BTCUSDT trade plan",
+        "How do I trade the NY Silver Bullet session?"
+      ]
+    };
+  }
+
+  // 10. Order Blocks (OB) & Fair Value Gaps (FVG)
+  if (q.indexOf("order block") !== -1 || hasWord(q, "fvg") || q.indexOf("fair value gap") !== -1 || q.indexOf("imbalance") !== -1) {
+    return {
+      isMatched: true,
+      html:
+        "<h4>🏦 ICT Structure AI — Order Blocks (OB) &amp; Fair Value Gaps (FVG)</h4>" +
+        "<p>Institutions leave clear footprints on the chart called <strong>Order Blocks</strong> and <strong>FVGs</strong>:</p>" +
+        "<ul>" +
+          "<li><strong>Bullish Order Block:</strong> The last <em>bearish (red) candle</em> prior to an explosive bullish impulse that breaks structure (BOS). When price returns to this candle, institutional buy limit orders defend it.</li>" +
           "<li><strong>Bearish Order Block:</strong> The last <em>bullish (green) candle</em> before an aggressive drop that breaks structure downward.</li>" +
-          "<li><strong>Fair Value Gap (FVG):</strong> A 3-candle pattern where Candle 2 is so large that there is an open gap between <strong>Candle 1's High</strong> and <strong>Candle 3's Low</strong>. Price acts like a magnet to refill this 50% equilibrium (Consequent Encroachment) before continuing the trend.</li>" +
-          "<li><strong>A+ Setup Rule:</strong> An Order Block that has an unmitigated FVG sitting directly in front of it after a liquidity sweep is the highest-probability SMC entry.</li>" +
+          "<li><strong>Fair Value Gap (FVG):</strong> A 3-candle imbalance where Candle 2 is so large that there is an open gap between <strong>Candle 1's High</strong> and <strong>Candle 3's Low</strong>. Price acts like a magnet to refill the 50% equilibrium (Consequent Encroachment) before continuing.</li>" +
+          "<li><strong>A+ Setup Rule:</strong> Only trade Order Blocks that have an unmitigated FVG directly in front of them after a liquidity sweep!</li>" +
         "</ul>",
       chips: [
         "Explain Break of Structure (BOS) vs CHoCH",
@@ -329,17 +694,17 @@ function buildSmartLocalResponse(userText, hasImage) {
     };
   }
 
-  // 8. BOS vs CHoCH (Market Structure Shifts)
-  if (q.indexOf("bos") !== -1 || q.indexOf("choch") !== -1 || q.indexOf("break of structure") !== -1 || q.indexOf("change of character") !== -1 || q.indexOf("mss") !== -1) {
+  // 11. BOS vs CHoCH (Market Structure Shifts)
+  if (hasWord(q, "bos") || q.indexOf("choch") !== -1 || q.indexOf("break of structure") !== -1 || q.indexOf("change of character") !== -1 || hasWord(q, "mss")) {
     return {
       isMatched: true,
       html:
-        "<h4>🔄 Break of Structure (BOS) vs. Change of Character (CHoCH)</h4>" +
-        "<p>Understanding the difference between <strong>BOS</strong> and <strong>CHoCH</strong> tells you whether a trend is continuing or reversing:</p>" +
+        "<h4>🔄 ICT Structure AI — Break of Structure (BOS) vs. Change of Character (CHoCH)</h4>" +
+        "<p>Knowing the difference between <strong>BOS</strong> and <strong>CHoCH</strong> tells you whether a trend is continuing or reversing:</p>" +
         "<ul>" +
-          "<li><strong>BOS (Break of Structure — Trend Continuation):</strong> In an uptrend (Higher Highs &amp; Higher Lows), when price breaks and closes above the previous Higher High, that is a bullish <strong>BOS</strong>. It confirms the trend is still strong.</li>" +
-          "<li><strong>CHoCH (Change of Character — Trend Reversal):</strong> In an uptrend, if sellers suddenly push price down and <em>close below the most recent Higher Low</em>, that first break against the trend is a <strong>CHoCH</strong>. It warns that control has shifted from buyers to sellers.</li>" +
-          "<li><strong>Pro Tip:</strong> Wait for a <strong>body close</strong> (not just a wick!) to confirm a true BOS or CHoCH—a wick-only break is usually a Liquidity Sweep!</li>" +
+          "<li><strong>BOS (Break of Structure — Trend Continuation):</strong> In an uptrend (Higher Highs &amp; Higher Lows), when price closes above the previous Higher High, that is a bullish <strong>BOS</strong>.</li>" +
+          "<li><strong>CHoCH (Change of Character — Trend Reversal):</strong> In an uptrend, when sellers push price down and <em>close below the most recent Higher Low</em>, that first break against the trend is a <strong>CHoCH</strong>.</li>" +
+          "<li><strong>Pro Tip:</strong> Always demand a <strong>candle body close</strong> (not just a wick!) to confirm a true BOS or CHoCH.</li>" +
         "</ul>",
       chips: [
         "How do I avoid fake breakouts?",
@@ -349,23 +714,17 @@ function buildSmartLocalResponse(userText, hasImage) {
     };
   }
 
-  // 9. Silver Bullet / Killzones / Best Time to Trade
+  // 12. Silver Bullet / Killzones / Best Time to Trade
   if (q.indexOf("silver bullet") !== -1 || q.indexOf("killzone") !== -1 || q.indexOf("session") !== -1 || q.indexOf("best time") !== -1) {
     return {
       isMatched: true,
       html:
         "<h4>⏱️ ICT Killzones &amp; The NY Silver Bullet Strategy</h4>" +
-        "<p>Timing is just as important as price. Smart Money executes predominantly during specific 1–2 hour windows:</p>" +
+        "<p>Smart Money executes predominantly during specific high-liquidity windows:</p>" +
         "<ul>" +
-          "<li><strong>London Open Killzone:</strong> <strong>02:00 – 05:00 AM EST</strong> (14:00 – 17:00 Phnom Penh time). Great for EURUSD, GBPUSD, and XAUUSD session highs/lows.</li>" +
-          "<li><strong>New York Open Killzone:</strong> <strong>07:00 – 10:00 AM EST</strong> (19:00 – 22:00 Phnom Penh time). Peak volatility for XAUUSD, NAS100, and US30.</li>" +
-          "<li><strong>The ICT Silver Bullet (10:00 – 11:00 AM EST / 22:00 – 23:00 ICT):</strong>" +
-            "<ol>" +
-              "<li>Mark the highs and lows formed before 10:00 AM EST.</li>" +
-              "<li>Wait for price to sweep one side of liquidity during the 10–11 AM window.</li>" +
-              "<li>Drop to the <strong>5m or 1m chart</strong>, wait for a displacement candle that creates a <strong>Fair Value Gap (FVG)</strong>, and enter on the FVG retest targeting opposing liquidity.</li>" +
-            "</ol>" +
-          "</li>" +
+          "<li><strong>London Open Killzone:</strong> <strong>02:00 – 05:00 AM EST</strong> (14:00 – 17:00 Phnom Penh time). Ideal for EURUSD, GBPUSD, and XAUUSD session sweeps.</li>" +
+          "<li><strong>New York Open Killzone:</strong> <strong>07:00 – 10:00 AM EST</strong> (19:00 – 22:00 Phnom Penh time). Peak displacement for XAUUSD, NAS100, and BTCUSDT.</li>" +
+          "<li><strong>The ICT Silver Bullet (10:00 – 11:00 AM EST / 22:00 – 23:00 ICT):</strong> Wait for price to sweep a pre-10 AM high/low, then enter on the first 5m/1m Fair Value Gap (FVG) targeting opposing liquidity.</li>" +
         "</ul>",
       chips: [
         "Give me the full XAUUSD SMC trade plan",
@@ -375,17 +734,17 @@ function buildSmartLocalResponse(userText, hasImage) {
     };
   }
 
-  // 10. Fake Breakouts / Liquidity Sweeps
+  // 13. Fake Breakouts / Liquidity Sweeps
   if (q.indexOf("fake breakout") !== -1 || q.indexOf("fakeout") !== -1 || q.indexOf("liquidity") !== -1 || q.indexOf("sweep") !== -1 || q.indexOf("stop hunt") !== -1) {
     return {
       isMatched: true,
       html:
         "<h4>🪤 How to Spot Liquidity Sweeps &amp; Avoid Fake Breakouts</h4>" +
-        "<p>Retail traders are taught to buy as soon as price breaks resistance—which is why institutions engineer <strong>Liquidity Sweeps (Fake Breakouts)</strong> right at those levels:</p>" +
+        "<p>Institutions engineer <strong>Liquidity Sweeps (Fake Breakouts)</strong> right above resistance and below support:</p>" +
         "<ul>" +
-          "<li><strong>Why Fakeouts Happen:</strong> Above equal highs (Resistance) sit thousands of retail Buy Stop orders and short Stop Losses. Smart Money pushes price just above the level to trigger those orders and fill their own massive sell positions.</li>" +
-          "<li><strong>Wick vs. Body Rule:</strong> If a candle pierces above resistance with a long wick but <strong>closes back inside the range</strong>, it is a Liquidity Sweep (Turtle Soup)—do NOT buy the breakout!</li>" +
-          "<li><strong>How to Trade Breakout Safely:</strong> Never buy the initial breakout candle. Wait for a full 15m/1H <strong>candle body close</strong> beyond the level, followed by a calm pullback to retest the broken level or its Fair Value Gap.</li>" +
+          "<li><strong>Why Fakeouts Happen:</strong> Above equal highs sit thousands of retail Buy Stops and short Stop Losses. Smart Money pushes price just above the level to grab that liquidity before reversing.</li>" +
+          "<li><strong>Wick vs. Body Rule:</strong> If a candle pierces above resistance with a long wick but <strong>closes back inside the range</strong>, it is a Liquidity Sweep—do NOT buy the breakout!</li>" +
+          "<li><strong>Safe Execution:</strong> Wait for a full 15m/1H <strong>candle body close</strong> beyond the level, followed by a pullback into the newly formed Fair Value Gap.</li>" +
         "</ul>",
       chips: [
         "Explain Break of Structure (BOS) vs CHoCH",
@@ -395,17 +754,17 @@ function buildSmartLocalResponse(userText, hasImage) {
     };
   }
 
-  // 11. Beginner Roadmap
+  // 14. Beginner Roadmap
   if (q.indexOf("beginner") !== -1 || q.indexOf("teach me") !== -1 || q.indexOf("first things") !== -1) {
     return {
       isMatched: true,
       html:
         "<h4>⭐ Welcome to Por AI — Your Step-by-Step Trading Foundation</h4>" +
-        "<p>Here are the <strong>4 core pillars</strong> every disciplined trader masters first:</p>" +
+        "<p>Here are the <strong>4 core pillars</strong> our AI Analyst Team teaches every trader first:</p>" +
         "<ol>" +
-          "<li><strong>Market Structure (The Map):</strong> Markets move in Uptrends (Higher Highs + Higher Lows), Downtrends (Lower Highs + Lower Lows), or Ranges. Never trade against the dominant structure.</li>" +
-          "<li><strong>Key Levels (Where to Act):</strong> Identify <strong>Support / Order Blocks</strong> (demand floors where buyers step in) and <strong>Resistance / Supply</strong> (ceilings where sellers defend).</li>" +
-          "<li><strong>Risk Management (Survival First):</strong> Never risk more than <strong>1% to 2%</strong> of your account on a single trade. Always use a hard Stop Loss (SL).</li>" +
+          "<li><strong>Market Structure (The Map):</strong> Markets move in Uptrends (Higher Highs + Higher Lows), Downtrends (Lower Highs + Lower Lows), or Ranges.</li>" +
+          "<li><strong>Key Levels (Where to Act):</strong> Identify <strong>Support / Order Blocks</strong> (demand floors) and <strong>Resistance / Supply</strong> (ceilings).</li>" +
+          "<li><strong>Risk Management (Survival First):</strong> Never risk more than <strong>1%</strong> of your account on a single trade. Always use a hard Stop Loss (SL).</li>" +
           "<li><strong>Risk-to-Reward (R:R):</strong> Aim for setups where your Take Profit (TP) is at least <strong>2× larger</strong> than your Stop Loss (1:2 R:R).</li>" +
         "</ol>",
       chips: [
@@ -416,7 +775,7 @@ function buildSmartLocalResponse(userText, hasImage) {
     };
   }
 
-  // 12. Support & Resistance
+  // 15. Support & Resistance
   if (q.indexOf("support") !== -1 || q.indexOf("resistance") !== -1) {
     return {
       isMatched: true,
@@ -424,9 +783,9 @@ function buildSmartLocalResponse(userText, hasImage) {
         "<h4>📊 Support &amp; Resistance — The Floor and Ceiling of Price</h4>" +
         "<p>Think of price like a <strong>bouncing ball inside a multi-story house</strong>:</p>" +
         "<ul>" +
-          "<li><strong>Support (The Floor):</strong> A price zone where buyers consistently step in because they consider the asset discounted. Just like a floor stops a ball from falling further, support halts drops and bounces price upward.</li>" +
-          "<li><strong>Resistance (The Ceiling):</strong> A price zone where sellers take profit or open shorts because price looks expensive. Like a ceiling, it rejects price back down.</li>" +
-          "<li><strong>The Role Reversal Rule:</strong> When price smashes decisively <em>through</em> a ceiling (Resistance), that old ceiling becomes the new floor (Support) on the next pullback!</li>" +
+          "<li><strong>Support (The Floor):</strong> A price zone where buyers consistently step in because the asset is discounted.</li>" +
+          "<li><strong>Resistance (The Ceiling):</strong> A price zone where sellers take profit or open shorts because price is at a premium.</li>" +
+          "<li><strong>The Role Reversal Rule:</strong> When price breaks decisively <em>through</em> a ceiling (Resistance), that old ceiling becomes the new floor (Support) on the next pullback!</li>" +
         "</ul>",
       chips: [
         "Explain Order Blocks and Fair Value Gaps (FVG)",
@@ -436,19 +795,19 @@ function buildSmartLocalResponse(userText, hasImage) {
     };
   }
 
-  // 13. Market Regime / Today's Outlook
+  // 16. Market Regime / Today's Outlook
   if (q.indexOf("regime") !== -1 || q.indexOf("outlook") !== -1 || q.indexOf("focus on today") !== -1) {
     return {
       isMatched: true,
       html:
-        "<h4>🧭 POR1.0 Live Market Regime &amp; Multi-Asset Focus</h4>" +
+        "<h4>🧭 AI Analyst Team — Live Market Regime &amp; Multi-Asset Focus</h4>" +
         "<p>Current macro conditions show <strong>High Volatility</strong> with institutional order flow across Metals, Crypto, and US Indices:</p>" +
         "<ul>" +
-          "<li><strong>🥇 XAUUSD (Gold) — " + snap.gold.signal + " (" + snap.gold.kpi.conf + " conf):</strong> Holding bullish structure near <strong>" + snap.gold.entry + "</strong> | SL: <strong>" + snap.gold.sl + "</strong> | TP1: <strong>" + snap.gold.tp1 + "</strong>.</li>" +
+          "<li><strong>🥇 XAUUSD (Gold) — " + snap.gold.signal + " (" + snap.gold.kpi.conf + " conf):</strong> Holding structure near <strong>" + snap.gold.entry + "</strong> | SL: <strong>" + snap.gold.sl + "</strong> | TP1: <strong>" + snap.gold.tp1 + "</strong>.</li>" +
           "<li><strong>₿ BTCUSDT (Bitcoin) — " + snap.btc.signal + " (" + snap.btc.kpi.conf + " conf):</strong> Watching supply around <strong>" + snap.btc.entry + "</strong> | SL: <strong>" + snap.btc.sl + "</strong> | TP1: <strong>" + snap.btc.tp1 + "</strong>.</li>" +
-          "<li><strong>◆ NAS100 (Nasdaq) — " + snap.nas.signal + " (" + snap.nas.kpi.conf + " conf):</strong> NY Silver Bullet momentum near <strong>" + snap.nas.entry + "</strong> | TP1: <strong>" + snap.nas.tp1 + "</strong>.</li>" +
+          "<li><strong>◆ NAS100 (Nasdaq) — " + snap.nas.signal + " (" + snap.nas.kpi.conf + " conf):</strong> Momentum near <strong>" + snap.nas.entry + "</strong> | TP1: <strong>" + snap.nas.tp1 + "</strong>.</li>" +
         "</ul>" +
-        "<p>Focus on waiting for M15/M30 Fair Value Gap retests rather than chasing extended candles.</p>",
+        buildTeamCouncilBlock(userText),
       chips: [
         "Give me the full XAUUSD SMC trade plan",
         "Give me the full BTCUSDT trade plan",
@@ -457,19 +816,18 @@ function buildSmartLocalResponse(userText, hasImage) {
     };
   }
 
-  // 14. Trading Mistakes / Psychology / Checklist
+  // 17. Trading Mistakes / Psychology / Checklist
   if (q.indexOf("mistake") !== -1 || q.indexOf("lose money") !== -1 || q.indexOf("psychology") !== -1 || q.indexOf("emotion") !== -1 || q.indexOf("checklist") !== -1) {
     if (q.indexOf("checklist") !== -1) {
       return {
         isMatched: true,
         html:
           "<h4>✅ 5-Point Pre-Trade Execution Checklist</h4>" +
-          "<p>Run through these 5 questions before clicking Buy or Sell on any trade:</p>" +
           "<ol>" +
-            "<li><strong>HTF Bias (4H / 1H):</strong> Am I trading in the direction of higher-timeframe market structure (or from a major HTF Order Block)?</li>" +
+            "<li><strong>HTF Bias (4H / 1H):</strong> Am I trading aligned with higher-timeframe market structure?</li>" +
             "<li><strong>Liquidity Taken:</strong> Has price swept a recent session high/low or equal highs/lows first?</li>" +
             "<li><strong>Confirmation (M15 / M5):</strong> Did price produce a clear CHoCH/BOS with displacement leaving a Fair Value Gap (FVG)?</li>" +
-            "<li><strong>News Check:</strong> Are we free of red-folder high-impact USD news (CPI, NFP, FOMC) in the next 15 minutes?</li>" +
+            "<li><strong>News Check:</strong> Are we clear of red-folder USD news (CPI, NFP, FOMC) in the next 15 minutes?</li>" +
             "<li><strong>Risk Defined:</strong> Is my Stop Loss set at structural invalidation with <strong>0.5%–1% risk</strong> and at least <strong>1:2 R:R</strong>?</li>" +
           "</ol>",
         chips: [
@@ -482,13 +840,13 @@ function buildSmartLocalResponse(userText, hasImage) {
     return {
       isMatched: true,
       html:
-        "<h4>🧠 5 Account-Killing Mistakes &amp; How to Eliminate Them</h4>" +
+        "<h4>🧠 5 Account-Killing Mistakes &amp; How Our AI Team Fixes Them</h4>" +
         "<ol>" +
-          "<li><strong>Moving or Removing Stop Losses:</strong> Turning a planned 1% loss into a 20% drawdown. <em>Fix:</em> Treat your Stop Loss as non-negotiable.</li>" +
-          "<li><strong>Revenge Trading After a Loss:</strong> Doubling lot size to 'win it back' emotionally. <em>Fix:</em> Step away for 30 minutes after 2 consecutive losses.</li>" +
-          "<li><strong>FOMO Chasing Big Green/Red Candles:</strong> Entering right at liquidity exhaustion. <em>Fix:</em> Only enter at pre-marked Order Blocks or Fair Value Gaps.</li>" +
-          "<li><strong>Over-Leveraging Small Accounts:</strong> Risking 10%–25% per trade. <em>Fix:</em> Cap risk at 0.5%–1.0% per setup.</li>" +
-          "<li><strong>No Trading Playbook:</strong> Taking random setups across 20 pairs. <em>Fix:</em> Master 1–2 pairs (like XAUUSD &amp; BTCUSDT) during specific London/NY killzones.</li>" +
+          "<li><strong>Moving or Removing Stop Losses:</strong> Turning a 1% loss into a 20% drawdown. <em>Fix:</em> Set hard SL before entry.</li>" +
+          "<li><strong>Revenge Trading After a Loss:</strong> Doubling lot size emotionally. <em>Fix:</em> Stop for the day after 2 consecutive losses.</li>" +
+          "<li><strong>FOMO Chasing Big Candles:</strong> Buying at resistance exhaustion. <em>Fix:</em> Only enter at pre-marked Order Blocks or FVGs.</li>" +
+          "<li><strong>Over-Leveraging Small Accounts:</strong> Risking 10%+ per trade. <em>Fix:</em> Risk 0.5%–1.0% per trade.</li>" +
+          "<li><strong>No Trading Playbook:</strong> Trading random pairs. <em>Fix:</em> Focus on XAUUSD &amp; BTCUSDT during London/NY killzones.</li>" +
         "</ol>",
       chips: [
         "How do I build a daily pre-trade checklist?",
@@ -498,17 +856,17 @@ function buildSmartLocalResponse(userText, hasImage) {
     };
   }
 
-  // 15. Candlesticks & Chart Reading
+  // 18. Candlesticks & Chart Reading
   if (q.indexOf("candlestick") !== -1 || q.indexOf("read my chart") !== -1 || q.indexOf("each candle") !== -1) {
     return {
       isMatched: true,
       html:
         "<h4>👁️ Reading Candlesticks — The Language of Buyers &amp; Sellers</h4>" +
-        "<p>Every candlestick tells you <strong>4 prices</strong> (Open, High, Low, Close) and reveals who won the battle during that timeframe:</p>" +
+        "<p>Every candlestick tells you <strong>4 prices</strong> (Open, High, Low, Close) and reveals who won the battle:</p>" +
         "<ul>" +
           "<li><strong>The Candle Body (Open to Close):</strong> A large green/cyan body shows strong buyer displacement. A large red body shows aggressive seller control.</li>" +
-          "<li><strong>The Wicks / Shadows (High &amp; Low):</strong> Long upper wicks show <em>supply rejection</em> (buyers tried to push higher, but sellers slammed price back down). Long lower wicks show <em>demand absorption</em> (liquidity sweep).</li>" +
-          "<li><strong>3 High-Probability Signatures:</strong> Look for <strong>Pin Bars / Liquidity Sweeps</strong> at key levels, <strong>Engulfing Displacement Candles</strong> that leave a Fair Value Gap, and <strong>Inside Bar Consolidations</strong> before breakouts.</li>" +
+          "<li><strong>The Wicks / Shadows (High &amp; Low):</strong> Long upper wicks show <em>supply rejection</em>. Long lower wicks show <em>demand absorption</em> (liquidity sweep).</li>" +
+          "<li><strong>3 High-Probability Signatures:</strong> Look for <strong>Liquidity Sweep Pin Bars</strong> at key levels, <strong>Engulfing Displacement Candles</strong> that leave a Fair Value Gap, and <strong>Inside Bar Consolidations</strong>.</li>" +
         "</ul>",
       chips: [
         "Upload a chart screenshot with Chart Snap",
@@ -518,17 +876,16 @@ function buildSmartLocalResponse(userText, hasImage) {
     };
   }
 
-  // 16. Indicators (RSI, MACD, EMA, Fibonacci)
-  if (q.indexOf("rsi") !== -1 || q.indexOf("macd") !== -1 || q.indexOf("ema") !== -1 || q.indexOf("moving average") !== -1 || q.indexOf("fibonacci") !== -1 || q.indexOf("indicator") !== -1) {
+  // 19. Indicators (RSI, MACD, EMA, Fibonacci)
+  if (hasWord(q, "rsi") || q.indexOf("macd") !== -1 || hasWord(q, "ema") || q.indexOf("moving average") !== -1 || q.indexOf("fibonacci") !== -1 || q.indexOf("indicator") !== -1) {
     return {
       isMatched: true,
       html:
         "<h4>📈 Combining Indicators &amp; Fibonacci with Smart Money Price Action</h4>" +
-        "<p>Indicators should never be used blindly on their own, but they act as powerful confluence with Market Structure:</p>" +
         "<ul>" +
-          "<li><strong>Fibonacci Optimal Trade Entry (OTE):</strong> Draw your Fib from the impulse Swing Low to Swing High. The <strong>0.618 to 0.786 retracement zone</strong> (Discount zone for buys, Premium zone for sells) aligns with institutional Order Blocks.</li>" +
-          "<li><strong>RSI Divergence (14):</strong> When price makes a Lower Low into an Order Block, but RSI makes a <em>Higher Low</em> (Bullish Divergence), it confirms seller exhaustion and an imminent reversal.</li>" +
-          "<li><strong>EMA 50 &amp; EMA 200:</strong> Use the 50 &amp; 200 Exponential Moving Averages on the 1H/4H chart to gauge dynamic institutional trend direction.</li>" +
+          "<li><strong>Fibonacci Optimal Trade Entry (OTE):</strong> Draw Fib from Swing Low to Swing High. The <strong>0.618 to 0.786 retracement zone</strong> aligns directly with institutional Order Blocks.</li>" +
+          "<li><strong>RSI Divergence (14):</strong> When price makes a Lower Low into a 4H/1H Order Block, but RSI makes a <em>Higher Low</em>, it confirms seller exhaustion.</li>" +
+          "<li><strong>EMA 50 &amp; EMA 200:</strong> Use on the 1H/4H chart to confirm dynamic institutional trend bias.</li>" +
         "</ul>",
       chips: [
         "Explain Order Blocks and Fair Value Gaps (FVG)",
@@ -538,155 +895,480 @@ function buildSmartLocalResponse(userText, hasImage) {
     };
   }
 
+  // 20. Universal Smart Synthesis Fallback (When offline or for any custom question)
   return {
     isMatched: false,
     html:
-      "<h4>⚡ POR1.0 Analysis: " + escHtml(userText) + "</h4>" +
-      "<p>Here is how to approach <strong>\"" + escHtml(userText) + "\"</strong> using institutional trading principles:</p>" +
+      "<h4>⚡ " + escHtml(getActiveAnalyst().name) + " — Complete Analysis: \"" + escHtml(userText) + "\"</h4>" +
+      "<p>Our <strong>AI Analyst Team</strong> analyzed your question (<em>\"" + escHtml(userText) + "\"</em>) across structure, macro context, and execution:</p>" +
       "<ul>" +
-        "<li><strong>1. Context &amp; Trend Alignment:</strong> Always start on the Higher Timeframe (4H / 1H) to verify whether buyers or sellers are in control before looking for 15m/5m entries.</li>" +
-        "<li><strong>2. Wait for Liquidity + Confirmation:</strong> Let price sweep resting stops and tap into a key Order Block or Fair Value Gap before executing.</li>" +
-        "<li><strong>3. Live Terminal Reference:</strong> Right now on our live feed, <strong>XAUUSD</strong> is <strong>" + snap.gold.signal + " @ " + snap.gold.entry + "</strong> (SL " + snap.gold.sl + ", TP1 " + snap.gold.tp1 + ") and <strong>BTCUSDT</strong> is <strong>" + snap.btc.signal + " @ " + snap.btc.entry + "</strong> (SL " + snap.btc.sl + ", TP1 " + snap.btc.tp1 + ").</li>" +
-      "</ul>",
+        "<li><strong>1. Direct Answer &amp; Core Principle:</strong> Start by defining the higher-timeframe context (4H/1H trend and key liquidity pools) before making any execution decision on <strong>" + escHtml(userText) + "</strong>.</li>" +
+        "<li><strong>2. Step-by-Step Action Plan:</strong> Wait for price to sweep resting stops into an unmitigated Order Block or Fair Value Gap, confirm with a 15m/5m CHoCH body close, and size your position at <strong>0.5%–1.0% max risk</strong>.</li>" +
+        "<li><strong>3. Live Terminal Benchmarks:</strong> <strong>XAUUSD</strong> is <strong>" + snap.gold.signal + " @ " + snap.gold.entry + "</strong> (SL " + snap.gold.sl + ", TP1 " + snap.gold.tp1 + ") · <strong>BTCUSDT</strong> is <strong>" + snap.btc.signal + " @ " + snap.btc.entry + "</strong> (SL " + snap.btc.sl + ", TP1 " + snap.btc.tp1 + ").</li>" +
+      "</ul>" +
+      buildTeamCouncilBlock(userText),
     chips: [
+      "👥 Ask Full AI Analyst Team for a second opinion",
       "Give me the full XAUUSD SMC trade plan",
-      "Explain Order Blocks and Fair Value Gaps (FVG)",
       "How do I size my position if my account is $1,000 and I risk 1% per trade?"
     ]
   };
 }
 
 // ==========================================
-// 5. LIVE FREE AI LLM ENGINE (ANSWERS EVERYTHING)
+// 8. LIVE AI ENGINE — REAL CONVERSATION (ANSWERS ANY QUESTION, REMEMBERS CONTEXT)
 // ==========================================
-function formatMarkdownToHtml(rawMd, userQuestion) {
-  let text = String(rawMd || "").trim();
-  if (!text) return null;
 
-  // Strip surrounding ```html or ``` codeblocks if the AI wrapped its response
-  text = text.replace(/^```(?:html|markdown)?\s*/i, "").replace(/\s*```$/i, "").trim();
+// ----- 8-0. REAL-TIME MARKET PRICES (free public APIs, no key, fetched in the browser) -----
+const LIVE_PRICE_CACHE = { data: null, ts: 0 };
 
-  // If the AI already returned clean HTML tags (<h4>, <ul>, <p>), return directly
-  if (text.indexOf("<h4>") !== -1 || text.indexOf("<ul>") !== -1) {
-    return text;
+async function fetchJsonQuick(url, timeoutMs) {
+  const controller = new AbortController();
+  const timer = setTimeout(function () { controller.abort(); }, timeoutMs || 6000);
+  try {
+    const res = await fetch(url, { signal: controller.signal, cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return await res.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function fetchBinanceTickers() {
+  const q = encodeURIComponent(JSON.stringify(["BTCUSDT", "ETHUSDT", "PAXGUSDT", "EURUSDT"]));
+  const hosts = ["https://api.binance.com", "https://data-api.binance.vision"];
+  for (let i = 0; i < hosts.length; i++) {
+    try {
+      const arr = await fetchJsonQuick(hosts[i] + "/api/v3/ticker/24hr?symbols=" + q, 6000);
+      if (Array.isArray(arr) && arr.length) return arr;
+    } catch (e) { /* try next host */ }
+  }
+  return null;
+}
+
+async function fetchGoldSpot() {
+  try {
+    const j = await fetchJsonQuick("https://api.gold-api.com/price/XAU", 6000);
+    const p = parseFloat(j && j.price);
+    if (p > 0) return { price: p, updatedAt: j.updatedAt || null };
+  } catch (e) { /* fall back to PAXG proxy */ }
+  return null;
+}
+
+function fmtLivePrice(sym, p) {
+  if (!isFinite(p)) return "n/a";
+  if (sym === "EURUSD") return p.toFixed(5);
+  return p.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+async function fetchLiveMarketPrices() {
+  const now = Date.now();
+  if (LIVE_PRICE_CACHE.data && now - LIVE_PRICE_CACHE.ts < 15000) return LIVE_PRICE_CACHE.data;
+
+  const results = await Promise.all([fetchBinanceTickers(), fetchGoldSpot()]);
+  const tick = results[0], gold = results[1];
+  const by = {};
+  (tick || []).forEach(function (t) { by[t.symbol] = t; });
+
+  const mk = function (t, source) {
+    return t ? {
+      price: parseFloat(t.lastPrice), changePct: parseFloat(t.priceChangePercent),
+      high: parseFloat(t.highPrice), low: parseFloat(t.lowPrice), source: source
+    } : null;
+  };
+
+  const items = {};
+  if (by.BTCUSDT) items.BTCUSDT = mk(by.BTCUSDT, "Binance");
+  if (by.ETHUSDT) items.ETHUSDT = mk(by.ETHUSDT, "Binance");
+  if (by.EURUSDT) items.EURUSD = mk(by.EURUSDT, "Binance EURUSDT (close proxy for EURUSD)");
+
+  if (gold) {
+    items.XAUUSD = { price: gold.price, source: "gold-api.com spot" };
+  } else if (by.PAXGUSDT) {
+    items.XAUUSD = mk(by.PAXGUSDT, "Binance PAXGUSDT (gold-token proxy, ~spot gold)");
+  }
+  if (items.XAUUSD && by.PAXGUSDT && items.XAUUSD.changePct === undefined) {
+    items.XAUUSD.changePct = parseFloat(by.PAXGUSDT.priceChangePercent);
+    items.XAUUSD.high = parseFloat(by.PAXGUSDT.highPrice);
+    items.XAUUSD.low = parseFloat(by.PAXGUSDT.lowPrice);
+    items.XAUUSD.statsNote = "24h change/high/low are from PAXGUSDT (gold-token proxy)";
   }
 
-  // Otherwise convert Markdown to clean Por AI HTML
-  const lines = text.split("\n");
-  let html = "<h4>⚡ POR1.0 AI — " + escHtml(userQuestion.slice(0, 60)) + "</h4>";
-  let inList = false;
+  const out = { fetchedAt: new Date(), items: items, ok: Object.keys(items).length > 0 };
+  if (out.ok) { LIVE_PRICE_CACHE.data = out; LIVE_PRICE_CACHE.ts = now; }
+  return out;
+}
 
-  for (let i = 0; i < lines.length; i++) {
-    let line = lines[i].trim();
-    if (!line) {
-      if (inList) {
-        html += "</ul>";
-        inList = false;
-      }
+function buildLiveDataBlock(live, searchOn) {
+  if (!live || !live.ok) {
+    return "LIVE MARKET DATA: the real-time price feed FAILED to load. Do NOT quote any current price or level as fact. " + (searchOn ? "You may use Google Search to find the current price and state the source and time; if you cannot verify it, say so." : "Tell the user live prices are unavailable right now and answer conceptually only.");
+  }
+  const lines = [];
+  ["XAUUSD", "BTCUSDT", "ETHUSDT", "EURUSD"].forEach(function (s) {
+    const it = live.items[s];
+    if (!it) return;
+    let line = s + ": " + fmtLivePrice(s, it.price);
+    if (isFinite(it.changePct)) line += " | 24h " + (it.changePct >= 0 ? "+" : "") + it.changePct.toFixed(2) + "%";
+    if (isFinite(it.high) && isFinite(it.low)) line += " | 24h high " + fmtLivePrice(s, it.high) + " / low " + fmtLivePrice(s, it.low);
+    line += " | source: " + it.source;
+    if (it.statsNote) line += " (" + it.statsNote + ")";
+    lines.push(line);
+  });
+  const missing = ["XAUUSD", "BTCUSDT", "ETHUSDT", "EURUSD"].filter(function (s) { return !live.items[s]; });
+  return (
+    "REAL-TIME MARKET DATA (fetched " + live.fetchedAt.toUTCString() + "):\n" + lines.join("\n") + "\n" +
+    (searchOn
+      ? "NO BUILT-IN FEED for: NAS100/US indices, DXY, US Treasury yields, other forex pairs, economic calendar/news" + (missing.length ? ", " + missing.join(", ") : "") + ". For these use Google Search, state the source and the time of the data, and if you cannot verify a number say so instead of guessing.\n" +
+        "DATA RULES: For the symbols listed above use ONLY those numbers as the current price (they are fresher than search results). NEVER invent prices, yields, news, or event dates. "
+      : "NOT AVAILABLE (no live feed — never state numbers for these): NAS100/US indices, DXY, US Treasury yields, other forex pairs, economic calendar/news" +
+        (missing.length ? ", " + missing.join(", ") : "") + ".\n" +
+        "DATA RULES: Use ONLY the numbers above as current prices. NEVER invent prices, DXY, yields, news, or event dates. If asked about something not listed, say you have no live feed for it. ") +
+    "For forecasts or trade ideas: say clearly that nobody can predict price, give if/then scenarios, and derive every level from the live price and the 24h high/low above (never from memory), labelled educational."
+  );
+}
+
+function buildLiveStampHtml(live, usedSearch) {
+  if (!live || !live.ok) {
+    return '<div class="pac-live-stamp pac-live-stamp-bad">⚠️ Live price feed unavailable — no current prices were used.</div>';
+  }
+  const parts = [];
+  ["XAUUSD", "BTCUSDT", "EURUSD"].forEach(function (s) {
+    if (live.items[s]) parts.push(s + " " + fmtLivePrice(s, live.items[s].price));
+  });
+  return '<div class="pac-live-stamp">📡 Live data · ' + parts.join(" · ") + " · " +
+    live.fetchedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }) + (usedSearch ? " · 🔎 web search on" : "") + "</div>";
+}
+
+function conversationIsTrading() {
+  return currentMessages.slice(-6).some(function (m) { return m.role === "user" && isTradingTopic(m.text); });
+}
+
+// ----- 8a. Safe Markdown -> HTML renderer (escapes first, so AI output can never inject HTML) -----
+function mdInline(s) {
+  let t = escHtml(s);
+  t = t.replace(/`([^`]+)`/g, "<code>$1</code>");
+  t = t.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  t = t.replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s).,!?:;]|$)/g, "$1<em>$2</em>");
+  t = t.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+  return t;
+}
+
+function renderMarkdown(raw) {
+  let text = String(raw || "").replace(/\r\n/g, "\n");
+  text = text.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+  if (!text) return "";
+
+  const lines = text.split("\n");
+  let html = "";
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    if (!trimmed) { i++; continue; }
+
+    // Code fence
+    if (/^```/.test(trimmed)) {
+      const buf = [];
+      i++;
+      while (i < lines.length && !/^```/.test(lines[i].trim())) { buf.push(lines[i]); i++; }
+      i++;
+      html += "<pre><code>" + escHtml(buf.join("\n")) + "</code></pre>";
       continue;
     }
 
-    // Format bold **text**
-    line = escHtml(line).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-
-    if (/^[-*•]\s+/.test(line) || /^\d+\.\s+/.test(line)) {
-      if (!inList) {
-        html += "<ul>";
-        inList = true;
+    // Table (header row + separator row)
+    if (trimmed.charAt(0) === "|" && i + 1 < lines.length && /^\|?\s*:?-{2,}/.test(lines[i + 1].trim())) {
+      const splitRow = function (r) { return r.trim().replace(/^\||\|$/g, "").split("|").map(function (c) { return c.trim(); }); };
+      const head = splitRow(trimmed);
+      i += 2;
+      let rows = "";
+      while (i < lines.length && lines[i].trim().charAt(0) === "|") {
+        rows += "<tr>" + splitRow(lines[i]).map(function (c) { return "<td>" + mdInline(c) + "</td>"; }).join("") + "</tr>";
+        i++;
       }
-      const cleanItem = line.replace(/^([-*•]|\d+\.)\s+/, "");
-      html += "<li>" + cleanItem + "</li>";
-    } else if (/^#{1,4}\s+/.test(line)) {
-      if (inList) {
-        html += "</ul>";
-        inList = false;
-      }
-      html += "<h4>" + line.replace(/^#{1,4}\s+/, "") + "</h4>";
-    } else {
-      if (inList) {
-        html += "</ul>";
-        inList = false;
-      }
-      html += "<p>" + line + "</p>";
+      html += '<div class="pac-table-wrap"><table><thead><tr>' +
+        head.map(function (c) { return "<th>" + mdInline(c) + "</th>"; }).join("") +
+        "</tr></thead><tbody>" + rows + "</tbody></table></div>";
+      continue;
     }
+
+    // Heading
+    const h = trimmed.match(/^#{1,6}\s+(.*)$/);
+    if (h) { html += "<h4>" + mdInline(h[1]) + "</h4>"; i++; continue; }
+
+    // Horizontal rule
+    if (/^(-{3,}|\*{3,}|_{3,})$/.test(trimmed)) { html += "<hr>"; i++; continue; }
+
+    // Lists
+    if (/^([-*•])\s+/.test(trimmed) || /^\d+[.)]\s+/.test(trimmed)) {
+      const ordered = /^\d+[.)]\s+/.test(trimmed);
+      const re = ordered ? /^\d+[.)]\s+/ : /^([-*•])\s+/;
+      let items = "";
+      while (i < lines.length && re.test(lines[i].trim())) {
+        items += "<li>" + mdInline(lines[i].trim().replace(re, "")) + "</li>";
+        i++;
+      }
+      html += (ordered ? "<ol>" : "<ul>") + items + (ordered ? "</ol>" : "</ul>");
+      continue;
+    }
+
+    // Paragraph (merge consecutive plain lines)
+    const para = [];
+    while (i < lines.length && lines[i].trim() &&
+           !/^(```|#{1,6}\s|([-*•])\s|\d+[.)]\s)/.test(lines[i].trim()) &&
+           lines[i].trim().charAt(0) !== "|") {
+      para.push(lines[i].trim());
+      i++;
+    }
+    if (para.length) html += "<p>" + mdInline(para.join("\n")).replace(/\n/g, "<br>") + "</p>";
+    else i++;
   }
-  if (inList) html += "</ul>";
   return html;
 }
 
-async function fetchLiveAiAnswer(userText, hasImage) {
-  const localCheck = buildSmartLocalResponse(userText, hasImage);
-
-  // If it's an image upload or a matched specialized trading card/calculator, return immediately
-  if (hasImage || localCheck.isMatched) {
-    return {
-      html: localCheck.html,
-      chips: localCheck.chips
-    };
-  }
-
-  // For ANY other question the user asks, query the live AI LLM with conversation history & live prices
-  const snap = getLiveMarketSnapshot();
-  const systemPrompt =
-    "You are POR1.0 (Por AI Chat), an expert, friendly AI trading mentor and general assistant created by Por ICT. " +
-    "You MUST answer whatever question the user asks clearly, accurately, and directly in the same language the user writes in (e.g. English, Khmer, etc.). " +
-    "Live market data if relevant: XAUUSD (Gold) is " + snap.gold.signal + " at " + snap.gold.entry + " (SL: " + snap.gold.sl + ", TP1: " + snap.gold.tp1 + ", Conf: " + snap.gold.kpi.conf + "); " +
-    "BTCUSDT is " + snap.btc.signal + " at " + snap.btc.entry + " (SL: " + snap.btc.sl + ", TP1: " + snap.btc.tp1 + "); " +
-    "NAS100 is " + snap.nas.signal + " at " + snap.nas.entry + ". " +
-    "Format your response using clean HTML tags ONLY: start with an <h4> heading, use <p> for short paragraphs, <ul> and <li> for bullet points, and <strong> for key terms. Do not wrap in markdown code fences.";
-
-  const recentHistory = currentMessages.slice(-6).map(function (m) {
-    return {
-      role: m.role === "user" ? "user" : "assistant",
-      content: m.role === "user" ? m.text : (m.plainText || m.html.replace(/<[^>]+>/g, " "))
-    };
-  });
-
+function htmlToPlainText(html) {
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(function () { controller.abort(); }, 9500);
+    const doc = new DOMParser().parseFromString(String(html || ""), "text/html");
+    return (doc.body.textContent || "").replace(/\s+/g, " ").trim();
+  } catch (e) {
+    return String(html || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  }
+}
 
-    const response = await fetch("https://text.pollinations.ai/", {
+// ----- 8b. Build the multi-turn message list (this is what gives back-and-forth memory) -----
+function buildChatMessages(systemPrompt, imageDataUrl) {
+  const recent = currentMessages.slice(-PAC_AI_CONFIG.historyMessages);
+  while (recent.length && recent[0].role !== "user") recent.shift();
+
+  const msgs = [{ role: "system", content: systemPrompt }];
+  recent.forEach(function (m, idx) {
+    const isLast = idx === recent.length - 1;
+    if (m.role === "user") {
+      if (isLast && imageDataUrl) {
+        msgs.push({
+          role: "user",
+          content: [
+            { type: "text", text: m.text },
+            { type: "image_url", image_url: { url: imageDataUrl } }
+          ]
+        });
+      } else {
+        msgs.push({ role: "user", content: m.text + (m.image ? "\n[The user attached a chart screenshot here]" : "") });
+      }
+    } else {
+      const plain = (m.plainText || htmlToPlainText(m.html)).slice(0, 3000);
+      if (plain) msgs.push({ role: "assistant", content: plain });
+    }
+  });
+  return msgs;
+}
+
+// ----- 8c. One chat-completion request (OpenAI-compatible JSON or plain-text reply) -----
+async function requestChatCompletion(url, apiKey, model, messages, timeoutMs) {
+  const controller = new AbortController();
+  const timer = setTimeout(function () { controller.abort(); }, timeoutMs);
+  try {
+    const headers = { "Content-Type": "application/json" };
+    if (apiKey) headers["Authorization"] = "Bearer " + apiKey;
+
+    const res = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messages: [{ role: "system", content: systemPrompt }].concat(recentHistory),
-        model: "openai",
-        private: true
-      }),
+      headers: headers,
+      body: JSON.stringify({ model: model, messages: messages, private: true }),
       signal: controller.signal
     });
+    if (!res.ok) throw new Error("HTTP " + res.status);
 
-    clearTimeout(timeoutId);
+    const raw = await res.text();
+    try {
+      const data = JSON.parse(raw);
+      const content = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+      if (typeof content === "string" && content.trim()) return content;
+    } catch (parseErr) { /* not JSON — maybe plain text */ }
 
-    if (response.ok) {
-      const aiText = await response.text();
-      const formattedHtml = formatMarkdownToHtml(aiText, userText);
-      if (formattedHtml) {
+    if (raw && raw.trim() && raw.trim().charAt(0) !== "{") return raw;
+    throw new Error("Empty AI response");
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// ----- 8c-2. Google Gemini (native REST, key sent in the x-goog-api-key header) -----
+function toGeminiPayload(messages, useSearch) {
+  const system = messages.length && messages[0].role === "system" ? messages[0].content : "";
+  const contents = [];
+  messages.slice(system ? 1 : 0).forEach(function (m) {
+    const role = m.role === "assistant" ? "model" : "user";
+    const parts = [];
+    if (Array.isArray(m.content)) {
+      m.content.forEach(function (p) {
+        if (p.type === "text") parts.push({ text: p.text });
+        else if (p.type === "image_url" && p.image_url && p.image_url.url) {
+          const mt = /^data:([^;]+);base64,(.+)$/.exec(p.image_url.url);
+          if (mt) parts.push({ inlineData: { mimeType: mt[1], data: mt[2] } });
+        }
+      });
+    } else {
+      parts.push({ text: String(m.content || "") });
+    }
+    if (parts.length) contents.push({ role: role, parts: parts });
+  });
+  const body = { contents: contents };
+  if (system) body.systemInstruction = { parts: [{ text: system }] };
+  if (useSearch) body.tools = [{ google_search: {} }];
+  return body;
+}
+
+async function requestGeminiCompletion(model, apiKey, messages, useSearch, timeoutMs) {
+  const controller = new AbortController();
+  const timer = setTimeout(function () { controller.abort(); }, timeoutMs);
+  try {
+    const res = await fetch(PAC_AI_CONFIG.geminiEndpoint + encodeURIComponent(model) + ":generateContent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+      body: JSON.stringify(toGeminiPayload(messages, useSearch)),
+      signal: controller.signal
+    });
+    const raw = await res.text();
+    if (!res.ok) {
+      let detail = "";
+      try {
+        const j = JSON.parse(raw);
+        detail = (j.error && (j.error.message || j.error.status)) || "";
+      } catch (e) {}
+      const err = new Error("HTTP " + res.status + (detail ? ": " + String(detail).slice(0, 180) : ""));
+      err.httpStatus = res.status;
+      throw err;
+    }
+    const data = JSON.parse(raw);
+    const cand = data && data.candidates && data.candidates[0];
+    const parts = (cand && cand.content && cand.content.parts) || [];
+    const text = parts.filter(function (p) { return p.text && !p.thought; }).map(function (p) { return p.text; }).join("");
+    if (!text.trim()) {
+      const why = (cand && cand.finishReason) || (data && data.promptFeedback && data.promptFeedback.blockReason) || "empty";
+      throw new Error("Gemini returned no text (" + why + ")");
+    }
+    return text;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function buildSystemPrompt(analyst, live, useLive, searchOn) {
+  let tracked = "";
+  const db = Array.isArray(window.WATCHLIST_DB) ? window.WATCHLIST_DB : [];
+  if (db.length) {
+    tracked = "Signals tracked in the user's own terminal: " + db.slice(0, 6).map(function (x) {
+      return x.symbol + " " + x.signal + " entry " + x.entry + " SL " + x.sl + " TP1 " + x.tp1;
+    }).join("; ") + ". ";
+  }
+  return (
+    analyst.systemPersona + " " +
+    "You are part of the POR1.0 AI Analyst Team created by Por ICT. " +
+    "This is a live back-and-forth chat: use the earlier messages for context and answer follow-ups naturally (for example 'why?', 'explain more', 'what about gold?'). Ask one short clarifying question only if you truly cannot answer without it. " +
+    "Answer ANY topic the user asks about (trading, math, coding, business, daily life, general knowledge). Never force trading talk into a non-trading question. " +
+    "Always reply in the same language the user writes in (Khmer question -> Khmer answer, English -> English). " +
+    "Keep answers short for simple or casual messages and go deeper only when the user asks for detail. " +
+    "Format with simple Markdown only: short paragraphs, '- ' bullet lists, '1. ' numbered lists, **bold**, tables, and ``` code blocks. Do not use HTML. " +
+    (useLive ? buildLiveDataBlock(live, searchOn) + " " : "You have no live market feed in this message; never quote current prices as fact. ") +
+    tracked +
+    "For trade ideas add one short line that it is educational analysis, not financial advice."
+  );
+}
+
+// ----- 8d. Main entry: AI first for EVERYTHING, local knowledge only as an offline fallback -----
+async function fetchLiveAiAnswer(userText, imageDataUrl) {
+  const analyst = getActiveAnalyst();
+  const hasImage = Boolean(imageDataUrl);
+  const trading = isTradingTopic(userText) || hasImage;
+
+  const wantsLive = trading || conversationIsTrading() || (analyst.id !== "all_team" && analyst.id !== "por_lead");
+  const live = wantsLive ? await fetchLiveMarketPrices() : null;
+  const apiKey = getAiApiKey();
+  const provider = apiKey ? getKeyProvider(apiKey) : "none";
+
+  const attempts = [];
+  if (provider === "gemini") {
+    const gm = PAC_AI_CONFIG.geminiModels;
+    attempts.push({ kind: "gemini", model: gm[0], search: wantsLive });   // best: web search for DXY / yields / news
+    if (wantsLive) attempts.push({ kind: "gemini", model: gm[0], search: false });
+    if (gm[1]) attempts.push({ kind: "gemini", model: gm[1], search: false });
+  } else if (provider === "pollinations") {
+    attempts.push({ kind: "openai", url: PAC_AI_CONFIG.endpoint, key: apiKey, model: PAC_AI_CONFIG.model });
+  }
+  attempts.push({ kind: "openai", url: "https://text.pollinations.ai/openai", key: "", model: "openai" });
+  attempts.push({ kind: "openai", url: "https://text.pollinations.ai/", key: "", model: "openai" });
+
+  let lastError = "";
+  let primaryError = "";   // error from the FIRST (main) provider — the one worth showing
+  let geminiAuthFailed = false;
+  for (let i = 0; i < attempts.length; i++) {
+    const a = attempts[i];
+    if (a.kind === "gemini" && geminiAuthFailed) continue;
+    try {
+      const sys = buildSystemPrompt(analyst, live, wantsLive, a.kind === "gemini" && a.search);
+      const messages = buildChatMessages(sys, imageDataUrl);
+      const aiText = a.kind === "gemini"
+        ? await requestGeminiCompletion(a.model, apiKey, messages, a.search, PAC_AI_CONFIG.timeoutMs)
+        : await requestChatCompletion(a.url, a.key, a.model, messages, PAC_AI_CONFIG.timeoutMs);
+      let html = renderMarkdown(aiText);
+      if (html) {
+        if (analyst.id === "all_team" && trading) html += buildTeamCouncilBlock(userText);
+        if (wantsLive) html += buildLiveStampHtml(live, a.kind === "gemini" && a.search);
         return {
-          html: formattedHtml,
+          analyst: analyst,
+          html: html,
           plainText: aiText,
-          chips: [
-            "Give me the full XAUUSD SMC trade plan",
-            "How do I size my position if my account is $1,000 and I risk 1% per trade?",
-            "Explain Order Blocks and Fair Value Gaps (FVG)"
-          ]
+          chips: trading
+            ? [
+                "👥 Ask Full AI Analyst Team for a second opinion",
+                "Give me the full XAUUSD SMC trade plan",
+                "How do I size my position if my account is $1,000 and I risk 1% per trade?"
+              ]
+            : []
         };
       }
+    } catch (err) {
+      const label = a.kind === "gemini" ? "Gemini (" + a.model + (a.search ? " + search" : "") + ")" : (a.url.indexOf("gen.pollinations") !== -1 ? "Pollinations key" : "Pollinations no-key");
+      lastError = label + " → " + String((err && err.message) || err);
+      if (!primaryError) primaryError = lastError;
+      if (a.kind === "gemini" && err && (err.httpStatus === 401 || err.httpStatus === 403)) geminiAuthFailed = true;
+      console.warn("AI attempt failed:", lastError);
     }
-  } catch (err) {
-    console.warn("Live AI endpoint fallback to local engine:", err);
   }
 
-  // Fallback if offline
+  // ---- Offline / AI unreachable: use built-in trading knowledge if it matches, else be honest ----
+  const localCheck = buildSmartLocalResponse(userText, hasImage);
+  const note =
+    '<p style="color:#fbbf24;font-size:12px;">⚠️ Live AI is not reachable right now — showing built-in answer. ' +
+    'មិនអាចភ្ជាប់ទៅ AI បានទេ (សូមពិនិត្យ API key ឬអ៊ីនធឺណិត)។ <br><code>' + escHtml(primaryError || lastError || (apiKey ? "unknown error" : "No API key set")) + '</code></p>';
+
+  if (hasImage || localCheck.isMatched) {
+    let finalHtml = note + localCheck.html;
+    if (analyst.id === "all_team" && finalHtml.indexOf("pac-team-council-grid") === -1) {
+      finalHtml += buildTeamCouncilBlock(userText);
+    }
+    return { analyst: analyst, html: finalHtml, chips: localCheck.chips };
+  }
+
   return {
-    html: localCheck.html,
-    chips: localCheck.chips
+    analyst: analyst,
+    html:
+      "<h4>⚠️ Can't reach the AI right now · មិនអាចភ្ជាប់ AI បានទេ</h4>" +
+      "<p>I couldn't get a live answer to your question. Reason: <code>" + escHtml(primaryError || lastError || (apiKey ? "unknown error" : "No API key set")) + "</code>. This is usually a missing or invalid API key.</p>" +
+      "<ul>" +
+        '<li>Get a free <strong>pk_...</strong> key at <a href="https://enter.pollinations.ai/keys" target="_blank" rel="noopener noreferrer">enter.pollinations.ai/keys</a>.</li>' +
+        "<li>Paste it into <strong>PAC_AI_CONFIG.apiKey</strong> (Pollinations <strong>pk_</strong> key or a Google AI Studio key) at the top of <strong>por-ai-chat.js</strong>, then refresh.</li>" +
+        "<li>Then send your question again — the chat will answer anything and remember the conversation.</li>" +
+      "</ul>",
+    chips: userText.length < 80 ? [userText] : []
   };
 }
 
 // ==========================================
-// 6. UI RENDERING & MESSAGE STREAMING
+// 9. UI RENDERING & MESSAGE STREAMING
 // ==========================================
 function showWelcomeView() {
   const welcome = document.getElementById("pacWelcomeView");
@@ -712,6 +1394,7 @@ function renderMessagesList() {
   if (!listEl) return;
 
   const activeLogo = getActiveLogoSrc();
+  const currentAgent = getActiveAnalyst();
 
   let htmlContent = currentMessages.map(function (m) {
     if (m.role === "user") {
@@ -725,6 +1408,16 @@ function renderMessagesList() {
         '</div>'
       );
     } else {
+      const msgAgent = m.analyst || currentAgent;
+      const headerHtml =
+        '<div class="pac-msg-analyst-header">' +
+          '<span class="pac-msg-analyst-left">' +
+            '<span>' + (msgAgent.emoji || "🤖") + '</span>' +
+            '<span>' + escHtml(msgAgent.name || "Por AI Analyst Team") + '</span>' +
+          '</span>' +
+          '<span class="pac-msg-analyst-role">' + escHtml(msgAgent.badge || "POR1.0") + '</span>' +
+        '</div>';
+
       const chipsHtml = Array.isArray(m.chips) && m.chips.length
         ? '<div class="pac-quick-chips">' +
             m.chips.map(function (c) {
@@ -739,6 +1432,7 @@ function renderMessagesList() {
             '<img src="' + escHtml(activeLogo) + '" alt="Por AI" class="pac-custom-logo-img" onerror="this.onerror=null; this.src=\'' + FALLBACK_LOGO_SRC + '\';" />' +
           '</div>' +
           '<div class="pac-msg-bubble">' +
+            headerHtml +
             m.html +
             chipsHtml +
           '</div>' +
@@ -754,7 +1448,7 @@ function renderMessagesList() {
           '<img src="' + escHtml(activeLogo) + '" alt="Por AI" class="pac-custom-logo-img" onerror="this.onerror=null; this.src=\'' + FALLBACK_LOGO_SRC + '\';" />' +
         '</div>' +
         '<div class="pac-msg-bubble" style="color:var(--pac-aquamarine);font-weight:600;">' +
-          '⚡ POR1.0 is analyzing your question...' +
+          currentAgent.emoji + ' ' + escHtml(currentAgent.name) + ' is analyzing and preparing your answer...' +
         '</div>' +
       '</div>';
   }
@@ -767,6 +1461,10 @@ function renderMessagesList() {
       if (promptText === "Upload a chart screenshot with Chart Snap") {
         const fileIn = document.getElementById("pacChartFileInput");
         if (fileIn) fileIn.click();
+      } else if (promptText === "👥 Ask Full AI Analyst Team for a second opinion") {
+        setSelectedAnalyst("all_team");
+        const lastUserMsg = currentMessages.slice().reverse().find(function (x) { return x.role === "user"; });
+        sendUserMessage(lastUserMsg ? "Assemble the Full AI Analyst Team for: " + lastUserMsg.text : "Assemble the Full AI Analyst Team");
       } else if (promptText) {
         sendUserMessage(promptText);
       }
@@ -815,11 +1513,12 @@ async function sendUserMessage(rawText) {
   isAiTyping = true;
   renderMessagesList();
 
-  const reply = await fetchLiveAiAnswer(userMsg.text, Boolean(usedImage));
+  const reply = await fetchLiveAiAnswer(userMsg.text, usedImage);
 
   isAiTyping = false;
   currentMessages.push({
     role: "ai",
+    analyst: reply.analyst,
     html: reply.html,
     plainText: reply.plainText || "",
     chips: reply.chips
@@ -835,7 +1534,7 @@ async function sendUserMessage(rawText) {
 }
 
 // ==========================================
-// 7. CHART SNAP IMAGE UPLOAD HANDLING
+// 10. CHART SNAP IMAGE UPLOAD HANDLING
 // ==========================================
 function handleChartFileSelected(file) {
   if (!file || !file.type.startsWith("image/")) return;
@@ -870,7 +1569,7 @@ function clearPendingAttachment() {
 }
 
 // ==========================================
-// 8. CHATS HISTORY DRAWER
+// 11. CHATS HISTORY DRAWER
 // ==========================================
 function toggleHistoryDrawer(open) {
   const drawer = document.getElementById("pacHistoryDrawer");
@@ -888,7 +1587,7 @@ function renderHistoryList() {
   if (!list) return;
 
   if (savedChats.length === 0) {
-    list.innerHTML = '<div style="color:var(--pac-text-muted);font-size:12px;text-align:center;padding:24px 8px;">No saved chats yet. Click the Aquamarine Por AI Chat card or any LightCyan card to start!</div>';
+    list.innerHTML = '<div style="color:var(--pac-text-muted);font-size:12px;text-align:center;padding:24px 8px;">No saved chats yet. Pick an AI Analyst or click any question card to start!</div>';
     return;
   }
 
@@ -919,7 +1618,7 @@ function renderHistoryList() {
 }
 
 // ==========================================
-// 9. BIND EVENTS & INITIALIZE
+// 12. BIND EVENTS & INITIALIZE
 // ==========================================
 function bindPorAiEvents() {
   // Click Center Hero Logo to Upload/Change Custom Logo Image
@@ -933,6 +1632,14 @@ function bindPorAiEvents() {
       if (e.target.files && e.target.files[0]) {
         handleCustomLogoUpload(e.target.files[0]);
       }
+    });
+  }
+
+  // Bottom Dock Analyst Selector Dropdown
+  const dockSelect = document.getElementById("pacDockAnalystSelect");
+  if (dockSelect) {
+    dockSelect.addEventListener("change", function (e) {
+      setSelectedAnalyst(e.target.value);
     });
   }
 
@@ -1020,7 +1727,9 @@ function bindPorAiEvents() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  loadSelectedAnalyst();
   applyLogoToAllElements();
   loadSavedChats();
+  renderAnalystTeamControls();
   bindPorAiEvents();
 });

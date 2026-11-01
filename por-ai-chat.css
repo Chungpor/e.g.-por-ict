@@ -46,6 +46,17 @@ html, body {
   overflow: hidden;
 }
 
+.pac-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
 /* ==========================================
    1. TOP HEADER BAR & CUSTOM IMAGE LOGO
    ========================================== */
@@ -190,10 +201,33 @@ html, body {
   border-radius: 10px;
 }
 
+.pac-subheader-center {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
 .pac-subheader-title {
   font-size: 13px;
   font-weight: 600;
   color: var(--pac-text-sub);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
+}
+
+.pac-active-team-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--pac-aquamarine);
+  background: var(--pac-aquamarine-soft);
+  border: 1px solid var(--pac-aquamarine-border);
+  padding: 2px 9px;
+  border-radius: 12px;
+  white-space: nowrap;
 }
 
 .pac-new-chat-btn {
@@ -347,7 +381,7 @@ html, body {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-bottom: 26px;
+  margin-bottom: 24px;
 }
 
 .pac-hero-icon-box {
@@ -399,6 +433,8 @@ html, body {
   align-items: center;
   gap: 10px;
   margin-bottom: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .pac-hero-title {
@@ -420,11 +456,15 @@ html, body {
 }
 
 .pac-hero-subtitle {
-  max-width: 540px;
+  max-width: 580px;
   font-size: 14px;
   line-height: 1.55;
   color: var(--pac-text-sub);
   margin-bottom: 16px;
+}
+
+.pac-hero-subtitle strong {
+  color: var(--pac-aquamarine);
 }
 
 .pac-hero-links-row {
@@ -476,6 +516,186 @@ html, body {
 
 .pac-dot {
   margin: 0 4px;
+}
+
+/* ==========================================
+   4B. NEW: AI ANALYST TEAM ROSTER BAR
+   ========================================== */
+.pac-team-section {
+  background: rgba(12, 18, 26, 0.85);
+  border: 1px solid var(--pac-lightcyan-border);
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 22px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+}
+
+.pac-team-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.pac-team-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--pac-lightcyan);
+  margin-bottom: 2px;
+}
+
+.pac-team-subtitle {
+  font-size: 12px;
+  color: var(--pac-text-sub);
+}
+
+.pac-team-subtitle strong {
+  color: var(--pac-aquamarine);
+}
+
+.pac-team-online-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.pac-team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(205px, 1fr));
+  gap: 10px;
+}
+
+.pac-analyst-card {
+  background: rgba(224, 255, 255, 0.04);
+  border: 1px solid rgba(224, 255, 255, 0.16);
+  border-radius: 12px;
+  padding: 11px 13px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: left;
+  position: relative;
+}
+
+.pac-analyst-card:hover {
+  background: rgba(224, 255, 255, 0.09);
+  border-color: var(--pac-lightcyan);
+  transform: translateY(-1px);
+}
+
+.pac-analyst-card.is-active {
+  background: linear-gradient(135deg, rgba(127, 255, 212, 0.16) 0%, rgba(12, 28, 32, 0.95) 100%);
+  border: 1.5px solid var(--pac-aquamarine);
+  box-shadow: 0 0 18px rgba(127, 255, 212, 0.22);
+}
+
+.pac-analyst-Emoji {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(127, 255, 212, 0.12);
+  border: 1px solid var(--pac-aquamarine-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.pac-analyst-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.pac-analyst-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.pac-analyst-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pac-analyst-card.is-active .pac-analyst-name {
+  color: var(--pac-aquamarine);
+}
+
+.pac-analyst-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--pac-lightcyan);
+  background: rgba(224, 255, 255, 0.1);
+  padding: 1.5px 6px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.pac-analyst-card.is-active .pac-analyst-tag {
+  background: var(--pac-aquamarine);
+  color: #031510;
+}
+
+.pac-analyst-role {
+  font-size: 11.2px;
+  color: var(--pac-text-sub);
+  line-height: 1.35;
+}
+
+/* Stream Compact Team Switcher */
+.pac-stream-team-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--pac-border-subtle);
+}
+
+.pac-stream-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 18px;
+  background: rgba(224, 255, 255, 0.05);
+  border: 1px solid rgba(224, 255, 255, 0.16);
+  color: var(--pac-text-sub);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.pac-stream-pill:hover {
+  color: var(--pac-lightcyan);
+  border-color: var(--pac-lightcyan);
+}
+
+.pac-stream-pill.is-active {
+  background: var(--pac-aquamarine-soft);
+  border-color: var(--pac-aquamarine);
+  color: var(--pac-aquamarine);
+  box-shadow: 0 0 12px rgba(127, 255, 212, 0.2);
 }
 
 /* ==========================================
@@ -667,7 +887,7 @@ html, body {
 }
 
 /* ==========================================
-   NEW AQUAMARINE (#7FFFD4) FEATURE CARD: "Por AI Chat"
+   AQUAMARINE (#7FFFD4) FEATURE CARD: "Por AI Chat"
    ========================================== */
 .pac-feature-card.pac-card-aquamarine {
   grid-column: 1 / -1;
@@ -721,7 +941,7 @@ html, body {
 }
 
 /* ==========================================
-   8. ACTIVE CONVERSATION STREAM
+   8. ACTIVE CONVERSATION STREAM & TEAM COUNCIL CARDS
    ========================================== */
 .pac-chat-stream {
   display: flex;
@@ -767,7 +987,7 @@ html, body {
 }
 
 .pac-msg-bubble {
-  max-width: 82%;
+  max-width: 84%;
   padding: 14px 18px;
   border-radius: 14px;
   font-size: 13.5px;
@@ -786,6 +1006,68 @@ html, body {
   border: 1px solid rgba(127, 255, 212, 0.25);
   color: var(--pac-text-main);
   border-top-left-radius: 4px;
+}
+
+/* Analyst Identity Header inside AI Chat Bubble */
+.pac-msg-analyst-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 9px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(224, 255, 255, 0.1);
+  flex-wrap: wrap;
+}
+
+.pac-msg-analyst-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--pac-lightcyan);
+}
+
+.pac-msg-analyst-role {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--pac-aquamarine);
+  background: var(--pac-aquamarine-soft);
+  border: 1px solid var(--pac-aquamarine-border);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* Multi-Analyst Team Council Breakdown Grid inside AI Reply */
+.pac-team-council-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(127, 255, 212, 0.28);
+}
+
+.pac-council-desk-card {
+  background: rgba(224, 255, 255, 0.04);
+  border: 1px solid rgba(224, 255, 255, 0.15);
+  border-left: 3px solid var(--pac-aquamarine);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12.2px;
+  line-height: 1.48;
+}
+
+.pac-council-desk-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--pac-aquamarine);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .pac-msg-bubble h4 {
@@ -907,7 +1189,7 @@ html, body {
   background: #0c1017;
   border: 1px solid var(--pac-aquamarine-border);
   border-radius: 16px;
-  padding: 8px 10px 8px 14px;
+  padding: 8px 10px 8px 12px;
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
@@ -919,21 +1201,26 @@ html, body {
 .pac-input-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
-.pac-input-model-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.pac-dock-team-select {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11.5px;
   font-weight: 800;
   color: var(--pac-aquamarine);
-  padding: 4px 8px;
-  border-radius: 8px;
   background: var(--pac-aquamarine-soft);
+  border: 1px solid var(--pac-aquamarine-border);
+  padding: 5px 8px;
+  border-radius: 9px;
+  outline: none;
+  cursor: pointer;
+}
+
+.pac-dock-team-select option {
+  background: #0b1017;
+  color: var(--pac-text-main);
 }
 
 .pac-upload-icon-btn {
@@ -963,6 +1250,7 @@ html, body {
   color: var(--pac-text-main);
   font-size: 14px;
   font-family: inherit;
+  min-width: 0;
 }
 
 .pac-text-input::placeholder {
@@ -1016,7 +1304,8 @@ html, body {
    10. RESPONSIVE BREAKPOINTS
    ========================================== */
 @media (max-width: 768px) {
-  .pac-feature-grid {
+  .pac-feature-grid,
+  .pac-team-council-grid {
     grid-template-columns: 1fr;
   }
   .pac-chart-snap-card {
@@ -1026,4 +1315,102 @@ html, body {
   .pac-msg-bubble {
     max-width: 92%;
   }
+  .pac-active-team-pill {
+    display: none;
+  }
+}
+/* ==========================================
+   AI REPLY CONTENT: code blocks, tables, links, quotes
+   ========================================== */
+.pac-msg-bubble p { margin: 0 0 10px; line-height: 1.6; }
+.pac-msg-bubble p:last-child { margin-bottom: 0; }
+
+.pac-msg-bubble a {
+  color: var(--pac-aquamarine);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.pac-msg-bubble hr {
+  border: 0;
+  border-top: 1px solid var(--pac-border-subtle);
+  margin: 12px 0;
+}
+
+.pac-msg-bubble code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.88em;
+  background: rgba(127, 255, 212, 0.1);
+  border: 1px solid rgba(127, 255, 212, 0.18);
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+
+.pac-msg-bubble pre {
+  margin: 10px 0;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--pac-border-subtle);
+  border-radius: 12px;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.pac-msg-bubble pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  white-space: pre;
+}
+
+.pac-table-wrap {
+  margin: 10px 0;
+  overflow-x: auto;
+  max-width: 100%;
+  border: 1px solid var(--pac-border-subtle);
+  border-radius: 12px;
+}
+
+.pac-msg-bubble table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.pac-msg-bubble th,
+.pac-msg-bubble td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--pac-border-subtle);
+  white-space: nowrap;
+}
+
+.pac-msg-bubble th {
+  color: var(--pac-aquamarine);
+  background: rgba(127, 255, 212, 0.07);
+  font-weight: 700;
+}
+
+.pac-msg-bubble tr:last-child td { border-bottom: 0; }
+
+/* Live-data stamp under AI replies */
+.pac-live-stamp {
+  margin-top: 12px;
+  padding: 7px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--pac-aquamarine);
+  background: rgba(127, 255, 212, 0.08);
+  border: 1px solid rgba(127, 255, 212, 0.22);
+  border-radius: 10px;
+  font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+.pac-live-stamp-bad {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.08);
+  border-color: rgba(251, 191, 36, 0.3);
 }
