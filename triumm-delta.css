@@ -1102,3 +1102,302 @@ body.light-mode .theme-switch-thumb {
 @media (max-width: 640px) {
   .td-signals-grid, .td-heatmap-grid { grid-template-columns: 1fr; }
 }
+.td-risk-pill {
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 2.5px 7px;
+  border-radius: 5px;
+  background: rgba(16, 185, 129, 0.14);
+  color: var(--td-neon-green);
+}
+
+.td-risk-pill.high {
+  background: rgba(239, 68, 68, 0.16);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+/* ==========================================
+   LIGHTCYAN THEME (#E0FFFF) — default page look
+   Toggle the sun/moon switch to return to dark mode.
+   ========================================== */
+body.light-mode {
+  --td-bg-base: #E0FFFF;
+  --td-bg-surface: rgba(255, 255, 255, 0.72);
+  --td-border: rgba(13, 148, 136, 0.28);
+  --td-text-main: #0b2a33;
+  --td-text-sub: #1e4b57;
+  --td-text-muted: #4b7480;
+  --td-neon-green: #00a85a;
+  --td-emerald: #059669;
+  --td-cyan-bright: #0284c7;
+  --td-lavender: #6d4bd8;
+}
+
+body.light-mode .td-bg-video { display: none; }
+body.light-mode .td-video-overlay {
+  background: #E0FFFF;
+}
+
+body.light-mode .global-top-bar {
+  background: rgba(224, 255, 255, 0.92);
+  border-bottom: 1px solid rgba(13, 148, 136, 0.25);
+}
+body.light-mode .nav-link,
+body.light-mode .brand-title,
+body.light-mode .nav-music-link-btn,
+body.light-mode .sound-toggle-pill,
+body.light-mode .nav-avatar-btn,
+body.light-mode .lang-pill-btn,
+body.light-mode .nav-logout-pill { color: #0b2a33; }
+body.light-mode .sound-toggle-pill,
+body.light-mode .theme-switch-pill,
+body.light-mode .nav-avatar-btn,
+body.light-mode .nav-logout-pill,
+body.light-mode .lang-pill-btn,
+body.light-mode .nav-music-link-btn {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+body.light-mode .td-fc-title,
+body.light-mode .td-sig-symbol,
+body.light-mode .td-gauge-val,
+body.light-mode .td-price-num,
+body.light-mode .td-sig-action-btn:hover { color: #0b2a33; }
+body.light-mode .td-fc-icon-box,
+body.light-mode .td-fc-launch-btn,
+body.light-mode .td-sig-action-btn { background: rgba(255, 255, 255, 0.75); color: #0b2a33; }
+body.light-mode .td-price-num.red { color: #dc2626; }
+body.light-mode .td-cat-pill { color: #7e22ce; }
+body.light-mode .td-translate-pill { color: #b45309; }
+body.light-mode .td-sent-badge.bearish,
+body.light-mode .td-imp-pill.high { color: #dc2626; }
+body.light-mode .td-signal-modal-card { background: #f4ffff; color: #0b2a33; }
+body.light-mode .td-signal-modal-card h3 { color: #0b2a33 !important; }
+
+
+/* ==========================================
+   GLOSSY GLOW — card action effect
+   Hover / focus / press on cards & action buttons
+   ========================================== */
+.td-glass-card,
+.td-sig-card,
+.td-feed-card,
+.td-kpi-pill,
+.td-mover-row,
+.td-insight-row,
+.td-heat-cell,
+.td-sig-action-btn {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  --glow: 0, 230, 118;
+  transition: transform 0.28s cubic-bezier(.2,.8,.2,1), box-shadow 0.28s ease, border-color 0.28s ease, background 0.28s ease;
+}
+.td-sig-card.is-sell { --glow: 239, 68, 68; }
+.td-feed-card:has(.td-ai-bar.bearish) { --glow: 239, 68, 68; }
+.td-sig-action-btn { --glow: 56, 189, 248; }
+
+/* static top gloss highlight */
+.td-glass-card::before,
+.td-sig-card::before,
+.td-feed-card::before,
+.td-kpi-pill::before,
+.td-sig-action-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 55% 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 100%);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.7;
+  transition: opacity 0.28s ease;
+}
+
+/* moving glossy sheen */
+.td-glass-card::after,
+.td-sig-card::after,
+.td-feed-card::after,
+.td-kpi-pill::after,
+.td-sig-action-btn::after {
+  content: "";
+  position: absolute;
+  top: -30%;
+  left: -70%;
+  width: 45%;
+  height: 160%;
+  background: linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.28) 50%, transparent 100%);
+  transform: skewX(-18deg);
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+}
+
+.td-glass-card:hover,
+.td-sig-card:hover,
+.td-feed-card:hover,
+.td-kpi-pill:hover,
+.td-mover-row:hover,
+.td-insight-row:hover,
+.td-heat-cell:hover,
+.td-sig-action-btn:hover,
+.td-sig-action-btn:focus-visible {
+  transform: translateY(-3px);
+  border-color: rgba(var(--glow), 0.65);
+  box-shadow:
+    0 0 0 1px rgba(var(--glow), 0.35),
+    0 10px 30px -6px rgba(var(--glow), 0.38),
+    0 0 26px rgba(var(--glow), 0.28),
+    inset 0 1px 0 rgba(255,255,255,0.22);
+}
+
+.td-glass-card:hover::before,
+.td-sig-card:hover::before,
+.td-feed-card:hover::before,
+.td-kpi-pill:hover::before,
+.td-sig-action-btn:hover::before { opacity: 1; }
+
+.td-glass-card:hover::after,
+.td-sig-card:hover::after,
+.td-feed-card:hover::after,
+.td-kpi-pill:hover::after,
+.td-sig-action-btn:hover::after {
+  animation: tdGlossSweep 0.9s ease-out forwards;
+}
+
+@keyframes tdGlossSweep {
+  0%   { left: -70%; opacity: 0; }
+  20%  { opacity: 1; }
+  100% { left: 130%; opacity: 0; }
+}
+
+/* press feedback */
+.td-sig-card:active,
+.td-feed-card:active,
+.td-sig-action-btn:active,
+.td-kpi-pill:active {
+  transform: translateY(-1px) scale(0.985);
+  box-shadow: 0 0 0 1px rgba(var(--glow), 0.5), 0 0 34px rgba(var(--glow), 0.45), inset 0 0 18px rgba(var(--glow), 0.12);
+}
+
+/* LightCyan theme: softer teal glow */
+body.light-mode .td-glass-card,
+body.light-mode .td-sig-card,
+body.light-mode .td-feed-card,
+body.light-mode .td-kpi-pill { --glow: 13, 148, 136; }
+body.light-mode .td-sig-card.is-sell { --glow: 220, 38, 38; }
+body.light-mode .td-sig-action-btn { --glow: 2, 132, 199; }
+body.light-mode .td-glass-card::before,
+body.light-mode .td-sig-card::before,
+body.light-mode .td-feed-card::before,
+body.light-mode .td-kpi-pill::before { background: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 100%); }
+
+@media (prefers-reduced-motion: reduce) {
+  .td-glass-card:hover::after, .td-sig-card:hover::after, .td-feed-card:hover::after,
+  .td-kpi-pill:hover::after, .td-sig-action-btn:hover::after { animation: none; }
+  .td-glass-card:hover, .td-sig-card:hover, .td-feed-card:hover { transform: none; }
+}
+
+
+/* ==========================================
+   4K BACKGROUND TOGGLE + GLOSSY GLOW BUTTON TEXT
+   ========================================== */
+/* video visible only when toggled on */
+body:not(.bg-4k-on) .td-bg-video { display: none; }
+body.light-mode.bg-4k-on .td-bg-video { display: block; }
+body.light-mode.bg-4k-on .td-video-overlay {
+  background: linear-gradient(180deg, rgba(224,255,255,0.62) 0%, rgba(224,255,255,0.48) 100%);
+}
+
+.bg4k-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(56, 189, 248, 0.55);
+  background: linear-gradient(180deg, rgba(56,189,248,0.20) 0%, rgba(56,189,248,0.05) 100%);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  box-shadow: 0 0 14px rgba(56,189,248,0.25), inset 0 1px 0 rgba(255,255,255,0.30);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.bg4k-btn::after {
+  content: "";
+  position: absolute;
+  top: -40%; left: -70%;
+  width: 40%; height: 180%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,0.5), transparent);
+  transform: skewX(-18deg);
+  pointer-events: none;
+  animation: tdBtnShine 3.6s ease-in-out infinite;
+}
+.bg4k-btn:hover {
+  transform: translateY(-2px);
+  border-color: #38bdf8;
+  box-shadow: 0 0 24px rgba(56,189,248,0.55), 0 8px 20px -6px rgba(56,189,248,0.45), inset 0 1px 0 rgba(255,255,255,0.4);
+}
+.bg4k-btn:active { transform: scale(0.96); }
+.bg4k-btn.is-on {
+  border-color: #00e676;
+  background: linear-gradient(180deg, rgba(0,230,118,0.22) 0%, rgba(0,230,118,0.05) 100%);
+  box-shadow: 0 0 20px rgba(0,230,118,0.45), inset 0 1px 0 rgba(255,255,255,0.35);
+}
+.bg4k-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #64748b;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+.bg4k-btn.is-on .bg4k-dot { background: #00e676; box-shadow: 0 0 10px #00e676; }
+
+/* glossy glowing text */
+.glow-text {
+  background: linear-gradient(110deg, #7dd3fc 0%, #ffffff 38%, #38bdf8 52%, #a7f3d0 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  filter: drop-shadow(0 0 6px rgba(56,189,248,0.55));
+  animation: tdTextShimmer 4s linear infinite;
+}
+.bg4k-btn.is-on .glow-text {
+  background-image: linear-gradient(110deg, #00e676 0%, #ffffff 40%, #00e676 55%, #7dd3fc 100%);
+  filter: drop-shadow(0 0 7px rgba(0,230,118,0.65));
+}
+/* light theme: deeper, readable gloss */
+body.light-mode .glow-text {
+  background-image: linear-gradient(110deg, #0369a1 0%, #0ea5e9 40%, #0d9488 60%, #0369a1 100%);
+  filter: drop-shadow(0 0 5px rgba(14,165,233,0.45));
+}
+body.light-mode .bg4k-btn.is-on .glow-text {
+  background-image: linear-gradient(110deg, #047857 0%, #10b981 40%, #0d9488 60%, #047857 100%);
+  filter: drop-shadow(0 0 5px rgba(16,185,129,0.5));
+}
+body.light-mode .bg4k-btn { background: rgba(255,255,255,0.7); border-color: rgba(2,132,199,0.55); }
+body.light-mode .bg4k-btn.is-on { border-color: #059669; }
+
+/* hover glow on the other nav button labels */
+.nav-logout-pill, .lang-pill-btn, .nav-music-link-btn, .sound-toggle-pill { transition: text-shadow 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease; }
+.nav-logout-pill:hover, .lang-pill-btn:hover, .nav-music-link-btn:hover, .sound-toggle-pill:hover {
+  text-shadow: 0 0 10px rgba(56,189,248,0.8);
+  box-shadow: 0 0 18px rgba(56,189,248,0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+  transform: translateY(-1px);
+}
+
+@keyframes tdTextShimmer { 0% { background-position: 0% 50%; } 100% { background-position: 220% 50%; } }
+@keyframes tdBtnShine { 0%, 55% { left: -70%; } 100% { left: 140%; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-text, .bg4k-btn::after { animation: none; }
+}
+@media (max-width: 900px) {
+  .bg4k-btn { padding: 6px 10px; font-size: 10px; }
+}

@@ -20,7 +20,7 @@
   <!-- Triumm Delta Stylesheet -->
   <link rel="stylesheet" href="triumm-delta.css" />
 </head>
-<body>
+<body class="light-mode bg-4k-on">
 
   <!-- ==========================================
        DYNAMIC 4K VIDEO BACKGROUND
@@ -70,7 +70,7 @@
         <!-- 4K Zen Music Button -->
         <button type="button" id="tdNavMusicBtn" class="nav-music-link-btn" aria-label="Toggle Background Music">
           <span class="music-icon-pulse">🎵</span>
-          <span class="music-nav-title">4K Zen Music</span>
+          <span class="music-nav-title glow-text">4K Zen Music</span>
           <span class="sound-wave-mini">
             <span class="wave-bar"></span>
             <span class="wave-bar"></span>
@@ -82,6 +82,12 @@
       <!-- Right Action Controls -->
       <div class="nav-controls-group">
 
+        <!-- Dynamic 4K Background Toggle -->
+        <button type="button" id="tdBgToggleBtn" class="bg4k-btn is-on" aria-label="Toggle Dynamic 4K Background" aria-pressed="true">
+          <span class="bg4k-dot"></span>
+          <span class="glow-text" id="tdBgStatusText">4K Background: ON</span>
+        </button>
+
         <!-- Sound Toggle Pill -->
         <button type="button" id="tdSoundToggleBtn" class="sound-toggle-pill" aria-label="Toggle Sound">
           <span class="sound-wave-track">
@@ -89,14 +95,14 @@
             <span class="sound-wave-bar"></span>
             <span class="sound-wave-bar"></span>
           </span>
-          <span class="sound-label-text" id="tdSoundStatusText">Music: OFF</span>
+          <span class="sound-label-text glow-text" id="tdSoundStatusText">Music: OFF</span>
         </button>
 
         <!-- Theme Toggle Switch -->
         <div id="tdThemeToggle" class="theme-switch-pill" role="button" aria-label="Toggle Theme" tabindex="0">
           <span class="theme-icon-track">🌙</span>
           <span class="theme-icon-track">☀️</span>
-          <div class="theme-switch-thumb" id="tdThemeThumb">🌙</div>
+          <div class="theme-switch-thumb" id="tdThemeThumb">☀️</div>
         </div>
 
         <!-- Profile Avatar Button -->
@@ -144,9 +150,9 @@
         <div class="td-live-left">
           <span class="td-live-pill">
             <span class="td-live-dot"></span>
-            <span>LIVE</span>
+            <span>LIVE FEED SYNC</span>
           </span>
-          <span class="td-clock-text" id="tdLiveClock">01:49:46 PM</span>
+          <span class="td-clock-text" id="tdLiveClock">--:--:-- --</span>
         </div>
 
         <button type="button" class="td-refresh-btn" id="tdRefreshBtn" aria-label="Refresh Feed" title="Sync Latest Feed">
@@ -165,7 +171,7 @@
         </h1>
         <h2 class="td-hero-sub-heading">AI Market Intelligence Feed.</h2>
         <p class="td-hero-description">
-          Real-time forex, crypto &amp; macro news · AI price impact analysis
+          Real-time forex, crypto &amp; macro news · AI price impact analysis &amp; auto-feed updates
         </p>
       </section>
 
@@ -173,23 +179,23 @@
       <section class="td-kpi-row">
         <div class="td-kpi-pill">
           <span class="td-kpi-icon green">((•))</span>
-          <span id="kpiItemsCount">142 ITEMS</span>
+          <span id="kpiItemsCount">-- ITEMS</span>
         </div>
         <div class="td-kpi-pill">
           <span class="td-kpi-icon green">↗</span>
-          <span id="kpiMoversCount">2 MOVERS</span>
+          <span id="kpiMoversCount">-- MOVERS</span>
         </div>
         <div class="td-kpi-pill">
           <span class="td-kpi-icon red">⚡</span>
-          <span id="kpiHighCount">14 HIGH</span>
+          <span id="kpiHighCount">-- HIGH</span>
         </div>
         <div class="td-kpi-pill">
           <span class="td-kpi-icon cyan">🌐</span>
-          <span id="kpiSourcesCount">2 SOURCES</span>
+          <span id="kpiSourcesCount">-- SOURCES</span>
         </div>
         <div class="td-kpi-pill">
           <span class="td-kpi-icon green">↗</span>
-          <span id="kpiBullishCount">4 BULLISH</span>
+          <span id="kpiBullishCount">-- BULLISH</span>
         </div>
       </section>
 
@@ -197,19 +203,19 @@
       <section class="td-glass-card">
         <div class="td-card-header">
           <span class="td-card-title">MARKET SENTIMENT</span>
-          <span class="td-card-meta" id="sentimentAnalyzedText">50 analyzed</span>
+          <span class="td-card-meta" id="sentimentAnalyzedText">loading…</span>
         </div>
 
         <div class="td-sentiment-track">
-          <div class="td-sent-bar-bull" id="sentBarBull" style="width: 8%;"></div>
-          <div class="td-sent-bar-neut" id="sentBarNeut" style="width: 72%;"></div>
-          <div class="td-sent-bar-bear" id="sentBarBear" style="width: 20%;"></div>
+          <div class="td-sent-bar-bull" id="sentBarBull" style="width: 0%;"></div>
+          <div class="td-sent-bar-neut" id="sentBarNeut" style="width: 100%;"></div>
+          <div class="td-sent-bar-bear" id="sentBarBear" style="width: 0%;"></div>
         </div>
 
         <div class="td-sentiment-labels">
-          <span class="td-sent-lbl-bull" id="sentLblBull">▲ 8% Bullish</span>
-          <span class="td-sent-lbl-neut" id="sentLblNeut">◆ 72% Neutral</span>
-          <span class="td-sent-lbl-bear" id="sentLblBear">▼ 20% Bearish</span>
+          <span class="td-sent-lbl-bull" id="sentLblBull">▲ 0% Bullish</span>
+          <span class="td-sent-lbl-neut" id="sentLblNeut">◆ 100% Neutral</span>
+          <span class="td-sent-lbl-bear" id="sentLblBear">▼ 0% Bearish</span>
         </div>
       </section>
 
@@ -307,7 +313,7 @@
           </div>
         </div>
 
-        <div class="td-showing-count" id="tdShowingCount">Showing 142 of 142 items</div>
+        <div class="td-showing-count" id="tdShowingCount">Loading live feed…</div>
       </section>
 
       <!-- PANEL 7: NEWS & INTELLIGENCE FEED STREAM -->
