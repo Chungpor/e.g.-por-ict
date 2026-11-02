@@ -744,6 +744,7 @@ function computeAlgorithmicAnalysis(barCount) {
     harmonicPattern: isBullish ? 'Bullish Deep Gartley PRZ Validated' : 'Bearish Bat 0.886 Exhaustion Zone'
   };
 
+  if (!state.replayActive) journalAutoDrop();
   updateDashboardUI(activeBar);
 }
 
@@ -1432,6 +1433,7 @@ window.addEventListener('DOMContentLoaded', () => {
     computeAlgorithmicAnalysis(state.replayIndex);
     renderCandlestickChart();
     if (state.lastAnalysis) {
+      journalDrop('Manual');
       appendTelemetryLog(`Decision: ${cfg.ticker} ${state.lastAnalysis.direction} (${state.lastAnalysis.conviction}%) | Live Price=${state.lastAnalysis.activePrice.toFixed(cfg.decimals)}`);
     }
     showToast(`Live Analysis Completed for ${state.currentPair}`);
@@ -1527,9 +1529,9 @@ TP 3 (1:3.5): ${a.tp3.toFixed(dec)}`;
   });
 
   document.getElementById('openJournalBtn').addEventListener('click', function() {
-    switchOutputTab('sizer');
-    showToast('Switched to Position Sizer & Live Multi-Pair Radar');
+    openJournal();
   });
+  initJournal();
 
   // Canvas Mouse Crosshair Hover Listener
   document.getElementById('candlestickCanvas').addEventListener('mousemove', function(e) {
@@ -1565,3 +1567,151 @@ TP 3 (1:3.5): ${a.tp3.toFixed(dec)}`;
   fetchLiveMultiPairRadar();
   setInterval(fetchLiveMultiPairRadar, 10000);
 });
+
+// ============================================================================
+// TRADING JOURNAL — SIGNAL HISTORY (signals auto-drop in here)
+// ============================================================================
+const JOURNAL_KEY = 'triumm_signal_history_v1';
+const JOURNAL_MAX = 200;
+const journal = { entries: [], lastDir: {}, lastTime: {}, open: false };
+
+function journalSave() {
+  try { localStorage.setItem(JOURNAL_KEY, JSON.stringify(journal.entries)); } catch (e) {}
+}
+
+function journalLoad() {
+  try {
+    const raw = localStorage.getItem(JOURNAL_KEY);
+    journal.entries = raw ? JSON.parse(raw) : [];
+  } catch (e) { journal.entries = []; }
+}
+
+function journalDrop(source) {
+  const a = state.lastAnalysis;
+  if (!a) return;
+  const cfg = PAIR_CONFIG[state.currentPair];
+  journal.entries.unshift({
+    id: Date.now() + Math.random(),
+    ts: Date.now(),
+    source: source,
+    pair: state.currentPair,
+    tf: state.currentTimeframe.toUpperCase(),
+    dir: a.direction,
+    conv: a.conviction,
+    dec: cfg.decimals,
+    price: a.activePrice,
+    entry: [a.entryLow, a.entryHigh],
+    sl: a.stopLoss, tp1: a.tp1, tp2: a.tp2, tp3: a.tp3
+  });
+  if (journal.entries.length > JOURNAL_MAX) journal.entries.length = JOURNAL_MAX;
+  journalSave();
+  journalRender();
+}
+
+// Auto drop: first signal for a pair/timeframe, then every direction flip (30s cooldown vs. tick noise)
+function journalAutoDrop() {
+  const a = state.lastAnalysis;
+  if (!a) return;
+  const key = state.currentPair + '|' + state.currentTimeframe;
+  const now = Date.now();
+  if (journal.lastDir[key] === a.direction) return;
+  if (journal.lastTime[key] && now - journal.lastTime[key] < 30000) return;
+  journal.lastDir[key] = a.direction;
+  journal.lastTime[key] = now;
+  journalDrop('Auto');
+  if (!journal.open) {
+    const btn = document.getElementById('openJournalBtn');
+    if (btn) { btn.classList.remove('tick-up'); void btn.offsetWidth; btn.classList.add('tick-up'); }
+  }
+}
+
+function journalRender() {
+  const list = document.getElementById('journalList');
+  const count = document.getElementById('journalCount');
+  const btnCount = document.getElementById('journalBtnCount');
+  if (btnCount) btnCount.textContent = journal.entries.length;
+  if (!list) return;
+  count.textContent = journal.entries.length + ' signal' + (journal.entries.length === 1 ? '' : 's');
+  if (!journal.entries.length) {
+    list.innerHTML = '<div class="text-center text-slate-500 text-xs py-10">No signals yet. They will drop here automatically.</div>';
+    return;
+  }
+  list.innerHTML = journal.entries.map(e => {
+    const f = v => Number(v).toFixed(e.dec);
+    const buy = e.dir === 'BUY';
+    const col = buy ? 'text-emerald-400 border-emerald-500/40 bg-emerald-500/10' : 'text-red-400 border-red-500/40 bg-red-500/10';
+    return `<div class="triumm-subcard p-3 mb-2">
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 rounded-md border text-[11px] font-bold ${col}">${e.dir}</span>
+          <span class="text-white text-sm font-semibold">${e.pair}</span>
+          <span class="text-slate-400 text-[11px]">${e.tf}</span>
+          <span class="text-slate-500 text-[10px] uppercase tracking-wide">${e.source}</span>
+        </div>
+        <span class="text-slate-400 text-[11px]">${new Date(e.ts).toLocaleString()}</span>
+      </div>
+      <div class="font-mono-code text-[11px] text-slate-300 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1">
+        <span>Price: <b class="text-white">${f(e.price)}</b></span>
+        <span>Conviction: <b class="text-white">${e.conv}%</b></span>
+        <span>Entry: <b class="text-white">${f(e.entry[0])}–${f(e.entry[1])}</b></span>
+        <span>SL: <b class="text-red-300">${f(e.sl)}</b></span>
+        <span>TP1: <b class="text-emerald-300">${f(e.tp1)}</b></span>
+        <span>TP2: <b class="text-emerald-300">${f(e.tp2)}</b></span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openJournal() {
+  journal.open = true;
+  document.getElementById('journalOverlay').classList.remove('hidden');
+  journalRender();
+}
+
+function closeJournal() {
+  journal.open = false;
+  document.getElementById('journalOverlay').classList.add('hidden');
+}
+
+function initJournal() {
+  journalLoad();
+  const btn = document.getElementById('openJournalBtn');
+  btn.insertAdjacentHTML('beforeend', ' <span id="journalBtnCount" class="ml-1 px-1.5 rounded-full bg-emerald-500/20 text-[10px] text-emerald-300">0</span>');
+
+  const overlay = document.createElement('div');
+  overlay.id = 'journalOverlay';
+  overlay.className = 'hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-start justify-center p-4 pt-16';
+  overlay.innerHTML = `
+    <div class="triumm-card w-full max-w-2xl max-h-[80vh] flex flex-col p-4">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <div class="text-white font-bold text-base"><i class="fa-solid fa-book mr-2 text-emerald-400"></i>Trading Journal — History Signal</div>
+          <div id="journalCount" class="text-[11px] text-slate-400">0 signals</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="journalCopyBtn" class="strategy-chip text-[11px] px-2.5 py-1 rounded-lg">Copy</button>
+          <button id="journalClearBtn" class="strategy-chip text-[11px] px-2.5 py-1 rounded-lg">Clear</button>
+          <button id="journalCloseBtn" class="strategy-chip text-[11px] px-2.5 py-1 rounded-lg"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div id="journalList" class="telemetry-scroll overflow-y-auto pr-1 flex-1"></div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeJournal(); });
+  document.getElementById('journalCloseBtn').addEventListener('click', closeJournal);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && journal.open) closeJournal(); });
+  document.getElementById('journalClearBtn').addEventListener('click', function() {
+    journal.entries = [];
+    journalSave();
+    journalRender();
+  });
+  document.getElementById('journalCopyBtn').addEventListener('click', function() {
+    const text = journal.entries.map(e => {
+      const f = v => Number(v).toFixed(e.dec);
+      return `${new Date(e.ts).toLocaleString()} | ${e.pair} ${e.tf} ${e.dir} (${e.conv}%) @ ${f(e.price)} | Entry ${f(e.entry[0])}-${f(e.entry[1])} | SL ${f(e.sl)} | TP ${f(e.tp1)} / ${f(e.tp2)} / ${f(e.tp3)} [${e.source}]`;
+    }).join('\n');
+    copyTextToClipboard(text, 'Copied Signal History!');
+  });
+  journalRender();
+}
