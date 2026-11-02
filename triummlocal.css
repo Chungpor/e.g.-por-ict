@@ -284,3 +284,25 @@ select.triumm-select option {
 #liveLatencyBadge.ping-good { color: #00e676; text-shadow: 0 0 8px rgba(0, 230, 118, 0.35); }
 #liveLatencyBadge.ping-ok   { color: #fbbf24; text-shadow: 0 0 8px rgba(251, 191, 36, 0.3); }
 #liveLatencyBadge.ping-bad  { color: #ff5252; text-shadow: 0 0 8px rgba(255, 82, 82, 0.35); }
+
+/* Journal — clean signal pills */
+.journal-pills { display: flex; flex-wrap: wrap; gap: 10px; }
+.journal-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 16px;
+  background: rgba(10, 10, 10, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  color: #e2e8f0; font-size: 13px; cursor: pointer;
+  transition: all 0.18s ease;
+  animation: pillDrop 0.4s ease-out;
+}
+.journal-pill:hover { border-color: rgba(16, 185, 129, 0.5); background: rgba(16, 185, 129, 0.08); transform: translateY(-1px); }
+.jp-dir { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; }
+.jp-buy  { color: #00e676; background: rgba(0, 230, 118, 0.12); }
+.jp-sell { color: #ff5252; background: rgba(255, 82, 82, 0.12); }
+.jp-meta { color: #64748b; font-size: 11px; font-variant-numeric: tabular-nums; }
+@keyframes pillDrop {
+  0% { opacity: 0; transform: translateY(-10px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}

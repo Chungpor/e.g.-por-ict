@@ -745,6 +745,7 @@ function computeAlgorithmicAnalysis(barCount) {
   };
 
   if (!state.replayActive) journalAutoDrop();
+  journalBanner();
   updateDashboardUI(activeBar);
 }
 
@@ -1636,30 +1637,25 @@ function journalRender() {
     list.innerHTML = '<div class="text-center text-slate-500 text-xs py-10">No signals yet. They will drop here automatically.</div>';
     return;
   }
-  list.innerHTML = journal.entries.map(e => {
+  list.innerHTML = '<div class="journal-pills">' + journal.entries.map(e => {
     const f = v => Number(v).toFixed(e.dec);
     const buy = e.dir === 'BUY';
-    const col = buy ? 'text-emerald-400 border-emerald-500/40 bg-emerald-500/10' : 'text-red-400 border-red-500/40 bg-red-500/10';
-    return `<div class="triumm-subcard p-3 mb-2">
-      <div class="flex items-center justify-between gap-2 mb-2">
-        <div class="flex items-center gap-2">
-          <span class="px-2 py-0.5 rounded-md border text-[11px] font-bold ${col}">${e.dir}</span>
-          <span class="text-white text-sm font-semibold">${e.pair}</span>
-          <span class="text-slate-400 text-[11px]">${e.tf}</span>
-          <span class="text-slate-500 text-[10px] uppercase tracking-wide">${e.source}</span>
-        </div>
-        <span class="text-slate-400 text-[11px]">${new Date(e.ts).toLocaleString()}</span>
-      </div>
-      <div class="font-mono-code text-[11px] text-slate-300 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1">
-        <span>Price: <b class="text-white">${f(e.price)}</b></span>
-        <span>Conviction: <b class="text-white">${e.conv}%</b></span>
-        <span>Entry: <b class="text-white">${f(e.entry[0])}–${f(e.entry[1])}</b></span>
-        <span>SL: <b class="text-red-300">${f(e.sl)}</b></span>
-        <span>TP1: <b class="text-emerald-300">${f(e.tp1)}</b></span>
-        <span>TP2: <b class="text-emerald-300">${f(e.tp2)}</b></span>
-      </div>
-    </div>`;
-  }).join('');
+    const t = new Date(e.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const tip = `${e.dir} ${e.pair} ${e.tf} (${e.conv}%) | Entry ${f(e.entry[0])}-${f(e.entry[1])} | SL ${f(e.sl)} | TP ${f(e.tp1)} / ${f(e.tp2)} / ${f(e.tp3)} | ${new Date(e.ts).toLocaleString()}`;
+    return `<button class="journal-pill" data-id="${e.id}" title="${tip}">
+      <span class="jp-dir ${buy ? 'jp-buy' : 'jp-sell'}">${e.dir}</span>
+      <span>${e.pair} signals</span>
+      <span class="jp-meta">${e.tf} · ${f(e.price)} · ${t}</span>
+    </button>`;
+  }).join('') + '</div>';
+  list.querySelectorAll('.journal-pill').forEach(el => {
+    el.addEventListener('click', () => {
+      const en = journal.entries.find(x => String(x.id) === el.dataset.id);
+      if (!en) return;
+      const f = v => Number(v).toFixed(en.dec);
+      copyTextToClipboard(`TRIUMM SIGNAL — ${en.pair} (${en.tf})\nDirection: ${en.dir} (${en.conv}%)\nPrice: ${f(en.price)}\nEntry: ${f(en.entry[0])} - ${f(en.entry[1])}\nSL: ${f(en.sl)}\nTP1: ${f(en.tp1)}\nTP2: ${f(en.tp2)}\nTP3: ${f(en.tp3)}`, 'Copied signal ticket!');
+    });
+  });
 }
 
 function openJournal() {
@@ -1676,6 +1672,9 @@ function closeJournal() {
 function initJournal() {
   journalLoad();
   const btn = document.getElementById('openJournalBtn');
+  const bar = btn.parentElement;
+  bar.classList.add('flex-wrap');
+  bar.insertAdjacentHTML('beforeend', '<span class="text-slate-600">·</span><span id="bannerSignal" class="font-mono-code text-[11px] text-slate-400">Waiting for signal…</span>');
   btn.insertAdjacentHTML('beforeend', ' <span id="journalBtnCount" class="ml-1 px-1.5 rounded-full bg-emerald-500/20 text-[10px] text-emerald-300">0</span>');
 
   const overlay = document.createElement('div');
@@ -1714,4 +1713,20 @@ function initJournal() {
     copyTextToClipboard(text, 'Copied Signal History!');
   });
   journalRender();
+}
+
+// Top banner: live Entry / TP / SL of the current signal
+function journalBanner() {
+  const el = document.getElementById('bannerSignal');
+  const a = state.lastAnalysis;
+  if (!el || !a) return;
+  const cfg = PAIR_CONFIG[state.currentPair];
+  const f = v => Number(v).toFixed(cfg.decimals);
+  const buy = a.direction === 'BUY';
+  el.innerHTML =
+    `<span class="${buy ? 'text-emerald-400' : 'text-red-400'} font-bold">${a.direction}</span> ` +
+    `<span class="text-white">${state.currentPair}</span> ` +
+    `<span class="text-slate-500">|</span> Entry <span class="text-white">${f(a.entryLow)}–${f(a.entryHigh)}</span> ` +
+    `<span class="text-slate-500">|</span> TP <span class="text-emerald-300">${f(a.tp1)}</span> / <span class="text-emerald-300">${f(a.tp2)}</span> / <span class="text-emerald-300">${f(a.tp3)}</span> ` +
+    `<span class="text-slate-500">|</span> SL <span class="text-red-300">${f(a.stopLoss)}</span>`;
 }
