@@ -1532,6 +1532,11 @@
       const BINANCE_WS   = ['wss://stream.binance.com:9443', 'wss://data-stream.binance.vision'];
       const STALE_MS = 60000;
 
+      // OPTIONAL: your own CORS proxy (e.g. a Cloudflare Worker). Format: 'https://your-worker.workers.dev/?url='
+      // When set it is tried FIRST for every non-Binance request. This is the most reliable fix for NAS100.
+      const PROXY_BASE = '';
+      const BINANCE_FUT_REST = ['https://fapi.binance.com'];
+
       const DASHBOARD_PAIRS = ['XAUUSD', 'XAGUSD', 'BTCUSD', 'NAS100', 'EURUSD', 'ETHUSDT'];
 
       function mk(o) {
@@ -1560,6 +1565,14 @@
       ];
 
       const bySym = (s) => marketAssets.find((a) => a.symbol === s);
+
+      // Binance fallbacks (CORS-friendly, same network path that already works for BTC/ETH).
+      // Used only when the primary source has no fresh quote.
+      //   fut = USDS-M futures symbol, spot = spot symbol.
+      bySym('XAUUSD').bfb = [{ host: 'fut', sym: 'XAUUSDT', label: 'Binance Futures XAU' }, { host: 'hl', sym: 'xyz:GOLD', label: 'Hyperliquid Gold' }, { host: 'spot', sym: 'PAXGUSDT', label: 'Binance PAXG (gold proxy)' }];
+      bySym('XAGUSD').bfb = [{ host: 'fut', sym: 'XAGUSDT', label: 'Binance Futures XAG' }, { host: 'hl', sym: 'xyz:SILVER', label: 'Hyperliquid Silver' }];
+      bySym('EURUSD').bfb = [{ host: 'spot', sym: 'EURUSDT', label: 'Binance EUR/USDT (proxy)' }, { host: 'hl', sym: 'xyz:EUR', label: 'Hyperliquid EUR' }];
+      bySym('NAS100').bfb = [{ host: 'hl', sym: 'xyz:XYZ100', label: 'Hyperliquid NAS100 (NQ)' }];
 
       let currentTrendFilter = 'all';
       let activeChartSymbol = 'XAUUSD';
@@ -1592,8 +1605,10 @@
       // Direct first (if the API allows CORS), then public CORS relays.
       async function fetchWithRelays(url, tryDirect) {
         const list = [];
+        if (PROXY_BASE) list.push(PROXY_BASE + encodeURIComponent(url));
         if (tryDirect) list.push(url);
         list.push('https://corsproxy.io/?' + encodeURIComponent(url));
+        list.push('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url));
         list.push('https://api.allorigins.win/raw?url=' + encodeURIComponent(url));
         for (const u of list) {
           try { return await fetchJson(u); } catch (e) { /* try next */ }
@@ -2022,8 +2037,91 @@
         await Promise.all([
           loadBinanceSnapshot().catch(() => {}),
           refreshYahoo().catch(() => {}),
-          refreshSpot().catch(() => {})
+          refreshSpot().catch(() => {}),
+          refreshFallbacks().catch(() => {})   // runs in parallel: fills any feed the primary sources miss
         ]);
+      }
+
+      // 4) Binance fallback feeds for Gold / Silver / EURUSD
+      async function binanceFbGet(host, path) {
+        const hosts = host === 'fut' ? BINANCE_FUT_REST : BINANCE_REST;
+        for (const h of hosts) {
+          try { return await fetchJson(h + path); } catch (e) { /* try next */ }
+        }
+        return null;
+      }
+
+      // Hyperliquid (HIP-3 'xyz' dex): CORS-enabled POST API, 24/7 Nasdaq-100 / gold / silver / FX perps
+      async function hlPost(body) {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 7000);
+        try {
+          const r = await fetch('https://api.hyperliquid.xyz/info', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body), signal: ctrl.signal
+          });
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return await r.json();
+        } finally { clearTimeout(t); }
+      }
+
+      async function hlQuote(coin, ctxCache) {
+        if (!ctxCache.data) {
+          try { ctxCache.data = await hlPost({ type: 'metaAndAssetCtxs', dex: 'xyz' }); } catch (e) { ctxCache.data = []; }
+        }
+        const d = ctxCache.data;
+        if (!Array.isArray(d) || d.length < 2 || !d[0] || !Array.isArray(d[0].universe)) return null;
+        const want = coin.toLowerCase();
+        const i = d[0].universe.findIndex((u) => String(u.name).toLowerCase() === want);
+        const c = i >= 0 ? d[1][i] : null;
+        if (!c) return null;
+        const price = parseFloat(c.markPx || c.midPx || c.oraclePx);
+        const prev = parseFloat(c.prevDayPx);
+        if (!(price > 0)) return null;
+        return { price, prevClose: prev > 0 ? prev : undefined, change: prev > 0 ? ((price - prev) / prev) * 100 : undefined };
+      }
+
+      async function hlCloses(coin) {
+        try {
+          const end = Date.now();
+          const rows = await hlPost({ type: 'candleSnapshot', req: { coin, interval: '15m', startTime: end - 24 * 3600 * 1000, endTime: end } });
+          if (Array.isArray(rows) && rows.length > 10) return rows.map((r) => parseFloat(r.c)).filter((v) => isFinite(v));
+        } catch (e) { /* no candles */ }
+        return null;
+      }
+
+      let fbRunning = false;
+      async function refreshFallbacks() {
+        if (fbRunning) return;
+        fbRunning = true;
+        try {
+          const now = Date.now();
+          const list = marketAssets.filter((a) => a.bfb && (!a.updatedAt || now - a.updatedAt > STALE_MS));
+          const ctxCache = {};
+          await Promise.all(list.map(async (a) => {
+            for (const fb of a.bfb) {
+              let q = null;
+              if (fb.host === 'hl') {
+                q = await hlQuote(fb.sym, ctxCache);
+                if (q && !a.closes.length) { const cl = await hlCloses(fb.sym); if (cl) q.closes = cl; }
+              } else {
+                const base = fb.host === 'fut' ? '/fapi/v1' : '/api/v3';
+                const t = await binanceFbGet(fb.host, base + '/ticker/24hr?symbol=' + fb.sym);
+                const price = t && parseFloat(t.lastPrice);
+                if (!(price > 0)) continue;
+                q = { price, change: parseFloat(t.priceChangePercent), prevClose: parseFloat(t.openPrice) };
+                if (!a.closes.length) {
+                  const rows = await binanceFbGet(fb.host, base + '/klines?symbol=' + fb.sym + '&interval=15m&limit=96');
+                  if (Array.isArray(rows) && rows.length > 10) q.closes = rows.map((r) => parseFloat(r[4])).filter((v) => isFinite(v));
+                }
+              }
+              if (!q) continue;
+              q.source = fb.label; q.note = '';
+              commit(a, q);
+              return;
+            }
+          }));
+        } finally { fbRunning = false; }
       }
 
       // ----------------------------------------------------------- UI plumbing
@@ -2199,6 +2297,7 @@
       updateStatusAndAges();
 
       connectBinanceWebSocket();
+      refreshFallbacks().then(() => renderMarketTrendGrid()).catch(() => {});   // instant live data for Gold/Silver/NAS100/EURUSD
       refreshAll().then(() => {
         loadBinanceSparklines().catch(() => {});
         renderMarketTrendGrid();         // re-render once real data is in (filters apply)
@@ -2210,6 +2309,7 @@
       setInterval(refreshSpot, 5000);                 // GoldPrice / Swissquote
       setInterval(refreshYahoo, 20000);               // Yahoo chart API
       setInterval(loadBinanceSnapshot, 30000);        // REST backup if WS drops
+      setInterval(refreshFallbacks, 4000);            // Binance / Hyperliquid fallbacks
       setInterval(loadBinanceSparklines, 90000);      // refresh real candle history
       setInterval(refreshLiveChartPanel, 3000);
     })();
