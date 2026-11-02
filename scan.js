@@ -1963,6 +1963,8 @@ function buildSignalCopyText(r) {
 - Engulfing & GCE: ${msnr.engulfingGce || 'EG-to-EG Retest + Golden Confirmation Entry'}
 - ICT AMD Cycle: ${msnr.amdCycle || 'Asia Build-Up → London Sweep → NY Distribution'}
 
+⏰ Silver Bullet: ${r.silverBullet ? r.silverBullet.label : "-"}
+
 🧲 ICT Liquidity & Dealing Range:
 - Dealing Range Zone: ${ict.pdZone || (isBuy ? 'DISCOUNT (< 0.5 Fib)' : 'PREMIUM (> 0.5 Fib)')}
 - 0.5 Equilibrium: ${ict.equilibrium50 || '-'}
@@ -4069,3 +4071,78 @@ icons();
   setInterval(refresh, REFRESH_MS);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
 })();
+
+// ===== ICT SILVER BULLET (Cambodia UTC+7) — windows defined in New York time, DST-aware =====
+const SB_SESSIONS = [
+  { key: 'ASIAN',  name: 'Asian Silver Bullet',   icon: '🌏', nyStart: 20 },
+  { key: 'LONDON', name: 'London Silver Bullet',  icon: '🇬🇧', nyStart: 3 },
+  { key: 'NY_AM',  name: 'New York AM Silver Bullet', icon: '🗽', nyStart: 10 },
+  { key: 'NY_PM',  name: 'New York PM Silver Bullet', icon: '🌆', nyStart: 14 }
+];
+function sbParts(date, tz) {
+  const o = {};
+  new Intl.DateTimeFormat('en-US', { timeZone: tz, hour12: false, weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' })
+    .formatToParts(date).forEach((p) => { o[p.type] = p.value; });
+  const h = parseInt(o.hour, 10) % 24, m = parseInt(o.minute, 10), s = parseInt(o.second, 10);
+  return { wd: o.weekday, h, m, s, tz: o.timeZoneName, mins: h * 60 + m, secs: h * 3600 + m * 60 + s };
+}
+const sbHM = (mins) => { const x = ((mins % 1440) + 1440) % 1440; return String(Math.floor(x / 60)).padStart(2, '0') + ':' + String(x % 60).padStart(2, '0'); };
+const sbDur = (secs) => { const h = Math.floor(secs / 3600), m = Math.floor((secs % 3600) / 60), s = secs % 60; return (h ? h + 'h ' : '') + m + 'm ' + String(s).padStart(2, '0') + 's'; };
+
+function sbCompute(date = new Date()) {
+  const ny = sbParts(date, 'America/New_York'), kh = sbParts(date, 'Asia/Phnom_Penh');
+  const diff = (kh.mins - ny.mins + 1440) % 1440; // whole hours (11 or 12)
+  const closed = ny.wd === 'Sat' || (ny.wd === 'Fri' && ny.h >= 17) || (ny.wd === 'Sun' && ny.h < 17);
+  const sessions = SB_SESSIONS.map((x) => {
+    const khStart = (x.nyStart * 60 + diff) % 1440;
+    const secsToStart = (x.nyStart * 3600 - ny.secs + 86400) % 86400;
+    const active = secsToStart === 0 || secsToStart > 86400 - 3600;
+    return { ...x, khRange: sbHM(khStart) + '–' + sbHM(khStart + 60), nyRange: sbHM(x.nyStart * 60) + '–' + sbHM(x.nyStart * 60 + 60), active, secsToStart: active ? 0 : secsToStart, secsLeft: active ? 3600 - ((ny.secs - x.nyStart * 3600 + 86400) % 86400) : 0 };
+  });
+  const active = sessions.find((x) => x.active) || null;
+  const next = sessions.filter((x) => !x.active).sort((a, b) => a.secsToStart - b.secsToStart)[0];
+  return { ny, kh, closed, sessions, active, next };
+}
+function sbSnapshot() {
+  const c = sbCompute();
+  const a = c.active;
+  return {
+    inWindow: !!a && !c.closed, key: a ? a.key : null, closed: c.closed,
+    label: a ? `${a.icon} ${a.name} • ${a.khRange} (KH) / ${a.nyRange} NY ${c.ny.tz}` : `Outside Silver Bullet • next: ${c.next.name} ${c.next.khRange} (KH) in ${sbDur(c.next.secsToStart)}`,
+    stampedAt: Date.now()
+  };
+}
+function sbRender() {
+  if (!$('sbClockKh')) return;
+  const c = sbCompute(), p2 = (n) => String(n).padStart(2, '0');
+  $('sbClockKh').textContent = `${p2(c.kh.h)}:${p2(c.kh.m)}:${p2(c.kh.s)}`;
+  $('sbClockNy').textContent = `${p2(c.ny.h)}:${p2(c.ny.m)}:${p2(c.ny.s)}`;
+  $('sbNyTz').textContent = `(${c.ny.tz})`;
+  const badge = $('sbStatusBadge'), cd = $('sbCountdown');
+  if (c.active && !c.closed) {
+    badge.textContent = '🟢 IN WINDOW'; badge.className = 'px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/60 text-emerald-300 text-[11px] font-extrabold animate-pulse';
+    cd.textContent = `🎯 ${c.active.name} ACTIVE — ${sbDur(c.active.secsLeft)} left`;
+  } else {
+    badge.textContent = c.closed ? '⛔ MARKET CLOSED' : '⏳ WAITING'; badge.className = 'px-2.5 py-1 rounded-full bg-slate-800 border border-slate-600 text-slate-300 text-[11px] font-extrabold';
+    cd.textContent = `${c.closed ? '⛔ Weekend close • ' : ''}Next: ${c.next.icon} ${c.next.name} (${c.next.khRange} KH) in ${sbDur(c.next.secsToStart)}`;
+  }
+  $('sbRows').innerHTML = c.sessions.map((x) => {
+    const isNext = !c.active && x.key === c.next.key;
+    const cls = x.active ? 'border-emerald-400/70 bg-emerald-500/10 text-emerald-200' : isNext ? 'border-amber-400/50 bg-amber-500/5 text-amber-200' : 'border-slate-800 bg-[#0b111e]/90 text-slate-300';
+    return `<div class="flex items-center justify-between px-3 py-2 rounded-xl border ${cls}"><span class="font-extrabold">${x.icon} ${x.name}</span><span class="font-mono font-bold">${x.khRange} <span class="text-[10px] opacity-70">KH</span> · ${x.nyRange} <span class="text-[10px] opacity-70">NY</span>${x.active ? ' 🟢' : isNext ? ' ⏭' : ''}</span></div>`;
+  }).join('');
+}
+function sbRenderResultBanner() {
+  const el = $('rSbBanner'), sb = state.result && state.result.silverBullet;
+  if (!el || !sb) return;
+  el.innerHTML = `<span>🎯</span><span>${sb.inWindow ? '✅ Silver Bullet: ' : '⏳ '}${sb.label}</span>`;
+  el.className = 'mt-3 p-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 border ' + (sb.inWindow ? 'bg-emerald-500/10 border-emerald-400/50 text-emerald-300' : 'bg-slate-800/60 border-slate-600 text-slate-300');
+}
+const _renderResultOrig = renderResult;
+renderResult = function () {
+  if (state.result && !state.result.silverBullet) state.result.silverBullet = sbSnapshot();
+  _renderResultOrig.apply(this, arguments);
+  sbRenderResultBanner();
+};
+sbRender();
+setInterval(sbRender, 1000);
