@@ -5494,3 +5494,428 @@ button.product-chart-btn {
   font-size: 13px;
   padding: 18px 0;
 }
+/* ========================================================
+   GLOSSY GLOW EFFECT: PROFILE BANNER + FEATURE CARDS + BUTTONS
+   (appended block - overrides earlier rules, uses each card's --card-accent-rgb)
+   ======================================================== */
+@keyframes glossBannerFlow {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+@keyframes glossBannerShine {
+  0%        { transform: translateX(-150%) skewX(-20deg); }
+  45%, 100% { transform: translateX(420%) skewX(-20deg); }
+}
+
+/* ---------- PROFILE BANNER ---------- */
+.profile-banner-card {
+  position: relative;
+  border-color: rgba(45, 212, 191, 0.38);
+  box-shadow:
+    var(--card-shadow),
+    0 0 26px rgba(16, 185, 129, 0.22),
+    0 0 48px rgba(245, 158, 11, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  transition: box-shadow 0.35s ease, border-color 0.35s ease;
+}
+.profile-banner-card:hover {
+  border-color: rgba(45, 212, 191, 0.7);
+  box-shadow:
+    var(--card-shadow),
+    0 0 36px rgba(16, 185, 129, 0.38),
+    0 0 70px rgba(245, 158, 11, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.26);
+}
+.profile-gradient-banner {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(100deg,
+    #0d5f4e 0%, #14906b 18%, #3e5334 36%, #c2610a 56%,
+    #f59e0b 72%, #b45309 86%, #0d5f4e 100%);
+  background-size: 300% 100%;
+  animation: glossBannerFlow 16s ease-in-out infinite alternate;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -24px 40px rgba(0, 0, 0, 0.2),
+    0 6px 24px rgba(16, 185, 129, 0.18);
+}
+/* glass highlight across the top half */
+.profile-gradient-banner::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 52%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.06) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  pointer-events: none;
+}
+/* sweeping light streak */
+.profile-gradient-banner::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0; left: 0;
+  width: 40%;
+  background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.38) 50%, transparent 100%);
+  transform: translateX(-150%) skewX(-20deg);
+  animation: glossBannerShine 6.5s ease-in-out infinite;
+  pointer-events: none;
+}
+.profile-avatar {
+  box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.4), 0 0 22px rgba(45, 212, 191, 0.45);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.avatar-wrapper:hover .profile-avatar {
+  box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.8), 0 0 32px rgba(45, 212, 191, 0.7);
+  transform: scale(1.04);
+}
+.tag-upgrade-link {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(56, 189, 248, 0.14) 55%);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.tag-upgrade-link:hover {
+  transform: translateY(-1px);
+  border-color: rgba(56, 189, 248, 0.8);
+  box-shadow: 0 0 22px rgba(56, 189, 248, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+[data-theme="light"] .profile-banner-card {
+  border-color: rgba(13, 148, 136, 0.35);
+  box-shadow:
+    var(--card-shadow),
+    0 0 22px rgba(16, 185, 129, 0.18),
+    0 0 40px rgba(245, 158, 11, 0.1);
+}
+
+/* ---------- FEATURE CARDS (glass sheen + accent glow + action states) ---------- */
+.product-feature-card {
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.52),
+    0 0 22px rgba(var(--card-accent-rgb), 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(var(--card-accent-rgb), 0.2),
+    inset 0 0 30px rgba(var(--card-accent-rgb), 0.06);
+}
+/* ::after becomes full-size glass layer: sheen + corner glow + hover light sweep */
+.product-feature-card::after {
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  border-radius: inherit;
+  background:
+    linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.2) 50%, transparent 62%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 42%),
+    radial-gradient(circle at 12% 0%, rgba(var(--card-accent-rgb), 0.28) 0%, transparent 55%);
+  background-repeat: no-repeat;
+  background-size: 260% 100%, 100% 100%, 100% 100%;
+  background-position: 100% 0, 0 0, 0 0;
+  transition: background-position 0.9s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+}
+.product-feature-card:hover::after,
+.product-feature-card:active::after {
+  transform: none;
+  background-position: 0% 0, 0 0, 0 0;
+}
+.product-feature-card:hover {
+  box-shadow:
+    0 22px 48px rgba(0, 0, 0, 0.65),
+    0 0 38px rgba(var(--card-accent-rgb), 0.45),
+    0 0 84px rgba(var(--card-accent-rgb), 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 0 34px rgba(var(--card-accent-rgb), 0.12);
+}
+.product-feature-card:active {
+  transform: translateY(-2px) scale(0.985);
+}
+.product-card-badge,
+.terminal-icon-badge-box {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 55%),
+    rgba(var(--card-accent-rgb), 0.15);
+  box-shadow:
+    0 0 20px rgba(var(--card-accent-rgb), 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 0 12px rgba(var(--card-accent-rgb), 0.14);
+}
+
+[data-theme="light"] .product-feature-card {
+  box-shadow:
+    0 10px 26px rgba(15, 23, 42, 0.07),
+    0 0 20px rgba(var(--card-accent-rgb), 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 0 26px rgba(var(--card-accent-rgb), 0.05) !important;
+}
+[data-theme="light"] .product-feature-card:hover {
+  box-shadow:
+    0 16px 36px rgba(15, 23, 42, 0.13),
+    0 0 34px rgba(var(--card-accent-rgb), 0.38),
+    0 0 64px rgba(var(--card-accent-rgb), 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+}
+[data-theme="light"] .product-feature-card::after {
+  background:
+    linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.85) 50%, transparent 62%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0) 42%),
+    radial-gradient(circle at 12% 0%, rgba(var(--card-accent-rgb), 0.2) 0%, transparent 55%);
+  background-repeat: no-repeat;
+  background-size: 260% 100%, 100% 100%, 100% 100%;
+  background-position: 100% 0, 0 0, 0 0;
+}
+[data-theme="light"] .product-feature-card:hover::after,
+[data-theme="light"] .product-feature-card:active::after {
+  background-position: 0% 0, 0 0, 0 0;
+}
+
+/* ---------- FEATURE CARD BUTTONS (glossy glass pill + glow) ---------- */
+html body .product-feature-card .product-chart-btn {
+  isolation: isolate;
+  box-shadow:
+    0 0 16px rgba(var(--card-accent-rgb), 0.3),
+    0 4px 14px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 0 14px rgba(var(--card-accent-rgb), 0.14) !important;
+}
+/* glass highlight on the upper half, painted under the label text */
+.product-feature-card .product-chart-btn::before {
+  content: "";
+  position: absolute;
+  top: 1px; left: 6px; right: 6px;
+  height: 48%;
+  border-radius: 999px 999px 60% 60% / 999px 999px 40% 40%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0.04) 100%);
+  z-index: -1;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+html body .product-feature-card:hover .product-chart-btn,
+html body .product-feature-card .product-chart-btn:hover {
+  box-shadow:
+    0 0 32px rgba(var(--card-accent-rgb), 0.65),
+    0 0 60px rgba(var(--card-accent-rgb), 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 0 16px rgba(var(--card-accent-rgb), 0.28) !important;
+}
+html body .product-feature-card .product-chart-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+.product-feature-card .product-chart-btn:focus-visible {
+  outline: 2px solid var(--card-accent);
+  outline-offset: 3px;
+}
+html[data-theme="light"] body .product-feature-card .product-chart-btn {
+  box-shadow:
+    0 0 14px rgba(var(--card-accent-rgb), 0.22),
+    0 2px 8px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 0 10px rgba(var(--card-accent-rgb), 0.07) !important;
+}
+html[data-theme="light"] body .product-feature-card:hover .product-chart-btn,
+html[data-theme="light"] body .product-feature-card .product-chart-btn:hover {
+  box-shadow:
+    0 6px 22px rgba(var(--card-accent-rgb), 0.45),
+    0 0 30px rgba(var(--card-accent-rgb), 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-gradient-banner,
+  .profile-gradient-banner::after { animation: none; }
+  .product-feature-card::after { transition: none; }
+}
+
+/* ========================================================
+   GLOSSY GLOW EFFECT: TOP NAVIGATION BAR
+   (appended block - brand, menu links, music / sound / theme / avatar / language / log out)
+   ======================================================== */
+@keyframes glossNavEdgeFlow {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+@keyframes glossNavLogoPulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(13, 148, 136, 0.45), 0 0 0 1px rgba(45, 212, 191, 0.3); }
+  50%      { box-shadow: 0 0 20px rgba(45, 212, 191, 0.75), 0 0 0 1px rgba(45, 212, 191, 0.6); }
+}
+
+/* ---------- BAR: glass sheen + glowing bottom edge ---------- */
+.global-top-bar {
+  isolation: isolate;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.22),
+    0 6px 30px rgba(13, 148, 136, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+.global-top-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 45% 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0) 100%);
+  z-index: -1;
+  pointer-events: none;
+}
+.global-top-bar::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%, #0d9488 12%, #38bdf8 30%, #9d72ff 48%,
+    #f59e0b 66%, #10b981 84%, transparent 100%);
+  background-size: 200% 100%;
+  opacity: 0.85;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.7));
+  animation: glossNavEdgeFlow 9s linear infinite;
+  pointer-events: none;
+}
+[data-theme="light"] .global-top-bar {
+  box-shadow:
+    0 4px 18px rgba(15, 23, 42, 0.08),
+    0 6px 26px rgba(13, 148, 136, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+[data-theme="light"] .global-top-bar::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+/* ---------- BRAND ---------- */
+.brand-badge-circle {
+  animation: glossNavLogoPulse 3.4s ease-in-out infinite;
+}
+.nav-brand:hover .brand-badge-circle {
+  animation: none;
+  box-shadow: 0 0 24px rgba(45, 212, 191, 0.85), 0 0 0 2px rgba(45, 212, 191, 0.6);
+}
+.brand-title strong {
+  text-shadow: 0 0 14px rgba(13, 148, 136, 0.65);
+}
+
+/* ---------- MENU LINKS: glossy glass pill + accent glow ---------- */
+.nav-center-links {
+  padding: 10px 10px;
+  margin: -2px 0;
+}
+.nav-link {
+  --nav-rgb: 13, 148, 136;
+  position: relative;
+}
+.nav-link-red                                  { --nav-rgb: 239, 68, 68; }
+.nav-link-yellow                               { --nav-rgb: 234, 179, 8; }
+.nav-link-golden-chestnut,
+.nav-link-lavender-purple                      { --nav-rgb: 157, 114, 255; }
+.nav-link-flamingo                             { --nav-rgb: 252, 70, 170; }
+.nav-link-aquamarine                           { --nav-rgb: 127, 255, 212; }
+.nav-link-aqua                                 { --nav-rgb: 0, 255, 255; }
+.nav-link-tomato                               { --nav-rgb: 255, 99, 71; }
+.nav-link-darkgray                             { --nav-rgb: 169, 169, 169; }
+.nav-terminal-accent                           { --nav-rgb: 56, 189, 248; }
+[data-theme="light"] .nav-link-yellow          { --nav-rgb: 202, 138, 4; }
+[data-theme="light"] .nav-link-golden-chestnut,
+[data-theme="light"] .nav-link-lavender-purple { --nav-rgb: 124, 58, 237; }
+[data-theme="light"] .nav-link-aquamarine      { --nav-rgb: 13, 148, 136; }
+[data-theme="light"] .nav-link-aqua            { --nav-rgb: 0, 151, 167; }
+[data-theme="light"] .nav-link-darkgray        { --nav-rgb: 107, 107, 107; }
+[data-theme="light"] .nav-link-red             { --nav-rgb: 220, 38, 38; }
+[data-theme="light"] .nav-terminal-accent      { --nav-rgb: 2, 132, 199; }
+
+/* soft neon glow on the coloured labels (dark theme only) */
+html:not([data-theme="light"]) .nav-center-links .nav-link:not(:hover):not(.active) {
+  text-shadow: 0 0 10px rgba(var(--nav-rgb), 0.22);
+}
+.nav-center-links .nav-link:hover,
+.nav-center-links .nav-link.active {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 55%),
+    rgba(var(--nav-rgb), 0.12);
+  box-shadow:
+    0 0 14px rgba(var(--nav-rgb), 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    inset 0 0 0 1px rgba(var(--nav-rgb), 0.3);
+  text-shadow: 0 0 12px rgba(var(--nav-rgb), 0.6);
+}
+.nav-center-links .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 50%; bottom: 1px;
+  width: 0; height: 2px;
+  border-radius: 2px;
+  background: rgb(var(--nav-rgb));
+  box-shadow: 0 0 8px rgba(var(--nav-rgb), 0.9);
+  transform: translateX(-50%);
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.nav-center-links .nav-link:hover::after,
+.nav-center-links .nav-link.active::after {
+  width: 56%;
+}
+.nav-center-links .nav-link:active {
+  transform: translateY(0) scale(0.97);
+}
+[data-theme="light"] .nav-center-links .nav-link:hover,
+[data-theme="light"] .nav-center-links .nav-link.active {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 55%),
+    rgba(var(--nav-rgb), 0.1);
+  box-shadow:
+    0 0 12px rgba(var(--nav-rgb), 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 0 0 1px rgba(var(--nav-rgb), 0.3);
+  text-shadow: none;
+}
+
+/* ---------- RIGHT-HAND PILLS: glossy glass + glow ---------- */
+.nav-music-link-btn,
+.sound-toggle-pill,
+.theme-switch-pill,
+.lang-pill-btn,
+.nav-logout-pill,
+.nav-avatar-btn {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 55%);
+  box-shadow:
+    0 0 10px rgba(13, 148, 136, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.25s ease, color 0.22s ease, background-color 0.22s ease;
+}
+.nav-music-link-btn:hover,
+.sound-toggle-pill:hover,
+.theme-switch-pill:hover,
+.lang-pill-btn:hover,
+.nav-avatar-btn:hover {
+  box-shadow:
+    0 0 20px rgba(13, 148, 136, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+.nav-logout-pill:hover {
+  box-shadow:
+    0 0 20px rgba(239, 68, 68, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+.nav-music-link-btn.is-playing,
+.sound-toggle-pill.is-playing {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 55%);
+  box-shadow:
+    0 0 20px rgba(16, 185, 129, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+.nav-music-link-btn:active,
+.sound-toggle-pill:active,
+.theme-switch-pill:active,
+.lang-pill-btn:active,
+.nav-logout-pill:active,
+.nav-avatar-btn:active {
+  transform: translateY(0) scale(0.96);
+}
+[data-theme="light"] .nav-music-link-btn,
+[data-theme="light"] .sound-toggle-pill,
+[data-theme="light"] .theme-switch-pill,
+[data-theme="light"] .lang-pill-btn,
+[data-theme="light"] .nav-logout-pill,
+[data-theme="light"] .nav-avatar-btn {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 55%);
+  box-shadow:
+    0 0 10px rgba(13, 148, 136, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .global-top-bar::after,
+  .brand-badge-circle { animation: none; }
+  .nav-center-links .nav-link::after { transition: none; }
+}
