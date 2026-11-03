@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-    <!-- Favicon -->
-  <link rel="icon" type="image/jpeg" href="por.jpg" />
-  <link rel="apple-touch-icon" href="por.jpg" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POR AI MARKET ANALYZER | Live Gold Trading & AI Signals</title>
@@ -24,6 +21,7 @@
         </div>
         <div class="market-ticker-bar" id="marketTicker"></div>
         <div class="nav-actions">
+            <a href="index.html" class="btn-outline back-home-btn" id="backToMainDashBtn" title="Back to Main Dashboard Home"><i class="fa-solid fa-house"></i> <span>Dashboard Home</span></a>
             <button class="oanda-badge" id="openOandaBtn" type="button" title="Configure Direct OANDA v20 Live Feed"><i class="fa-solid fa-satellite-dish"></i> <span id="oandaStatusText">OANDA: TV + Spot Proxy</span></button>
             <span class="feed-status" id="feedStatus" title="Connecting to live feed"><i class="fa-solid fa-circle"></i></span>
             <button class="btn-outline" id="toggleTheme" type="button" aria-label="Toggle theme"><i class="fa-solid fa-moon"></i></button>
@@ -130,7 +128,9 @@
                 <div class="chart-pane ai-chart-pane">
                     <div class="pane-bar">
                         <span class="pane-title"><i class="fa-solid fa-crosshairs"></i> <span id="aiPaneTitle">OANDA:XAUUSD · UNIFIED AI LEVELS CHART</span></span>
-                        <div style="display:flex;align-items:center;gap:8px;">
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                            <span class="markers-pill" id="signalStatsPill" title="Historical BUY & SELL signal arrow markers plotted on chart">SIGNALS: <b class="bull" id="buyCountVal">0 BUY</b> · <b class="bear" id="sellCountVal">0 SELL</b></span>
+                            <button class="marker-toggle-btn active" id="toggleMarkersBtn" type="button" title="Show/Hide BUY & SELL Arrow Markers on Candles"><i class="fa-solid fa-location-arrow"></i> Arrows ON</button>
                             <span class="sync-pill" id="basisSyncPill" title="Synced to real-time OANDA:XAUUSD Spot Price">● OANDA SPOT SYNCED</span>
                             <button class="link-btn" id="resetZoomBtn" type="button" title="Reset chart zoom to latest 75 candles"><i class="fa-solid fa-magnifying-glass-minus"></i> Reset Zoom</button>
                         </div>
@@ -305,6 +305,7 @@
                 <strong>Chart View:</strong> Streams real-time <code>OANDA:XAUUSD</code> directly via the TradingView OANDA feed.<br>
                 <strong>AI Engine &amp; Tickers:</strong> Connect your OANDA v20 Personal Access Token below to pull raw OANDA <code>XAU_USD</code> candles &amp; real-time Bid/Ask spreads directly from OANDA servers (falls back automatically to 24/7 Spot Gold WebSocket if left blank).
             </p>
+
             <div id="oandaMsg" class="alert-error" hidden></div>
             <form id="oandaForm">
                 <div class="control-group">
