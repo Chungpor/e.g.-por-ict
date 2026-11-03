@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="por.jpg" />
+  <link rel="apple-touch-icon" href="por.jpg" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POR AI MARKET ANALYZER | Live Gold Trading & AI Signals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="gold.css">
+    <script>try{var t=localStorage.getItem('phumea-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+    <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="https://s3.tradingview.com/tv.js"></script>
+</head>
+<body>
+    <header class="top-nav">
+        <div class="logo-area">
+            <span class="brand-tag">POR AI MARKET ANALYZER</span>
+            <span class="sub-brand">XAU/USD Terminal</span>
+        </div>
+        <div class="market-ticker-bar" id="marketTicker"></div>
+        <div class="nav-actions">
+            <button class="oanda-badge" id="openOandaBtn" type="button" title="Configure Direct OANDA v20 Live Feed"><i class="fa-solid fa-satellite-dish"></i> <span id="oandaStatusText">OANDA: TV + Spot Proxy</span></button>
+            <span class="feed-status" id="feedStatus" title="Connecting to live feed"><i class="fa-solid fa-circle"></i></span>
+            <button class="btn-outline" id="toggleTheme" type="button" aria-label="Toggle theme"><i class="fa-solid fa-moon"></i></button>
+            <span class="user-chip hidden" id="userChip"></span>
+            <button class="btn-outline hidden" id="logoutBtn" type="button">Log out</button>
+            <button class="btn-primary" id="openModalBtn" type="button"><i class="fa-solid fa-user-plus"></i> Create Account</button>
+        </div>
+    </header>
+
+    <div class="workspace-grid">
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3><i class="fa-solid fa-chart-line"></i> Market Watch</h3>
+                <ul class="asset-list" id="assetList"></ul>
+            </div>
+            <div class="sidebar-section">
+                <h3><i class="fa-solid fa-sliders"></i> Paper Trade Setup</h3>
+                <div class="control-group">
+                    <label for="capitalSelect">Account Capital ($)</label>
+                    <select id="capitalSelect">
+                        <option value="1000">$1,000</option>
+                        <option value="5000">$5,000</option>
+                        <option value="10000" selected>$10,000</option>
+                        <option value="50000">$50,000</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="riskRange">Risk / Trade <span id="riskVal">1.0%</span></label>
+                    <input type="range" id="riskRange" min="0.5" max="5.0" step="0.5" value="1.0">
+                </div>
+                <div class="control-group">
+                    <label for="engineSelect">Take-profit target</label>
+                    <select id="engineSelect">
+                        <option value="0">Target 1 (1.2–1.5R)</option>
+                        <option value="1">Target 2 (2.0–2.5R)</option>
+                        <option value="2">Target 3 (2.8–3.5R)</option>
+                    </select>
+                </div>
+                <button class="btn-execute" id="runSimBtn" type="button">Open Paper Trade</button>
+            </div>
+            <div class="sidebar-section">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Paper Trades</h3>
+                <div class="log-container" id="executionLog"></div>
+            </div>
+        </aside>
+
+        <main class="chart-viewport">
+            <section class="card hero">
+                <div class="hero-top">
+                    <span class="eyebrow gold"><i class="fa-solid fa-tower-broadcast"></i> LIVE PRICE</span>
+                    <div style="display:flex;align-items:center;gap:8px;"><span class="spread-pill" id="spreadPill" hidden>BID <strong id="bidVal">–</strong> · ASK <strong id="askVal">–</strong> · SPREAD <b id="spreadVal">–</b></span><span class="live-pill" id="livePill">● CONNECTING</span></div>
+                </div>
+                <div class="hero-body">
+                    <div class="hero-left">
+                        <div class="hero-price"><span id="heroPrice">–</span><span class="hero-change" id="heroChange"></span></div>
+                        <div class="hero-sub"><span class="sig-tag" id="heroSignal">–</span>
+                            <svg class="spark" viewBox="0 0 160 40" preserveAspectRatio="none" aria-hidden="true"><polyline id="sparkLine" fill="none" stroke-width="1.8" points=""/></svg></div>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat"><span>HIGH 24H</span><strong class="pos" id="stHigh">–</strong></div>
+                        <div class="stat"><span>LOW 24H</span><strong class="neg" id="stLow">–</strong></div>
+                        <div class="stat"><span>RSI</span><strong id="stRsi">–</strong></div>
+                        <div class="stat"><span>ADX</span><strong id="stAdx">–</strong></div>
+                    </div>
+                </div>
+                <div class="hero-foot">
+                    <span class="tag amber" id="tagClass">–</span>
+                    <span class="tag blue" id="tagVol">–</span>
+                    <span class="tag green" id="tagTrend">–</span>
+                    <span class="range-note" id="sessionRange"></span>
+                </div>
+            </section>
+
+            <div class="viewport-header">
+                <div class="asset-title-block">
+                    <h2><span id="assetTitle">OANDA:XAUUSD</span> <span class="badge-sell" id="sideBadge">–</span></h2>
+                    <p><span id="assetName">Gold Spot · OANDA:XAUUSD</span> · Auto AI Levels + OANDA Live Combo</p>
+                </div>
+                <div class="viewport-controls">
+                    <div class="auto-pilot-group" title="Auto-updates AI Entry/SL/TP levels & SMC zones in real-time">
+                        <span class="auto-scan-dot" id="autoScanDot"></span>
+                        <label class="auto-switch"><input type="checkbox" id="autoAiToggle" checked> AUTO AI LEVELS</label>
+                        <span style="color:var(--border-color);">|</span>
+                        <label class="auto-switch" title="Automatically open paper trades when AI Confidence >= 75%"><input type="checkbox" id="autoTradeToggle"> AUTO PAPER TRADE</label>
+                    </div>
+                    <div class="chart-mode-selector" id="chartModeSelector" role="group" aria-label="Chart Engine">
+                        <button class="mode-btn active" data-mode="ai_canvas" type="button" title="Unified OANDA-Synced Chart with Live AI Entry/SL/TP Lines"><i class="fa-solid fa-crosshairs"></i> Unified OANDA + AI Levels</button>
+                        <button class="mode-btn" data-mode="oanda_tv" type="button" title="Official TradingView OANDA:XAUUSD Chart + AI HUD"><i class="fa-solid fa-chart-line"></i> TradingView OANDA</button>
+                        <button class="mode-btn" data-mode="combo" type="button" title="Stacked Both Charts (Full Width)"><i class="fa-solid fa-layer-group"></i> Compare Both</button>
+                    </div>
+                    <div class="timeframe-selector" id="tfSelector">
+                        <button class="tf-btn" data-tf="1m" type="button">1m</button>
+                        <button class="tf-btn" data-tf="5m" type="button">5m</button>
+                        <button class="tf-btn" data-tf="15m" type="button">15m</button>
+                        <button class="tf-btn" data-tf="30m" type="button">30m</button>
+                        <button class="tf-btn active" data-tf="1h" type="button">1h</button>
+                        <button class="tf-btn" data-tf="4h" type="button">4h</button>
+                        <button class="tf-btn" data-tf="1d" type="button">1D</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-combo-stage mode-ai" id="comboStage">
+                <div class="chart-pane ai-chart-pane">
+                    <div class="pane-bar">
+                        <span class="pane-title"><i class="fa-solid fa-crosshairs"></i> <span id="aiPaneTitle">OANDA:XAUUSD · UNIFIED AI LEVELS CHART</span></span>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span class="sync-pill" id="basisSyncPill" title="Synced to real-time OANDA:XAUUSD Spot Price">● OANDA SPOT SYNCED</span>
+                            <button class="link-btn" id="resetZoomBtn" type="button" title="Reset chart zoom to latest 75 candles"><i class="fa-solid fa-magnifying-glass-minus"></i> Reset Zoom</button>
+                        </div>
+                    </div>
+                    <div class="pane-body">
+                        <div class="ohlc-legend" id="ohlcLegend">
+                            <span class="sym-tag"><i class="fa-solid fa-coins"></i> <span id="legSym">Gold Spot / U.S. Dollar · 5m · OANDA</span></span>
+                            <span class="ohlc-vals" id="legOhlc">
+                                <span>O <b id="legO">–</b></span>
+                                <span>H <b id="legH">–</b></span>
+                                <span>L <b id="legL">–</b></span>
+                                <span>C <b id="legC">–</b></span>
+                            </span>
+                            <span style="color:#4d8dff;">EMA20 <b id="legEma20">–</b></span>
+                            <span style="color:#f2b33d;">EMA50 <b id="legEma50">–</b></span>
+                        </div>
+                        <div id="chartContainer" class="candlestick-box"></div>
+                    </div>
+                </div>
+
+                <div class="chart-pane oanda-chart-pane">
+                    <div class="pane-bar">
+                        <span class="pane-title"><i class="fa-solid fa-bolt"></i> <span id="oandaPaneTitle">OANDA:XAUUSD · TRADINGVIEW LIVE</span></span>
+                        <span class="pane-sub" id="oandaPaneSub">Official TradingView OANDA Widget + AI HUD</span>
+                    </div>
+                    <div class="pane-body">
+                        <div id="tvContainer" class="tv-box"></div>
+                        <div class="oanda-hud" id="oandaHud">
+                            <div class="oanda-hud-head">
+                                <b id="hudSignal">AI AUTO LEVELS · SYNCING</b>
+                                <span id="hudConf" style="color:var(--text-secondary);">–</span>
+                            </div>
+                            <div class="oanda-hud-pills">
+                                <span class="hud-lv entry">ENTRY <strong id="hudEntry">–</strong></span>
+                                <span class="hud-lv sl">SL <strong id="hudSL">–</strong></span>
+                                <span class="hud-lv tp">TP1 <strong id="hudTP1">–</strong></span>
+                                <span class="hud-lv tp">TP2 <strong id="hudTP2">–</strong></span>
+                                <span class="hud-lv smc" id="hudSmc">FIB 61.8% –</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <section class="card reader" id="reader">
+                <div class="reader-head">
+                    <span class="bias-pill" id="biasPill">–</span>
+                    <span class="reader-sum" id="readerSum">Reading the chart…</span>
+                    <span class="bias-meter"><i id="biasFill"></i></span>
+                    <button class="link-btn" id="readerToggle" type="button">hide</button>
+                </div>
+                <div class="findings" id="findings"></div>
+            </section>
+
+            <section class="card news">
+                <h3><i class="fa-solid fa-fire"></i> <span id="newsTitle">GOLD HEADLINES</span></h3>
+                <ul id="newsList"><li class="empty">Loading headlines…</li></ul>
+            </section>
+        </main>
+
+        <aside class="ai-panel">
+            <section class="card desk">
+                <div class="desk-head"><span class="eyebrow gold"><i class="fa-solid fa-bolt"></i> AI SIGNAL DESK</span><span class="ready" id="deskReady">● READY</span></div>
+                <h3 class="desk-title"><i class="fa-solid fa-arrow-trend-down" id="deskIcon"></i> <span id="deskTitle">XAUUSD • 1h</span></h3>
+                <div class="src-box"><span class="src-dot"></span><div><small>SIGNAL FROM LIVE CHART DATA</small><p id="srcText">–</p></div><strong id="srcPrice">–</strong></div>
+                <div class="result-box">
+                    <div class="result-head"><span class="eyebrow">AI RESULT</span><span class="hold-pill" id="resultPill">–</span><button class="btn-ghost" id="refreshBtn" type="button"><i class="fa-solid fa-rotate-right"></i> Refresh result</button></div>
+                    <div class="mini-metrics">
+                        <div><span>CONFIDENCE</span><strong id="mConf">–</strong></div>
+                        <div><span>QUALITY</span><strong id="mQual">–</strong></div>
+                        <div><span>RISK / REWARD</span><strong id="mRR">–</strong></div>
+                    </div>
+                    <p class="desk-text" id="deskText"></p>
+                    <div class="lv-grid">
+                        <div><span>ENTRY</span><strong id="lvEntry">–</strong></div>
+                        <div><span>STOP LOSS</span><strong class="neg" id="lvSL">–</strong></div>
+                        <div><span>TARGET 1</span><strong class="pos" id="lvT1">–</strong></div>
+                        <div><span>TARGET 2</span><strong class="pos" id="lvT2">–</strong></div>
+                    </div>
+                    <p class="warn" id="deskWarn" hidden></p>
+                </div>
+                <div class="btn-row">
+                    <button class="btn-dark" id="analyzeBtn" type="button"><i class="fa-solid fa-chart-column"></i> Analyze</button>
+                    <button class="btn-gold" id="bestBtn" type="button"><i class="fa-solid fa-wand-magic-sparkles"></i> Best setup</button>
+                </div>
+                <div class="selects">
+                    <select id="playbookSel" class="full" aria-label="Playbook">
+                        <option value="auto">Auto (AI picks best)</option>
+                        <option value="trend">Trend follower (EMA, structure, MACD)</option>
+                        <option value="reversal">SMC reversal (order blocks, Fib, RSI)</option>
+                    </select>
+                    <select id="riskSel" aria-label="Risk">
+                        <option value="low">Low risk</option>
+                        <option value="medium" selected>Medium risk</option>
+                        <option value="high">High risk</option>
+                    </select>
+                    <select id="horizonSel" aria-label="Horizon">
+                        <option value="scalp">Scalp</option>
+                        <option value="intraday" selected>Intraday</option>
+                        <option value="swing">Swing</option>
+                    </select>
+                </div>
+                <div class="sig-card" id="sigCard">
+                    <span class="sig-big" id="sigPill">–</span>
+                    <div class="sig-info"><b id="sigConf">–</b><small id="sigMeta">–</small></div>
+                    <span class="timer" id="sigTimer"><i class="fa-regular fa-clock"></i> –</span>
+                    <span class="sig-bar"><i id="sigBar"></i></span>
+                </div>
+            </section>
+
+            <section class="card levels">
+                <div class="lv-head"><span class="eyebrow">TRADE LEVELS · ON CHART</span><span class="rr-chip" id="rrChip">–</span></div>
+                <ul class="lv-list">
+                    <li><span class="k"><i class="d blue"></i> ENTRY <b id="lsSide">–</b></span><strong id="valEntry">–</strong></li>
+                    <li><span class="k"><i class="d red"></i> STOP LOSS</span><strong id="valSL">–</strong></li>
+                    <li><span class="k"><i class="d green"></i> TAKE PROFIT 1</span><strong id="valTP1">–</strong></li>
+                    <li><span class="k"><i class="d green"></i> TAKE PROFIT 2</span><strong id="valTP2">–</strong></li>
+                    <li><span class="k"><i class="d green"></i> TAKE PROFIT 3</span><strong id="valTP3">–</strong></li>
+                </ul>
+                <div class="tags" id="lvTags"></div>
+            </section>
+
+            <section class="scores">
+                <div class="score"><span>CONFIDENCE</span><strong id="scConf">–</strong><i><b id="scConfBar" class="amber"></b></i></div>
+                <div class="score"><span>WIN PROB.</span><strong id="scWin">–</strong><i><b id="scWinBar" class="green"></b></i></div>
+                <div class="score"><span>INDICATOR CONF.</span><strong id="scInd">–</strong><i><b id="scIndBar" class="cyan"></b></i></div>
+                <div class="score"><span>RISK SCORE</span><strong id="scRisk">–</strong><i><b id="scRiskBar" class="amber"></b></i></div>
+            </section>
+
+            <section class="team-wrap">
+                <div class="team-head"><h3><i class="fa-solid fa-users"></i> AI Analyst Team</h3><span>4 AGENTS · CONSENSUS</span></div>
+                <div class="team" id="team"></div>
+                <p class="disclaimer">Signals are rule-based readings of live candles for education and paper trading. They are not predictions or financial advice.</p>
+            </section>
+        </aside>
+    </div>
+
+    <div class="modal-overlay" id="accountModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="modalTitle">Your trading account</h3>
+                <button class="close-modal" id="closeModalBtn" type="button" aria-label="Close">&times;</button>
+            </div>
+            <div class="tabs">
+                <button type="button" class="tab active" data-tab="register">Create account</button>
+                <button type="button" class="tab" data-tab="login">Log in</button>
+            </div>
+            <div id="authMsg" class="alert-error" hidden></div>
+
+            <form class="auth-form" data-form="register">
+                <div class="control-group"><label for="regName">Full name</label><input id="regName" type="text" required maxlength="100" autocomplete="name" placeholder="John Doe"></div>
+                <div class="control-group"><label for="regEmail">Email address</label><input id="regEmail" type="email" required autocomplete="email" placeholder="trader@example.com"></div>
+                <div class="control-group"><label for="regPass">Password (8+ characters)</label><input id="regPass" type="password" required minlength="8" autocomplete="new-password"></div>
+                <button type="submit" class="btn-execute">Create account</button>
+            </form>
+            <form class="auth-form" data-form="login" hidden>
+                <div class="control-group"><label for="logEmail">Email address</label><input id="logEmail" type="email" required autocomplete="email"></div>
+                <div class="control-group"><label for="logPass">Password</label><input id="logPass" type="password" required autocomplete="current-password"></div>
+                <button type="submit" class="btn-execute">Log in</button>
+            </form>
+        </div>
+    </div>
+
+    
+    <div class="modal-overlay" id="oandaModal" role="dialog" aria-modal="true" aria-labelledby="oandaModalTitle">
+        <div class="modal-box" style="max-width: 440px;">
+            <div class="modal-header">
+                <h3 id="oandaModalTitle"><i class="fa-solid fa-satellite-dish" style="color:var(--gold);margin-right:6px;"></i> OANDA v20 Live Data Feed</h3>
+                <button class="close-modal" id="closeOandaModalBtn" type="button" aria-label="Close">&times;</button>
+            </div>
+            <p class="oanda-note">
+                <strong>Chart View:</strong> Streams real-time <code>OANDA:XAUUSD</code> directly via the TradingView OANDA feed.<br>
+                <strong>AI Engine &amp; Tickers:</strong> Connect your OANDA v20 Personal Access Token below to pull raw OANDA <code>XAU_USD</code> candles &amp; real-time Bid/Ask spreads directly from OANDA servers (falls back automatically to 24/7 Spot Gold WebSocket if left blank).
+            </p>
+            <div id="oandaMsg" class="alert-error" hidden></div>
+            <form id="oandaForm">
+                <div class="control-group">
+                    <label for="oandaEnv">OANDA Environment</label>
+                    <select id="oandaEnv">
+                        <option value="practice">fxPractice (Demo Account — api-fxpractice.oanda.com)</option>
+                        <option value="live">fxTrade (Live Account — api-fxtrade.oanda.com)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="oandaAccountId">OANDA Account ID <span>(optional for candles, required for live Bid/Ask pricing)</span></label>
+                    <input id="oandaAccountId" type="text" placeholder="e.g. 101-001-12345678-001" autocomplete="off">
+                </div>
+                <div class="control-group">
+                    <label for="oandaToken">OANDA v20 API Bearer Token</label>
+                    <input id="oandaToken" type="password" placeholder="Paste your OANDA v20 API token" autocomplete="off">
+                </div>
+                <div style="display:flex;gap:8px;margin-top:10px;">
+                    <button type="submit" class="btn-execute" style="flex:1;">Connect OANDA v20</button>
+                    <button type="button" class="btn-outline" id="disconnectOandaBtn">Reset to Proxy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="gold.js"></script>
+</body>
+</html>
