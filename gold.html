@@ -133,6 +133,8 @@
                         <span class="pane-title"><i class="fa-solid fa-crosshairs"></i> <span id="aiPaneTitle">OANDA:XAUUSD · UNIFIED AI LEVELS CHART</span></span>
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                             <span class="markers-pill" id="signalStatsPill" title="Historical BUY & SELL signal arrow markers plotted on chart">SIGNALS: <b class="bull" id="buyCountVal">0 BUY</b> · <b class="bear" id="sellCountVal">0 SELL</b></span>
+                            <span class="markers-pill smc-zones-pill" id="smcStatsPill" title="Active Smart Money Order Blocks (OB) & Fair Value Gaps (FVG) plotted on chart">SMC: <b class="bull" id="obCountVal">0 OB</b> · <b class="violet" id="fvgCountVal">0 FVG</b></span>
+                            <button class="marker-toggle-btn active" id="toggleSmcBtn" type="button" title="Show/Hide Order Block (OB) & Fair Value Gap (FVG) Zones on Chart"><i class="fa-solid fa-cubes"></i> FVG / OB ON</button>
                             <button class="marker-toggle-btn active" id="toggleMarkersBtn" type="button" title="Show/Hide BUY & SELL Arrow Markers on Candles"><i class="fa-solid fa-location-arrow"></i> Arrows ON</button>
                             <span class="sync-pill" id="basisSyncPill" title="Synced to real-time OANDA:XAUUSD Spot Price">● OANDA SPOT SYNCED</span>
                             <button class="link-btn" id="resetZoomBtn" type="button" title="Reset chart zoom to latest 75 candles"><i class="fa-solid fa-magnifying-glass-minus"></i> Reset Zoom</button>
@@ -171,6 +173,8 @@
                                 <span class="hud-lv sl">SL <strong id="hudSL">–</strong></span>
                                 <span class="hud-lv tp">TP1 <strong id="hudTP1">–</strong></span>
                                 <span class="hud-lv tp">TP2 <strong id="hudTP2">–</strong></span>
+                                <span class="hud-lv ob-bull" id="hudObZone">OB –</span>
+                                <span class="hud-lv fvg-zone" id="hudFvgZone">FVG –</span>
                                 <span class="hud-lv smc" id="hudSmc">FIB 61.8% –</span>
                             </div>
                         </div>
@@ -252,6 +256,10 @@
                     <li><span class="k"><i class="d green"></i> TAKE PROFIT 1</span><strong id="valTP1">–</strong></li>
                     <li><span class="k"><i class="d green"></i> TAKE PROFIT 2</span><strong id="valTP2">–</strong></li>
                     <li><span class="k"><i class="d green"></i> TAKE PROFIT 3</span><strong id="valTP3">–</strong></li>
+                    <li class="smc-lv-row"><span class="k"><i class="d green"></i> BULLISH OB <small class="smc-badge bull">DEMAND</small></span><strong id="valBullOB">–</strong></li>
+                    <li class="smc-lv-row"><span class="k"><i class="d red"></i> BEARISH OB <small class="smc-badge bear">SUPPLY</small></span><strong id="valBearOB">–</strong></li>
+                    <li class="smc-lv-row"><span class="k"><i class="d violet"></i> BULLISH FVG <small class="smc-badge bull">IMBALANCE</small></span><strong id="valBullFVG">–</strong></li>
+                    <li class="smc-lv-row"><span class="k"><i class="d amber"></i> BEARISH FVG <small class="smc-badge bear">IMBALANCE</small></span><strong id="valBearFVG">–</strong></li>
                 </ul>
                 <div class="tags" id="lvTags"></div>
             </section>

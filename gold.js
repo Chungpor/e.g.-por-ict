@@ -117,7 +117,9 @@
         autoAi: true,
         autoTrade: false,
         showMarkers: true,
+        showSmc: true,
         signalMarkers: [],
+        smcZones: [],
         rawCandles: [], // Unshifted raw candles
         candles: [],    // OANDA-calibrated candles
         loadId: 0,
@@ -446,6 +448,20 @@
         toast(state.showMarkers ? 'BUY / SELL signal arrow markers enabled on chart.' : 'Signal arrow markers hidden.');
     });
 
+    $('toggleSmcBtn')?.addEventListener('click', () => {
+        state.showSmc = !state.showSmc;
+        const btn = $('toggleSmcBtn');
+        if (btn) {
+            btn.classList.toggle('active', state.showSmc);
+            btn.innerHTML = `<i class="fa-solid fa-cubes"></i> ${state.showSmc ? 'FVG / OB ON' : 'FVG / OB OFF'}`;
+        }
+        if (state.A) {
+            drawLines(state.A.levels, state.A);
+            renderSmcZonesOverlay();
+        }
+        toast(state.showSmc ? 'SMC Order Block (OB) & Fair Value Gap (FVG) zones enabled.' : 'SMC FVG / OB zones hidden.');
+    });
+
     // Ensure resizing never squishes candles
     if (window.ResizeObserver && chartContainer) {
         let prevW = 0;
@@ -493,6 +509,11 @@
     });
 
     let priceLines = [];
+    const smcLayer = document.createElement('div');
+    smcLayer.className = 'smc-overlay-layer';
+    chartContainer.style.position = 'relative';
+    chartContainer.appendChild(smcLayer);
+
     function drawLines(L, A) {
         priceLines.forEach((l) => series.removePriceLine(l));
         priceLines = [];
@@ -505,12 +526,66 @@
         ];
         if (A) {
             if (A.fib?.level) defs.push(['FIB 61.8%', A.fib.level, '#f2b33d', 3]);
-            if (A.bullOB) defs.push(['BULL OB', (A.bullOB.lo + A.bullOB.hi) / 2, '#0ecb81', 3]);
-            if (A.bearOB) defs.push(['BEAR OB', (A.bearOB.lo + A.bearOB.hi) / 2, '#f6465d', 3]);
+            if (state.showSmc) {
+                if (A.bullOB) defs.push(['BULL OB (DEMAND)', (A.bullOB.lo + A.bullOB.hi) / 2, '#0ecb81', 3]);
+                if (A.bearOB) defs.push(['BEAR OB (SUPPLY)', (A.bearOB.lo + A.bearOB.hi) / 2, '#f6465d', 3]);
+                if (A.fvgB) defs.push(['BULL FVG', (A.fvgB.lo + A.fvgB.hi) / 2, '#a78bfa', 3]);
+                if (A.fvgS) defs.push(['BEAR FVG', (A.fvgS.lo + A.fvgS.hi) / 2, '#f2b33d', 3]);
+            }
         }
         defs.forEach(([title, price, color, lineStyle]) =>
             priceLines.push(series.createPriceLine({ price, color, lineWidth: 1, lineStyle, axisLabelVisible: true, title })));
+        renderSmcZonesOverlay();
     }
+
+    function renderSmcZonesOverlay() {
+        if (!smcLayer) return;
+        smcLayer.replaceChildren();
+        const A = state.A;
+        if (!A) return;
+
+        const zones = [];
+        if (A.bullOB) zones.push({ cls: 'bull-ob', label: `BULL OB ${f(A.bullOB.lo)}–${f(A.bullOB.hi)}`, lo: A.bullOB.lo, hi: A.bullOB.hi, time: A.bullOB.time });
+        if (A.bearOB) zones.push({ cls: 'bear-ob', label: `BEAR OB ${f(A.bearOB.lo)}–${f(A.bearOB.hi)}`, lo: A.bearOB.lo, hi: A.bearOB.hi, time: A.bearOB.time });
+        if (A.fvgB)   zones.push({ cls: 'bull-fvg', label: `BULL FVG ${f(A.fvgB.lo)}–${f(A.fvgB.hi)}`, lo: A.fvgB.lo, hi: A.fvgB.hi, time: A.fvgB.time });
+        if (A.fvgS)   zones.push({ cls: 'bear-fvg', label: `BEAR FVG ${f(A.fvgS.lo)}–${f(A.fvgS.hi)}`, lo: A.fvgS.lo, hi: A.fvgS.hi, time: A.fvgS.time });
+
+        const obCount = (A.bullOB ? 1 : 0) + (A.bearOB ? 1 : 0);
+        const fvgCount = (A.fvgB ? 1 : 0) + (A.fvgS ? 1 : 0);
+        setText('obCountVal', `${obCount} OB`);
+        setText('fvgCountVal', `${fvgCount} FVG`);
+
+        if (!state.showSmc || !zones.length) return;
+
+        const chartWidth = chartContainer.clientWidth || 600;
+        const rightEdge = Math.max(0, chartWidth - 68); // Leave space for right price scale
+        const ts = chart.timeScale();
+
+        zones.forEach((z) => {
+            const yTop = series.priceToCoordinate(z.hi);
+            const yBot = series.priceToCoordinate(z.lo);
+            if (yTop == null || yBot == null) return;
+            const top = Math.min(yTop, yBot);
+            const height = Math.max(14, Math.abs(yBot - yTop));
+            let xLeft = z.time ? ts.timeToCoordinate(z.time) : null;
+            if (xLeft == null || xLeft < 0) xLeft = Math.round(rightEdge * 0.18);
+            xLeft = clamp(Math.round(xLeft), 8, Math.max(20, rightEdge - 140));
+            const width = Math.max(110, rightEdge - xLeft);
+
+            const box = document.createElement('div');
+            box.className = `smc-zone-box ${z.cls}`;
+            box.style.left = `${xLeft}px`;
+            box.style.top = `${Math.round(top)}px`;
+            box.style.width = `${Math.round(width)}px`;
+            box.style.height = `${Math.round(height)}px`;
+            box.innerHTML = `<span>${z.label}</span>`;
+            smcLayer.appendChild(box);
+        });
+    }
+
+    chart.timeScale().subscribeVisibleLogicalRangeChange(() => {
+        if (state.showSmc && state.A) requestAnimationFrame(renderSmcZonesOverlay);
+    });
 
     // ---------- Historical + Live BUY / SELL Signal Arrow Markers ----------
     function computeHistoricalSignalMarkers(rows, playbook = 'auto', liveAnalysis = null) {
@@ -600,13 +675,21 @@
                 const barsSince = i - lastSignalIdx;
                 // Avoid clustering: require at least 6 bars for same-direction signal, or 3 bars on direction flip
                 if (barsSince >= 6 || (dir !== lastSignalDir && barsSince >= 3)) {
+                    // Check local OB / FVG tag for the signal label
+                    let smcTag = '';
+                    const prev2 = rows[i - 2];
+                    if (dir > 0 && prev2 && prev2.high < k.low) smcTag = ' · FVG';
+                    else if (dir < 0 && prev2 && prev2.low > k.high) smcTag = ' · FVG';
+                    else if (dir > 0 && bullEngulf) smcTag = ' · OB';
+                    else if (dir < 0 && bearEngulf) smcTag = ' · OB';
+
                     const conf = clamp(Math.round(52 + Math.abs(score) * 6.5), 62, 95);
                     markers.push({
                         time: k.time,
                         position: dir > 0 ? 'belowBar' : 'aboveBar',
                         color: dir > 0 ? '#0ecb81' : '#f6465d',
                         shape: dir > 0 ? 'arrowUp' : 'arrowDown',
-                        text: `${dir > 0 ? 'BUY' : 'SELL'} ${f(k.close)} (${conf}%)`,
+                        text: `${dir > 0 ? 'BUY' : 'SELL'}${smcTag} ${f(k.close)} (${conf}%)`,
                         dir
                     });
                     lastSignalIdx = i;
@@ -863,16 +946,24 @@
         const lastLow = lo.length ? lo[lo.length - 1].p : Math.min(...c.slice(-30).map((x) => x.low));
 
         let bullOB = null, bearOB = null;
-        for (let i = n - 2; i > n - 90 && i > 1; i--) {
+        for (let i = n - 2; i > Math.max(1, n - 120); i--) {
             const body = c[i].close - c[i].open;
-            if (!bullOB && body > 1.5 * a && c[i - 1].close < c[i - 1].open && price >= c[i - 1].low) bullOB = { lo: c[i - 1].low, hi: c[i - 1].high };
-            if (!bearOB && -body > 1.5 * a && c[i - 1].close > c[i - 1].open && price <= c[i - 1].high) bearOB = { lo: c[i - 1].low, hi: c[i - 1].high };
+            if (!bullOB && body > 1.15 * a && c[i - 1].close < c[i - 1].open && price >= c[i - 1].low) {
+                bullOB = { lo: c[i - 1].low, hi: c[i - 1].high, time: c[i - 1].time, idx: i - 1 };
+            }
+            if (!bearOB && -body > 1.15 * a && c[i - 1].close > c[i - 1].open && price <= c[i - 1].high) {
+                bearOB = { lo: c[i - 1].low, hi: c[i - 1].high, time: c[i - 1].time, idx: i - 1 };
+            }
             if (bullOB && bearOB) break;
         }
         let fvgB = null, fvgS = null;
-        for (let i = n - 1; i > 2 && i > n - 70; i--) {
-            if (!fvgB && c[i - 2].high < c[i].low && c.slice(i + 1).every((x) => x.low > c[i - 2].high)) fvgB = { lo: c[i - 2].high, hi: c[i].low };
-            if (!fvgS && c[i - 2].low > c[i].high && c.slice(i + 1).every((x) => x.high < c[i].high + (c[i - 2].low - c[i].high))) fvgS = { lo: c[i].high, hi: c[i - 2].low };
+        for (let i = n - 1; i > Math.max(2, n - 100); i--) {
+            if (!fvgB && c[i - 2].high < c[i].low && c.slice(i + 1).every((x) => x.close > c[i - 2].high)) {
+                fvgB = { lo: c[i - 2].high, hi: c[i].low, time: c[i - 1].time, idx: i - 1 };
+            }
+            if (!fvgS && c[i - 2].low > c[i].high && c.slice(i + 1).every((x) => x.close < c[i - 2].low)) {
+                fvgS = { lo: c[i].high, hi: c[i - 2].low, time: c[i - 1].time, idx: i - 1 };
+            }
             if (fvgB && fvgS) break;
         }
         const win = c.slice(-80);
@@ -946,9 +1037,8 @@
         if (A.pat) add(A.pat.tone, 'bolt', A.pat.name, `${A.pat.text}${A.pat.ago ? ` (${A.pat.ago} candle${A.pat.ago > 1 ? 's' : ''} ago)` : ''}`);
         if (A.rsi > 70) add('bear', 'gauge-high', `RSI overbought (${A.rsi.toFixed(1)})`, 'Buyers are stretched: pullback risk is elevated for longs.');
         else if (A.rsi < 30) add('bull', 'gauge-high', `RSI oversold (${A.rsi.toFixed(1)})`, 'Sellers are stretched: bounce risk is elevated for shorts.');
-        const g = A.fvgB && A.fvgS ? (Math.abs(A.price - A.fvgB.hi) < Math.abs(A.price - A.fvgS.lo) ? 'B' : 'S') : A.fvgB ? 'B' : A.fvgS ? 'S' : null;
-        if (g === 'B') add('bull', 'layer-group', `Bullish FVG ${f(A.fvgB.lo)}–${f(A.fvgB.hi)}`, 'Unfilled fair value gap below price: a natural magnet/demand zone if price retraces.');
-        if (g === 'S') add('bear', 'layer-group', `Bearish FVG ${f(A.fvgS.lo)}–${f(A.fvgS.hi)}`, 'Unfilled fair value gap above price: a natural supply zone if price bounces.');
+        if (A.fvgB) add('bull', 'layer-group', `Bullish FVG ${f(A.fvgB.lo)}–${f(A.fvgB.hi)}`, 'Unfilled institutional fair value gap below price: acts as a magnet / demand imbalance zone on pullbacks.');
+        if (A.fvgS) add('bear', 'layer-group', `Bearish FVG ${f(A.fvgS.lo)}–${f(A.fvgS.hi)}`, 'Unfilled institutional fair value gap above price: acts as a magnet / supply imbalance zone on bounces.');
         return F;
     }
 
@@ -1011,6 +1101,10 @@
         setText('lsSide', A.dir ? sName : `WATCH ${leanName}`);
         setText('valEntry', f(L.entry)); setText('valSL', f(L.sl));
         L.tps.forEach((t, i) => setText('valTP' + (i + 1), f(t)));
+        setText('valBullOB', A.bullOB ? `${f(A.bullOB.lo)} – ${f(A.bullOB.hi)}` : 'None nearby');
+        setText('valBearOB', A.bearOB ? `${f(A.bearOB.lo)} – ${f(A.bearOB.hi)}` : 'None nearby');
+        setText('valBullFVG', A.fvgB ? `${f(A.fvgB.lo)} – ${f(A.fvgB.hi)}` : 'Filled / None');
+        setText('valBearFVG', A.fvgS ? `${f(A.fvgS.lo)} – ${f(A.fvgS.hi)}` : 'Filled / None');
         setText('rrChip', `R:R ${L.mult.join(' / ')}`);
         $('lvTags').innerHTML = `<span class="tag blue">${A.volRegime}</span><span class="tag ${A.adx > 25 ? 'green' : 'amber'}">${A.trend}</span><span class="tag violet">CONFLUENCE ${A.score > 0 ? '+' : ''}${A.score}</span>`;
 
@@ -1055,8 +1149,19 @@
         setText('hudSL', f(L.sl));
         setText('hudTP1', f(L.tps[0]));
         setText('hudTP2', f(L.tps[1]));
-        const smcTxt = A.bullOB ? `BULL OB ${f(A.bullOB.lo)}` : A.bearOB ? `BEAR OB ${f(A.bearOB.hi)}` : `FIB 61.8% ${f(A.fib.level)}`;
-        setText('hudSmc', smcTxt);
+        const obHud = $('hudObZone');
+        if (obHud) {
+            if (A.bullOB) { obHud.textContent = `BULL OB ${f(A.bullOB.lo)}–${f(A.bullOB.hi)}`; obHud.className = 'hud-lv ob-bull'; }
+            else if (A.bearOB) { obHud.textContent = `BEAR OB ${f(A.bearOB.lo)}–${f(A.bearOB.hi)}`; obHud.className = 'hud-lv ob-bear'; }
+            else { obHud.textContent = 'OB: NONE'; obHud.className = 'hud-lv ob-bull'; }
+        }
+        const fvgHud = $('hudFvgZone');
+        if (fvgHud) {
+            if (A.fvgB) { fvgHud.textContent = `BULL FVG ${f(A.fvgB.lo)}–${f(A.fvgB.hi)}`; }
+            else if (A.fvgS) { fvgHud.textContent = `BEAR FVG ${f(A.fvgS.lo)}–${f(A.fvgS.hi)}`; }
+            else { fvgHud.textContent = 'FVG: FILLED'; }
+        }
+        setText('hudSmc', `FIB 61.8% ${f(A.fib.level)}`);
 
         renderHero();
         renderSource();
