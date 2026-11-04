@@ -116,6 +116,8 @@
         chartMode: 'ai_canvas', // 'ai_canvas' (Unified OANDA-Synced Chart + AI Levels), 'oanda_tv', or 'combo'
         autoAi: true,
         autoTrade: false,
+        showMarkers: true,
+        signalMarkers: [],
         rawCandles: [], // Unshifted raw candles
         candles: [],    // OANDA-calibrated candles
         loadId: 0,
@@ -433,6 +435,16 @@
     }
 
     $('resetZoomBtn')?.addEventListener('click', resetChartZoom);
+    $('toggleMarkersBtn')?.addEventListener('click', () => {
+        state.showMarkers = !state.showMarkers;
+        const btn = $('toggleMarkersBtn');
+        if (btn) {
+            btn.classList.toggle('active', state.showMarkers);
+            btn.innerHTML = `<i class="fa-solid fa-location-arrow"></i> ${state.showMarkers ? 'Arrows ON' : 'Arrows OFF'}`;
+        }
+        renderSignalMarkers();
+        toast(state.showMarkers ? 'BUY / SELL signal arrow markers enabled on chart.' : 'Signal arrow markers hidden.');
+    });
 
     // Ensure resizing never squishes candles
     if (window.ResizeObserver && chartContainer) {
@@ -498,6 +510,146 @@
         }
         defs.forEach(([title, price, color, lineStyle]) =>
             priceLines.push(series.createPriceLine({ price, color, lineWidth: 1, lineStyle, axisLabelVisible: true, title })));
+    }
+
+    // ---------- Historical + Live BUY / SELL Signal Arrow Markers ----------
+    function computeHistoricalSignalMarkers(rows, playbook = 'auto', liveAnalysis = null) {
+        if (!rows || rows.length < 60) return [];
+        const n = rows.length;
+        const closes = rows.map((x) => x.close);
+        const e20Arr = ema(closes, 20);
+        const e50Arr = ema(closes, 50);
+        const m12 = ema(closes, 12);
+        const m26 = ema(closes, 26);
+        const macdLine = m12.map((v, i) => v - m26[i]);
+        const sigLine = ema(macdLine, 9);
+        const histArr = macdLine.map((v, i) => v - sigLine[i]);
+
+        // Precompute rolling RSI(14) array
+        const rsiArr = new Array(n).fill(50);
+        let g = 0, l = 0;
+        for (let i = 1; i <= 14; i++) {
+            const d = closes[i] - closes[i - 1];
+            if (d > 0) g += d; else l -= d;
+        }
+        g /= 14; l /= 14;
+        rsiArr[14] = l === 0 ? 100 : 100 - 100 / (1 + g / l);
+        for (let i = 15; i < n; i++) {
+            const d = closes[i] - closes[i - 1];
+            g = (g * 13 + Math.max(d, 0)) / 14;
+            l = (l * 13 + Math.max(-d, 0)) / 14;
+            rsiArr[i] = l === 0 ? 100 : 100 - 100 / (1 + g / l);
+        }
+
+        const tw = playbook === 'trend' ? 1.4 : playbook === 'reversal' ? 0.75 : 1;
+        const rw = playbook === 'reversal' ? 1.4 : playbook === 'trend' ? 0.75 : 1;
+
+        const markers = [];
+        let lastSignalIdx = -10;
+        let lastSignalDir = 0;
+
+        for (let i = 35; i < n - 1; i++) {
+            const k = rows[i], p = rows[i - 1];
+            const body = Math.abs(k.close - k.open);
+            const rng = Math.max(k.high - k.low, 1e-9);
+            const upWick = k.high - Math.max(k.open, k.close);
+            const dnWick = Math.min(k.open, k.close) - k.low;
+
+            // Candle pattern trigger
+            const bullEngulf = k.close > k.open && p.close < p.open && k.close > p.open && k.open <= p.close;
+            const bearEngulf = k.close < k.open && p.close > p.open && k.close < p.open && k.open >= p.close;
+            const bullPin = body > 0 && dnWick > 1.8 * body && upWick < body * 0.8 && k.close > p.low;
+            const bearPin = body > 0 && upWick > 1.8 * body && dnWick < body * 0.8 && k.close < p.high;
+
+            // Local 15-bar swing high/low context
+            let hi15 = -Infinity, lo15 = Infinity;
+            for (let j = i - 15; j < i; j++) {
+                if (rows[j].high > hi15) hi15 = rows[j].high;
+                if (rows[j].low < lo15) lo15 = rows[j].low;
+            }
+            const bosUp = k.close > hi15;
+            const bosDn = k.close < lo15;
+            const macdCrossUp = histArr[i] > 0 && histArr[i - 1] <= 0;
+            const macdCrossDn = histArr[i] < 0 && histArr[i - 1] >= 0;
+
+            let score = 0;
+            // Trend components
+            score += (e20Arr[i] > e50Arr[i] ? 1.2 : -1.2) * tw;
+            score += (k.close > e20Arr[i] ? 0.8 : -0.8) * tw;
+            score += (histArr[i] > 0 ? 1.0 : -1.0) * tw;
+            if (macdCrossUp) score += 1.5 * tw;
+            if (macdCrossDn) score -= 1.5 * tw;
+            if (bosUp) score += 1.8 * tw;
+            if (bosDn) score -= 1.8 * tw;
+
+            // Reversal / SMC components
+            if (rsiArr[i - 1] < 33 && rsiArr[i] > rsiArr[i - 1]) score += 2.0 * rw;
+            if (rsiArr[i - 1] > 67 && rsiArr[i] < rsiArr[i - 1]) score -= 2.0 * rw;
+            if (bullEngulf || bullPin) score += 2.2 * rw;
+            if (bearEngulf || bearPin) score -= 2.2 * rw;
+
+            // Require an actual trigger event (pattern, MACD flip, or structure break) + strong confluence score
+            const hasBullTrigger = bullEngulf || bullPin || macdCrossUp || bosUp;
+            const hasBearTrigger = bearEngulf || bearPin || macdCrossDn || bosDn;
+
+            const dir = (score >= 3.2 && hasBullTrigger && k.close >= k.open) ? 1
+                      : (score <= -3.2 && hasBearTrigger && k.close <= k.open) ? -1
+                      : 0;
+
+            if (dir !== 0) {
+                const barsSince = i - lastSignalIdx;
+                // Avoid clustering: require at least 6 bars for same-direction signal, or 3 bars on direction flip
+                if (barsSince >= 6 || (dir !== lastSignalDir && barsSince >= 3)) {
+                    const conf = clamp(Math.round(52 + Math.abs(score) * 6.5), 62, 95);
+                    markers.push({
+                        time: k.time,
+                        position: dir > 0 ? 'belowBar' : 'aboveBar',
+                        color: dir > 0 ? '#0ecb81' : '#f6465d',
+                        shape: dir > 0 ? 'arrowUp' : 'arrowDown',
+                        text: `${dir > 0 ? 'BUY' : 'SELL'} ${f(k.close)} (${conf}%)`,
+                        dir
+                    });
+                    lastSignalIdx = i;
+                    lastSignalDir = dir;
+                }
+            }
+        }
+
+        // Also plot marker on the latest candle if the live AI Signal Desk has an active BUY or SELL signal
+        const lastCandle = rows[n - 1];
+        if (liveAnalysis && liveAnalysis.dir !== 0 && lastCandle) {
+            const d = liveAnalysis.dir;
+            // Replace if last marker is already on the final bar
+            if (markers.length && markers[markers.length - 1].time === lastCandle.time) {
+                markers.pop();
+            }
+            markers.push({
+                time: lastCandle.time,
+                position: d > 0 ? 'belowBar' : 'aboveBar',
+                color: d > 0 ? '#0ecb81' : '#f6465d',
+                shape: d > 0 ? 'arrowUp' : 'arrowDown',
+                text: `LIVE ${d > 0 ? 'BUY' : 'SELL'} ${f(lastCandle.close)} (${liveAnalysis.confidence}%)`,
+                dir: d
+            });
+        }
+
+        return markers;
+    }
+
+    function renderSignalMarkers() {
+        const markers = state.signalMarkers || [];
+        const buyCount = markers.filter((m) => m.dir > 0).length;
+        const sellCount = markers.filter((m) => m.dir < 0).length;
+        setText('buyCountVal', `${buyCount} BUY`);
+        setText('sellCountVal', `${sellCount} SELL`);
+
+        if (state.showMarkers) {
+            series.setMarkers(markers.map(({ time, position, color, shape, text }) => ({
+                time, position, color, shape, text
+            })));
+        } else {
+            series.setMarkers([]);
+        }
     }
 
     // ---------- OANDA v20 Direct REST Fetchers + Automatic Fallback ----------
@@ -895,6 +1047,8 @@
             team.append(d);
         });
         drawLines(L, A);
+        state.signalMarkers = computeHistoricalSignalMarkers(state.candles, $('playbookSel').value, A);
+        renderSignalMarkers();
         setText('hudSignal', `AI ${A.dir ? sName : 'WATCH ' + leanName} · ${ASSETS[state.symbol].label} (${state.tf})`);
         setText('hudConf', `${A.confidence}% CONF · R:R 1:${L.mult[0]}`);
         setText('hudEntry', f(L.entry));
