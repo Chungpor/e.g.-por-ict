@@ -40,7 +40,7 @@
                 <h3><i class="fa-solid fa-chart-line"></i> Market Watch</h3>
                 <ul class="asset-list" id="assetList"></ul>
             </div>
-            <div class="sidebar-section">
+            <div class="sidebar-section" hidden>
                 <h3><i class="fa-solid fa-sliders"></i> Paper Trade Setup</h3>
                 <div class="control-group">
                     <label for="capitalSelect">Account Capital ($)</label>
@@ -65,7 +65,7 @@
                 </div>
                 <button class="btn-execute" id="runSimBtn" type="button">Open Paper Trade</button>
             </div>
-            <div class="sidebar-section">
+            <div class="sidebar-section" hidden>
                 <h3><i class="fa-solid fa-clock-rotate-left"></i> Paper Trades</h3>
                 <div class="log-container" id="executionLog"></div>
             </div>
@@ -281,6 +281,7 @@
                 <button type="button" class="tab active" data-tab="register">Create account</button>
                 <button type="button" class="tab" data-tab="login">Log in</button>
             </div>
+            <p class="auth-lock-note"><i class="fa-solid fa-lock"></i> Create an account first, then log in to use the terminal.</p>
             <div id="authMsg" class="alert-error" hidden></div>
 
             <form class="auth-form" data-form="register">
@@ -293,6 +294,14 @@
                 <div class="control-group"><label for="logEmail">Email address</label><input id="logEmail" type="email" required autocomplete="email"></div>
                 <div class="control-group"><label for="logPass">Password</label><input id="logPass" type="password" required autocomplete="current-password"></div>
                 <button type="submit" class="btn-execute">Log in</button>
+                <button type="button" class="link-btn" id="forgotBtn">Forgot password? Reset it</button>
+            </form>
+            <form class="auth-form" data-form="reset" hidden>
+                <p class="reset-note">Choose a new password for your approved email.</p>
+                <div class="control-group"><label for="rstEmail">Email address</label><input id="rstEmail" type="email" required autocomplete="email"></div>
+                <div class="control-group"><label for="rstPass">New password (8+ characters)</label><input id="rstPass" type="password" required minlength="8" autocomplete="new-password"></div>
+                <button type="submit" class="btn-execute">Save new password</button>
+                <button type="button" class="link-btn" id="backLoginBtn">Back to Log in</button>
             </form>
         </div>
     </div>

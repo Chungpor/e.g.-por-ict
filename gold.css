@@ -1236,3 +1236,31 @@ body { max-width: 100vw; overflow-x: hidden; }
 @container aipanel (min-width: 561px) {
     .team { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+
+/* =====================================================================
+   LOGIN WALL — must create account / log in before using the terminal
+   ===================================================================== */
+body.locked .workspace-grid { filter: blur(10px) saturate(0.7); pointer-events: none; user-select: none; }
+body.locked .modal-overlay#accountModal { background: rgba(5, 8, 14, 0.82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+body.locked #closeModalBtn { display: none; }
+body.locked #accountModal .modal-box {
+    max-width: 400px; border-radius: 18px; padding: 24px 22px;
+    border-color: rgba(242, 179, 61, 0.35);
+    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(242, 179, 61, 0.08);
+}
+.auth-lock-note { display: none; font-size: 0.78rem; line-height: 1.45; color: var(--gold); background: rgba(242,179,61,0.08); border: 1px solid rgba(242,179,61,0.25); border-radius: 10px; padding: 8px 10px; margin-bottom: 12px; }
+body.locked .auth-lock-note { display: block; }
+#accountModal .modal-box { max-height: calc(100dvh - 32px); overflow-y: auto; }
+
+/* admin badge */
+.user-chip.admin { color: var(--gold); font-weight: 700; padding: 4px 10px; border-radius: 999px; background: rgba(242,179,61,0.12); border: 1px solid rgba(242,179,61,0.35); }
+
+/* password eye + reset link */
+.pw-wrap { position: relative; }
+.pw-wrap input { width: 100%; padding-right: 42px; }
+.pw-eye { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: none; border: 0; color: var(--text-secondary); padding: 8px 10px; cursor: pointer; font-size: 0.9rem; }
+.pw-eye:hover { color: var(--text-primary); }
+.link-btn { display: block; width: 100%; margin-top: 10px; background: none; border: 0; color: var(--accent-blue); font-size: 0.8rem; cursor: pointer; text-align: center; }
+.link-btn:hover { text-decoration: underline; }
+.reset-note { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 10px; }

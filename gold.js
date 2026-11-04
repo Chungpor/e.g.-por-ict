@@ -1515,15 +1515,23 @@
         const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
         return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
     }
+    // ---------- Access list ----------
+    const ADMIN_EMAILS = ['chungpor908@gmail.com'];                       // admin accounts
+    const USER_EMAILS  = ['yutagoma908@gmail.com'];                       // approved users
+    const RESTRICT_TO_ALLOWLIST = true;                                   // false = anyone may register
+    const isAdmin = (email) => ADMIN_EMAILS.includes(email);
+    const isAllowed = (email) => !RESTRICT_TO_ALLOWLIST || isAdmin(email) || USER_EMAILS.includes(email);
+    const NOT_ALLOWED = 'This email is not approved for access. Contact the admin.';
+
     const modal = $('accountModal'), authMsg = $('authMsg');
     const openModal = () => { authMsg.hidden = true; modal.classList.add('open'); modal.querySelector('input')?.focus(); };
-    const closeModal = () => modal.classList.remove('open');
+    const closeModal = () => { if (!session) return; modal.classList.remove('open'); }; // login required: cannot close while logged out
     $('openModalBtn').addEventListener('click', openModal);
     $('closeModalBtn').addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    modal.addEventListener('click', (e) => { if (e.target === modal && session) closeModal(); });
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            closeModal();
+            if (session) closeModal();
             oandaModal?.classList.remove('open');
         }
     });
@@ -1534,11 +1542,30 @@
     }));
     const authError = (msg) => { authMsg.textContent = msg; authMsg.hidden = false; };
 
+    // Show the Create-account / Log-in wall until the user is signed in
+    function showAuthGate() {
+        const hasUsers = Object.keys(store.get('phumea-users', {})).length > 0;
+        modal.querySelector(`.tab[data-tab="${hasUsers ? 'login' : 'register'}"]`)?.click();
+        authMsg.hidden = true;
+        modal.classList.add('open');
+        setTimeout(() => modal.querySelector('.auth-form:not([hidden]) input')?.focus(), 50);
+    }
+
     function paintAccount() {
+        if (session && !isAllowed(session.email)) { session = null; store.set('phumea-session', null); }
+        const locked = !session;
+        document.body.classList.toggle('locked', locked);
+        document.querySelectorAll('.workspace-grid, .top-nav .nav-actions button:not(#toggleTheme)').forEach((el) => {
+            if (locked) el.setAttribute('inert', ''); else el.removeAttribute('inert');
+        });
+        if (locked) showAuthGate(); else modal.classList.remove('open');
         $('openModalBtn').classList.toggle('hidden', !!session);
         $('logoutBtn').classList.toggle('hidden', !session);
         $('userChip').classList.toggle('hidden', !session);
-        if (session) $('userChip').textContent = session.name;
+        if (session) {
+            $('userChip').textContent = (isAdmin(session.email) ? '★ ADMIN · ' : '') + session.name;
+            $('userChip').classList.toggle('admin', isAdmin(session.email));
+        }
         trades = migrate(store.get(logsKey(), []));
         renderTrades();
     }
@@ -1547,6 +1574,7 @@
         e.preventDefault();
         const name = $('regName').value.trim(), email = $('regEmail').value.trim().toLowerCase(), pass = $('regPass').value;
         const users = store.get('phumea-users', {});
+        if (!isAllowed(email)) return authError(NOT_ALLOWED);
         if (name.length < 2) return authError('Enter your full name.');
         if (pass.length < 8) return authError('Password must be at least 8 characters.');
         if (users[email]) return authError('That email is already registered. Log in instead.');
@@ -1560,6 +1588,7 @@
     modal.querySelector('[data-form="login"]').addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = $('logEmail').value.trim().toLowerCase();
+        if (!isAllowed(email)) return authError(NOT_ALLOWED);
         const user = store.get('phumea-users', {})[email];
         if (!user || user.pass !== await hash($('logPass').value)) return authError('Email or password is incorrect.');
         session = { email, name: user.name };
@@ -1567,6 +1596,50 @@
         e.target.reset(); closeModal(); paintAccount();
         toast(`Welcome back, ${user.name}!`);
     });
+    // ---------- Show / hide password ----------
+    modal.querySelectorAll('input[type="password"]').forEach((inp) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'pw-wrap';
+        inp.parentNode.insertBefore(wrap, inp);
+        wrap.append(inp);
+        const eye = document.createElement('button');
+        eye.type = 'button'; eye.className = 'pw-eye'; eye.setAttribute('aria-label', 'Show password');
+        eye.innerHTML = '<i class="fa-regular fa-eye"></i>';
+        eye.addEventListener('click', () => {
+            const show = inp.type === 'password';
+            inp.type = show ? 'text' : 'password';
+            eye.innerHTML = `<i class="fa-regular ${show ? 'fa-eye-slash' : 'fa-eye'}"></i>`;
+        });
+        wrap.append(eye);
+    });
+
+    // ---------- Forgot password (reset on this device, approved emails only) ----------
+    const showForm = (name) => {
+        authMsg.hidden = true;
+        modal.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.tab === name));
+        modal.querySelectorAll('.auth-form').forEach((f) => { f.hidden = f.dataset.form !== name; });
+    };
+    $('forgotBtn').addEventListener('click', () => {
+        showForm('reset');
+        $('rstEmail').value = $('logEmail').value;
+        $('rstPass').focus();
+    });
+    $('backLoginBtn').addEventListener('click', () => showForm('login'));
+    modal.querySelector('[data-form="reset"]').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = $('rstEmail').value.trim().toLowerCase(), pass = $('rstPass').value;
+        if (!isAllowed(email)) return authError(NOT_ALLOWED);
+        if (pass.length < 8) return authError('Password must be at least 8 characters.');
+        const users = store.get('phumea-users', {});
+        const name = users[email]?.name || (isAdmin(email) ? 'Admin' : email.split('@')[0]);
+        users[email] = { name, pass: await hash(pass) };
+        store.set('phumea-users', users);
+        session = { email, name };
+        store.set('phumea-session', session);
+        e.target.reset(); closeModal(); paintAccount();
+        toast('Password updated. Welcome, ' + name + '!');
+    });
+
     $('logoutBtn').addEventListener('click', () => {
         session = null;
         store.set('phumea-session', null);
