@@ -90,6 +90,10 @@ const EXTRA_DICT = {
     news_card_title: "Por ICT News",
     news_card_desc: "High, Medium & Low impact USD newswire feeds with institutional ICT execution commentary.",
     news_card_btn: "READ POR ICT NEWS ➔",
+    sig_card_label: "LIVE DATA · XAU · BTC · ETH",
+    sig_card_title: "Live Signals",
+    sig_card_desc: "Real-time XAU/USD, BTC and ETH prices with a TradingView chart, EMA + ATR signals, TP/SL results, CSV export and print.",
+    sig_card_btn: "OPEN LIVE SIGNALS ➔",
     chart_card_desc: "Real-time institutional candlestick charts with customizable indicators."
   },
   KH: {
@@ -133,6 +137,10 @@ const EXTRA_DICT = {
     news_card_title: "ព័ត៌មាន Por ICT",
     news_card_desc: "ព័ត៌មាន USD ផលប៉ះពាល់ខ្ពស់ មធ្យម និងទាប ជាមួយការវិភាគ ICT កម្រិតស្ថាប័ន។",
     news_card_btn: "អានព័ត៌មាន POR ICT ➔",
+    sig_card_label: "ទិន្នន័យផ្ទាល់ · XAU · BTC · ETH",
+    sig_card_title: "សញ្ញាផ្ទាល់",
+    sig_card_desc: "តម្លៃ XAU/USD, BTC និង ETH ផ្ទាល់ ជាមួយក្រាហ្វ TradingView សញ្ញា EMA + ATR លទ្ធផល TP/SL ទាញយក CSV និងបោះពុម្ព។",
+    sig_card_btn: "បើកសញ្ញាផ្ទាល់ ➔",
     chart_card_desc: "ក្រាហ្វ Candlestick កម្រិតស្ថាប័នតាមពេលវេលាជាក់ស្តែង ជាមួយ Indicator ដែលអាចកែសម្រួលបាន។"
   }
 };

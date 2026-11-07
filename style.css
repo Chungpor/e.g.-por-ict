@@ -992,6 +992,14 @@ button.product-chart-btn {
   --card-title-color: #ffffff;
 }
 
+/* 2b. Live Signals (Pink #ec4899) */
+.por-signals-promo-card {
+  --card-accent: #ec4899;
+  --card-accent-rgb: 236, 72, 153;
+  --card-eyebrow-color: #f472b6;
+  --card-title-color: #ffffff;
+}
+
 /* 3. Live Market Chart (Lavender Purple #9d72ff) */
 .por-livechart-promo-card {
   --card-accent: #9d72ff;
@@ -1122,6 +1130,13 @@ button.product-chart-btn {
   --card-accent: #d97706;
   --card-accent-rgb: 217, 119, 6;
   --card-eyebrow-color: #b45309;
+  --card-title-color: #0f172a;
+}
+
+[data-theme="light"] .por-signals-promo-card {
+  --card-accent: #db2777;
+  --card-accent-rgb: 219, 39, 119;
+  --card-eyebrow-color: #be185d;
   --card-title-color: #0f172a;
 }
 
