@@ -812,7 +812,7 @@
         </div>
 
         <!-- Feature Card 10: Gold Prime Khmer (Gold #ffd23f) — live spot XAU/XAG in USD & Riel -->
-        <div class="product-feature-card por-goldkh-promo-card" id="openGoldKhCard" onclick="location.href='khmer-gold.html'" style="cursor:pointer;">
+        <div class="product-feature-card por-goldkh-promo-card" id="openGoldKhCard" onclick="goToKhmerGold(event)" style="cursor:pointer;">
           <div class="product-card-badge badge-gold">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 17l2-7h14l2 7z"></path>
@@ -831,7 +831,7 @@
             <span id="goldKhCardChg" class="goldkh-chg">--</span>
           </div>
           <p class="promo-card-desc" lang="km">តម្លៃមាស និងប្រាក់ Spot ពិតប្រាកដ គិតជា USD និងប្រាក់រៀល ក្នុងមួយអោន តម្លឹង ជី និងហ៊ុន។</p>
-          <a href="khmer-gold.html" id="openGoldKhBtn" class="product-chart-btn btn-gold-action" onclick="event.stopPropagation();">OPEN GOLD PRIME KHMER ➔</a>
+          <a href="javascript:void(0)" id="openGoldKhBtn" class="product-chart-btn btn-gold-action" onclick="goToKhmerGold(event)">OPEN GOLD PRIME KHMER ➔</a>
         </div>
 
       </section>
@@ -2691,6 +2691,14 @@
       fetchPrice();
       startAuto();
     })();
+  </script>
+  <script>
+    /* Gold Prime Khmer card: smooth-scroll to the live Khmer gold section (no separate page, no 404) */
+    function goToKhmerGold(e) {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      var el = document.getElementById('khmerGoldSection');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   </script>
 </body>
 </html>
