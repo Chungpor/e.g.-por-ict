@@ -12,7 +12,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Kantumruy+Pro:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Kantumruy+Pro:wght@400;500;600;700&family=Noto+Sans+Khmer:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <!-- Chart.js Engine -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -698,26 +698,8 @@
           <a href="app.html" id="openSignalsBtn" class="product-chart-btn" data-i18n="sig_card_btn" onclick="event.stopPropagation();">OPEN LIVE SIGNALS ➔</a>
         </div>
 
-        <!-- Feature Card 3: Live Market Chart (Lavender Purple #9d72ff) -->
-        <div class="product-feature-card por-livechart-promo-card">
-          <div class="product-card-badge badge-golden-chestnut">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-              <path d="M5 3v4"/>
-              <path d="M19 17v4"/>
-              <path d="M3 5h4"/>
-              <path d="M17 19h4"/>
-            </svg>
-          </div>
-          <div>
-            <span class="promo-sub-label">REAL-TIME CANDLESTICKS &amp; AI SCANNER</span>
-            <h3 class="product-card-title">Live Market Chart</h3>
-          </div>
-          <p class="promo-card-desc">Real-time institutional candlestick charts with instant AI Analyze, Best Setup scanner, and 4-LLM consensus levels.</p>
-          <button type="button" id="openLiveChartBtn" class="product-chart-btn btn-golden-chestnut" data-i18n="prod_live_btn">
-            LIVE CHART ➔
-          </button>
-        </div>
+        <!-- (Live Market Chart card removed. Hidden stub keeps script.js from failing if it binds #openLiveChartBtn.) -->
+        <button type="button" id="openLiveChartBtn" hidden aria-hidden="true" tabindex="-1" style="display:none"></button>
 
         <!-- Feature Card 4: Chart Analysis (Emerald #10b981) -->
         <div class="product-feature-card por-analysis-promo-card" onclick="location.href='chart-analysis.html'" style="cursor:pointer;">
@@ -829,6 +811,106 @@
           <a href="triummlocal.html" id="openTriummLocalBtn" class="product-chart-btn btn-darkgray-action" onclick="event.stopPropagation();">OPEN TRIUMM LOCAL ➔</a>
         </div>
 
+        <!-- Feature Card 10: Gold Prime Khmer (Gold #ffd23f) — live spot XAU/XAG in USD & Riel -->
+        <div class="product-feature-card por-goldkh-promo-card" id="openGoldKhCard" onclick="location.href='khmer-gold.html'" style="cursor:pointer;">
+          <div class="product-card-badge badge-gold">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 17l2-7h14l2 7z"></path>
+              <path d="M7 10l1.5-5h7L17 10"></path>
+              <line x1="3" y1="17" x2="21" y2="17"></line>
+              <line x1="2" y1="21" x2="22" y2="21"></line>
+            </svg>
+          </div>
+          <div>
+            <span class="promo-sub-label" lang="km">GOLD PRIME · KHMER · SPOT XAU / XAG</span>
+            <h3 class="product-card-title" lang="km">តម្លៃមាស ប្រាក់ កម្ពុជា</h3>
+          </div>
+          <div class="goldkh-card-live" aria-live="polite">
+            <span class="goldkh-live-dot"></span>
+            <strong id="goldKhCardPrice">--</strong>
+            <span id="goldKhCardChg" class="goldkh-chg">--</span>
+          </div>
+          <p class="promo-card-desc" lang="km">តម្លៃមាស និងប្រាក់ Spot ពិតប្រាកដ គិតជា USD និងប្រាក់រៀល ក្នុងមួយអោន តម្លឹង ជី និងហ៊ុន។</p>
+          <a href="khmer-gold.html" id="openGoldKhBtn" class="product-chart-btn btn-gold-action" onclick="event.stopPropagation();">OPEN GOLD PRIME KHMER ➔</a>
+        </div>
+
+      </section>
+
+      <!-- ========================================================
+           SECTION: តម្លៃមាស ប្រាក់ កម្ពុជា — KHMER GOLD & SILVER PRIME (LIVE SPOT)
+           ======================================================== -->
+      <section class="kg-section" id="khmerGoldSection" lang="km">
+        <div class="kg-root" id="kgRoot" data-m="gold">
+
+          <div class="kg-bg" aria-hidden="true">
+            <div class="kg-grid-bg"></div>
+            <div class="kg-orb kg-orb-1"></div>
+            <div class="kg-orb kg-orb-2"></div>
+            <div class="kg-orb kg-orb-3"></div>
+            <canvas id="kgParticles"></canvas>
+          </div>
+
+          <header class="kg-head">
+            <span class="kg-kicker">GOLD PRIME · KHMER · SPOT XAU / XAG</span>
+            <h2 class="kg-title">តម្លៃមាស ប្រាក់ កម្ពុជា (Spot ពិតប្រាកដ)</h2>
+          </header>
+
+          <div class="kg-tabs">
+            <button type="button" id="kgTabGold" class="on">មាស (XAU/USD)</button>
+            <button type="button" id="kgTabSilver">ប្រាក់ (XAG/USD)</button>
+          </div>
+
+          <div class="kg-layout">
+            <div class="kg-col">
+              <div class="kg-hero">
+                <div style="text-align:center">
+                  <span class="kg-live-badge"><span class="kg-dot"></span> ទីផ្សារអន្តរជាតិផ្ទាល់ (LIVE SPOT)</span>
+                </div>
+                <div class="kg-big" id="kgPrice">-</div>
+                <div class="kg-chg" id="kgChg"></div>
+                <div class="kg-ts" id="kgStamp"></div>
+              </div>
+
+              <div class="kg-g">
+                <div class="kg-c"><small>ខ្ពស់បំផុត (ថ្ងៃនេះ)</small><b id="kgHi" style="color:var(--kg-up)">-</b></div>
+                <div class="kg-c"><small>ទាបបំផុត (ថ្ងៃនេះ)</small><b id="kgLo" style="color:var(--kg-dn)">-</b></div>
+              </div>
+            </div>
+
+            <div class="kg-col">
+              <div class="kg-g" id="kgGrid"></div>
+            </div>
+          </div>
+
+          <div class="kg-box">
+            <div class="kg-row">
+              <label>តម្លៃ Spot USD / អោន (oz)<input id="kgIn" type="number" step="0.01" inputmode="decimal"></label>
+              <label>អត្រាប្រាក់រៀល (៛ / 1 USD)<input id="kgFx" type="number" step="1" inputmode="numeric"></label>
+            </div>
+            <div class="kg-btn-row">
+              <button type="button" class="kg-btn-prime" id="kgUp">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                  <path d="M3 3v5h5"/>
+                  <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+                  <path d="M16 16h5v5"/>
+                </svg>
+                <span id="kgUpTxt">ធ្វើបច្ចុប្បន្នភាពឥឡូវនេះ</span>
+              </button>
+              <button type="button" class="kg-btn-auto active" id="kgAuto">
+                <span class="kg-auto-led"></span>
+                <span id="kgAutoTxt">ស្វ័យប្រវត្តិ៖ 15វិនាទី (បើក)</span>
+              </button>
+            </div>
+            <div id="kgMsg"></div>
+          </div>
+
+          <div class="kg-note">
+            តម្លៃអន្តរជាតិពិតប្រាកដ (Spot XAU/USD &amp; XAG/USD) មិនរួមបញ្ចូលថ្លៃឈ្នួល ឬតម្លៃហាងក្នុងស្រុកទេ<br>
+            1 តម្លឹង = 37.5g · 1 ជី = 3.75g · 1 ហ៊ុន = 0.375g · 1 oz = 31.1035g
+          </div>
+
+        </div>
       </section>
 
       <!-- ========================================================
@@ -1105,12 +1187,11 @@
         <a href="live-charts.html" class="lc-open-full-terminal-link">⚡ Open Full 3-Column AI Chart Terminal ↗</a>
       </div>
 
-      <!-- Live Chart Header -->
+      <!-- Live Chart Header (name labels removed) -->
       <header class="live-chart-header lc-header-flex">
         <div>
-          <span class="live-chart-subtitle-tag" data-i18n="chart_category">REAL-TIME CANDLESTICKS · AI LIVE SCANNER</span>
           <h1 class="live-chart-main-title">
-            <span data-i18n="chart_title">Live Market Chart</span> · <strong id="lcActiveSymTitle" style="color:var(--sky-blue);">XAUUSD</strong>
+            <strong id="lcActiveSymTitle" style="color:var(--sky-blue);">XAUUSD</strong>
             <span class="lc-live-price-pill" id="lcTopLivePrice">--</span>
             <span class="lc-trend-mode-pill is-uptrend" id="lcTopTrendBadge">▲ UPTREND</span>
           </h1>
@@ -2314,6 +2395,301 @@
       setInterval(refreshFallbacks, 4000);            // Binance / Hyperliquid fallbacks
       setInterval(loadBinanceSparklines, 90000);      // refresh real candle history
       setInterval(refreshLiveChartPanel, 3000);
+    })();
+  </script>
+
+  <!-- ==========================================
+       KHMER GOLD & SILVER PRIME — LIVE SPOT ENGINE
+       (GoldPrice.org → gold-api.com fallback + open.er-api.com USD/KHR)
+       ========================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      const OZ = 31.1035;
+      const S = {
+        gold:   { p: 4118.83, ch: 50.90, pc: 1.25, hi: 4147.03, lo: 4026.96 },
+        silver: { p: 52.48,   ch: 0.66,  pc: 1.28, hi: 53.58,   lo: 51.28 },
+        fx: 4065,
+        t: '9 Nov 2026'
+      };
+      let cur = 'gold', timer = null;
+
+      try {
+        const x = JSON.parse(localStorage.getItem('khgold_spot') || 'null');
+        if (x && x.gold && x.silver) Object.assign(S, x);
+      } catch (e) { /* storage unavailable */ }
+
+      const $ = (id) => document.getElementById(id);
+      const root = $('kgRoot');
+      if (!root) return;
+
+      const usd = (v, d) => '$' + v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+      const khr = (v) => {
+        const r = Math.round(v);
+        return r >= 1e6 ? (r / 1e6).toFixed(2) + 'M ៛' : r.toLocaleString('en-US') + ' ៛';
+      };
+
+      function render(flashDir) {
+        flashDir = flashDir || 0;
+        const m = S[cur], d = cur === 'gold' ? 2 : 3, u = m.ch >= 0;
+        const priceEl = $('kgPrice');
+        priceEl.textContent = usd(m.p, d);
+        priceEl.style.color = cur === 'gold' ? 'var(--kg-gold)' : 'var(--kg-sil)';
+        root.dataset.m = cur;
+
+        if (flashDir !== 0) {
+          priceEl.classList.remove('kg-flash-up', 'kg-flash-dn');
+          void priceEl.offsetWidth;
+          priceEl.classList.add(flashDir > 0 ? 'kg-flash-up' : 'kg-flash-dn');
+        }
+
+        $('kgChg').className = 'kg-chg ' + (u ? 'kg-up' : 'kg-dn');
+        $('kgChg').textContent = (u ? '▲ +' : '▼ ') + m.ch.toFixed(2) + ' (' + m.pc.toFixed(2) + '%)';
+        $('kgStamp').textContent = S.t;
+
+        const units = [
+          ['អោន (1 oz)', OZ],
+          ['តម្លឹង (37.5g)', 37.5],
+          ['ជី (3.75g)', 3.75],
+          ['ហ៊ុន (0.375g)', 0.375],
+          ['ក្រាម (1g)', 1],
+          ['គីឡូ (1kg)', 1000]
+        ];
+        $('kgGrid').innerHTML = units.map(([n, g]) => {
+          const v = m.p * g / OZ;
+          return `<div class="kg-c"><small>${n}</small><b>${usd(v, v < 1000 ? 2 : 0)}</b><i>${khr(v * S.fx)}</i></div>`;
+        }).join('');
+
+        // Mirror the live gold spot onto the "Gold Prime Khmer" feature card
+        const g = S.gold, gu = g.ch >= 0;
+        const cp = $('goldKhCardPrice'), cc = $('goldKhCardChg');
+        if (cp) cp.textContent = 'XAU ' + usd(g.p, 2);
+        if (cc) {
+          cc.textContent = (gu ? '▲ +' : '▼ ') + g.pc.toFixed(2) + '%';
+          cc.className = 'goldkh-chg ' + (gu ? 'is-up' : 'is-down');
+        }
+
+        $('kgHi').textContent = usd(m.hi, d);
+        $('kgLo').textContent = usd(m.lo, d);
+        $('kgIn').value = m.p;
+        $('kgFx').value = S.fx;
+        $('kgTabGold').classList.toggle('on', cur === 'gold');
+        $('kgTabSilver').classList.toggle('on', cur === 'silver');
+      }
+
+      function save() { try { localStorage.setItem('khgold_spot', JSON.stringify(S)); } catch (e) { /* ignore */ } }
+      function stamp() {
+        const n = new Date();
+        S.t = n.toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
+
+      $('kgTabGold').onclick = () => { cur = 'gold'; render(); };
+      $('kgTabSilver').onclick = () => { cur = 'silver'; render(); };
+
+      function manual() {
+        const p = parseFloat($('kgIn').value), f = parseFloat($('kgFx').value), m = S[cur];
+        let dir = 0;
+        if (f > 0) S.fx = f;
+        if (p > 0 && p !== m.p) {
+          dir = p > m.p ? 1 : -1;
+          m.ch = p - m.p;
+          m.pc = (m.ch / m.p) * 100;
+          m.p = p;
+          m.hi = Math.max(m.hi, p);
+          m.lo = Math.min(m.lo, p);
+          stamp();
+        }
+        save();
+        render(dir);
+      }
+      $('kgIn').onchange = manual;
+      $('kgFx').onchange = manual;
+
+      // Click ripple on the buttons
+      function createRipple(event, btn) {
+        const circle = document.createElement('span');
+        const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+        const radius = diameter / 2;
+        const rect = btn.getBoundingClientRect();
+        circle.style.width = circle.style.height = diameter + 'px';
+        circle.style.left = (event.clientX - rect.left - radius) + 'px';
+        circle.style.top = (event.clientY - rect.top - radius) + 'px';
+        circle.classList.add('kg-ripple');
+        const existing = btn.querySelector('.kg-ripple');
+        if (existing) existing.remove();
+        btn.appendChild(circle);
+      }
+
+      async function fetchPrice(e) {
+        const upBtn = $('kgUp');
+        const upTxt = $('kgUpTxt');
+        if (e && e.clientX) createRipple(e, upBtn);
+
+        upBtn.classList.add('loading');
+        upTxt.textContent = 'កំពុងទាញយកតម្លៃ...';
+        const msg = $('kgMsg');
+        msg.textContent = 'កំពុងទាញយកតម្លៃ Spot ពិតប្រាកដ (XAU/XAG)...';
+        let updated = false, dir = 0;
+        const oldP = S[cur].p;
+
+        // 1) GoldPrice.org — spot + real change vs previous close
+        try {
+          const resGP = await fetch('https://data-asg.goldprice.org/dbXRates/USD');
+          if (resGP.ok) {
+            const dataGP = await resGP.json();
+            if (dataGP && dataGP.items && dataGP.items[0]) {
+              const item = dataGP.items[0];
+              if (item.xauPrice > 0) {
+                S.gold.p = parseFloat(item.xauPrice.toFixed(2));
+                S.gold.ch = parseFloat(item.chgXau.toFixed(2));
+                S.gold.pc = parseFloat(item.pcXau.toFixed(2));
+                S.gold.hi = Math.max(S.gold.hi, S.gold.p);
+                S.gold.lo = Math.min(S.gold.lo, S.gold.p);
+                updated = true;
+              }
+              if (item.xagPrice > 0) {
+                S.silver.p = parseFloat(item.xagPrice.toFixed(3));
+                S.silver.ch = parseFloat(item.chgXag.toFixed(2));
+                S.silver.pc = parseFloat(item.pcXag.toFixed(2));
+                S.silver.hi = Math.max(S.silver.hi, S.silver.p);
+                S.silver.lo = Math.min(S.silver.lo, S.silver.p);
+                updated = true;
+              }
+            }
+          }
+        } catch (err) { /* fall through to backup */ }
+
+        // 2) Backup: gold-api.com
+        if (!updated) {
+          try {
+            const [resXAU, resXAG] = await Promise.all([
+              fetch('https://api.gold-api.com/price/XAU'),
+              fetch('https://api.gold-api.com/price/XAG')
+            ]);
+            if (resXAU.ok) {
+              const dXAU = await resXAU.json();
+              if (dXAU && dXAU.price > 0) {
+                const newP = parseFloat(dXAU.price.toFixed(2));
+                if (S.gold.p !== newP) {
+                  S.gold.ch = newP - (S.gold.p - S.gold.ch);
+                  S.gold.pc = (S.gold.ch / (S.gold.p - S.gold.ch)) * 100;
+                  S.gold.p = newP;
+                  S.gold.hi = Math.max(S.gold.hi, newP);
+                  S.gold.lo = Math.min(S.gold.lo, newP);
+                }
+                updated = true;
+              }
+            }
+            if (resXAG.ok) {
+              const dXAG = await resXAG.json();
+              if (dXAG && dXAG.price > 0) {
+                const newP = parseFloat(dXAG.price.toFixed(3));
+                if (S.silver.p !== newP) {
+                  S.silver.ch = newP - (S.silver.p - S.silver.ch);
+                  S.silver.pc = (S.silver.ch / (S.silver.p - S.silver.ch)) * 100;
+                  S.silver.p = newP;
+                  S.silver.hi = Math.max(S.silver.hi, newP);
+                  S.silver.lo = Math.min(S.silver.lo, newP);
+                }
+                updated = true;
+              }
+            }
+          } catch (err) { /* offline */ }
+        }
+
+        // 3) USD → KHR exchange rate
+        try {
+          const resFX = await fetch('https://open.er-api.com/v6/latest/USD');
+          if (resFX.ok) {
+            const dataFX = await resFX.json();
+            if (dataFX && dataFX.rates && dataFX.rates.KHR) S.fx = Math.round(dataFX.rates.KHR);
+          }
+        } catch (err) { /* keep last rate */ }
+
+        setTimeout(() => {
+          upBtn.classList.remove('loading');
+          upTxt.textContent = 'ធ្វើបច្ចុប្បន្នភាពឥឡូវនេះ';
+        }, 450);
+
+        if (updated) {
+          if (S[cur].p !== oldP) dir = S[cur].p > oldP ? 1 : -1;
+          stamp();
+          save();
+          render(dir);
+          msg.textContent = 'ធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ៖ ' + S.t;
+        } else {
+          msg.textContent = 'មិនអាចភ្ជាប់ទៅ Server បានទេ។ សូមពិនិត្យអ៊ីនធឺណិតរបស់អ្នក។';
+        }
+      }
+
+      $('kgUp').onclick = fetchPrice;
+
+      function startAuto() {
+        if (timer) clearInterval(timer);
+        timer = setInterval(fetchPrice, 15000);
+        $('kgAuto').classList.add('active');
+        $('kgAutoTxt').textContent = 'ស្វ័យប្រវត្តិ៖ 15វិនាទី (បើក)';
+      }
+
+      $('kgAuto').onclick = (e) => {
+        const autoBtn = $('kgAuto');
+        if (e && e.clientX) createRipple(e, autoBtn);
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+          autoBtn.classList.remove('active');
+          $('kgAutoTxt').textContent = 'ស្វ័យប្រវត្តិ៖ បិទ';
+        } else {
+          fetchPrice();
+          startAuto();
+        }
+      };
+
+      /* ---- particle shimmer (drawn inside the card only) ---- */
+      const cvs = $('kgParticles'), ctx = cvs.getContext('2d');
+      let W = 0, H = 0;
+      const pts = [];
+      function sizeCanvas() {
+        const w = cvs.clientWidth, h = cvs.clientHeight;
+        if (w && h && (w !== W || h !== H)) { W = cvs.width = w; H = cvs.height = h; }
+      }
+      for (let i = 0; i < 34; i++) {
+        pts.push({
+          x: Math.random() * 600, y: Math.random() * 600,
+          r: Math.random() * 2.2 + 0.6,
+          vy: -(Math.random() * 0.45 + 0.15),
+          vx: (Math.random() - 0.5) * 0.3,
+          a: Math.random() * 0.65 + 0.15,
+          da: (Math.random() * 0.012 + 0.004) * (Math.random() < 0.5 ? 1 : -1)
+        });
+      }
+      function drawParticles() {
+        requestAnimationFrame(drawParticles);
+        if (!cvs.offsetParent) return;           // section hidden (login / other view)
+        sizeCanvas();
+        if (!W || !H) return;
+        ctx.clearRect(0, 0, W, H);
+        const isGold = cur === 'gold';
+        for (const p of pts) {
+          p.x += p.vx; p.y += p.vy; p.a += p.da;
+          if (p.a > 0.8 || p.a < 0.1) p.da *= -1;
+          if (p.y < -10) { p.y = H + 10; p.x = Math.random() * W; }
+          if (p.x < -10) p.x = W + 10;
+          if (p.x > W + 10) p.x = -10;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = isGold ? `rgba(255, 210, 63, ${p.a})` : `rgba(180, 212, 255, ${p.a})`;
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = isGold ? '#ffd23f' : '#7aa2ff';
+          ctx.fill();
+        }
+      }
+      drawParticles();
+
+      render();
+      fetchPrice();
+      startAuto();
     })();
   </script>
 </body>

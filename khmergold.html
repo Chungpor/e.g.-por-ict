@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>តម្លៃមាស ប្រាក់ កម្ពុជា (Spot ពិតប្រាកដ)</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Khmer:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #070a14;
+  --card: rgba(21, 29, 54, 0.58);
+  --line: rgba(255, 255, 255, 0.12);
+  --txt: #f0f4ff;
+  --mut: #94a3b8;
+  --gold: #ffd23f;
+  --up: #4ade80;
+  --dn: #ff7a6b;
+  --acc: #f5a623;
+  --sil: #cfe3ff;
+  --tint: #ffb938;
+  --orb1: rgba(255, 185, 56, 0.32);
+  --orb2: rgba(245, 130, 35, 0.22);
+  --orb3: rgba(45, 212, 191, 0.16);
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+body[data-m="silver"] {
+  --tint: #7aa2ff;
+  --acc: #9db4e0;
+  --orb1: rgba(122, 162, 255, 0.32);
+  --orb2: rgba(56, 189, 248, 0.22);
+  --orb3: rgba(168, 85, 247, 0.16);
+}
+
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--bg);
+  color: var(--txt);
+  font-family: "Noto Sans Khmer", system-ui, sans-serif;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* === DYNAMIC BACKGROUND LAYERS === */
+.bg-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 0%, #111936 0%, #060913 75%);
+}
+
+.bg-grid {
+  position: absolute;
+  inset: -100%;
+  background-image: 
+    linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 44px 44px;
+  transform: perspective(600px) rotateX(60deg);
+  animation: gridMove 22s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes gridMove {
+  0% { transform: perspective(600px) rotateX(60deg) translateY(0); }
+  100% { transform: perspective(600px) rotateX(60deg) translateY(44px); }
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(75px);
+  opacity: 0.85;
+  transition: background 1.2s ease;
+  will-change: transform;
+}
+
+.orb-1 {
+  width: 360px; height: 360px;
+  background: var(--orb1);
+  top: -10%; left: -10%;
+  animation: floatOrb1 16s ease-in-out infinite alternate;
+}
+
+.orb-2 {
+  width: 320px; height: 320px;
+  background: var(--orb2);
+  bottom: 5%; right: -12%;
+  animation: floatOrb2 20s ease-in-out infinite alternate;
+}
+
+.orb-3 {
+  width: 260px; height: 260px;
+  background: var(--orb3);
+  top: 40%; left: 30%;
+  animation: floatOrb3 14s ease-in-out infinite alternate;
+}
+
+@keyframes floatOrb1 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(110px, 80px) scale(1.18); }
+  100% { transform: translate(40px, 160px) scale(0.92); }
+}
+@keyframes floatOrb2 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-120px, -90px) scale(1.22); }
+  100% { transform: translate(-50px, -170px) scale(0.9); }
+}
+@keyframes floatOrb3 {
+  0% { transform: translate(0, 0) scale(0.9); }
+  50% { transform: translate(-70px, 60px) scale(1.15); }
+  100% { transform: translate(80px, -60px) scale(1.05); }
+}
+
+#particles {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* === UI & GLASSMORPHISM === */
+.w {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.tabs button {
+  flex: 1;
+  padding: 11px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--txt);
+  border-radius: 14px;
+  font: 600 16px inherit;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tabs button:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--tint) 60%, transparent);
+}
+
+.tabs button.on {
+  color: #1a1200;
+  border-color: transparent;
+  box-shadow: 0 6px 22px color-mix(in srgb, var(--tint) 50%, transparent);
+}
+
+#tg.on { background: linear-gradient(135deg, #ffe066, #f5a623); }
+#ts.on { background: linear-gradient(135deg, #f0f6ff, #9db4e0); }
+
+.hero-card {
+  background: linear-gradient(160deg, color-mix(in srgb, var(--tint) 16%, rgba(21,29,54,0.65)), rgba(15,21,40,0.55));
+  border: 1px solid color-mix(in srgb, var(--tint) 45%, var(--line));
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: 20px;
+  padding: 18px 14px 14px;
+  margin-bottom: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.hero-card::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -150%;
+  width: 120%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+  transform: skewX(-25deg);
+  animation: sweep 7s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes sweep {
+  0%, 55% { left: -150%; }
+  100% { left: 150%; }
+}
+
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--up);
+  background: rgba(74, 222, 128, 0.12);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+
+.dot {
+  width: 7px; height: 7px;
+  background: var(--up);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--up);
+  animation: pulseDot 1.5s infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.45; }
+}
+
+.big {
+  text-align: center;
+  margin: 8px 0 4px;
+  font: 700 46px "JetBrains Mono", monospace;
+  color: var(--gold);
+  text-shadow: 0 0 24px color-mix(in srgb, var(--tint) 45%, transparent);
+  transition: transform 0.25s ease, color 0.3s ease;
+}
+
+.flash-up { animation: flashUp 0.8s ease; }
+.flash-dn { animation: flashDn 0.8s ease; }
+
+@keyframes flashUp {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(1.04); text-shadow: 0 0 32px var(--up); }
+}
+@keyframes flashDn {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(0.97); text-shadow: 0 0 32px var(--dn); }
+}
+
+.chg { text-align: center; font: 600 16px "JetBrains Mono", monospace; }
+.up { color: var(--up); }
+.dn { color: var(--dn); }
+.ts { text-align: center; color: var(--mut); font-size: 12px; margin: 6px 0 2px; }
+
+.g {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.c {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--tint) 14%, var(--card)), var(--card));
+  border: 1px solid color-mix(in srgb, var(--tint) 38%, var(--line));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 15px;
+  padding: 13px 10px;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+  transition: transform 0.25s ease, border-color 0.3s ease, box-shadow 0.25s ease;
+}
+
+.c:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--tint) 75%, var(--line));
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--tint) 18%, rgba(0,0,0,0.4));
+}
+
+.c small { display: block; color: var(--mut); font-size: 13px; }
+.c b {
+  display: block;
+  font: 700 20px "JetBrains Mono", monospace;
+  color: var(--gold);
+  margin: 5px 0 3px;
+}
+body[data-m="silver"] .c b { color: var(--sil); }
+.c i {
+  font: 500 13px "JetBrains Mono", monospace;
+  font-style: normal;
+  color: #2dd4bf;
+}
+
+.box {
+  margin-top: 14px;
+  background: linear-gradient(145deg, rgba(45, 212, 191, 0.1), var(--card));
+  border: 1px solid rgba(45, 212, 191, 0.3);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; }
+.row label { flex: 1; min-width: 110px; font-size: 12px; color: var(--mut); }
+
+input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 4px;
+  padding: 9px 11px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgba(10, 15, 30, 0.55);
+  color: var(--txt);
+  font: 500 15px "JetBrains Mono", monospace;
+  outline: none;
+  transition: border-color 0.2s;
+}
+input:focus { border-color: var(--tint); }
+
+/* === PRIME BUTTON EFFECTS === */
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-prime {
+  position: relative;
+  flex: 1.25;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #ffe270 0%, #f5a623 50%, #ff8c00 100%);
+  background-size: 200% auto;
+  color: #1a1100;
+  font: 700 14px "Noto Sans Khmer", system-ui, sans-serif;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 
+    0 6px 20px rgba(245, 166, 35, 0.42),
+    inset 0 1px 1px rgba(255, 255, 255, 0.75);
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: primePulse 3s ease-in-out infinite;
+}
+
+body[data-m="silver"] .btn-prime {
+  background: linear-gradient(135deg, #ffffff 0%, #b8d0f8 50%, #7aa2ff 100%);
+  background-size: 200% auto;
+  box-shadow: 
+    0 6px 20px rgba(122, 162, 255, 0.42),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9);
+}
+
+/* ពន្លឺរត់កាត់ប៊ូតុង Prime (Shimmer Foil Sweep) */
+.btn-prime::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -120%;
+  width: 65%; height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.7),
+    transparent
+  );
+  transform: skewX(-25deg);
+  animation: btnShine 3.2s infinite;
+  pointer-events: none;
+}
+
+@keyframes btnShine {
+  0%, 55% { left: -120%; }
+  100% { left: 160%; }
+}
+
+@keyframes primePulse {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.5px); }
+}
+
+.btn-prime:hover {
+  background-position: right center;
+  transform: translateY(-2.5px) scale(1.02);
+  box-shadow: 
+    0 10px 28px color-mix(in srgb, var(--tint) 65%, transparent),
+    inset 0 1px 2px rgba(255, 255, 255, 0.9);
+}
+
+.btn-prime:active {
+  transform: translateY(1px) scale(0.97);
+}
+
+.btn-prime svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 2.4;
+  transition: transform 0.4s ease;
+}
+
+.btn-prime:hover svg {
+  transform: rotate(90deg);
+}
+
+.btn-prime.loading svg {
+  animation: spinIcon 0.7s linear infinite;
+}
+
+@keyframes spinIcon {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ប៊ូតុងស្វ័យប្រវត្តិ (Auto Button Prime Glass) */
+.btn-auto {
+  position: relative;
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 15px;
+  border-radius: 13px;
+  background: rgba(15, 23, 42, 0.7);
+  color: var(--txt);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font: 600 13.5px "Noto Sans Khmer", system-ui, sans-serif;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+}
+
+.btn-auto.active {
+  border-color: rgba(74, 222, 128, 0.5);
+  background: linear-gradient(145deg, rgba(74, 222, 128, 0.14), rgba(15, 23, 42, 0.8));
+  box-shadow: 0 0 18px rgba(74, 222, 128, 0.18), inset 0 0 8px rgba(74, 222, 128, 0.08);
+}
+
+.btn-auto:hover {
+  border-color: var(--tint);
+  transform: translateY(-2px);
+}
+
+.btn-auto:active {
+  transform: scale(0.97);
+}
+
+.auto-led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #64748b;
+  transition: all 0.3s ease;
+}
+
+.btn-auto.active .auto-led {
+  background: var(--up);
+  box-shadow: 0 0 10px var(--up);
+  animation: pulseDot 1.4s infinite;
+}
+
+/* រលកពន្លឺពេលចុច (Click Ripple) */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: rippleEffect 0.6s linear;
+  background-color: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+
+@keyframes rippleEffect {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+#msg { font-size: 12px; color: var(--mut); margin-top: 9px; min-height: 16px; }
+.note { font-size: 11px; color: var(--mut); margin-top: 12px; line-height: 1.55; text-align: center; }
+</style>
+</head>
+<body>
+<a href="index.html" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:12px;z-index:5;padding:8px 14px;border-radius:99px;background:rgba(21,29,54,.7);border:1px solid rgba(255,255,255,.15);color:#f0f4ff;font:600 13px 'Noto Sans Khmer',system-ui,sans-serif;text-decoration:none;backdrop-filter:blur(10px)">← Por ICT</a>
+
+<div class="bg-wrap">
+  <div class="bg-grid"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+<canvas id="particles"></canvas>
+
+<div class="w">
+  <div class="tabs">
+    <button id="tg" class="on">មាស (XAU/USD)</button>
+    <button id="ts">ប្រាក់ (XAG/USD)</button>
+  </div>
+
+  <div class="hero-card">
+    <div style="text-align:center">
+      <span class="live-badge"><span class="dot"></span> ទីផ្សារអន្តរជាតិផ្ទាល់ (LIVE SPOT)</span>
+    </div>
+    <div class="big" id="price">-</div>
+    <div class="chg" id="chg"></div>
+    <div class="ts" id="ts2"></div>
+  </div>
+
+  <div class="g" id="grid"></div>
+
+  <div class="g" style="margin-top:10px">
+    <div class="c"><small>ខ្ពស់បំផុត (ថ្ងៃនេះ)</small><b class="up" id="hi" style="color:var(--up)">-</b></div>
+    <div class="c"><small>ទាបបំផុត (ថ្ងៃនេះ)</small><b id="lo" style="color:var(--dn)">-</b></div>
+  </div>
+
+  <div class="box">
+    <div class="row">
+      <label>តម្លៃ Spot USD / អោន (oz)<input id="in" type="number" step="0.01" inputmode="decimal"></label>
+      <label>អត្រាប្រាក់រៀល (៛ / 1 USD)<input id="fx" type="number" step="1" inputmode="numeric"></label>
+    </div>
+    <div class="btn-row">
+      <button class="btn-prime" id="up">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+          <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+          <path d="M16 16h5v5"/>
+        </svg>
+        <span id="upTxt">ធ្វើបច្ចុប្បន្នភាពឥឡូវនេះ</span>
+      </button>
+      <button class="btn-auto active" id="auto">
+        <span class="auto-led"></span>
+        <span id="autoTxt">ស្វ័យប្រវត្តិ៖ 15វិនាទី (បើក)</span>
+      </button>
+    </div>
+    <div id="msg"></div>
+  </div>
+
+  <div class="note">
+    តម្លៃអន្តរជាតិពិតប្រាកដ (Spot XAU/USD & XAG/USD) មិនរួមបញ្ចូលថ្លៃឈ្នួល ឬតម្លៃហាងក្នុងស្រុកទេ<br>
+    1 តម្លឹង = 37.5g · 1 ជី = 3.75g · 1 ហ៊ុន = 0.375g · 1 oz = 31.1035g
+  </div>
+</div>
+
+<script>
+const OZ = 31.1035;
+const S = {
+  gold: { p: 4118.83, ch: 50.90, pc: 1.25, hi: 4147.03, lo: 4026.96 },
+  silver: { p: 52.48, ch: 0.66, pc: 1.28, hi: 53.58, lo: 51.28 },
+  fx: 4065,
+  t: "9 Nov 2026"
+};
+let cur = "gold", timer = null;
+
+try {
+  const x = JSON.parse(localStorage.getItem("khgold_spot") || "null");
+  if (x && x.gold && x.silver) Object.assign(S, x);
+} catch(e) {}
+
+const $ = id => document.getElementById(id);
+const usd = (v, d) => "$" + v.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+const khr = v => {
+  const r = Math.round(v);
+  return r >= 1e6 ? (r / 1e6).toFixed(2) + "M ៛" : r.toLocaleString("en-US") + " ៛";
+};
+
+function render(flashDir = 0) {
+  const m = S[cur], d = cur === "gold" ? 2 : 3, u = m.ch >= 0;
+  const priceEl = $("price");
+  priceEl.textContent = usd(m.p, d);
+  priceEl.style.color = cur === "gold" ? "var(--gold)" : "var(--sil)";
+  document.body.dataset.m = cur;
+
+  if (flashDir !== 0) {
+    priceEl.classList.remove("flash-up", "flash-dn");
+    void priceEl.offsetWidth;
+    priceEl.classList.add(flashDir > 0 ? "flash-up" : "flash-dn");
+  }
+
+  $("chg").className = "chg " + (u ? "up" : "dn");
+  $("chg").textContent = (u ? "▲ +" : "▼ ") + m.ch.toFixed(2) + " (" + m.pc.toFixed(2) + "%)";
+  $("ts2").textContent = S.t;
+
+  const u2 = [
+    ["អោន (1 oz)", OZ],
+    ["តម្លឹង (37.5g)", 37.5],
+    ["ជី (3.75g)", 3.75],
+    ["ហ៊ុន (0.375g)", 0.375],
+    ["ក្រាម (1g)", 1],
+    ["គីឡូ (1kg)", 1000]
+  ];
+  $("grid").innerHTML = u2.map(([n, g]) => {
+    const v = m.p * g / OZ;
+    return `<div class="c"><small>${n}</small><b>${usd(v, v < 10 ? 2 : v < 1000 ? 2 : 0)}</b><i>${khr(v * S.fx)}</i></div>`;
+  }).join("");
+
+  $("hi").textContent = usd(m.hi, d);
+  $("lo").textContent = usd(m.lo, d);
+  $("in").value = m.p;
+  $("fx").value = S.fx;
+  $("tg").classList.toggle("on", cur === "gold");
+  $("ts").classList.toggle("on", cur === "silver");
+}
+
+function save() { try { localStorage.setItem("khgold_spot", JSON.stringify(S)); } catch(e) {} }
+function stamp() {
+  const n = new Date();
+  S.t = n.toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}
+
+$("tg").onclick = () => { cur = "gold"; render(); };
+$("ts").onclick = () => { cur = "silver"; render(); };
+
+function manual() {
+  const p = parseFloat($("in").value), f = parseFloat($("fx").value), m = S[cur];
+  let dir = 0;
+  if (f > 0) S.fx = f;
+  if (p > 0 && p !== m.p) {
+    dir = p > m.p ? 1 : -1;
+    m.ch = p - m.p;
+    m.pc = (m.ch / m.p) * 100;
+    m.p = p;
+    m.hi = Math.max(m.hi, p);
+    m.lo = Math.min(m.lo, p);
+    stamp();
+  }
+  save();
+  render(dir);
+}
+$("in").onchange = manual;
+$("fx").onchange = manual;
+
+// បង្កើត Ripple Effect លើប៊ូតុងពេលចុច
+function createRipple(event, btn) {
+  const circle = document.createElement("span");
+  const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+  const radius = diameter / 2;
+  const rect = btn.getBoundingClientRect();
+  circle.style.width = circle.style.height = `${diameter}px`;
+  circle.style.left = `${event.clientX - rect.left - radius}px`;
+  circle.style.top = `${event.clientY - rect.top - radius}px`;
+  circle.classList.add("ripple");
+  const existing = btn.querySelector(".ripple");
+  if (existing) existing.remove();
+  btn.appendChild(circle);
+}
+
+async function fetchPrice(e) {
+  const upBtn = $("up");
+  const upTxt = $("upTxt");
+  if (e && e.clientX) createRipple(e, upBtn);
+
+  upBtn.classList.add("loading");
+  upTxt.textContent = "កំពុងទាញយកតម្លៃ...";
+  const msg = $("msg");
+  msg.textContent = "កំពុងទាញយកតម្លៃ Spot ពិតប្រាកដ (XAU/XAG)...";
+  let updated = false, dir = 0;
+  const oldP = S[cur].p;
+
+  try {
+    const resGP = await fetch("https://data-asg.goldprice.org/dbXRates/USD");
+    if (resGP.ok) {
+      const dataGP = await resGP.json();
+      if (dataGP && dataGP.items && dataGP.items[0]) {
+        const item = dataGP.items[0];
+        if (item.xauPrice > 0) {
+          S.gold.p = parseFloat(item.xauPrice.toFixed(2));
+          S.gold.ch = parseFloat(item.chgXau.toFixed(2));
+          S.gold.pc = parseFloat(item.pcXau.toFixed(2));
+          S.gold.hi = Math.max(S.gold.hi, S.gold.p);
+          S.gold.lo = Math.min(S.gold.lo, S.gold.p);
+          updated = true;
+        }
+        if (item.xagPrice > 0) {
+          S.silver.p = parseFloat(item.xagPrice.toFixed(3));
+          S.silver.ch = parseFloat(item.chgXag.toFixed(2));
+          S.silver.pc = parseFloat(item.pcXag.toFixed(2));
+          S.silver.hi = Math.max(S.silver.hi, S.silver.p);
+          S.silver.lo = Math.min(S.silver.lo, S.silver.p);
+          updated = true;
+        }
+      }
+    }
+  } catch (err) {}
+
+  if (!updated) {
+    try {
+      const [resXAU, resXAG] = await Promise.all([
+        fetch("https://api.gold-api.com/price/XAU"),
+        fetch("https://api.gold-api.com/price/XAG")
+      ]);
+      if (resXAU.ok) {
+        const dXAU = await resXAU.json();
+        if (dXAU && dXAU.price > 0) {
+          const newP = parseFloat(dXAU.price.toFixed(2));
+          if (S.gold.p !== newP) {
+            S.gold.ch = newP - (S.gold.p - S.gold.ch);
+            S.gold.pc = (S.gold.ch / (S.gold.p - S.gold.ch)) * 100;
+            S.gold.p = newP;
+            S.gold.hi = Math.max(S.gold.hi, newP);
+            S.gold.lo = Math.min(S.gold.lo, newP);
+          }
+          updated = true;
+        }
+      }
+      if (resXAG.ok) {
+        const dXAG = await resXAG.json();
+        if (dXAG && dXAG.price > 0) {
+          const newP = parseFloat(dXAG.price.toFixed(3));
+          if (S.silver.p !== newP) {
+            S.silver.ch = newP - (S.silver.p - S.silver.ch);
+            S.silver.pc = (S.silver.ch / (S.silver.p - S.silver.ch)) * 100;
+            S.silver.p = newP;
+            S.silver.hi = Math.max(S.silver.hi, newP);
+            S.silver.lo = Math.min(S.silver.lo, newP);
+          }
+          updated = true;
+        }
+      }
+    } catch (err) {}
+  }
+
+  try {
+    const resFX = await fetch("https://open.er-api.com/v6/latest/USD");
+    if (resFX.ok) {
+      const dataFX = await resFX.json();
+      if (dataFX && dataFX.rates && dataFX.rates.KHR) {
+        S.fx = Math.round(dataFX.rates.KHR);
+      }
+    }
+  } catch (err) {}
+
+  setTimeout(() => {
+    upBtn.classList.remove("loading");
+    upTxt.textContent = "ធ្វើបច្ចុប្បន្នភាពឥឡូវនេះ";
+  }, 450);
+
+  if (updated) {
+    if (S[cur].p !== oldP) dir = S[cur].p > oldP ? 1 : -1;
+    stamp();
+    save();
+    render(dir);
+    msg.textContent = "ធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ៖ " + S.t;
+  } else {
+    msg.textContent = "មិនអាចភ្ជាប់ទៅ Server បានទេ។ សូមពិនិត្យអ៊ីនធឺណិតរបស់អ្នក។";
+  }
+}
+
+$("up").onclick = fetchPrice;
+
+function startAuto() {
+  if (timer) clearInterval(timer);
+  timer = setInterval(fetchPrice, 15000);
+  $("auto").classList.add("active");
+  $("autoTxt").textContent = "ស្វ័យប្រវត្តិ៖ 15វិនាទី (បើក)";
+}
+
+$("auto").onclick = (e) => {
+  const autoBtn = $("auto");
+  if (e && e.clientX) createRipple(e, autoBtn);
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+    autoBtn.classList.remove("active");
+    $("autoTxt").textContent = "ស្វ័យប្រវត្តិ៖ បិទ";
+  } else {
+    fetchPrice();
+    startAuto();
+  }
+};
+
+/* === PARTICLE SHIMMER CANVAS === */
+const cvs = $("particles"), ctx = cvs.getContext("2d");
+let W, H, pts = [];
+function resize() {
+  W = cvs.width = window.innerWidth;
+  H = cvs.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+for (let i = 0; i < 42; i++) {
+  pts.push({
+    x: Math.random() * W,
+    y: Math.random() * H,
+    r: Math.random() * 2.2 + 0.6,
+    vy: -(Math.random() * 0.45 + 0.15),
+    vx: (Math.random() - 0.5) * 0.3,
+    a: Math.random() * 0.65 + 0.15,
+    da: (Math.random() * 0.012 + 0.004) * (Math.random() < 0.5 ? 1 : -1)
+  });
+}
+
+function drawParticles() {
+  ctx.clearRect(0, 0, W, H);
+  const isGold = cur === "gold";
+  for (const p of pts) {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.a += p.da;
+    if (p.a > 0.8 || p.a < 0.1) p.da *= -1;
+    if (p.y < -10) { p.y = H + 10; p.x = Math.random() * W; }
+    if (p.x < -10) p.x = W + 10;
+    if (p.x > W + 10) p.x = -10;
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = isGold
+      ? `rgba(255, 210, 63, ${p.a})`
+      : `rgba(180, 212, 255, ${p.a})`;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = isGold ? "#ffd23f" : "#7aa2ff";
+    ctx.fill();
+  }
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+render();
+fetchPrice();
+startAuto();
+</script>
+</body>
+</html>

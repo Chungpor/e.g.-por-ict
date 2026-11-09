@@ -5934,3 +5934,323 @@ html:not([data-theme="light"]) .nav-center-links .nav-link:not(:hover):not(.acti
   .brand-badge-circle { animation: none; }
   .nav-center-links .nav-link::after { transition: none; }
 }
+/* ========================================================
+   តម្លៃមាស ប្រាក់ កម្ពុជា — KHMER GOLD & SILVER PRIME WIDGET
+   (all classes/ids prefixed "kg" so nothing clashes with the site)
+   ======================================================== */
+.kg-section { width: 100%; }
+
+.kg-root {
+  --kg-bg: #070a14;
+  --kg-card: rgba(21, 29, 54, 0.58);
+  --kg-line: rgba(255, 255, 255, 0.12);
+  --kg-txt: #f0f4ff;
+  --kg-mut: #94a3b8;
+  --kg-gold: #ffd23f;
+  --kg-up: #4ade80;
+  --kg-dn: #ff7a6b;
+  --kg-sil: #cfe3ff;
+  --kg-tint: #ffb938;
+  --kg-orb1: rgba(255, 185, 56, 0.32);
+  --kg-orb2: rgba(245, 130, 35, 0.22);
+  --kg-orb3: rgba(45, 212, 191, 0.16);
+
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 22px;
+  padding: 22px 24px 20px;
+  color: var(--kg-txt);
+  font-family: "Noto Sans Khmer", "Plus Jakarta Sans", system-ui, sans-serif;
+  background: radial-gradient(circle at 50% 0%, #111936 0%, #060913 75%);
+  border: 1.5px solid rgba(255, 185, 56, 0.38);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5), 0 0 26px rgba(255, 185, 56, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.kg-root[data-m="silver"] {
+  --kg-tint: #7aa2ff;
+  --kg-orb1: rgba(122, 162, 255, 0.32);
+  --kg-orb2: rgba(56, 189, 248, 0.22);
+  --kg-orb3: rgba(168, 85, 247, 0.16);
+  border-color: rgba(122, 162, 255, 0.4);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5), 0 0 26px rgba(122, 162, 255, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* ---- animated background (kept inside the card) ---- */
+.kg-bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.kg-grid-bg {
+  position: absolute; inset: -100%;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 44px 44px;
+  transform: perspective(600px) rotateX(60deg);
+  animation: kgGridMove 22s linear infinite;
+}
+@keyframes kgGridMove {
+  0%   { transform: perspective(600px) rotateX(60deg) translateY(0); }
+  100% { transform: perspective(600px) rotateX(60deg) translateY(44px); }
+}
+.kg-orb { position: absolute; border-radius: 50%; filter: blur(75px); opacity: 0.85; transition: background 1.2s ease; will-change: transform; }
+.kg-orb-1 { width: 360px; height: 360px; background: var(--kg-orb1); top: -25%; left: -8%; animation: kgOrb1 16s ease-in-out infinite alternate; }
+.kg-orb-2 { width: 320px; height: 320px; background: var(--kg-orb2); bottom: -20%; right: -8%; animation: kgOrb2 20s ease-in-out infinite alternate; }
+.kg-orb-3 { width: 260px; height: 260px; background: var(--kg-orb3); top: 30%; left: 38%; animation: kgOrb3 14s ease-in-out infinite alternate; }
+@keyframes kgOrb1 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(110px,60px) scale(1.18); } 100% { transform: translate(40px,110px) scale(0.92); } }
+@keyframes kgOrb2 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-120px,-70px) scale(1.22); } 100% { transform: translate(-50px,-120px) scale(0.9); } }
+@keyframes kgOrb3 { 0% { transform: translate(0,0) scale(0.9); } 50% { transform: translate(-70px,50px) scale(1.15); } 100% { transform: translate(80px,-50px) scale(1.05); } }
+#kgParticles { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* ---- header ---- */
+.kg-head { margin-bottom: 16px; }
+.kg-kicker {
+  display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 0.8px;
+  color: var(--kg-tint); text-transform: uppercase; margin-bottom: 4px;
+}
+.kg-title { font-size: 20px; font-weight: 800; color: #fff; line-height: 1.35; }
+
+/* ---- tabs ---- */
+.kg-tabs { display: flex; gap: 10px; margin-bottom: 14px; max-width: 520px; }
+.kg-tabs button {
+  flex: 1; padding: 11px;
+  border: 1px solid var(--kg-line);
+  background: var(--kg-card);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  color: var(--kg-txt);
+  border-radius: 14px;
+  font-family: inherit; font-weight: 600; font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.kg-tabs button:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--kg-tint) 60%, transparent); }
+.kg-tabs button.on { color: #1a1200; border-color: transparent; box-shadow: 0 6px 22px color-mix(in srgb, var(--kg-tint) 50%, transparent); }
+#kgTabGold.on   { background: linear-gradient(135deg, #ffe066, #f5a623); }
+#kgTabSilver.on { background: linear-gradient(135deg, #f0f6ff, #9db4e0); }
+
+/* ---- layout: 2 columns on desktop ---- */
+.kg-layout { display: grid; grid-template-columns: 1fr 1.1fr; gap: 14px; align-items: start; }
+.kg-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+
+/* ---- hero ---- */
+.kg-hero {
+  background: linear-gradient(160deg, color-mix(in srgb, var(--kg-tint) 16%, rgba(21,29,54,0.65)), rgba(15,21,40,0.55));
+  border: 1px solid color-mix(in srgb, var(--kg-tint) 45%, var(--kg-line));
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  border-radius: 20px; padding: 18px 14px 14px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.35), inset 0 1px 1px rgba(255,255,255,0.15);
+  position: relative; overflow: hidden;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+.kg-hero::after {
+  content: ""; position: absolute; top: 0; left: -150%; width: 120%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+  transform: skewX(-25deg); animation: kgSweep 7s ease-in-out infinite; pointer-events: none;
+}
+@keyframes kgSweep { 0%, 55% { left: -150%; } 100% { left: 150%; } }
+
+.kg-live-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600; color: var(--kg-up);
+  background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.3);
+  padding: 3px 10px; border-radius: 99px;
+}
+.kg-dot { width: 7px; height: 7px; background: var(--kg-up); border-radius: 50%; box-shadow: 0 0 8px var(--kg-up); animation: kgPulse 1.5s infinite; }
+@keyframes kgPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.45; } }
+
+.kg-big {
+  text-align: center; margin: 8px 0 4px;
+  font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 46px;
+  color: var(--kg-gold);
+  text-shadow: 0 0 24px color-mix(in srgb, var(--kg-tint) 45%, transparent);
+  transition: transform 0.25s ease, color 0.3s ease;
+}
+.kg-flash-up { animation: kgFlashUp 0.8s ease; }
+.kg-flash-dn { animation: kgFlashDn 0.8s ease; }
+@keyframes kgFlashUp { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.04); text-shadow: 0 0 32px var(--kg-up); } }
+@keyframes kgFlashDn { 0%, 100% { transform: scale(1); } 40% { transform: scale(0.97); text-shadow: 0 0 32px var(--kg-dn); } }
+
+.kg-chg { text-align: center; font-family: "JetBrains Mono", monospace; font-weight: 600; font-size: 16px; }
+.kg-up { color: var(--kg-up); }
+.kg-dn { color: var(--kg-dn); }
+.kg-ts { text-align: center; color: var(--kg-mut); font-size: 12px; margin: 6px 0 2px; }
+
+/* ---- unit cards ---- */
+.kg-g { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.kg-c {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--kg-tint) 14%, var(--kg-card)), var(--kg-card));
+  border: 1px solid color-mix(in srgb, var(--kg-tint) 38%, var(--kg-line));
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-radius: 15px; padding: 13px 10px; text-align: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.22);
+  transition: transform 0.25s ease, border-color 0.3s ease, box-shadow 0.25s ease;
+}
+.kg-c:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--kg-tint) 75%, var(--kg-line));
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--kg-tint) 18%, rgba(0,0,0,0.4));
+}
+.kg-c small { display: block; color: var(--kg-mut); font-size: 13px; }
+.kg-c b { display: block; font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 20px; color: var(--kg-gold); margin: 5px 0 3px; }
+.kg-root[data-m="silver"] .kg-c b { color: var(--kg-sil); }
+.kg-c i { font-family: "JetBrains Mono", monospace; font-weight: 500; font-size: 13px; font-style: normal; color: #2dd4bf; }
+
+/* ---- converter / input box ---- */
+.kg-box {
+  margin-top: 14px;
+  background: linear-gradient(145deg, rgba(45,212,191,0.1), var(--kg-card));
+  border: 1px solid rgba(45,212,191,0.3);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-radius: 16px; padding: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+.kg-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+.kg-row label { flex: 1; min-width: 150px; font-size: 12px; color: var(--kg-mut); }
+.kg-box input {
+  width: 100%; box-sizing: border-box; margin-top: 4px; padding: 9px 11px;
+  border-radius: 10px; border: 1px solid var(--kg-line);
+  background: rgba(10,15,30,0.55); color: var(--kg-txt);
+  font-family: "JetBrains Mono", monospace; font-weight: 500; font-size: 15px;
+  outline: none; transition: border-color 0.2s;
+}
+.kg-box input:focus { border-color: var(--kg-tint); }
+
+/* ---- prime buttons ---- */
+.kg-btn-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+.kg-btn-prime {
+  position: relative; flex: 1.25; min-width: 200px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 18px; border: 0; border-radius: 13px;
+  background: linear-gradient(135deg, #ffe270 0%, #f5a623 50%, #ff8c00 100%);
+  background-size: 200% auto; color: #1a1100;
+  font-family: "Noto Sans Khmer", system-ui, sans-serif; font-weight: 700; font-size: 14px;
+  cursor: pointer; overflow: hidden;
+  box-shadow: 0 6px 20px rgba(245,166,35,0.42), inset 0 1px 1px rgba(255,255,255,0.75);
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: kgPrimePulse 3s ease-in-out infinite;
+}
+.kg-root[data-m="silver"] .kg-btn-prime {
+  background: linear-gradient(135deg, #ffffff 0%, #b8d0f8 50%, #7aa2ff 100%);
+  background-size: 200% auto;
+  box-shadow: 0 6px 20px rgba(122,162,255,0.42), inset 0 1px 1px rgba(255,255,255,0.9);
+}
+.kg-btn-prime::before {
+  content: ""; position: absolute; top: 0; left: -120%; width: 65%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent);
+  transform: skewX(-25deg); animation: kgBtnShine 3.2s infinite; pointer-events: none;
+}
+@keyframes kgBtnShine { 0%, 55% { left: -120%; } 100% { left: 160%; } }
+@keyframes kgPrimePulse { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
+.kg-btn-prime:hover {
+  background-position: right center; transform: translateY(-2.5px) scale(1.02);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--kg-tint) 65%, transparent), inset 0 1px 2px rgba(255,255,255,0.9);
+}
+.kg-btn-prime:active { transform: translateY(1px) scale(0.97); }
+.kg-btn-prime svg { width: 17px; height: 17px; stroke-width: 2.4; transition: transform 0.4s ease; }
+.kg-btn-prime:hover svg { transform: rotate(90deg); }
+.kg-btn-prime.loading svg { animation: kgSpin 0.7s linear infinite; }
+@keyframes kgSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.kg-btn-auto {
+  position: relative; flex: 1; min-width: 190px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 15px; border-radius: 13px;
+  background: rgba(15,23,42,0.7); color: var(--kg-txt);
+  border: 1px solid rgba(255,255,255,0.16);
+  font-family: "Noto Sans Khmer", system-ui, sans-serif; font-weight: 600; font-size: 13.5px;
+  cursor: pointer; overflow: hidden;
+  backdrop-filter: blur(12px); transition: all 0.3s ease;
+}
+.kg-btn-auto.active {
+  border-color: rgba(74,222,128,0.5);
+  background: linear-gradient(145deg, rgba(74,222,128,0.14), rgba(15,23,42,0.8));
+  box-shadow: 0 0 18px rgba(74,222,128,0.18), inset 0 0 8px rgba(74,222,128,0.08);
+}
+.kg-btn-auto:hover { border-color: var(--kg-tint); transform: translateY(-2px); }
+.kg-btn-auto:active { transform: scale(0.97); }
+.kg-auto-led { width: 8px; height: 8px; border-radius: 50%; background: #64748b; transition: all 0.3s ease; }
+.kg-btn-auto.active .kg-auto-led { background: var(--kg-up); box-shadow: 0 0 10px var(--kg-up); animation: kgPulse 1.4s infinite; }
+
+.kg-ripple {
+  position: absolute; border-radius: 50%; transform: scale(0);
+  animation: kgRipple 0.6s linear; background-color: rgba(255,255,255,0.55); pointer-events: none;
+}
+@keyframes kgRipple { to { transform: scale(4); opacity: 0; } }
+
+#kgMsg { font-size: 12px; color: var(--kg-mut); margin-top: 9px; min-height: 16px; }
+.kg-note { font-size: 11px; color: var(--kg-mut); margin-top: 12px; line-height: 1.55; text-align: center; }
+
+@media (max-width: 820px) {
+  .kg-layout { grid-template-columns: 1fr; }
+  .kg-tabs { max-width: none; }
+}
+@media (max-width: 560px) {
+  .kg-root { padding: 16px 12px 16px; border-radius: 18px; }
+  .kg-big { font-size: 38px; }
+  .kg-title { font-size: 17px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kg-grid-bg, .kg-orb, .kg-hero::after, .kg-btn-prime, .kg-btn-prime::before { animation: none; }
+}
+
+/* ========================================================
+   12. GOLD PRIME KHMER FEATURE CARD (Gold #ffd23f)
+   ======================================================== */
+.por-goldkh-promo-card {
+  --card-accent: #ffd23f;
+  --card-accent-rgb: 255, 210, 63;
+  --card-eyebrow-color: #ffd23f;
+  --card-title-color: #ffd23f;
+}
+.por-goldkh-promo-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--card-accent);
+  opacity: 0.95;
+  z-index: 2;
+}
+.por-goldkh-promo-card .product-card-title,
+.por-goldkh-promo-card .promo-sub-label {
+  color: var(--card-accent) !important;
+  font-family: "Noto Sans Khmer", "Kantumruy Pro", system-ui, sans-serif;
+}
+.por-goldkh-promo-card .product-card-badge {
+  color: var(--card-accent);
+  border-color: rgba(var(--card-accent-rgb), 0.45);
+  background: rgba(var(--card-accent-rgb), 0.12);
+}
+.goldkh-card-live {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 15px;
+  color: #ffd23f;
+}
+.goldkh-card-live strong { font-weight: 700; letter-spacing: -0.2px; }
+.goldkh-live-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px #4ade80;
+  animation: goldkhPulse 1.5s infinite;
+}
+@keyframes goldkhPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.45; }
+}
+.goldkh-chg { font-size: 12px; font-weight: 700; color: #94a3b8; }
+.goldkh-chg.is-up { color: #4ade80; }
+.goldkh-chg.is-down { color: #ff7a6b; }
+
+[data-theme="light"] .por-goldkh-promo-card {
+  --card-accent: #b7791f;
+  --card-accent-rgb: 183, 121, 31;
+  --card-eyebrow-color: #9a6200;
+  --card-title-color: #7a4d00;
+}
+[data-theme="light"] .goldkh-card-live { color: #9a6200; }
+[data-theme="light"] .goldkh-chg.is-up { color: #15803d; }
+[data-theme="light"] .goldkh-chg.is-down { color: #dc2626; }
