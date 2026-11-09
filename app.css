@@ -70,3 +70,28 @@ td.SELL,td.loss{color:var(--down)}td.BUY,td.win{color:var(--up)}td.live{color:#6
 
 .logo-img{width:36px;height:36px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:8px;border:2px solid var(--accent)}
 .back{color:var(--muted);text-decoration:none;font-size:13px;border:1px solid var(--line);border-radius:10px;padding:6px 12px}.back:hover{color:var(--text);border-color:var(--accent)}
+
+.tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.autoprint{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);cursor:pointer}
+.autoprint input{width:18px;height:18px;accent-color:var(--accent)}
+.print.ghost{background:none;border:1px solid var(--line);color:var(--text)}
+#ticket{display:none}
+@media print{
+  body.ticket-mode>*:not(#ticket){display:none!important}
+  body.ticket-mode #ticket{display:block;color:#000;background:#fff;font-family:Arial,sans-serif}
+  .tk{border:2px solid #000;padding:14px;margin:0 0 14px;break-inside:avoid}
+  .tk h2{font-size:20px;margin:0 0 8px}
+  .tk table{width:100%;border-collapse:collapse}
+  .tk td{border:0;border-bottom:1px solid #ccc;padding:4px 6px;color:#000;white-space:normal;font-size:15px}
+  .tk small{color:#444}
+}
+
+#dlg{position:fixed;inset:0;background:rgba(5,6,20,.75);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+#dlg[hidden]{display:none}
+.dbox{background:var(--panel);border:1px solid var(--accent);border-radius:16px;padding:22px;width:min(440px,100%);box-shadow:0 0 40px rgba(91,75,255,.4)}
+.dbox h2{margin-bottom:14px;font-size:22px}
+.dlist{max-height:260px;overflow:auto;display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.ditem{border-left:4px solid var(--muted);background:#15162e;border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:3px;font-size:14px}
+.ditem.SELL{border-color:var(--down)}.ditem.BUY{border-color:var(--up)}.ditem small{color:var(--muted)}
+.dbtns{display:flex;gap:10px;flex-wrap:wrap}
+@media print{#dlg{display:none!important}}

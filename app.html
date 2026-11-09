@@ -9,7 +9,7 @@
 </head>
 <body>
 <header class="top">
-  <div class="brand" id="brand" style="cursor:pointer"><img class="logo-img" src="favicon.png" alt="Logo"> SignalDesk</div>
+  <div class="brand" id="brand" style="cursor:pointer"><img class="logo-img" src="favicon.png" onerror="this.style.display='none'" alt="Logo"> SignalDesk</div>
   <nav id="nav"><a class="on" href="#dashboard" data-view="dashboard">Dashboard</a><a href="#users" data-view="users">Users</a><a href="#signals" data-view="signals">Signals</a></nav>
   <a class="back" href="index.html">← Por ICT</a>
   <div class="conn"><i id="dot"></i><span id="status">Connecting…</span></div>
@@ -30,7 +30,11 @@
   </section>
 
   <section class="tvbox"><div id="tv"></div></section>
-  <div class="titlebar"><h1>Analysis</h1><button id="printBtn" class="print">🖨 Print signals</button></div>
+  <div class="titlebar"><h1>Analysis</h1><div class="tools">
+    <label class="autoprint"><input type="checkbox" id="autoPrint"> Auto print new signals</label>
+    <button id="testPrint" class="print ghost">Drop test signal</button>
+    <button id="printBtn" class="print">🖨 Print signals</button>
+  </div></div>
   <div class="bar">
     <div class="tabs" id="assets">
       <button data-a="XAU" class="on">XAU/USD</button>
@@ -44,7 +48,7 @@
   </div>
 
   <div id="grid" class="grid"></div>
-  <p class="note">Prices stream live from Binance public market data. Signals come from an EMA 9/21/50 + ATR rule applied to real candles; results (TP hit / stop hit) are checked against real price history. Not financial advice.</p>
+  <p class="note">Prices stream live from Pyth Network (Spot XAU/USD) and Binance/Bybit/OKX public market data. Signals come from an EMA 9/21/50 + ATR rule applied to real candles; results (TP hit / stop hit) are checked against real price history. Not financial advice.</p>
 </div>
 <div id="v-signals" hidden>
   <h1>Signals</h1>
@@ -67,7 +71,9 @@
   <p class="note">This list is saved in this browser only. There is no server, so it is not shared with other devices.</p>
 </div>
 </main>
+<div id="ticket"></div>
 <script src="https://s3.tradingview.com/tv.js"></script>
-<script src="app.js"></script>
+<script src="app.js?v=6"></script>
+<script src="features.js?v=6"></script>
 </body>
 </html>
