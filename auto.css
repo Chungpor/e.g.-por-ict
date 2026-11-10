@@ -295,3 +295,7 @@ body{background:transparent}
 .hi time{flex:none;font:500 11.5px ui-monospace,Consolas,monospace;color:var(--muted);text-align:right;max-width:70px}
 .hempty{padding:10px 0 14px}
 @media (prefers-reduced-motion:reduce){.spin{animation:none}}
+.acct{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:3px;margin-bottom:10px;border-radius:11px;background:rgba(5,9,19,.8);border:1px solid var(--line)}
+.ab{font:700 13px 'Inter',sans-serif;color:var(--muted);padding:9px 10px;border-radius:8px;border:0;background:transparent;cursor:pointer;transition:.2s}
+.ab[aria-pressed=true]{color:#050913;background:linear-gradient(135deg,var(--cyan),var(--mint));box-shadow:0 0 14px rgba(25,243,255,.35)}
+.ab[aria-pressed=true]:nth-child(2){background:linear-gradient(135deg,var(--gold),#ffe08a);box-shadow:0 0 14px rgba(255,200,61,.35)}

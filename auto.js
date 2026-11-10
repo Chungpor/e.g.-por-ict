@@ -191,6 +191,8 @@ function renderCards(){
     </article>`).join('');
   tick();
 }
+// Cent account: 1 cent lot = 1/CENT_DIV of a standard lot (most brokers: 100). Change if your broker differs.
+const CENT_DIV = 100;
 const CONTRACT = {XAUUSD:100, XAGUSD:5000, BTCUSD:1, ETHUSD:1, EURUSD:100000};   // units per 1 lot (varies by broker)
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function analyzing(out, f, work){
@@ -233,7 +235,7 @@ $('#cards').addEventListener('click', async e => {
           <button class="abtn jr"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M9 7h6"/></svg><span>ចូល Journal</span></button>
           <button class="abtn lotb"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/></svg><span>គណនា Lot</span></button>
         </div>
-        <div class="lot" hidden><div class="lr"><label>Balance ($)<input class="lbal" type="number" inputmode="decimal" min="0"></label><label>Risk %<input class="lrisk" type="number" inputmode="decimal" step="0.1" min="0"></label></div><div class="lres"></div></div></div>`;
+        <div class="lot" hidden><div class="acct" role="group" aria-label="Account type"><button type="button" class="ab" data-m="usd" aria-pressed="true">USD $</button><button type="button" class="ab" data-m="cent" aria-pressed="false">Cent ¢</button></div><div class="lr"><label><span class="blab">Balance ($)</span><input class="lbal" type="number" inputmode="decimal" min="0"></label><label>Risk %<input class="lrisk" type="number" inputmode="decimal" step="0.1" min="0"></label></div><div class="lres"></div></div></div>`;
     }
   }catch(err){
     out.innerHTML = '<div class="sig"><p class="why">មិនអាចទទួលទិន្នន័យ Live បានទេ ('+(err.message||'error')+') សូមព្យាយាមម្តងទៀត។</p></div>';
@@ -422,12 +424,25 @@ function renderHistory(){
 }
 $('#hclear').addEventListener('click', () => { store.del(HK); renderHistory(); });
 
+const acctMode = () => store.get('ksnr_acct') === 'cent' ? 'cent' : 'usd';
+function paintAcct(sig){
+  const m = acctMode(), c = m === 'cent';
+  sig.querySelectorAll('.ab').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === m));
+  sig.querySelector('.blab').textContent = c ? 'Balance (¢ USC)' : 'Balance ($)';
+  sig.querySelector('.lbal').value = store.get(c ? 'ksnr_bal_c' : 'ksnr_bal') || '';
+}
 function calcLot(sig){
+  const c = acctMode() === 'cent';
   const bal = +sig.querySelector('.lbal').value, rk = +sig.querySelector('.lrisk').value, res = sig.querySelector('.lres');
   const p = sig.dataset.pair, dist = Math.abs(+sig.dataset.entry - +sig.dataset.sl);
   if(!(bal>0 && rk>0 && dist>0)){ res.textContent = 'ដាក់ Balance និង Risk %'; return; }
-  const risk = bal*rk/100, lot = Math.floor(risk/(dist*CONTRACT[p])*100)/100;
-  res.innerHTML = `Risk <b>$${risk.toFixed(2)}</b> · Lot <b>${lot>=.01 ? lot.toFixed(2) : '<0.01'}</b><small>1 lot = ${CONTRACT[p].toLocaleString('en-US')} ឯកតា · ពិនិត្យ Contract Size របស់ Broker</small>`;
+  const usd = c ? bal/100 : bal;                         // cent balance -> dollars
+  const risk = usd*rk/100, std = risk/(dist*CONTRACT[p]); // risk in $, lots on a standard contract
+  const lot = Math.floor((c ? std*CENT_DIV : std)*100)/100;
+  const riskTxt = c ? `<b>${fmt(risk*100,0)} USC</b> ($${risk.toFixed(2)})` : `<b>$${risk.toFixed(2)}</b>`;
+  const note = c ? `Cent lot: 1 lot = ${(CONTRACT[p]/CENT_DIV).toLocaleString('en-US')} ឯកតា · ពិនិត្យ Contract Size របស់ Broker`
+                 : `1 lot = ${CONTRACT[p].toLocaleString('en-US')} ឯកតា · ពិនិត្យ Contract Size របស់ Broker`;
+  res.innerHTML = `Risk ${riskTxt} · Lot <b>${lot>=.01 ? lot.toFixed(2) : '<0.01'}</b><small>${note}</small>`;
 }
 document.addEventListener('click', e => {
   const sig = e.target.closest('.sig'); if(!sig) return;
@@ -439,12 +454,14 @@ document.addEventListener('click', e => {
   }
   if(l){
     const box = sig.querySelector('.lot'); box.hidden = !box.hidden;
-    if(!box.hidden){ sig.querySelector('.lbal').value = store.get('ksnr_bal') || ''; sig.querySelector('.lrisk').value = store.get('ksnr_risk') || '1'; calcLot(sig); }
+    if(!box.hidden){ paintAcct(sig); sig.querySelector('.lrisk').value = store.get('ksnr_risk') || '1'; calcLot(sig); }
   }
+  const ab = e.target.closest('.ab');
+  if(ab){ store.set('ksnr_acct', ab.dataset.m); paintAcct(sig); calcLot(sig); }
 });
 document.addEventListener('input', e => {
   const inp = e.target.closest('.lbal,.lrisk'); if(!inp) return;
-  const sig = inp.closest('.sig'); store.set(inp.classList.contains('lbal') ? 'ksnr_bal' : 'ksnr_risk', inp.value); calcLot(sig);
+  const sig = inp.closest('.sig'); store.set(inp.classList.contains('lbal') ? (acctMode()==='cent' ? 'ksnr_bal_c' : 'ksnr_bal') : 'ksnr_risk', inp.value); calcLot(sig);
 });
 
 $('#tfbar').addEventListener('click', e => {
