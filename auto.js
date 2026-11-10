@@ -8,7 +8,8 @@ const PAIRS = {
   XAGUSD:{dec:3, bin:null,       td:'XAG/USD'},   // silver needs TWELVE_KEY
   BTCUSD:{dec:2, bin:'BTCUSDT',  td:'BTC/USD'},
   ETHUSD:{dec:2, bin:'ETHUSDT',  td:'ETH/USD'},
-  EURUSD:{dec:5, bin:'EURUSDT',  td:'EUR/USD'}
+  EURUSD:{dec:5, bin:'EURUSDT',  td:'EUR/USD'},
+  NAS100USD:{dec:1, bin:null,    td:'QQQ', scale:true}  // Nasdaq 100: chart/price = OANDA; signal data = QQQ ETF (free) scaled to NAS100 level
 };
 const FRAMES = [
   {id:'M5', name:'Scalping', sub:'រាល់ 5 នាទី · ចូល-ចេញលឿន SL តូចបំផុត', secs:300,   bi:'5m', ti:'5min',  icon:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>'},
@@ -21,7 +22,7 @@ const RSS = '<path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5"
 // false (default): chart shows the same instrument the data comes from -> prices match exactly.
 // true: chart always shows OANDA spot (prices can differ from the data feed by a few dollars on gold).
 const FORCE_OANDA_CHART = false;
-const CHART_OANDA = {XAUUSD:'OANDA:XAUUSD', XAGUSD:'OANDA:XAGUSD', EURUSD:'OANDA:EURUSD', BTCUSD:'BINANCE:BTCUSDT', ETHUSD:'BINANCE:ETHUSDT'};
+const CHART_OANDA = {XAUUSD:'OANDA:XAUUSD', XAGUSD:'OANDA:XAGUSD', EURUSD:'OANDA:EURUSD', BTCUSD:'BINANCE:BTCUSDT', ETHUSD:'BINANCE:ETHUSDT', NAS100USD:'OANDA:NAS100USD'};
 const chartSymbol = p => (p==='XAUUSD' || FORCE_OANDA_CHART || TWELVE_KEY || !PAIRS[p].bin) ? CHART_OANDA[p] : 'BINANCE:'+PAIRS[p].bin;
 // Gold signals are computed from Binance PAXG candles (no free OANDA feed). OANDA spot − PAXG ≈ +10 in your screenshots;
 // this shifts the signal levels onto the OANDA chart scale. Adjust it (or set TWELVE_KEY for real spot) if they drift.
@@ -42,6 +43,22 @@ const pad = n => String(n).padStart(2,'0');
 const fmt = (v,d) => v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
 const hasSource = p => TWELVE_KEY ? true : !!PAIRS[p].bin;
 
+/* ---------- NAS100 SCALE (QQQ ETF -> OANDA NAS100USD level) ---------- */
+// NDX index data needs a paid Twelve Data plan, so signals use QQQ (free) x ratio. The ratio is set once from the
+// price you see on the chart, then saved (re-asked after 30 days). QQQ only prints candles while US stocks trade.
+let nasP = null;
+function nasMult(){
+  const saved = JSON.parse(store.get('ksnr_nas') || 'null');
+  if(saved && saved.r > 0 && Date.now() - saved.t < 30*864e5) return Promise.resolve(saved.r);
+  return nasP || (nasP = (async () => {
+    const q = +(await getJSON(`${TD}/price?symbol=QQQ&apikey=${TWELVE_KEY}`)).price;
+    const v = parseFloat(prompt('បញ្ចូលតម្លៃ NAS100USD បច្ចុប្បន្នពី Chart (ឧ. 27940) — ដើម្បី Calibrate ម្តង', ''));
+    if(!(v > 0) || !(q > 0)) throw new Error('ត្រូវការតម្លៃ NAS100USD ពី Chart');
+    const r = v / q; store.set('ksnr_nas', JSON.stringify({r, t:Date.now()})); return r;
+  })().finally(() => nasP = null));
+}
+const pxMult = p => PAIRS[p].scale ? nasMult() : Promise.resolve(1);
+
 /* ---------- LIVE DATA ---------- */
 async function getJSON(url){
   const r = await fetch(url);
@@ -55,7 +72,8 @@ async function fetchCandles(p, f){
   if(!hasSource(p)) throw new Error('NO_SOURCE');
   if(TWELVE_KEY){
     const j = await getJSON(`${TD}/time_series?symbol=${encodeURIComponent(PAIRS[p].td)}&interval=${f.ti}&outputsize=120&apikey=${TWELVE_KEY}`);
-    const c = j.values.reverse().map(v => ({t:Date.parse(v.datetime+'Z'),o:+v.open,h:+v.high,l:+v.low,c:+v.close,v:+(v.volume||0)}));
+    const m = await pxMult(p);
+    const c = j.values.reverse().map(v => ({t:Date.parse(v.datetime+'Z'),o:+v.open*m,h:+v.high*m,l:+v.low*m,c:+v.close*m,v:+(v.volume||0)}));
     c.pop(); return c;                       // drop forming candle
   }
   const k = await getJSON(`${BIN}/klines?symbol=${PAIRS[p].bin}&interval=${f.bi}&limit=120`);
@@ -63,7 +81,7 @@ async function fetchCandles(p, f){
   c.pop(); return c;
 }
 async function fetchPrice(p){
-  if(TWELVE_KEY) return +(await getJSON(`${TD}/price?symbol=${encodeURIComponent(PAIRS[p].td)}&apikey=${TWELVE_KEY}`)).price;
+  if(TWELVE_KEY) return +(await getJSON(`${TD}/price?symbol=${encodeURIComponent(PAIRS[p].td)}&apikey=${TWELVE_KEY}`)).price * await pxMult(p);
   return +(await getJSON(`${BIN}/ticker/price?symbol=${PAIRS[p].bin}`)).price + gOff(p);
 }
 
@@ -135,7 +153,7 @@ async function updateLive(){
   if(sym.startsWith('OANDA:')){                    // same TradingView OANDA feed as the chart -> identical price
     q.hidden = false;
     if(q.dataset.s !== sym){ q.dataset.s = sym;
-      q.src = 'https://www.tradingview-widget.com/embed-widget/single-quote/?locale=en#' +
+      q.src = 'https://www.tradingview-widget.com/embed-widget/single-quote/?locale=en&s=' + encodeURIComponent(sym) + '#' +
         encodeURIComponent(JSON.stringify({symbol:sym,width:'100%',colorTheme:'dark',isTransparent:true,locale:'en'})); }
     return;
   }
@@ -193,7 +211,7 @@ function renderCards(){
 }
 // Cent account: 1 cent lot = 1/CENT_DIV of a standard lot (most brokers: 100). Change if your broker differs.
 const CENT_DIV = 100;
-const CONTRACT = {XAUUSD:100, XAGUSD:5000, BTCUSD:1, ETHUSD:1, EURUSD:100000};   // units per 1 lot (varies by broker)
+const CONTRACT = {XAUUSD:100, XAGUSD:5000, BTCUSD:1, ETHUSD:1, EURUSD:100000, NAS100USD:1};   // units per 1 lot (varies by broker)
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function analyzing(out, f, work){
   const steps = ['ទាញទិន្នន័យ Live ពីទីផ្សារ','អានរចនាសម្ព័ន្ធទីផ្សារ','ស្វែងរក Zone & Liquidity','គណនា Entry · SL · TP'];
