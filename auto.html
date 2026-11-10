@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>POR-SNR Auto Signal</title>
+ <!-- Browser Tab Favicon -->
+  <link rel="icon" type="image/jpeg" href="por.jpg" />
+  <link rel="apple-touch-icon" href="por.jpg" />
+<link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;700&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="auto.css">
+</head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+<div class="wrap">
+  <div class="topbar">
+    <!-- put your existing theme / language / Telegram buttons here -->
+    <button class="pbtn" id="pbtn" aria-haspopup="dialog"><span class="av"><i class="st"></i></span><span class="pt"><b id="pname">--</b><em id="pbadge">--</em></span></button>
+  </div>
+  <section class="hero glass">
+    <span class="vip">♛ VIP · LIFETIME</span>
+    <h1>POR-SNR AUTO SIGNAL</h1>
+    <p>Signal ស្វ័យប្រវត្តិពី POR-SNR Strategy លើ Live Chart — ទទួលបាន Entry · SL · TP ត្រឹមត្រូវ ចូល Buy/Sell បានភ្លាមៗ គ្មាន Limit គ្មានរង់ចាំ។</p>
+    <div class="feats">
+      <div class="feat glass"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg><b>Entry ភ្លាមៗ</b><span>Market order ចូលបានតាមតម្លៃបច្ចុប្បន្ន មិនមាន Limit</span></div>
+      <div class="feat glass"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg><b>SL គួចបំផុត</b><span>SL ជិតបំផុតក្រោយ Sweep ដើម្បី Lot ធំ ហានិភ័យតូច</span></div>
+      <div class="feat glass"><svg viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></svg><b>4 ស្ទីលជួញដូរ</b><span>Scalping · Swing · Day · Position ផ្ទាល់ពី Live Chart</span></div>
+      <div class="feat glass gold"><svg viewBox="0 0 24 24"><path d="m3 8 4 4 5-7 5 7 4-4-2 11H5z"/></svg><b>VIP មួយជីវិត</b><span>បើកម្តង ប្រើមួយជីវិត មិនមានថ្លៃប្រចាំខែ</span></div>
+    </div>
+  </section>
+
+  <div class="label">ជ្រើសគូប្រាក់</div>
+  <div class="tabs" id="tabs" role="tablist"></div>
+  <div class="live glass" id="live"><div class="lnum"><div class="nm"><i class="dot off"></i><span>--</span></div><div><span class="px">--</span><span class="chg"></span></div></div><iframe id="quote" title="Live price" hidden></iframe></div>
+  <div class="chartbox glass" id="chartbox"><iframe id="chart" title="Live chart" loading="lazy" allowfullscreen></iframe></div>
+  <div class="tfbar" id="tfbar"><button class="tfb" data-i="1" aria-pressed="false">M1</button><button class="tfb" data-i="5" aria-pressed="true">M5</button><button class="tfb" data-i="15" aria-pressed="false">M15</button><button class="tfb" data-i="30" aria-pressed="false">M30</button><button class="tfb" data-i="60" aria-pressed="false">H1</button><button class="tfb" data-i="240" aria-pressed="false">H4</button><button class="tfb" data-i="D" aria-pressed="false">D1</button></div>
+  <div id="cards"></div>
+  <section class="hist glass" id="hist"><div class="hh"><h3>ប្រវត្តិ Signal ថ្មីៗ</h3><button id="hclear">សម្អាត</button></div><div id="hlist"></div></section>
+
+  <p class="note">ការវិភាគដោយ POR-SNR មិនមែនជាការធានាលទ្ធផលទេ — គ្រប់គ្រងហានិភ័យជានិច្ច (ហានិភ័យ ≤ 1–2% ក្នុងមួយ Trade)។ តម្លៃ Entry គឺនៅពេលបង្កើត Signal។<br>
+  <span class="demo">Signal គណនាពីទិន្នន័យ Candle និងតម្លៃ Live ពិត (EMA34 · Liquidity Sweep · Displacement · ATR)។</span></p>
+</div>
+<div class="pmodal" id="pmodal" hidden>
+  <div class="pcard glass" role="dialog" aria-modal="true" aria-labelledby="ptitle">
+    <button class="pclose" id="pclose" aria-label="Close">✕</button>
+    <h2 id="ptitle">ការកំណត់ Profile</h2>
+    <label class="pav"><span class="av big"></span><input type="file" id="pfile" accept="image/*" hidden>
+      <span class="cam"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>ប្តូររូបភាព</span></label>
+    <div class="pbadge">♛ <span id="pbadge2">--</span></div>
+    <div class="pacc"><div class="pr"><small>គណនី EMAIL / PHONE</small><button class="pcopy" id="pcopy"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg><span>Copy Account</span></button></div><code id="pmail">--</code></div>
+    <button class="phist" id="phist"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>ប្រវត្តិគណនី (ក្លែយបក្រ, KEY, ការប្រើ)</button>
+    <p class="note" id="pmsg" hidden></p>
+    <label class="plab" for="nick">ឈ្មោះរបស់អ្នក NICKNAME</label>
+    <div class="prow"><input id="nick" maxlength="24" autocomplete="nickname"><button class="psave" id="psave">រក្សាទុក</button></div>
+    <button class="plogout" id="plogout"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>ចាកចេញពីគណនី Logout</button>
+  </div>
+</div>
+<script src="auto.js"></script>
+</body>
+</html>

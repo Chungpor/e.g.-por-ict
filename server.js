@@ -651,6 +651,15 @@ app.get('/api/forexfactory/live', async (req, res) => {
   }
 });
 
+// ---------------------------------------------------------------------------
+// K-SNR Auto Signal (OANDA prices/candles + Gemini insight) — see signal-api.js
+// Page: /auto-signal  (auto.html + auto.css + auto.js in this folder)
+// ---------------------------------------------------------------------------
+app.use(require('./signal-api')({ aiGate }));
+app.get(['/auto-signal'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'auto.html'));
+});
+
 app.use((req, res) => {
   res.status(404).send(`Cannot GET ${req.path}. Ensure the file exists in your project directory.`);
 });
