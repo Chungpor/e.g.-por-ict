@@ -237,7 +237,7 @@ $('#cards').addEventListener('click', async e => {
     } else {
       const id = Date.now(), side = s.buy ? 'buy' : 'sell';
       const text = `${s.buy?'BUY':'SELL'} ${pair}\nEntry: ${fmt(s.entry,d)}\nSL: ${fmt(s.sl,d)}\nTP: ${fmt(s.tp,d)}\n${f.name} · ${f.id} · R:R 1:${s.rr.toFixed(2)}`;
-      histAdd({id, buy:s.buy, pair, frame:f.name, entry:s.entry, sl:s.sl, tp:s.tp, dec:d});
+      histAdd({id, buy:s.buy, pair, frame:f.name, fid:f.id, entry:s.entry, sl:s.sl, tp:s.tp, dec:d, rr:s.rr, grade:s.grade, note:s.note, created:s.created, expires:s.expires});
       out.innerHTML = `<div class="sig" data-id="${id}" data-entry="${s.entry}" data-sl="${s.sl}" data-pair="${pair}">
         <div class="side ${side}">${s.buy?'↗ BUY':'↘ SELL'} ចូលភ្លាមៗ · ${pair}</div>
         <div class="levels">
@@ -430,16 +430,44 @@ const HK = 'ksnr_hist', MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','
 function histGet(){ try{ return JSON.parse(store.get(HK) || '[]'); }catch{ return []; } }
 function histSave(a){ store.set(HK, JSON.stringify(a.slice(0,20))); renderHistory(); }
 function histAdd(x){ const a = histGet(); a.unshift(x); histSave(a); }
+let histOpen = null;
+function histSig(h){
+  const d = h.dec, side = h.buy ? 'buy' : 'sell', rr = h.rr || Math.abs(h.tp-h.entry)/Math.abs(h.entry-h.sl);
+  const t = new Date(h.id), when = pad(t.getDate())+' '+MON[t.getMonth()]+' '+pad(t.getHours())+':'+pad(t.getMinutes());
+  const text = `${h.buy?'BUY':'SELL'} ${h.pair}\nEntry: ${fmt(h.entry,d)}\nSL: ${fmt(h.sl,d)}\nTP: ${fmt(h.tp,d)}\n${h.frame}${h.fid?' · '+h.fid:''} · R:R 1:${rr.toFixed(2)}`;
+  return `<div class="sig" data-id="${h.id}" data-entry="${h.entry}" data-sl="${h.sl}" data-pair="${h.pair}">
+    <div class="side ${side}">${h.buy?'↗ BUY':'↘ SELL'} · ${h.pair}</div>
+    <div class="levels">
+      <div class="lv"><small>ENTRY</small><b>${fmt(h.entry,d)}</b></div>
+      <div class="lv sl"><small>STOP LOSS</small><b>${fmt(h.sl,d)}</b></div>
+      <div class="lv tp"><small>TAKE PROFIT</small><b>${fmt(h.tp,d)}</b></div>
+    </div>
+    <div class="chips"><span class="chip">${h.frame}${h.fid?' · '+h.fid:''}</span><span class="chip">R:R 1:${rr.toFixed(2)}</span>${h.grade?`<span class="chip">Grade ${h.grade}</span>`:''}<span class="chip">${when}</span>${h.expires?`<span class="chip">សុពលភាពដល់ ${h.expires}</span>`:''}</div>
+    ${h.note?`<p class="why">${h.note}</p>`:''}
+    <div class="acts">
+      <button class="abtn cp" data-text="${encodeURIComponent(text)}"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg><span>Copy Signal</span></button>
+      <button class="abtn jr"${h.journal?' disabled':''}><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M9 7h6"/></svg><span>${h.journal?'✓ បានចូល Journal':'ចូល Journal'}</span></button>
+      <button class="abtn lotb"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/></svg><span>គណនា Lot</span></button>
+    </div>
+    <div class="lot" hidden><div class="acct" role="group" aria-label="Account type"><button type="button" class="ab" data-m="usd" aria-pressed="true">USD $</button><button type="button" class="ab" data-m="cent" aria-pressed="false">Cent ¢</button></div><div class="lr"><label><span class="blab">Balance ($)</span><input class="lbal" type="number" inputmode="decimal" min="0"></label><label>Risk %<input class="lrisk" type="number" inputmode="decimal" step="0.1" min="0"></label></div><div class="lres"></div></div></div>`;
+}
 function renderHistory(){
   const a = histGet(), up = '<path d="M4 16l6-6 4 4 6-7M15 7h5v5"/>', dn = '<path d="M4 8l6 6 4-4 6 7M15 17h5v-5"/>';
   $('#hlist').innerHTML = a.length ? a.map(h => {
-    const t = new Date(h.id), d = h.dec;
-    return `<div class="hi"><span class="hic ${h.buy?'b':'s'}"><svg viewBox="0 0 24 24">${h.buy?up:dn}</svg></span>
+    const t = new Date(h.id), d = h.dec, open = histOpen === h.id;
+    return `<div class="hw${open?' open':''}"><div class="hi" role="button" tabindex="0" aria-expanded="${open}" data-hid="${h.id}"><span class="hic ${h.buy?'b':'s'}"><svg viewBox="0 0 24 24">${h.buy?up:dn}</svg></span>
       <div class="hm"><b>${h.buy?'BUY':'SELL'} ${h.pair}</b> <span>· ${h.frame}</span>${h.journal?' <i>★</i>':''}
       <div class="hd">E ${fmt(h.entry,d)} · SL ${fmt(h.sl,d)} · TP ${fmt(h.tp,d)}</div></div>
-      <time>${pad(t.getDate())} ${MON[t.getMonth()]} ${pad(t.getHours())}:${pad(t.getMinutes())}</time></div>`;
+      <time>${pad(t.getDate())} ${MON[t.getMonth()]} ${pad(t.getHours())}:${pad(t.getMinutes())}</time><svg class="chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></div>
+      ${open ? `<div class="hdet">${histSig(h)}</div>` : ''}</div>`;
   }).join('') : '<p class="why hempty">មិនទាន់មាន Signal ទេ — ចុច «ទទួល Signal» ដើម្បីចាប់ផ្តើម។</p>';
 }
+function toggleHist(row){
+  const id = +row.dataset.hid; histOpen = histOpen === id ? null : id; renderHistory();
+  if(histOpen){ const el = document.querySelector('.hi[data-hid="'+id+'"]'); if(el) el.scrollIntoView({block:'nearest', behavior:'smooth'}); }
+}
+$('#hlist').addEventListener('click', e => { const r = e.target.closest('.hi'); if(r) toggleHist(r); });
+$('#hlist').addEventListener('keydown', e => { const r = e.target.closest('.hi'); if(r && (e.key==='Enter' || e.key===' ')){ e.preventDefault(); toggleHist(r); } });
 $('#hclear').addEventListener('click', () => { store.del(HK); renderHistory(); });
 
 const acctMode = () => store.get('ksnr_acct') === 'cent' ? 'cent' : 'usd';
