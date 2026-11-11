@@ -17,8 +17,10 @@
 // directly by any script):
 //   A) OANDA feed  -> candles are fetched from OANDA v20 and drawn on a canvas.
 //                     Silent, works on phones. Needs an OANDA token (⚙).
+//   A2) Twelve Data -> free API key, same silent canvas rendering (phones OK).
 //   B) Tab capture -> getDisplayMedia({preferCurrentTab}) then crop to chart.
-//                     Desktop Chrome/Edge only; browser asks permission.
+//                     Desktop only. Permission is asked ONCE per page session;
+//                     the stream is kept alive and re-used for every later scan.
 // Nothing in scan.js / scanChart.js is modified.
 // ============================================================================
 (function () {
@@ -28,26 +30,27 @@
 
   // ---------------------------------------------------------------- config --
   const SYMBOLS = {
-    XAUUSD: { label: 'XAUUSD', tv: 'OANDA:XAUUSD',    pair: 'XAU/USD', oanda: 'XAU_USD',    dec: 2 },
-    XAGUSD: { label: 'XAGUSD', tv: 'OANDA:XAGUSD',    pair: 'XAG/USD', oanda: 'XAG_USD',    dec: 3 },
-    USOIL:  { label: 'USOIL',  tv: 'OANDA:WTICOUSD',  pair: 'USOIL',   oanda: 'WTICO_USD',  dec: 3 },
-    NASDAQ: { label: 'NASDAQ', tv: 'OANDA:NAS100USD', pair: 'NAS100',  oanda: 'NAS100_USD', dec: 1 },
-    EURUSD: { label: 'EURUSD', tv: 'OANDA:EURUSD',    pair: 'EUR/USD', oanda: 'EUR_USD',    dec: 5 }
+    XAUUSD: { label: 'XAUUSD', tv: 'OANDA:XAUUSD',    pair: 'XAU/USD', oanda: 'XAU_USD',    td: 'XAU/USD', dec: 2 },
+    XAGUSD: { label: 'XAGUSD', tv: 'OANDA:XAGUSD',    pair: 'XAG/USD', oanda: 'XAG_USD',    td: 'XAG/USD', dec: 3 },
+    USOIL:  { label: 'USOIL',  tv: 'OANDA:WTICOUSD',  pair: 'USOIL',   oanda: 'WTICO_USD',  td: 'WTI/USD', dec: 3 },
+    NASDAQ: { label: 'NASDAQ', tv: 'OANDA:NAS100USD', pair: 'NAS100',  oanda: 'NAS100_USD', td: 'NDX',     dec: 1 },
+    EURUSD: { label: 'EURUSD', tv: 'OANDA:EURUSD',    pair: 'EUR/USD', oanda: 'EUR_USD',    td: 'EUR/USD', dec: 5 }
   };
   const TFS = {
-    M1:  { tv: '1',   g: 'M1',  sel: '1m'  },
-    M5:  { tv: '5',   g: 'M5',  sel: '5m'  },
-    M15: { tv: '15',  g: 'M15', sel: '15m' },
-    M30: { tv: '30',  g: 'M30', sel: '30m' },
-    H1:  { tv: '60',  g: 'H1',  sel: '1h'  },
-    H4:  { tv: '240', g: 'H4',  sel: '4h'  },
-    D1:  { tv: 'D',   g: 'D',   sel: '1d'  }
+    M1:  { tv: '1',   g: 'M1',  sel: '1m', td: '1min' },
+    M5:  { tv: '5',   g: 'M5',  sel: '5m', td: '5min' },
+    M15: { tv: '15',  g: 'M15', sel: '15m', td: '15min' },
+    M30: { tv: '30',  g: 'M30', sel: '30m', td: '30min' },
+    H1:  { tv: '60',  g: 'H1',  sel: '1h', td: '1h' },
+    H4:  { tv: '240', g: 'H4',  sel: '4h', td: '4h' },
+    D1:  { tv: 'D',   g: 'D',   sel: '1d', td: '1day' }
   };
   const LS = {
     sym: 'ksnr_live_sym',
     tf: 'ksnr_live_tf',
     token: 'ksnr_oanda_token',
-    host: 'ksnr_oanda_host'
+    host: 'ksnr_oanda_host',
+    td: 'ksnr_twelvedata_key'
   };
   const HOSTS = {
     practice: 'https://api-fxpractice.oanda.com',
@@ -118,7 +121,7 @@
           <span class="text-sm font-extrabold text-white">📈 Live Chart · OANDA</span>
           <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold">● LIVE</span>
         </div>
-        <button type="button" id="plBtnSettings" class="px-2.5 py-1 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300 text-[11px] font-bold cursor-pointer" title="OANDA feed">⚙ OANDA</button>
+        <button type="button" id="plBtnSettings" class="px-2.5 py-1 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300 text-[11px] font-bold cursor-pointer" title="Data feed">⚙ Feed</button>
       </div>
 
       <div id="plSymbols" class="flex gap-2 overflow-x-auto pb-1">
@@ -143,6 +146,9 @@
           <button type="button" id="plSaveToken" class="px-3 py-1.5 rounded-lg bg-cyan-500 text-slate-950 font-extrabold cursor-pointer">រក្សាទុក</button>
           <button type="button" id="plClearToken" class="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 font-bold cursor-pointer">លុប</button>
         </div>
+        <div class="font-extrabold text-cyan-300 pt-1">ឬ Twelve Data (Free key — ងាយបំផុត)</div>
+        <input id="plTdKey" type="password" autocomplete="off" placeholder="Twelve Data API key (twelvedata.com)"
+               class="w-full px-3 py-2 rounded-lg bg-[#0b111e] border border-slate-700 text-slate-100 focus:outline-none focus:border-cyan-400" />
         <p class="text-slate-400 leading-snug">Token រក្សាទុកក្នុង Browser នេះតែប៉ុណ្ណោះ។ ប្រើ token ប្រភេទ read-only (Practice) ដើម្បីសុវត្ថិភាព។</p>
       </div>
 
@@ -173,11 +179,12 @@
     el('plSaveToken').addEventListener('click', () => {
       lsSet(LS.token, el('plToken').value.trim());
       lsSet(LS.host, el('plHost').value);
-      el('plToken').value = '';
+      if (el('plTdKey').value.trim()) lsSet(LS.td, el('plTdKey').value.trim());
+      el('plToken').value = ''; el('plTdKey').value = '';
       refreshMode();
       el('plSettings').classList.add('hidden');
     });
-    el('plClearToken').addEventListener('click', () => { lsSet(LS.token, ''); refreshMode(); });
+    el('plClearToken').addEventListener('click', () => { lsSet(LS.token, ''); lsSet(LS.td, ''); refreshMode(); });
     el('plHost').value = lsGet(LS.host, 'practice') === 'live' ? 'live' : 'practice';
 
     paintTabs();
@@ -190,16 +197,22 @@
     document.querySelectorAll('#plTfs .pl-tf').forEach((b) => b.classList.toggle('active', b.dataset.tf === cur.tf));
   }
 
+  // Phones/tablets: getDisplayMedia is unreliable (iOS records the whole Safari
+  // screen + shows a system prompt every time) -> never use it on touch devices.
+  const IS_MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+    (navigator.maxTouchPoints > 1 && /Mac/i.test(navigator.platform));
   function canTabCapture() {
-    return !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
+    return !IS_MOBILE && !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
   }
+  const hasFeed = () => !!(lsGet(LS.token) || lsGet(LS.td));
 
   function refreshMode() {
     const m = el('plMode');
     if (!m) return;
-    if (lsGet(LS.token)) m.textContent = '🟢 ថតពី OANDA feed (ស្ងាត់)';
-    else if (canTabCapture()) m.textContent = '🖥️ ថតផ្ទាំង Tab (Desktop)';
-    else m.textContent = '⚠️ ទូរស័ព្ទ៖ សូមដាក់ OANDA token (⚙)';
+    if (lsGet(LS.token)) m.textContent = '🟢 Auto · OANDA feed (គ្មាន Allow)';
+    else if (lsGet(LS.td)) m.textContent = '🟢 Auto · Twelve Data (គ្មាន Allow)';
+    else if (canTabCapture()) m.textContent = '🖥️ ថត Tab (Allow តែ 1 ដង)';
+    else m.textContent = '⚠️ ទូរស័ព្ទ៖ ដាក់ API key (⚙ Feed)';
   }
 
   function setSymbol(k) {
@@ -259,46 +272,64 @@
     });
   }
 
-  // B) Tab capture (desktop Chromium)
-  async function captureFromTab() {
-    const box = el('porLiveChartBox');
-    box.scrollIntoView({ block: 'center' });
-    await sleep(350);
+  // B) Tab capture (desktop Chromium) — permission asked ONCE, stream is re-used
+  let tabStream = null, tabVideo = null;
+  function releaseTab() {
+    try { tabStream && tabStream.getTracks().forEach((t) => t.stop()); } catch (e) {}
+    try { tabVideo && tabVideo.remove(); } catch (e) {}
+    tabStream = null; tabVideo = null;
+  }
+  window.addEventListener('pagehide', releaseTab);
 
+  async function ensureTabStream() {
+    if (tabStream && tabVideo && tabStream.getVideoTracks().some((t) => t.readyState === 'live')) {
+      return false;                                   // already allowed -> no prompt
+    }
+    releaseTab();
     const stream = await navigator.mediaDevices.getDisplayMedia({
       video: { displaySurface: 'browser' },
       audio: false,
       preferCurrentTab: true,
       selfBrowserSurface: 'include'
     });
-    try {
-      const v = document.createElement('video');
-      v.srcObject = stream; v.muted = true; v.playsInline = true;
-      await v.play();
-      await sleep(450); // let the permission dialog disappear from the frame
+    const v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.srcObject = stream;
+    v.style.cssText = 'position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0;pointer-events:none';
+    document.body.appendChild(v);
+    await v.play();
+    stream.getVideoTracks()[0].addEventListener('ended', releaseTab);   // user pressed "Stop sharing"
+    tabStream = stream; tabVideo = v;
+    return true;                                      // first time -> dialog just closed
+  }
 
-      const vw = v.videoWidth, vh = v.videoHeight;
-      const rect = box.getBoundingClientRect();
-      const kx = vw / window.innerWidth;
-      const ky = vh / window.innerHeight;
-      const aspectOk = Math.abs(kx - ky) / Math.max(kx, ky) < 0.04;
+  async function captureFromTab() {
+    const box = el('porLiveChartBox');
+    box.scrollIntoView({ block: 'center' });
+    await sleep(350);
 
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      if (aspectOk) {
-        const sx = Math.max(0, rect.left * kx), sy = Math.max(0, rect.top * ky);
-        const sw = Math.min(vw - sx, rect.width * kx), sh = Math.min(vh - sy, rect.height * ky);
-        canvas.width = Math.round(sw); canvas.height = Math.round(sh);
-        ctx.drawImage(v, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
-      } else {
-        // user picked another tab/window: keep the whole frame rather than a wrong crop
-        canvas.width = vw; canvas.height = vh;
-        ctx.drawImage(v, 0, 0);
-      }
-      return await canvasToBlob(canvas);
-    } finally {
-      stream.getTracks().forEach((t) => t.stop());
+    const first = await ensureTabStream();
+    await sleep(first ? 600 : 160);                   // let the dialog vanish / get a fresh frame
+
+    const v = tabVideo;
+    const vw = v.videoWidth, vh = v.videoHeight;
+    if (!vw || !vh) { releaseTab(); throw new Error('មិនអាចអានរូបភាពពី Tab បានទេ សូមសាកល្បងម្តងទៀត'); }
+    const rect = box.getBoundingClientRect();
+    const kx = vw / window.innerWidth;
+    const ky = vh / window.innerHeight;
+    const aspectOk = Math.abs(kx - ky) / Math.max(kx, ky) < 0.04;
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (aspectOk) {
+      const sx = Math.max(0, rect.left * kx), sy = Math.max(0, rect.top * ky);
+      const sw = Math.min(vw - sx, rect.width * kx), sh = Math.min(vh - sy, rect.height * ky);
+      canvas.width = Math.round(sw); canvas.height = Math.round(sh);
+      ctx.drawImage(v, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+    } else {
+      canvas.width = vw; canvas.height = vh;          // user picked another tab/window
+      ctx.drawImage(v, 0, 0);
     }
+    return await canvasToBlob(canvas);
   }
 
   // A) OANDA v20 candles -> canvas
@@ -320,6 +351,24 @@
       o: parseFloat(c.mid.o), h: parseFloat(c.mid.h), l: parseFloat(c.mid.l), c: parseFloat(c.mid.c)
     }));
     if (cs.length < 10) throw new Error('OANDA មិនបានផ្តល់ទិន្នន័យគ្រប់គ្រាន់');
+    return cs;
+  }
+
+  // A2) Twelve Data candles (free key, CORS-enabled) -> same canvas
+  async function fetchTwelveCandles(count = 120) {
+    const url = 'https://api.twelvedata.com/time_series?symbol=' + encodeURIComponent(SYMBOLS[cur.sym].td) +
+      '&interval=' + TFS[cur.tf].td + '&outputsize=' + count + '&order=ASC&timezone=UTC&apikey=' +
+      encodeURIComponent(lsGet(LS.td));
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.status === 'error' || !Array.isArray(data.values)) {
+      throw new Error('Twelve Data: ' + (data.message || res.status));
+    }
+    const cs = data.values.map((v) => ({
+      t: Date.parse(v.datetime.length === 10 ? v.datetime + 'T00:00:00Z' : v.datetime.replace(' ', 'T') + 'Z') / 1000,
+      o: parseFloat(v.open), h: parseFloat(v.high), l: parseFloat(v.low), c: parseFloat(v.close)
+    })).filter((c) => isFinite(c.o + c.h + c.l + c.c));
+    if (cs.length < 10) throw new Error('Twelve Data មិនបានផ្តល់ទិន្នន័យគ្រប់គ្រាន់');
     return cs;
   }
 
@@ -410,21 +459,28 @@
     return canvas;
   }
 
-  async function captureFromOanda() {
-    const cs = await fetchOandaCandles(120);
-    return await canvasToBlob(renderCandleCanvas(cs, SYMBOLS[cur.sym], cur.tf));
+  async function captureFromFeed() {
+    const errs = [];
+    const providers = [];
+    if (lsGet(LS.token)) providers.push(['OANDA', fetchOandaCandles]);
+    if (lsGet(LS.td)) providers.push(['Twelve Data', fetchTwelveCandles]);
+    for (const [name, fn] of providers) {
+      try {
+        const cs = await fn(120);
+        return await canvasToBlob(renderCandleCanvas(cs, SYMBOLS[cur.sym], cur.tf));
+      } catch (e) { console.warn(name + ' feed failed:', e); errs.push(e.message); }
+    }
+    throw new Error('Feed មិនដំណើរការ (' + errs.join(' | ') + ')');
   }
 
   async function captureChart() {
-    if (lsGet(LS.token)) {
-      try { return await captureFromOanda(); }
-      catch (e) {
-        console.warn('OANDA feed failed:', e);
-        if (!canTabCapture()) throw new Error(`OANDA feed មិនដំណើរការ (${e.message}) — ពិនិត្យ token / ការអនុញ្ញាត CORS`);
-      }
+    let feedErr = null;
+    if (hasFeed()) {
+      try { return await captureFromFeed(); }
+      catch (e) { feedErr = e; if (!canTabCapture()) throw e; }
     }
     if (canTabCapture()) return await captureFromTab();
-    throw new Error('ឧបករណ៍នេះមិនអាចថតផ្ទាំងបានទេ — សូមចុច ⚙ OANDA ហើយដាក់ API token ដើម្បីថតស្ងាត់ ឬថតអេក្រង់ទូរស័ព្ទ រួច Paste ចូល Scan។');
+    throw new Error('ទូរស័ព្ទមិនអាចថតផ្ទាំង Tab បានទេ — សូមចុច ⚙ Feed ហើយដាក់ Twelve Data key (ឥតគិតថ្លៃ) ឬ OANDA token ម្តងគត់ បន្ទាប់មក ថត + Scan នឹងដើរស្វ័យប្រវត្តិ គ្មាន Allow។');
   }
 
   // ------------------------------------------------------- feed into scan ---
