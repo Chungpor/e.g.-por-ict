@@ -3049,7 +3049,7 @@ $('keyForm')?.addEventListener('submit', (e) => {
   let skipFrame = false;
   function animate() {
     requestAnimationFrame(animate);
-    if (document.hidden) return;
+    if (document.hidden || window.__porPauseBg) return;   // paused while the live chart is on screen
     // ពេលកំពុងអូស៖ Background នៅតែដំណើរការ ប៉ុន្តែគូរ 1 ក្នុងចំណោម 2 frame ដើម្បីកុំឲ្យទាក់ទាក់
     if (performance.now() < busyUntil) {
       skipFrame = !skipFrame;

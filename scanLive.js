@@ -84,7 +84,11 @@
       #porLivePanel .pl-tf { padding: 6px 0; border-radius: 10px; font-weight: 800; font-size: 12px;
         background: #131d31; border: 1px solid #334155; color: #cbd5e1; }
       #porLivePanel .pl-tf.active { background: #06b6d4; border-color: #67e8f9; color: #020617; }
-      #porLiveChartBox { height: 380px; }
+      #porLiveChartBox { height: 380px; position: relative; contain: layout paint; transform: translateZ(0);
+        -webkit-transform: translateZ(0); touch-action: none; overscroll-behavior: contain; }
+      #porLiveChartBox.pl-scrollmode { touch-action: pan-y; }
+      #porLiveChartBox .pl-shield { display: none; position: absolute; inset: 0; z-index: 5; touch-action: pan-y; }
+      #porLiveChartBox.pl-scrollmode .pl-shield { display: block; }
       @media (min-width: 640px) { #porLiveChartBox { height: 460px; } }
       #porLivePanel .pl-step { display:flex; align-items:center; gap:8px; font-size:12px; color:#64748b; }
       #porLivePanel .pl-step.done { color:#4ade80; }
@@ -132,6 +136,7 @@
         ${Object.keys(TFS).map((k) => `<button type="button" class="pl-tf" data-tf="${k}">${k}</button>`).join('')}
       </div>
 
+      <button type="button" id="plBtnMode" class="${IS_MOBILE ? '' : 'hidden'} w-full py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-slate-200 text-xs font-extrabold cursor-pointer">👆 Chart៖ អូស Chart (ចុចដើម្បីប្តូរទៅ Scroll ទំព័រ)</button>
       <div id="porLiveChartBox" class="w-full rounded-xl overflow-hidden border border-slate-800 bg-[#0b111e]"></div>
 
       <div id="plSettings" class="hidden p-3 rounded-xl bg-slate-900/80 border border-slate-700 space-y-2 text-xs">
@@ -172,6 +177,13 @@
     panel.querySelectorAll('.pl-tf').forEach((b) => b.addEventListener('click', () => setTf(b.dataset.tf)));
     el('plBtnScan').addEventListener('click', captureAndScan);
     el('plBtnSave').addEventListener('click', saveImage);
+    el('plBtnMode').addEventListener('click', () => {
+      const box = el('porLiveChartBox');
+      const scrollMode = box.classList.toggle('pl-scrollmode');
+      el('plBtnMode').textContent = scrollMode
+        ? '📜 កំពុង Scroll ទំព័រ (ចុចដើម្បីអូស Chart វិញ)'
+        : '👆 Chart៖ អូស Chart (ចុចដើម្បីប្តូរទៅ Scroll ទំព័រ)';
+    });
     el('plBtnSettings').addEventListener('click', () => el('plSettings').classList.toggle('hidden'));
     el('plStyle').addEventListener('change', (e) => {
       if (typeof setTradeStyle === 'function') setTradeStyle(e.target.value, false);
@@ -231,7 +243,7 @@
     mountTimer = setTimeout(() => {
       const box = el('porLiveChartBox');
       if (!box) return;
-      box.innerHTML = '';
+      box.innerHTML = '<div class="pl-shield"></div>';
       const wrap = document.createElement('div');
       wrap.className = 'tradingview-widget-container';
       wrap.style.cssText = 'height:100%;width:100%';
@@ -253,7 +265,7 @@
         gridColor: 'rgba(148,163,184,0.08)',
         allow_symbol_change: false,
         hide_top_toolbar: true,
-        hide_side_toolbar: false,
+        hide_side_toolbar: IS_MOBILE,
         hide_legend: false,
         save_image: false,
         calendar: false,
@@ -608,5 +620,12 @@
   }, 1000);
 
   buildPanel();
+  try {
+    const panelEl = el('porLivePanel');
+    if (panelEl && 'IntersectionObserver' in window) {
+      new IntersectionObserver((ents) => { window.__porPauseBg = ents[0].isIntersecting; }, { threshold: 0.05 })
+        .observe(panelEl);
+    }
+  } catch (e) {}
   window.porLive = { captureAndScan, saveImage, setSymbol, setTf };
 })();
