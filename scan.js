@@ -209,7 +209,7 @@ function consumeKeyScanIfNeeded() {
 // 3. STATE + HELPERS
 // ==========================================
 const $ = (id) => document.getElementById(id);
-const VALID_TRADE_STYLES = ['SCALPING', 'SWING', 'APLUS_ICT', 'MSNR_EMPEROR', 'AMD_MMXM', 'SECRET_411', 'RARE_FLIP_SNR'];
+const VALID_TRADE_STYLES = ['SCALPING', 'SWING', 'APLUS_ICT', 'MSNR_EMPEROR', 'AMD_MMXM', 'SECRET_411', 'RARE_FLIP_SNR', 'CRT_CANDLE'];
 
 const state = {
   unlocked: false,
@@ -265,6 +265,17 @@ function flashButton(btn, doneHtml, originalHtml) {
 // (SCALPING | SWING | APLUS_ICT | MSNR_EMPEROR | AMD_MMXM | SECRET_411 | RARE_FLIP_SNR)
 // ==========================================
 function getStyleDisplayMeta(style) {
+  if (style === 'CRT_CANDLE') {
+    return {
+      code: 'CRT_CANDLE',
+      badgeText: '🕯️ CRT · CANDLE RANGE THEORY (1H–4H)',
+      badgeClass: 'px-2.5 py-0.5 rounded-full bg-lime-400/20 border border-lime-300/50 text-lime-200 text-[10px] font-extrabold uppercase',
+      resBadgeText: '🕯️ CRT · CANDLE RANGE (R:R 1:3.3)',
+      resBadgeClass: 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-lime-400/20 border border-lime-300/50 text-lime-200',
+      scanBtnLabel: '🕯️ CRT CANDLE RANGE',
+      overlayTag: 'CRT RANGE + SWEEP + 1H–4H ENTRY'
+    };
+  }
   if (style === 'SECRET_411') {
     return {
       code: 'SECRET_411',
@@ -354,9 +365,10 @@ function setTradeStyle(style, userClickedChoice = false) {
     MSNR_EMPEROR:  { el: $('btnModeMsnr'),      cls: 'active-msnr' },
     AMD_MMXM:      { el: $('btnModeAmd'),       cls: 'active-amd' },
     SECRET_411:    { el: $('btnModeSecret411'), cls: 'active-secret411' },
-    RARE_FLIP_SNR: { el: $('btnModeRareFlip'),  cls: 'active-rareflip' }
+    RARE_FLIP_SNR: { el: $('btnModeRareFlip'),  cls: 'active-rareflip' },
+    CRT_CANDLE:    { el: $('btnModeCrt'),       cls: 'active-crt' }
   };
-  const ALL_ACTIVE_CLS = ['active-scalp', 'active-swing', 'active-aplus', 'active-msnr', 'active-amd', 'active-secret411', 'active-rareflip'];
+  const ALL_ACTIVE_CLS = ['active-scalp', 'active-swing', 'active-aplus', 'active-msnr', 'active-amd', 'active-secret411', 'active-rareflip', 'active-crt'];
 
   Object.values(btnMap).forEach(({ el }) => {
     if (!el) return;
@@ -377,7 +389,8 @@ function setTradeStyle(style, userClickedChoice = false) {
     { id: 'btnResSwitchMsnr',     code: 'MSNR_EMPEROR',  on: 'px-2.5 py-1 rounded-lg bg-purple-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(192,132,252,0.45)]', off: 'px-2.5 py-1 rounded-lg bg-purple-500/20 border border-purple-400/50 text-purple-300 font-extrabold cursor-pointer hover:brightness-110' },
     { id: 'btnResSwitchAmd',      code: 'AMD_MMXM',      on: 'px-2.5 py-1 rounded-lg bg-rose-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(251,113,133,0.45)]',   off: 'px-2.5 py-1 rounded-lg bg-rose-500/20 border border-rose-400/50 text-rose-300 font-extrabold cursor-pointer hover:brightness-110' },
     { id: 'btnResSwitch411',      code: 'SECRET_411',    on: 'px-2.5 py-1 rounded-lg bg-yellow-300 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(253,224,71,0.5)]',  off: 'px-2.5 py-1 rounded-lg bg-yellow-500/20 border border-yellow-400/50 text-yellow-300 font-extrabold cursor-pointer hover:brightness-110' },
-    { id: 'btnResSwitchRareFlip', code: 'RARE_FLIP_SNR', on: 'px-2.5 py-1 rounded-lg bg-sky-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(56,189,248,0.5)]',     off: 'px-2.5 py-1 rounded-lg bg-sky-500/20 border border-sky-400/50 text-sky-300 font-extrabold cursor-pointer hover:brightness-110' }
+    { id: 'btnResSwitchRareFlip', code: 'RARE_FLIP_SNR', on: 'px-2.5 py-1 rounded-lg bg-sky-400 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(56,189,248,0.5)]',     off: 'px-2.5 py-1 rounded-lg bg-sky-500/20 border border-sky-400/50 text-sky-300 font-extrabold cursor-pointer hover:brightness-110' },
+    { id: 'btnResSwitchCrt', code: 'CRT_CANDLE', on: 'px-2.5 py-1 rounded-lg bg-lime-300 text-slate-950 font-extrabold cursor-pointer shadow-[0_0_12px_rgba(190,242,100,0.5)]', off: 'px-2.5 py-1 rounded-lg bg-lime-400/20 border border-lime-300/50 text-lime-200 font-extrabold cursor-pointer hover:brightness-110' }
   ];
 
   resBtnConfigs.forEach((cfg) => {
@@ -410,6 +423,7 @@ $('btnModeMsnr')?.addEventListener('click', (e) => { e.stopPropagation(); setTra
 $('btnModeAmd')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('AMD_MMXM', true); });
 $('btnModeSecret411')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('SECRET_411', true); });
 $('btnModeRareFlip')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('RARE_FLIP_SNR', true); });
+$('btnModeCrt')?.addEventListener('click', (e) => { e.stopPropagation(); setTradeStyle('CRT_CANDLE', true); });
 
 $('btnResSwitchScalp')?.addEventListener('click', () => setTradeStyle('SCALPING', true));
 $('btnResSwitchSwing')?.addEventListener('click', () => setTradeStyle('SWING', true));
@@ -418,6 +432,7 @@ $('btnResSwitchMsnr')?.addEventListener('click', () => setTradeStyle('MSNR_EMPER
 $('btnResSwitchAmd')?.addEventListener('click', () => setTradeStyle('AMD_MMXM', true));
 $('btnResSwitch411')?.addEventListener('click', () => setTradeStyle('SECRET_411', true));
 $('btnResSwitchRareFlip')?.addEventListener('click', () => setTradeStyle('RARE_FLIP_SNR', true));
+$('btnResSwitchCrt')?.addEventListener('click', () => setTradeStyle('CRT_CANDLE', true));
 
 $('newsFlipMode')?.addEventListener('change', (e) => {
   const v = e.target.value;
@@ -428,6 +443,7 @@ $('newsFlipMode')?.addEventListener('change', (e) => {
   else if (v === 'NON_FARM') setTradeStyle('SWING', true);
   else if (v === 'SECRET_411') setTradeStyle('SECRET_411', true);
   else if (v === 'RARE_FLIP_SNR') setTradeStyle('RARE_FLIP_SNR', true);
+  else if (v === 'CRT_CANDLE') setTradeStyle('CRT_CANDLE', true);
 });
 
 $('tradeStyleBox')?.addEventListener('click', (e) => e.stopPropagation());
@@ -2364,7 +2380,7 @@ $('updateScanForm')?.addEventListener('submit', (e) => {
     r.tp2 = tp2;
     const rrMap = {
       SCALPING: '1:2.8', SWING: '1:4.5', APLUS_ICT: '1:3.5',
-      MSNR_EMPEROR: '1:4.0', AMD_MMXM: '1:3.8', SECRET_411: '1:4.2', RARE_FLIP_SNR: '1:5.0'
+      MSNR_EMPEROR: '1:4.0', AMD_MMXM: '1:3.8', SECRET_411: '1:4.2', RARE_FLIP_SNR: '1:5.0', CRT_CANDLE: '1:3.3'
     };
     r.rrRatio = rrMap[tradeStyle] || '1:3.5';
     if (note) r.detailedAnalysis = note;
@@ -2501,7 +2517,7 @@ function renderScanHistoryLobby() {
   const list = getScanLobbyList();
   const total = list.length;
   const scalpCount = list.filter((i) => (i.result?.tradeStyle || 'SCALPING') === 'SCALPING').length;
-  const proStratCount = list.filter((i) => ['SWING', 'APLUS_ICT', 'MSNR_EMPEROR', 'AMD_MMXM', 'SECRET_411', 'RARE_FLIP_SNR'].includes(i.result?.tradeStyle)).length;
+  const proStratCount = list.filter((i) => ['SWING', 'APLUS_ICT', 'MSNR_EMPEROR', 'AMD_MMXM', 'SECRET_411', 'RARE_FLIP_SNR', 'CRT_CANDLE'].includes(i.result?.tradeStyle)).length;
   const winCount = list.filter((i) => i.outcome === 'WIN').length;
   const lossCount = list.filter((i) => i.outcome === 'LOSS').length;
 
@@ -2570,6 +2586,8 @@ function renderScanHistoryLobby() {
       stylePill = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/20 border border-rose-400/50 text-rose-300">🔥 ICT AMD</span>`;
     } else if (styleCode === 'SECRET_411') {
       stylePill = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-yellow-500/20 border border-yellow-400/50 text-yellow-300">🕵️‍♂️ SECRET 4.11</span>`;
+    } else if (styleCode === 'CRT_CANDLE') {
+      stylePill = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-lime-400/20 border border-lime-300/50 text-lime-200">🕯️ CRT</span>`;
     } else if (styleCode === 'RARE_FLIP_SNR') {
       stylePill = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-sky-500/20 border border-sky-400/50 text-sky-300">💎 RARE #FLIPPED_SNR</span>`;
     }

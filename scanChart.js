@@ -26,7 +26,7 @@
 
 // 1. Register the 2 New Strategies into VALID_TRADE_STYLES from scan.js
 if (typeof VALID_TRADE_STYLES !== 'undefined' && Array.isArray(VALID_TRADE_STYLES)) {
-  ['SECRET_411', 'RARE_FLIP_SNR'].forEach((code) => {
+  ['SECRET_411', 'RARE_FLIP_SNR', 'CRT_CANDLE'].forEach((code) => {
     if (!VALID_TRADE_STYLES.includes(code)) VALID_TRADE_STYLES.push(code);
   });
 }
@@ -66,6 +66,7 @@ function getSelectedAPlusConfluences() {
 
 function resolveEffectiveTradeStyle(newsMode = 'ALL', currentStyle = 'SCALPING') {
   const filterMode = document.getElementById('ictConfluenceFilter')?.value || 'ALL_APLUS';
+  if (newsMode === 'CRT_CANDLE') return 'CRT_CANDLE';
   if (newsMode === 'SECRET_411') return 'SECRET_411';
   if (newsMode === 'RARE_FLIP_SNR') return 'RARE_FLIP_SNR';
   if (newsMode === 'ICT_APLUS') return 'APLUS_ICT';
@@ -74,7 +75,7 @@ function resolveEffectiveTradeStyle(newsMode = 'ALL', currentStyle = 'SCALPING')
   if (newsMode === 'SCALP_PERFECT') return 'SCALPING';
   if (newsMode === 'NON_FARM') return 'SWING';
 
-  if (['SCALPING', 'SWING', 'APLUS_ICT', 'MSNR_EMPEROR', 'AMD_MMXM', 'SECRET_411', 'RARE_FLIP_SNR'].includes(currentStyle)) {
+  if (['SCALPING', 'SWING', 'APLUS_ICT', 'MSNR_EMPEROR', 'AMD_MMXM', 'SECRET_411', 'RARE_FLIP_SNR', 'CRT_CANDLE'].includes(currentStyle)) {
     return currentStyle;
   }
   if (filterMode === 'SECRET_411_ZIKIR') return 'SECRET_411';
@@ -87,6 +88,20 @@ function resolveEffectiveTradeStyle(newsMode = 'ALL', currentStyle = 'SCALPING')
 
 function getStrategyConfig(tradeStyle = 'SCALPING') {
   switch (tradeStyle) {
+    case 'CRT_CANDLE':
+      return {
+        code: 'CRT_CANDLE',
+        name: '🕯️ CRT · CANDLE RANGE THEORY (C1 RANGE → C2 SWEEP → C3 EXPANSION)',
+        rrRatio: '1:3.3',
+        riskSpanRatio: 0.09,
+        tp1Mult: 1.6,
+        tp2Mult: 3.3,
+        minTicks: 12,
+        qualityScore: 'CRT SETUP SCORE',
+        lotAdvice: '1.0% Risk (SL beyond the C2 sweep wick)',
+        orderType: 'CRT limit on the retest of the swept C1 level',
+        setupGrade: '🕯️ CRT 4H→1H (1:3.3 RR)'
+      };
     case 'SECRET_411':
       return {
         code: 'SECRET_411',
@@ -370,7 +385,13 @@ function buildSniperPrompt(newsMode = 'ALL', tradeStyle = 'SCALPING', overridePa
   const aplusConf = getSelectedAPlusConfluences();
 
   let styleInstructions = '';
-  if (effectiveStyle === 'SECRET_411') {
+  if (effectiveStyle === 'CRT_CANDLE') {
+    styleInstructions = `SELECTED STRATEGY: 🕯️ CRT — CANDLE RANGE THEORY (1H–4H • R:R ~1:3.3)
+- C1 = range candle (use its High and Low). C2 = the candle that sweeps ONE side of C1 (wick beyond the high or low) and CLOSES BACK INSIDE the C1 range. C3 = expansion toward the opposite side of C1.
+- BUY when C2 swept the C1 low and closed back inside. SELL when C2 swept the C1 high and closed back inside.
+- Entry: retest of the swept C1 level on the lower timeframe (4H -> 1H, 1H -> 15M). SL: just beyond the C2 sweep wick. TP1: C1 50% midpoint. TP2: the opposite side of C1.
+- Name the candlestick patterns you see on C2/C3 (hammer, pin bar, engulfing, morning/evening star, inside bar, doji).`;
+  } else if (effectiveStyle === 'SECRET_411') {
     styleInstructions = `SELECTED STRATEGY: 🕵️‍♂️ SECRET OF 4.11 (Ali Yusoff — HSL + ISL + Zikir 2x Breakout + 5 Engulfing Types • R:R 1:4.2)
 - Apply all rules from "Secret of 4.11":
   1. ZIKIR IN TRADING (Keep in mind until death): 1. BREAKOUT -> 2. PULLBACK -> 3. ENTRY.
@@ -512,6 +533,7 @@ CRITICAL STEP 3 — RETURN ONLY VALID JSON MATCHING THIS SCHEMA:
     "flippedSnr": "Specify #Flipped_SNR (SBR/RBS Flipzone) + Bullish/Bearish Gap Overtake (A-B-C Cycle)",
     "dojiGapLimits": "Specify #Doji_SNR + #GAP_SNR Upper Limit (UL) & Lower Limit (LL) + 1-TF-Lower Roadblock"
   },
+  "crt": { "c1High": "High of the CRT range candle C1 (single number)", "c1Low": "Low of C1 (single number)", "sweepSide": "HIGH or LOW swept by C2", "patterns": ["candlestick patterns seen on C2/C3"] },
   "confluence": [
     "មូលហេតុទី១ ជាភាសាខ្មែរ (#1 Secret 4.11 Zikir 2x Breakout + Night Market HSL & ISL Yellow Zone)",
     "មូលហេតុទី២ ជាភាសាខ្មែរ (#2 Rare #Flipped_SNR Flipzone + #Doji_SNR + Gap Overtake UL/LL Protected)",

@@ -495,6 +495,7 @@
     for (const [name, fn] of providers) {
       try {
         const cs = await fn(120);
+        window.__porLive = { candles: cs, sym: cur.sym, tf: cur.tf, ts: Date.now(), b64: null };
         return await canvasToBlob(renderCandleCanvas(cs, SYMBOLS[cur.sym], cur.tf));
       } catch (e) { console.warn(name + ' feed failed:', e); errs.push(e.message); }
     }
@@ -533,7 +534,7 @@
 
     handleFile(new File([blob], lastName, { type: 'image/png' }));
     for (let i = 0; i < 60; i++) {                        // wait for FileReader (≤ 6 s)
-      if (state.imageBase64) return;
+      if (state.imageBase64) { if (window.__porLive) window.__porLive.b64 = state.imageBase64; return; }
       await sleep(100);
     }
     throw new Error('មិនអាចដាក់រូបភាពចូល Scan បានទេ');
