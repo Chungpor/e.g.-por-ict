@@ -165,6 +165,14 @@
 
       <div id="plSteps" class="hidden space-y-1.5 p-3 rounded-xl bg-slate-900/70 border border-slate-800"></div>
 
+      <div id="plError" class="hidden p-3 rounded-xl bg-rose-950/50 border border-rose-500/40 text-rose-300 text-xs space-y-2.5">
+        <div id="plErrorText" class="font-bold leading-relaxed"></div>
+        <div id="plErrorActions" class="hidden grid grid-cols-2 gap-2">
+          <button type="button" id="plErrKey" class="py-2 rounded-xl bg-slate-800/90 border border-slate-600 text-white font-extrabold cursor-pointer">⚙ ដាក់ API key</button>
+          <button type="button" id="plErrPick" class="py-2 rounded-xl bg-cyan-500/90 text-slate-950 font-extrabold cursor-pointer">🖼️ ជ្រើសរូប Screenshot</button>
+        </div>
+      </div>
+
       <div class="grid grid-cols-5 gap-2">
         <button type="button" id="plBtnSave" class="col-span-2 py-3 rounded-2xl bg-[#0d1626] border border-slate-700 hover:border-cyan-400 text-white font-extrabold text-sm cursor-pointer">💾 Save រូប</button>
         <button type="button" id="plBtnScan" class="col-span-3 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-indigo-500 hover:brightness-110 active:scale-95 transition text-white font-extrabold text-sm cursor-pointer shadow-[0_0_22px_rgba(34,211,238,.35)]">📸 ថត + Scan</button>
@@ -177,6 +185,14 @@
     panel.querySelectorAll('.pl-tf').forEach((b) => b.addEventListener('click', () => setTf(b.dataset.tf)));
     el('plBtnScan').addEventListener('click', captureAndScan);
     el('plBtnSave').addEventListener('click', saveImage);
+    el('plErrKey').addEventListener('click', () => {
+      el('plSettings').classList.remove('hidden');
+      el('plSettings').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+    el('plErrPick').addEventListener('click', () => {
+      const fi = document.getElementById('fileInput');
+      if (fi) fi.click();
+    });
     el('plBtnMode').addEventListener('click', () => {
       const box = el('porLiveChartBox');
       const scrollMode = box.classList.toggle('pl-scrollmode');
@@ -492,7 +508,9 @@
       catch (e) { feedErr = e; if (!canTabCapture()) throw e; }
     }
     if (canTabCapture()) return await captureFromTab();
-    throw new Error('ទូរស័ព្ទមិនអាចថតផ្ទាំង Tab បានទេ — សូមចុច ⚙ Feed ហើយដាក់ Twelve Data key (ឥតគិតថ្លៃ) ឬ OANDA token ម្តងគត់ បន្ទាប់មក ថត + Scan នឹងដើរស្វ័យប្រវត្តិ គ្មាន Allow។');
+    const noFeed = new Error('ទូរស័ព្ទមិនអាចថតផ្ទាំង Tab បានទេ — សូមចុច ⚙ Feed ហើយដាក់ Twelve Data key (ឥតគិតថ្លៃ) ឬ OANDA token ម្តងគត់ បន្ទាប់មក ថត + Scan នឹងដើរស្វ័យប្រវត្តិ គ្មាន Allow។');
+    noFeed.code = 'NO_FEED';
+    throw noFeed;
   }
 
   // ------------------------------------------------------- feed into scan ---
@@ -522,6 +540,18 @@
   }
 
   // --------------------------------------------------------------- actions ---
+  // Show errors right under the steps box (the global #scanError sits far below the
+  // live panel, so on a phone the failure looked silent).
+  function plShowError(msg, withActions) {
+    try { if (typeof showError === 'function') showError(msg || ''); } catch (_) {}
+    const box = el('plError');
+    if (!box) return;
+    el('plErrorText').textContent = msg || '';
+    el('plErrorActions').classList.toggle('hidden', !(msg && withActions));
+    box.classList.toggle('hidden', !msg);
+    if (msg) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
   const STEP_LABELS = ['ថតរូបភាព Chart', 'ដាក់ចូល Scan', 'K-SNR កំពុងវិភាគ Entry · SL · TP'];
   function paintSteps(active, failed) {
     const box = el('plSteps');
@@ -558,7 +588,7 @@
     setBusy(true);
     let step = 0;
     try {
-      showError('');
+      plShowError('');
       paintSteps(0);
       const blob = await captureChart();
       step = 1; paintSteps(1);
@@ -576,8 +606,9 @@
       console.error(err);
       paintSteps(step, step);
       const denied = err && (err.name === 'NotAllowedError' || err.name === 'AbortError');
-      showError(denied ? 'អ្នកបានបដិសេធការថតផ្ទាំង — សូមចុច "អនុញ្ញាត" ពេល Browser សួរ ហើយសាកល្បងម្តងទៀត។'
-                       : (err.message || 'ថត Chart មិនបាន សូមសាកល្បងម្តងទៀត។'));
+      plShowError(denied ? 'អ្នកបានបដិសេធការថតផ្ទាំង — សូមចុច "អនុញ្ញាត" ពេល Browser សួរ ហើយសាកល្បងម្តងទៀត។'
+                         : (err.message || 'ថត Chart មិនបាន សូមសាកល្បងម្តងទៀត។'),
+                 !denied);
     } finally {
       setBusy(false);
     }
@@ -587,7 +618,7 @@
     if (busy) return;
     setBusy(true);
     try {
-      showError('');
+      plShowError('');
       const blob = lastBlob || await captureChart();
       lastBlob = blob;
       const name = lastName || `${SYMBOLS[cur.sym].label}_${cur.tf}.png`;
@@ -597,7 +628,7 @@
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 4000);
     } catch (err) {
-      showError(err.message || 'Save រូបមិនបាន');
+      plShowError(err.message || 'Save រូបមិនបាន', err && err.code === 'NO_FEED');
     } finally {
       setBusy(false);
     }

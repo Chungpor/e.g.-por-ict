@@ -3046,10 +3046,16 @@ $('keyForm')?.addEventListener('submit', (e) => {
   window.addEventListener('wheel', markBusy, { passive: true });
   window.addEventListener('touchmove', markBusy, { passive: true });
 
-  let skipFrame = false;
+  let skipFrame = false, slowFrame = 0;
   function animate() {
     requestAnimationFrame(animate);
-    if (document.hidden || window.__porPauseBg) return;   // paused while the live chart is on screen
+    if (document.hidden) return;
+    // Live chart panel on screen: keep the background moving but at ~1/3 speed
+    // (it used to freeze completely, which looked like "background not working").
+    if (window.__porPauseBg) {
+      slowFrame = (slowFrame + 1) % 3;
+      if (slowFrame) return;
+    }
     // ពេលកំពុងអូស៖ Background នៅតែដំណើរការ ប៉ុន្តែគូរ 1 ក្នុងចំណោម 2 frame ដើម្បីកុំឲ្យទាក់ទាក់
     if (performance.now() < busyUntil) {
       skipFrame = !skipFrame;
