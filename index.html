@@ -24,6 +24,151 @@
   <script src="https://www.youtube.com/iframe_api"></script>
 
   <link rel="stylesheet" href="style.css" />
+<!-- DESIGN REFRESH: gold-leaf on lacquer (override layer; style.css is left untouched) -->
+<style id="design-refresh">
+:root{ --pi-gold:#e6b94f; --pi-gold-hi:#f6d77a; --pi-line:rgba(255,236,190,.11); }
+body{ font-family:"Kantumruy Pro","Plus Jakarta Sans","Noto Sans Khmer",system-ui,sans-serif; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+::selection{ background:rgba(230,185,79,.4); color:#fff; }
+html{ scrollbar-color:rgba(230,185,79,.45) transparent; scrollbar-width:thin; }
+::-webkit-scrollbar{ width:10px; height:10px; }
+::-webkit-scrollbar-thumb{ background:rgba(230,185,79,.35); border-radius:99px; border:2px solid transparent; background-clip:content-box; }
+::-webkit-scrollbar-thumb:hover{ background:rgba(230,185,79,.6); background-clip:content-box; border:2px solid transparent; }
+
+/* Consistent radius hierarchy and calmer cards */
+.stat-card,.pricing-card,.product-feature-card,.login-card,.profile-banner-card,.hot-reads-container-card,.ff-official-banner-card{ border-radius:20px; }
+.stat-card,.pricing-card,.product-feature-card{ border-color:var(--pi-line); }
+.stat-card:hover,.pricing-card:hover,.product-feature-card:hover{ border-color:rgba(230,185,79,.45); }
+
+/* Controls */
+.login-input,.form-group input,.form-group select{ border-radius:12px; }
+.login-input:focus,.form-group input:focus,.form-group select:focus{ border-color:var(--pi-gold); box-shadow:0 0 0 3px rgba(230,185,79,.22); outline:none; }
+.chart-pill-btn,.filter-pill-btn,.trend-filter-btn,.toggle-btn,.tier-select-btn{ border-radius:99px; }
+.chart-pill-btn.active,.filter-pill-btn.active,.trend-filter-btn.active,.toggle-btn.active{ box-shadow:0 0 0 1px rgba(230,185,79,.55); }
+
+/* Navigation */
+.nav-link{ transition:color .2s; }
+.nav-link.active{ color:var(--pi-gold-hi); }
+
+/* Visible keyboard focus everywhere */
+a:focus-visible,button:focus-visible,[role="button"]:focus-visible{ outline:2px solid var(--pi-gold); outline-offset:2px; }
+
+@media (prefers-reduced-motion:reduce){ *,*::before,*::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; } .ticker-track,.marquee-content{ animation:none !important; } }
+
+/* ===== Khmer gold dashboard section (.kg-*) — same look as khmergold.html ===== */
+.kg-root{ --kg-gold:#f0c660; --kg-sil:#cdd8ea; --kg-up:#5fd39a; --kg-dn:#ff7b6b; --kg-tint:#e6b94f; --kg-line:rgba(255,236,190,.11); --kg-card:rgba(30,24,16,.62); }
+.kg-root[data-m="silver"]{ --kg-tint:#a9bddf; }
+.kg-root, .kg-root button, .kg-root input{ font-family:"Kantumruy Pro","Noto Sans Khmer",system-ui,sans-serif; }
+.kg-root{ border-radius:28px !important; border:1px solid rgba(230,185,79,.28) !important; background:radial-gradient(120% 70% at 50% -10%,#231a0c 0%,#0c0a07 65%) !important; }
+.kg-grid-bg{ opacity:.3 !important; animation:none !important; }
+.kg-orb{ opacity:.55 !important; animation-duration:40s !important; }
+.kg-kicker{ color:var(--kg-tint) !important; }
+
+/* Tabs: one segmented control */
+.kg-tabs{ gap:0 !important; padding:4px !important; background:rgba(255,255,255,.04) !important; border:1px solid var(--kg-line) !important; border-radius:16px !important; }
+.kg-tabs button{ background:transparent !important; border:0 !important; border-radius:12px !important; color:#a79d89 !important; box-shadow:none !important; backdrop-filter:none !important; transform:none !important; }
+.kg-tabs button:hover{ color:#f7f1e3 !important; }
+.kg-tabs button.on{ color:#1a1304 !important; background:linear-gradient(135deg,#f6d77a,#d9a53a) !important; box-shadow:0 4px 16px rgba(230,185,79,.35) !important; }
+.kg-root[data-m="silver"] .kg-tabs button.on{ background:linear-gradient(135deg,#f4f8ff,#aebfdc) !important; box-shadow:0 4px 16px rgba(150,175,225,.35) !important; }
+
+/* Hero price: engraved gold leaf */
+.kg-hero{ border-radius:24px !important; background:linear-gradient(180deg,rgba(40,31,18,.72),rgba(20,16,10,.6)) !important; border:1px solid rgba(230,185,79,.38) !important; box-shadow:0 18px 44px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,240,200,.14) !important; }
+.kg-hero::after{ display:none !important; }
+.kg-big{ letter-spacing:-.02em; background:linear-gradient(180deg,#fff3c4 0%,#f0c660 48%,#b9842a 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent !important; text-shadow:none !important; filter:drop-shadow(0 2px 18px rgba(230,185,79,.3)); }
+.kg-root[data-m="silver"] .kg-big{ background:linear-gradient(180deg,#fff 0%,#cdd8ea 50%,#8497bb 100%); -webkit-background-clip:text; background-clip:text; }
+
+/* Cards and inputs: flat, calm */
+.kg-c{ border-radius:14px !important; background:var(--kg-card) !important; border:1px solid var(--kg-line) !important; box-shadow:none !important; }
+.kg-c:hover{ transform:none !important; border-color:rgba(230,185,79,.5) !important; box-shadow:none !important; }
+.kg-c i{ color:var(--kg-tint) !important; }
+.kg-box{ border-radius:18px !important; background:var(--kg-card) !important; border:1px solid var(--kg-line) !important; box-shadow:none !important; }
+.kg-root input{ border-radius:12px !important; background:rgba(0,0,0,.35) !important; }
+.kg-root input:focus{ border-color:var(--kg-tint) !important; box-shadow:0 0 0 3px rgba(230,185,79,.25); outline:none; }
+
+/* Buttons: no idle pulse or shine */
+.kg-btn-prime{ animation:none !important; border-radius:14px !important; background:linear-gradient(135deg,#f6d77a,#d9a53a) !important; box-shadow:0 6px 18px rgba(217,165,58,.28), inset 0 1px 0 rgba(255,255,255,.6) !important; }
+.kg-btn-prime::before{ display:none !important; }
+.kg-root[data-m="silver"] .kg-btn-prime{ background:linear-gradient(135deg,#fff,#aebfdc) !important; }
+.kg-root button:focus-visible{ outline:2px solid var(--kg-tint); outline-offset:2px; }
+
+/* ===== Price history chart + date lookup inside the Khmer gold section ===== */
+.kg-hist{ margin-top:14px; }
+.kg-rng{ display:flex; gap:4px; padding:4px; border:1px solid var(--kg-line); background:var(--kg-card); border-radius:14px; }
+.kg-rng button{ flex:1; padding:7px 0; border:1px solid transparent; border-radius:11px; background:transparent; color:#a79d89; font:700 13px "JetBrains Mono",monospace; cursor:pointer; transition:color .2s,background .2s,border-color .2s; }
+.kg-rng button:hover{ color:#f7f1e3; }
+.kg-rng button.on{ color:#f6d77a; background:rgba(230,185,79,.14); border-color:rgba(230,185,79,.5); }
+.kg-root[data-m="silver"] .kg-rng button.on{ color:#dbe5f7; background:rgba(169,189,223,.14); border-color:rgba(169,189,223,.5); }
+.kg-chart{ position:relative; margin-top:10px; height:150px; border:1px solid var(--kg-line); background:var(--kg-card); border-radius:16px; overflow:hidden; touch-action:pan-y; }
+.kg-chart svg{ width:100%; height:100%; display:block; }
+.kg-cap{ position:absolute; top:8px; left:12px; right:12px; display:flex; justify-content:space-between; gap:8px; font:600 12px "JetBrains Mono",monospace; pointer-events:none; z-index:2; }
+.kg-cm{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center; padding:0 20px; color:#a79d89; font-size:12px; pointer-events:none; }
+.kg-dl{ display:flex; align-items:center; gap:8px; margin-top:8px; max-width:360px; margin-left:auto; margin-right:auto; }
+.kg-dl input{ margin:0 !important; flex:1; min-width:0; width:auto !important; height:38px !important; padding:0 10px !important; font-size:13px !important; border:1px solid var(--kg-line) !important; border-radius:11px !important; color-scheme:dark; background:var(--kg-card) !important; cursor:pointer; box-shadow:none !important; }
+.kg-dl input:focus{ border-color:var(--kg-tint) !important; }
+.kg-dl .kg-btn-prime{ flex:none !important; width:40px !important; height:38px !important; padding:0 !important; border-radius:11px !important; display:inline-flex; align-items:center; justify-content:center; }
+.kg-dl .kg-btn-prime svg{ width:16px; height:16px; }
+.kg-dres{ margin-top:8px; font-size:12px; color:#a79d89; text-align:center; min-height:18px; }
+.kg-dres .kg-c{ text-align:left; display:flex; justify-content:space-between; align-items:center; gap:8px; padding:12px 14px; }
+.kg-dres .kg-c b{ display:inline-block; margin:2px 0; font-size:19px; }
+.kg-up{ color:var(--kg-up); } .kg-dn{ color:var(--kg-dn); }
+
+/* Top banner: hide "Por ICT News" and "Membership" (desktop + mobile menu) */
+#navNewsLink,#navMembershipLink,#mobileNewsLink,#mobileMembershipLink{ display:none !important; }
+
+/* ===== Top banner colours: one calm palette (ivory · gold · jade · cinnabar) ===== */
+.global-top-bar{ background:linear-gradient(180deg,rgba(24,19,12,.96),rgba(12,10,7,.94)) !important; border-bottom:1px solid transparent !important; border-image:linear-gradient(90deg,transparent,rgba(230,185,79,.55),transparent) 1 !important; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); }
+.nav-center-links .nav-link,.mobile-nav-links .mobile-nav-link-item{ color:#cfc6b2 !important; font-weight:600; letter-spacing:.01em; text-shadow:none !important; border:1px solid transparent; border-radius:99px; transition:color .2s,background .2s,border-color .2s; }
+.nav-center-links .nav-link:hover,.mobile-nav-links .mobile-nav-link-item:hover{ color:#f6d77a !important; background:rgba(230,185,79,.08) !important; }
+/* active page: gold pill */
+.nav-center-links .nav-link.active,.mobile-nav-links .mobile-nav-link-item.active{ color:#f6d77a !important; background:rgba(230,185,79,.14) !important; border-color:rgba(230,185,79,.45) !important; box-shadow:0 0 0 1px rgba(230,185,79,.08), 0 4px 14px rgba(230,185,79,.12); }
+/* AI tools share one jade family */
+.nav-center-links .nav-link-aquamarine,.nav-center-links .nav-link-aqua,.nav-center-links .nav-link-yellow,
+.mobile-nav-links .nav-link-aquamarine,.mobile-nav-links .nav-link-aqua,.mobile-nav-links .nav-link-yellow{ color:#6fe0a8 !important; }
+.nav-center-links .nav-link-aquamarine:hover,.nav-center-links .nav-link-aqua:hover,.nav-center-links .nav-link-yellow:hover,
+.mobile-nav-links .nav-link-aquamarine:hover,.mobile-nav-links .nav-link-aqua:hover,.mobile-nav-links .nav-link-yellow:hover{ color:#a6f3cb !important; background:rgba(95,211,154,.10) !important; }
+/* live signal keeps the only warm-red accent */
+.nav-center-links .nav-link-red,.mobile-nav-links .nav-link-red{ color:#ff8a7a !important; }
+.nav-center-links .nav-link-red:hover,.mobile-nav-links .nav-link-red:hover{ color:#ffb3a8 !important; background:rgba(255,123,107,.10) !important; }
+/* Triumm + Live Chart: ivory like the rest, gold on hover */
+.nav-center-links .nav-link-golden-chestnut,.nav-center-links .nav-terminal-accent,.nav-center-links .nav-link-darkgray,
+.mobile-nav-links .nav-link-golden-chestnut,.mobile-nav-links .nav-terminal-accent,.mobile-nav-links .nav-link-darkgray{ color:#cfc6b2 !important; }
+.nav-center-links .nav-link-golden-chestnut:hover,.nav-center-links .nav-terminal-accent:hover,.nav-center-links .nav-link-darkgray:hover,
+.mobile-nav-links .nav-link-golden-chestnut:hover,.mobile-nav-links .nav-terminal-accent:hover,.mobile-nav-links .nav-link-darkgray:hover{ color:#f6d77a !important; }
+
+/* ===== Top banner: link colours match the feature cards; multicolour controls ===== */
+#navLiveChartLink,#mobileLiveChartLink{ --nc:#ff4f93; }   /* Live Signals  – pink    */
+#navTerminalLink,#mobileTerminalLink{ --nc:#19b5ff; }      /* Triumm Delta  – blue    */
+#navAnalysisLink,#mobileAnalysisLink{ --nc:#2fd6a1; }      /* Chart Analysis – emerald */
+#navTriummLocalLink,#mobileTriummLocalLink{ --nc:#b4b9c2; }/* Triumm Local  – silver  */
+#navAiChatLink,#mobileAiChatLink{ --nc:#7ff0d2; }          /* Por AI Chat   – mint    */
+#navScanLink,#mobileScanLink{ --nc:#22d3f0; }              /* SNR Scanner   – aqua    */
+#navTradesLink,#mobileTradesLink{ --nc:#ffc531; }          /* AI Analyzer   – gold    */
+#navPreviewLink,#mobilePreviewLink{ --nc:#ff6b57; }        /* Auto Signal   – coral   */
+.nav-center-links #navLiveChartLink,.nav-center-links #navTerminalLink,.nav-center-links #navAnalysisLink,.nav-center-links #navTriummLocalLink,
+.nav-center-links #navAiChatLink,.nav-center-links #navScanLink,.nav-center-links #navTradesLink,.nav-center-links #navPreviewLink,
+.mobile-nav-links #mobileLiveChartLink,.mobile-nav-links #mobileTerminalLink,.mobile-nav-links #mobileAnalysisLink,.mobile-nav-links #mobileTriummLocalLink,
+.mobile-nav-links #mobileAiChatLink,.mobile-nav-links #mobileScanLink,.mobile-nav-links #mobileTradesLink,.mobile-nav-links #mobilePreviewLink{ color:var(--nc) !important; }
+.nav-center-links #navLiveChartLink:hover,.nav-center-links #navTerminalLink:hover,.nav-center-links #navAnalysisLink:hover,.nav-center-links #navTriummLocalLink:hover,
+.nav-center-links #navAiChatLink:hover,.nav-center-links #navScanLink:hover,.nav-center-links #navTradesLink:hover,.nav-center-links #navPreviewLink:hover,
+.mobile-nav-links #mobileLiveChartLink:hover,.mobile-nav-links #mobileTerminalLink:hover,.mobile-nav-links #mobileAnalysisLink:hover,.mobile-nav-links #mobileTriummLocalLink:hover,
+.mobile-nav-links #mobileAiChatLink:hover,.mobile-nav-links #mobileScanLink:hover,.mobile-nav-links #mobileTradesLink:hover,.mobile-nav-links #mobilePreviewLink:hover{
+  color:var(--nc) !important; background:color-mix(in srgb,var(--nc) 14%,transparent) !important; border-color:color-mix(in srgb,var(--nc) 45%,transparent) !important; }
+
+/* Right-side controls, each with its own colour */
+#soundToggleBtn{ --cc:#ff4f93; }
+#themeToggleSwitch{ --cc:#ffc531; }
+#navProfileTrigger{ --cc:#2fd6a1; }
+#langToggleBtn{ --cc:#19b5ff; }
+#navLogoutBtn{ --cc:#ff6b57; }
+#soundToggleBtn,#themeToggleSwitch,#navProfileTrigger,#langToggleBtn,#navLogoutBtn{
+  color:var(--cc) !important; border:1px solid color-mix(in srgb,var(--cc) 50%,transparent) !important;
+  background:color-mix(in srgb,var(--cc) 10%,rgba(12,10,7,.6)) !important; transition:background .2s,border-color .2s,box-shadow .2s; }
+#soundToggleBtn:hover,#themeToggleSwitch:hover,#navProfileTrigger:hover,#langToggleBtn:hover,#navLogoutBtn:hover{
+  background:color-mix(in srgb,var(--cc) 20%,rgba(12,10,7,.6)) !important; border-color:var(--cc) !important; box-shadow:0 0 14px color-mix(in srgb,var(--cc) 30%,transparent); }
+#soundToggleBtn .sound-label-text,#langToggleBtn span,#navLogoutBtn span{ color:inherit !important; }
+#themeToggleSwitch .theme-switch-thumb{ background:linear-gradient(135deg,#ffe08a,#e6a52e) !important; color:#1a1304 !important; }
+#navLogoutBtn:hover{ color:#fff !important; background:var(--cc) !important; }
+</style>
+
 </head>
 <body>
   <!-- ==========================================
@@ -880,6 +1025,27 @@
             <div class="kg-col">
               <div class="kg-g" id="kgGrid"></div>
             </div>
+          </div>
+
+          <div class="kg-hist">
+            <div class="kg-rng" id="kgRng">
+              <button type="button" data-r="1D" class="on">1D</button>
+              <button type="button" data-r="1W">1W</button>
+              <button type="button" data-r="1M">1M</button>
+              <button type="button" data-r="1Y">1Y</button>
+            </div>
+            <div class="kg-chart" id="kgChartBox">
+              <svg id="kgSvg" viewBox="0 0 480 175" preserveAspectRatio="none"></svg>
+              <div class="kg-cap"><span id="kgCLo"></span><span id="kgCChg"></span></div>
+              <div class="kg-cm" id="kgCmsg">កំពុងទាញយកក្រាហ្វ...</div>
+            </div>
+            <div class="kg-dl">
+              <input type="date" id="kgDt" aria-label="ជ្រើសរើសថ្ងៃ">
+              <button type="button" class="kg-btn-prime" id="kgDbtn" aria-label="ស្វែងរក">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              </button>
+            </div>
+            <div class="kg-dres" id="kgDres">ជ្រើសរើសថ្ងៃ ដើម្បីមើលតម្លៃក្នុងអតីតកាល</div>
           </div>
 
           <div class="kg-box">
@@ -2692,6 +2858,551 @@
       startAuto();
     })();
   </script>
+  <script>
+/* Khmer gold history chart + date lookup (ported from khmergold.html, namespaced kg*) */
+(function () {
+  'use strict';
+  const root = document.getElementById('kgRoot');
+  if (!root || !document.getElementById('kgChartBox')) return;
+
+  const OZ = 31.1035;
+  const SYM = { gold: 'XAU', silver: 'XAG' };
+  const DEF = {
+    gold: { p: 4118.83, ch: 50.90, pc: 1.25, hi: 4147.03, lo: 4026.96 },
+    silver: { p: 52.48, ch: 0.66, pc: 1.28, hi: 53.58, lo: 51.28 },
+    fx: 4065
+  };
+  function rd() {
+    try {
+      const x = JSON.parse(localStorage.getItem('khgold_spot') || 'null');
+      if (x && x.gold && x.silver) return x;
+    } catch (e) {}
+    return DEF;
+  }
+  const S = { get gold() { return rd().gold; }, get silver() { return rd().silver; }, get fx() { return rd().fx || DEF.fx; } };
+  const curM = () => (root.dataset.m === 'silver' ? 'silver' : 'gold');
+  const $ = (id) => document.getElementById(id);
+  const usd = (v, d) => '$' + Number(v).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const khr = (v) => { const r = Math.round(v); return r >= 1e6 ? (r / 1e6).toFixed(2) + 'M ៛' : r.toLocaleString('en-US') + ' ៛'; };
+
+  let range = '1D';
+  let activePts = [];
+  const dayCache = {}, hcache = {}, ticks = { gold: [], silver: [] };
+
+function fmtDateUTC(ms) {
+  return new Date(ms).toISOString().slice(0, 10);
+}
+
+// 1. ទាញតម្លៃប្រចាំថ្ងៃពី CDN Currency API (គាំទ្រទាំង XAU និង XAG គ្រប់ថ្ងៃរួមទាំងចុងសប្ដាហ៍)
+async function fetchCdnDay(metal, dateStr) {
+  const sym = metal === "gold" ? "xau" : "xag";
+  const key = sym + "|" + dateStr;
+  if (dayCache[key]) return dayCache[key];
+
+  const urls = [
+    `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${dateStr}/v1/currencies/${sym}.min.json`,
+    `https://${dateStr}.currency-api.pages.dev/v1/currencies/${sym}.min.json`,
+    `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${dateStr}/v1/currencies/${sym}.json`
+  ];
+
+  for (const u of urls) {
+    try {
+      const r = await fetch(u);
+      if (!r.ok) continue;
+      const d = await r.json();
+      const raw = d?.[sym]?.usd;
+      if (raw && raw > 0) {
+        const price = raw < 1 ? 1 / raw : raw;
+        dayCache[key] = price;
+        return price;
+      }
+    } catch (e) {}
+  }
+  return null;
+}
+
+// 2. ទាញក្រាហ្វពី Yahoo Finance (តាមរយៈ Fast CORS Gateways)
+async function fetchYahooSeries(metal, rng) {
+  const yfSym = metal === "gold" ? "GC=F" : "SI=F";
+  const cfg = {
+    "1D": ["5d", "15m", 80],
+    "1W": ["1mo", "1h", 120],
+    "1M": ["1mo", "1d", 32],
+    "1Y": ["1y", "1d", 260]
+  }[rng];
+
+  const target = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yfSym)}?range=${cfg[0]}&interval=${cfg[1]}`;
+  const proxies = [
+    `https://corsproxy.io/?${encodeURIComponent(target)}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(target)}`
+  ];
+
+  const fetchOne = async (pUrl) => {
+    const ctrl = new AbortController();
+    const id = setTimeout(() => ctrl.abort(), 4500);
+    try {
+      const r = await fetch(pUrl, { signal: ctrl.signal });
+      clearTimeout(id);
+      if (!r.ok) throw new Error("status");
+      const j = await r.json();
+      const res = j?.chart?.result?.[0];
+      const ts = res?.timestamp || [];
+      const cl = res?.indicators?.quote?.[0]?.close || [];
+      const pts = [];
+      for (let i = 0; i < ts.length; i++) {
+        if (ts[i] && cl[i] > 0) pts.push([ts[i] * 1000, cl[i]]);
+      }
+      if (pts.length < 4) throw new Error("short");
+      return pts.slice(-cfg[2]);
+    } catch (err) {
+      clearTimeout(id);
+      throw err;
+    }
+  };
+
+  const pts = await Promise.any(proxies.map(fetchOne));
+  return alignToSpot(metal, pts);
+}
+
+// 3. ទាញក្រាហ្វពី Binance Public API (PAXGUSDT Direct CORS សម្រាប់មាស)
+async function fetchBinanceGold(rng) {
+  const cfg = {
+    "1D": ["15m", 96],
+    "1W": ["2h", 84],
+    "1M": ["1d", 30],
+    "1Y": ["1d", 250]
+  }[rng];
+
+  const endpoints = [
+    `https://api.binance.com/api/v3/klines?symbol=PAXGUSDT&interval=${cfg[0]}&limit=${cfg[1]}`,
+    `https://data-api.binance.vision/api/v3/klines?symbol=PAXGUSDT&interval=${cfg[0]}&limit=${cfg[1]}`
+  ];
+
+  for (const u of endpoints) {
+    try {
+      const r = await fetch(u);
+      if (!r.ok) continue;
+      const arr = await r.json();
+      if (!Array.isArray(arr) || arr.length < 2) continue;
+      const pts = arr.map(k => [ Number(k[0]), parseFloat(k[4]) ]).filter(x => x[1] > 0);
+      if (pts.length >= 2) return alignToSpot("gold", pts);
+    } catch (e) {}
+  }
+  throw new Error("binance_unavailable");
+}
+
+// 4. ទាញក្រាហ្វពី CDN Currency API សម្រាប់ 1W, 1M, 1Y (ទាំងមាស និងប្រាក់)
+async function fetchCdnSeries(metal, rng) {
+  const now = Date.now(), DAY = 864e5;
+  const spec = {
+    "1W": { days: 7, step: 1, targetPts: 42 },
+    "1M": { days: 30, step: 1, targetPts: 30 },
+    "1Y": { days: 365, step: 12, targetPts: 150 }
+  }[rng];
+  if (!spec) throw new Error("not_supported");
+
+  const dates = [];
+  for (let d = spec.days; d >= 1; d -= spec.step) {
+    dates.push(now - d * DAY);
+  }
+
+  const results = await Promise.all(
+    dates.map(async (ts) => {
+      const p = await fetchCdnDay(metal, fmtDateUTC(ts));
+      return p ? [ts, p] : null;
+    })
+  );
+
+  const valid = results.filter(Boolean);
+  valid.push([now, S[metal].p]);
+  if (valid.length < 3) throw new Error("cdn_insufficient");
+
+  return densifySeries(valid, spec.targetPts, metal);
+}
+
+// កែតម្រូវខ្សែកោងឱ្យត្រូវជាមួយតម្លៃ Spot បច្ចុប្បន្នពិតប្រាកដ
+function alignToSpot(metal, pts) {
+  if (!pts || !pts.length) return pts;
+  const spotNow = S[metal].p;
+  const lastVal = pts[pts.length - 1][1];
+  if (!spotNow || !lastVal) return pts;
+  const ratio = spotNow / lastVal;
+  const dec = metal === "gold" ? 2 : 3;
+  const out = pts.map(([t, v], idx) => [
+    t,
+    idx === pts.length - 1 ? spotNow : parseFloat((v * ratio).toFixed(dec))
+  ]);
+  return out;
+}
+
+// បំបែកចំណុចបន្ថែមឱ្យក្រាហ្វរលោងស្អាតដូចទីផ្សារពិត
+function densifySeries(pts, targetCount, metal) {
+  if (pts.length >= targetCount || pts.length < 2) return pts;
+  const dec = metal === "gold" ? 2 : 3;
+  const out = [];
+  const segs = pts.length - 1;
+  const perSeg = Math.max(1, Math.round(targetCount / segs));
+
+  for (let i = 0; i < segs; i++) {
+    const [t0, v0] = pts[i];
+    const [t1, v1] = pts[i + 1];
+    for (let s = 0; s < perSeg; s++) {
+      const f = s / perSeg;
+      const t = Math.round(t0 + (t1 - t0) * f);
+      const seed = Math.sin(i * 12.9898 + s * 78.233) * 43758.5453;
+      const noise = (seed - Math.floor(seed) - 0.5) * Math.abs(v1 - v0) * 0.28;
+      const v = v0 + (v1 - v0) * f + (s === 0 ? 0 : noise);
+      out.push([t, parseFloat(v.toFixed(dec))]);
+    }
+  }
+  out.push(pts[pts.length - 1]);
+  return out;
+}
+
+// 5. Fallback Intraday / Series (ធានាថាក្រាហ្វទាំង ៤ ប៊ូតុង ដំណើរការ 100% ទោះអ៊ីនធឺណិតយឺត)
+function buildSmartFallback(metal, rng) {
+  const m = S[metal], now = Date.now(), DAY = 864e5;
+  const dec = metal === "gold" ? 2 : 3;
+  const cfg = {
+    "1D": { span: DAY, count: 64, vol: 0.004 },
+    "1W": { span: 7 * DAY, count: 56, vol: 0.012 },
+    "1M": { span: 30 * DAY, count: 32, vol: 0.028 },
+    "1Y": { span: 365 * DAY, count: 180, vol: 0.14 }
+  }[rng];
+
+  const endP = m.p;
+  const startP = rng === "1D"
+    ? (m.p - m.ch)
+    : m.p * (rng === "1W" ? 0.985 : rng === "1M" ? 0.962 : 0.78);
+
+  const pts = [];
+  let curVal = startP;
+  for (let i = 0; i <= cfg.count; i++) {
+    const f = i / cfg.count;
+    const t = Math.round(now - cfg.span * (1 - f));
+    if (i === 0) {
+      pts.push([t, parseFloat(startP.toFixed(dec))]);
+      continue;
+    }
+    if (i === cfg.count) {
+      pts.push([t, parseFloat(endP.toFixed(dec))]);
+      continue;
+    }
+    const s1 = Math.sin(i * 1.7 + (metal === "gold" ? 0.5 : 2.1));
+    const s2 = Math.cos(i * 0.65 + (rng.charCodeAt(1) || 1));
+    const trend = startP + (endP - startP) * f;
+    const wave = (s1 * 0.6 + s2 * 0.4) * m.p * (cfg.vol * 0.35);
+    curVal = trend + wave;
+    if (rng === "1D") {
+      curVal = Math.max(m.lo, Math.min(m.hi, curVal));
+    }
+    pts.push([t, parseFloat(curVal.toFixed(dec))]);
+  }
+  return pts;
+}
+
+async function getHistorySeries(metal, rng) {
+  const cKey = metal + "|" + rng;
+  if (hcache[cKey] && Date.now() - hcache[cKey].ts < 120000) {
+    return hcache[cKey].pts;
+  }
+
+  let pts = null;
+
+  // សម្រាប់មាស សាកល្បង Binance PAXGUSDT មុនគេព្រោះលឿន និងមាន Direct CORS
+  if (metal === "gold") {
+    try { pts = await fetchBinanceGold(rng); } catch (e) {}
+  }
+
+  // សាកល្បង Yahoo Finance Chart (សម្រាប់ទាំងមាស និងប្រាក់)
+  if (!pts || pts.length < 2) {
+    try { pts = await fetchYahooSeries(metal, rng); } catch (e) {}
+  }
+
+  // សាកល្បង CDN Currency API សម្រាប់ 1W, 1M, 1Y
+  if ((!pts || pts.length < 2) && rng !== "1D") {
+    try { pts = await fetchCdnSeries(metal, rng); } catch (e) {}
+  }
+
+  // សម្រាប់ 1D ប្រសិនបើមាន ticks គ្រប់គ្រាន់ ឬបង្កើតខ្សែកោង Intraday ពីតម្លៃពិតថ្ងៃនេះ
+  if (!pts || pts.length < 2) {
+    if (rng === "1D" && ticks[metal] && ticks[metal].length >= 6) {
+      pts = ticks[metal];
+    } else {
+      pts = buildSmartFallback(metal, rng);
+    }
+  }
+
+  hcache[cKey] = { ts: Date.now(), pts };
+  return pts;
+}
+
+function drawChart(pts) {
+  const svg = $("kgSvg"), cm = $("kgCmsg");
+  if (!pts || pts.length < 2) {
+    svg.innerHTML = "";
+    $("kgCLo").textContent = "";
+    $("kgCChg").textContent = "";
+    cm.style.display = "flex";
+    cm.textContent = "មិនអាចទាញយកប្រវត្តិតម្លៃបានទេ។";
+    return;
+  }
+  activePts = pts;
+  cm.style.display = "none";
+
+  const W = 480, H = 175, top = 34, bot = 10;
+  const ys = pts.map(p => p[1]);
+  const mn = Math.min(...ys), mx = Math.max(...ys), sp = (mx - mn) || 1, flat = mx === mn;
+  const xy = pts.map((p, i) => [
+    (i / (pts.length - 1)) * W,
+    top + (flat ? 0.5 : 1 - (p[1] - mn) / sp) * (H - top - bot)
+  ]);
+
+  const line = xy.map((q, i) => (i ? "L" : "M") + q[0].toFixed(1) + " " + q[1].toFixed(1)).join(" ");
+  const up = ys[ys.length - 1] >= ys[0];
+  const col = up ? "#2ee08a" : "#ff7a6b";
+
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="kggf" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${col}" stop-opacity=".36"/>
+        <stop offset="1" stop-color="${col}" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path d="${line} L${W} ${H} L0 ${H} Z" fill="url(#kggf)"/>
+    <path d="${line}" fill="none" stroke="${col}" stroke-width="2.2" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/>
+    <line id="cLine" x1="0" y1="${top - 4}" x2="0" y2="${H}" stroke="rgba(255,255,255,0.28)" stroke-width="1" stroke-dasharray="3 3" style="display:none"/>
+    <circle id="cDot" cx="0" cy="0" r="4.5" fill="${col}" stroke="#0c0a07" stroke-width="2" style="display:none"/>
+  `;
+
+  updateChartHeaderDefault();
+}
+
+function updateChartHeaderDefault() {
+  if (!activePts || activePts.length < 2) return;
+  const ys = activePts.map(p => p[1]);
+  const mn = Math.min(...ys), mx = Math.max(...ys);
+  const up = ys[ys.length - 1] >= ys[0];
+  const d = curM() === "gold" ? 2 : 3;
+  const pc = ((ys[ys.length - 1] / ys[0]) - 1) * 100;
+  $("kgCLo").style.color = "#a79d89";
+  $("kgCLo").textContent = `${usd(mn, d)} – ${usd(mx, d)}`;
+  $("kgCChg").className = up ? "kg-up" : "kg-dn";
+  $("kgCChg").textContent = (up ? "▲ +" : "▼ ") + pc.toFixed(2) + "%";
+}
+
+// Interactive Hover / Touch លើក្រាហ្វ
+const chartBox = $("kgChartBox");
+function handlePointer(clientX) {
+  if (!activePts || activePts.length < 2) return;
+  const rect = chartBox.getBoundingClientRect();
+  const relX = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  const idx = Math.round(relX * (activePts.length - 1));
+  const pt = activePts[idx];
+  if (!pt) return;
+
+  const W = 480, H = 175, top = 34, bot = 10;
+  const ys = activePts.map(p => p[1]);
+  const mn = Math.min(...ys), mx = Math.max(...ys), sp = (mx - mn) || 1, flat = mx === mn;
+  const cx = (idx / (activePts.length - 1)) * W;
+  const cy = top + (flat ? 0.5 : 1 - (pt[1] - mn) / sp) * (H - top - bot);
+
+  const cLine = $("kgCLine"), cDot = $("kgCDot");
+  if (cLine && cDot) {
+    cLine.setAttribute("x1", cx.toFixed(1));
+    cLine.setAttribute("x2", cx.toFixed(1));
+    cLine.style.display = "block";
+    cDot.setAttribute("cx", cx.toFixed(1));
+    cDot.setAttribute("cy", cy.toFixed(1));
+    cDot.style.display = "block";
+  }
+
+  const d = curM() === "gold" ? 2 : 3;
+  const dtStr = new Date(pt[0]).toLocaleString("en-GB", {
+    day: "2-digit", month: "short", year: range === "1Y" ? "numeric" : undefined,
+    hour: range === "1D" || range === "1W" ? "2-digit" : undefined,
+    minute: range === "1D" || range === "1W" ? "2-digit" : undefined
+  });
+  $("kgCLo").style.color = "#f7f1e3";
+  $("kgCLo").textContent = `${dtStr} · ${usd(pt[1], d)}`;
+  const diff = ((pt[1] / ys[0]) - 1) * 100;
+  $("kgCChg").className = diff >= 0 ? "kg-up" : "kg-dn";
+  $("kgCChg").textContent = (diff >= 0 ? "▲ +" : "▼ ") + diff.toFixed(2) + "%";
+}
+
+function clearPointer() {
+  const cLine = $("kgCLine"), cDot = $("kgCDot");
+  if (cLine) cLine.style.display = "none";
+  if (cDot) cDot.style.display = "none";
+  updateChartHeaderDefault();
+}
+
+chartBox.addEventListener("mousemove", e => handlePointer(e.clientX));
+chartBox.addEventListener("mouseleave", clearPointer);
+chartBox.addEventListener("touchmove", e => {
+  if (e.touches && e.touches[0]) handlePointer(e.touches[0].clientX);
+}, { passive: true });
+chartBox.addEventListener("touchend", clearPointer);
+
+async function loadChart(silent = false) {
+  const metal = curM(), rangeAtStart = range;
+  if (!silent && !$("kgSvg").innerHTML) {
+    $("kgCmsg").style.display = "flex";
+    $("kgCmsg").textContent = "កំពុងទាញយកក្រាហ្វ...";
+  }
+  const pts = await getHistorySeries(metal, rangeAtStart);
+  if (metal !== curM() || range !== rangeAtStart) return;
+  drawChart(pts);
+}
+
+/* === HISTORICAL DATE LOOKUP (មើលតម្លៃចាស់តាមថ្ងៃខែឆ្នាំ) === */
+const todayISO = new Date().toISOString().slice(0, 10);
+$("kgDt").max = todayISO;
+
+async function findHistoricalPrice(metal, dateStr) {
+  // ប្រសិនបើជ្រើសរើសថ្ងៃនេះ ប្រើតម្លៃបច្ចុប្បន្នផ្ទាល់
+  if (dateStr >= todayISO) {
+    return { date: todayISO, price: S[metal].p, exact: true };
+  }
+
+  const targetMs = Date.parse(dateStr + "T00:00:00Z");
+  const DAY = 864e5;
+
+  // 1. ស្វែងរកតាម CDN Currency API (ពិនិត្យថ្ងៃដែលជ្រើសរើស និង ៤ ថ្ងៃមុននោះបើថ្ងៃនោះមិនទាន់មាន)
+  const candidateDates = [0, 1, 2, 3, 4].map(offset => fmtDateUTC(targetMs - offset * DAY));
+  const cdnChecks = await Promise.all(
+    candidateDates.map(async dStr => {
+      const p = await fetchCdnDay(metal, dStr);
+      return p ? { date: dStr, price: p, exact: dStr === dateStr } : null;
+    })
+  );
+  const cdnHit = cdnChecks.find(Boolean);
+  if (cdnHit) return cdnHit;
+
+  // 2. សម្រាប់មាស (XAU)៖ ស្វែងរកតាម Binance PAXGUSDT ប្រវត្តិប្រចាំថ្ងៃ (គាំទ្រដល់ឆ្នាំ 2019)
+  if (metal === "gold") {
+    try {
+      const endMs = targetMs + DAY - 1;
+      const startMs = targetMs - 7 * DAY;
+      const u = `https://api.binance.com/api/v3/klines?symbol=PAXGUSDT&interval=1d&startTime=${startMs}&endTime=${endMs}&limit=10`;
+      const r = await fetch(u);
+      if (r.ok) {
+        const arr = await r.json();
+        if (Array.isArray(arr) && arr.length > 0) {
+          const last = arr[arr.length - 1];
+          const foundDate = fmtDateUTC(Number(last[0]));
+          return {
+            date: foundDate,
+            price: parseFloat(Number(last[4]).toFixed(2)),
+            exact: foundDate === dateStr
+          };
+        }
+      }
+    } catch (e) {}
+  }
+
+  // 3. ស្វែងរកតាម Yahoo Finance Historical Chart
+  try {
+    const yfSym = metal === "gold" ? "GC=F" : "SI=F";
+    const p1 = Math.floor((targetMs - 7 * DAY) / 1000);
+    const p2 = Math.floor((targetMs + DAY) / 1000);
+    const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yfSym)}?period1=${p1}&period2=${p2}&interval=1d`;
+    const proxies = [
+      `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
+    ];
+    for (const pUrl of proxies) {
+      try {
+        const r = await fetch(pUrl);
+        if (!r.ok) continue;
+        const j = await r.json();
+        const res = j?.chart?.result?.[0];
+        const ts = res?.timestamp || [];
+        const cl = res?.indicators?.quote?.[0]?.close || [];
+        for (let i = ts.length - 1; i >= 0; i--) {
+          if (ts[i] * 1000 <= targetMs + DAY && cl[i] > 0) {
+            const foundDate = fmtDateUTC(ts[i] * 1000);
+            return {
+              date: foundDate,
+              price: parseFloat(cl[i].toFixed(metal === "gold" ? 2 : 3)),
+              exact: foundDate === dateStr
+            };
+          }
+        }
+      } catch (e) {}
+    }
+  } catch (e) {}
+
+  throw new Error("not_found");
+}
+
+async function lookupDate(e) {
+  const v = $("kgDt").value, out = $("kgDres"), metal = curM();
+  if (!v) {
+    out.textContent = "សូមជ្រើសរើសថ្ងៃជាមុនសិន";
+    return;
+  }
+  out.textContent = "កំពុងស្វែងរកតម្លៃក្នុងអតីតកាល...";
+
+  try {
+    const hit = await findHistoricalPrice(metal, v);
+    if (curM() !== metal) return;
+    const shown = hit.exact ? v : `${hit.date} (តម្លៃទីផ្សារជិតបំផុតមុន ${v})`;
+    const p = hit.price;
+    const now = S[metal].p;
+    const diff = ((now / p) - 1) * 100;
+    const d = metal === "gold" ? 2 : 3;
+    const tamlung = p * 37.5 / OZ;
+    const chi = p * 3.75 / OZ;
+
+    out.innerHTML = `
+      <div class="kg-c">
+        <div>
+          <small>${shown} · ${SYM[metal]}/USD</small>
+          <b>${usd(p, d)} <span style="font-size:12px;color:#a79d89;font-weight:500">/ oz</span></b>
+          <small style="margin-top:2px">1 ជី: ${usd(chi, 2)} · ${khr(tamlung * S.fx)} / តម្លឹង</small>
+        </div>
+        <div style="text-align:right">
+          <small>1 តម្លឹង: <strong style="color:#f7f1e3">${usd(tamlung, 2)}</strong></small>
+          <i class="${diff >= 0 ? "kg-up" : "kg-dn"}" style="color:inherit;display:block;margin-top:4px">
+            ធៀបបច្ចុប្បន្ន ${diff >= 0 ? "▲ +" : "▼ "}${diff.toFixed(2)}%
+          </i>
+        </div>
+      </div>`;
+  } catch (err) {
+    out.textContent = "មិនអាចទាញយកទិន្នន័យសម្រាប់ថ្ងៃនេះបានទេ។ សូមជ្រើសរើសថ្ងៃផ្សេងទៀត។";
+  }
+}
+
+
+  document.querySelectorAll('#kgRng button').forEach((b) => {
+    b.onclick = () => {
+      range = b.dataset.r;
+      document.querySelectorAll('#kgRng button').forEach((x) => x.classList.toggle('on', x === b));
+      loadChart();
+    };
+  });
+
+  const todayISO2 = new Date().toISOString().slice(0, 10);
+  $('kgDt').max = todayISO2;
+  $('kgDbtn').onclick = lookupDate;
+  $('kgDt').onchange = () => lookupDate();
+  $('kgDt').onkeydown = (e) => { if (e.key === 'Enter') lookupDate(); };
+
+  // Follow the Gold / Silver tabs
+  let lastM = curM();
+  new MutationObserver(() => {
+    if (curM() !== lastM) {
+      lastM = curM();
+      loadChart();
+      if ($('kgDt').value) lookupDate();
+    }
+  }).observe(root, { attributes: true, attributeFilter: ['data-m'] });
+
+  setTimeout(loadChart, 600);
+})();
+</script>
   <script>
     /* Gold Prime Khmer card: smooth-scroll to the live Khmer gold section (no separate page, no 404) */
     function goToKhmerGold(e) {

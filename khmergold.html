@@ -577,6 +577,70 @@ body[data-m="silver"] .btn-prime {
 #msg { font-size: 12px; color: var(--mut); margin-top: 9px; min-height: 16px; }
 .note { font-size: 11px; color: var(--mut); margin-top: 12px; line-height: 1.55; text-align: center; }
 </style>
+<!-- DESIGN REFRESH: gold-leaf on lacquer -->
+<link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style id="design-refresh">
+/* Tokens: lacquer #0c0a07 · gold leaf #e6b94f · silver #cdd8ea · jade #5fd39a · cinnabar #ff7b6b */
+:root{
+  --bg:#0c0a07; --card:rgba(30,24,16,.62); --line:rgba(255,236,190,.11);
+  --txt:#f7f1e3; --mut:#a79d89; --gold:#f0c660; --acc:#e6b94f; --tint:#e6b94f;
+  --up:#5fd39a; --dn:#ff7b6b;
+  --orb1:rgba(230,185,79,.20); --orb2:rgba(200,120,40,.12); --orb3:rgba(95,211,154,.07);
+}
+body[data-m="silver"]{ --tint:#a9bddf; --acc:#cdd8ea; --orb1:rgba(150,175,225,.20); --orb2:rgba(120,150,210,.12); --orb3:rgba(190,170,230,.08); }
+body{ font-family:"Kantumruy Pro","Noto Sans Khmer",system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+::selection{ background:color-mix(in srgb,var(--tint) 45%,transparent); color:#fff; }
+
+/* Quieter background: one soft glow, no tilted grid */
+.bg-wrap{ background:radial-gradient(120% 70% at 50% -10%, #231a0c 0%, #0c0a07 65%); }
+.bg-grid{ opacity:.35; animation:none; }
+.orb{ filter:blur(90px); opacity:.7; animation-duration:40s !important; }
+
+/* Tabs: one segmented control */
+.tabs{ gap:0; padding:4px; background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:16px; }
+.tabs button{ background:transparent; border:0; border-radius:12px; backdrop-filter:none; font:600 15px "Kantumruy Pro","Noto Sans Khmer",sans-serif; color:var(--mut); }
+.tabs button:hover{ transform:none; color:var(--txt); }
+.tabs button.on{ color:#1a1304; box-shadow:0 4px 16px color-mix(in srgb,var(--tint) 35%,transparent); }
+#tg.on{ background:linear-gradient(135deg,#f6d77a,#d9a53a); }
+#ts.on{ background:linear-gradient(135deg,#f4f8ff,#aebfdc); }
+
+/* Hero: the memorable element — engraved gold-leaf price */
+.hero-card{ border-radius:24px; padding:26px 16px 18px; background:linear-gradient(180deg,rgba(40,31,18,.72),rgba(20,16,10,.6));
+  border:1px solid color-mix(in srgb,var(--tint) 38%,var(--line));
+  box-shadow:0 18px 44px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,240,200,.14); }
+.hero-card::after{ display:none; }
+.big{ font-size:clamp(40px,12vw,54px); letter-spacing:-.02em; font-weight:700;
+  background:linear-gradient(180deg,#fff3c4 0%,#f0c660 48%,#b9842a 100%);
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; text-shadow:none;
+  filter:drop-shadow(0 2px 18px color-mix(in srgb,var(--tint) 30%,transparent)); }
+body[data-m="silver"] .big{ background:linear-gradient(180deg,#ffffff 0%,#cdd8ea 50%,#8497bb 100%); -webkit-background-clip:text; background-clip:text; }
+.live-badge{ font-size:12px; }
+
+/* Cards: flat, calm, readable */
+.c{ border-radius:14px; background:var(--card); border:1px solid var(--line); box-shadow:none; padding:14px 10px; }
+.c:hover{ transform:none; border-color:color-mix(in srgb,var(--tint) 55%,var(--line)); box-shadow:none; }
+.c small{ color:var(--mut); }
+.c i{ color:var(--acc); }
+.box{ border-radius:18px; background:var(--card); border:1px solid var(--line); box-shadow:none; }
+input{ border-radius:12px; background:rgba(0,0,0,.35); }
+input:focus{ box-shadow:0 0 0 3px color-mix(in srgb,var(--tint) 25%,transparent); }
+
+/* Buttons: no idle pulse or shine */
+.btn-prime{ animation:none; border-radius:14px; background:linear-gradient(135deg,#f6d77a,#d9a53a); box-shadow:0 6px 18px rgba(217,165,58,.28), inset 0 1px 0 rgba(255,255,255,.6); }
+.btn-prime::before{ display:none; }
+.btn-prime:hover{ transform:translateY(-1px); }
+.btn-prime:active{ transform:scale(.98); }
+body[data-m="silver"] .btn-prime{ background:linear-gradient(135deg,#ffffff,#aebfdc); box-shadow:0 6px 18px rgba(150,175,225,.28), inset 0 1px 0 #fff; }
+
+/* Keyboard focus + back link */
+button:focus-visible,input:focus-visible,a:focus-visible{ outline:2px solid var(--tint); outline-offset:2px; }
+body > a[href="index.html"]{ transition:border-color .2s,background .2s; }
+body > a[href="index.html"]:hover{ border-color:var(--tint) !important; background:rgba(30,24,16,.85) !important; }
+.note{ font-size:12px; }
+
+@media (prefers-reduced-motion:reduce){ *,*::before,*::after{ animation:none !important; transition:none !important; } }
+</style>
+
 </head>
 <body>
 <a href="index.html" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:12px;z-index:5;padding:8px 14px;border-radius:99px;background:rgba(21,29,54,.7);border:1px solid rgba(255,255,255,.15);color:#f0f4ff;font:600 13px 'Noto Sans Khmer',system-ui,sans-serif;text-decoration:none;backdrop-filter:blur(10px)">← Por ICT</a>
