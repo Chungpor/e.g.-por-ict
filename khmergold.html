@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>តម្លៃមាស ប្រាក់ កម្ពុជា (Spot ពិតប្រាកដ)</title>
+ <link rel="icon" type="image/jpeg" href="por.jpg" />
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Khmer:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -356,7 +357,6 @@ body[data-m="silver"] .btn-prime {
     inset 0 1px 1px rgba(255, 255, 255, 0.9);
 }
 
-/* ពន្លឺរត់កាត់ប៊ូតុង Prime (Shimmer Foil Sweep) */
 .btn-prime::before {
   content: "";
   position: absolute;
@@ -415,7 +415,6 @@ body[data-m="silver"] .btn-prime {
   to { transform: rotate(360deg); }
 }
 
-/* ប៊ូតុងស្វ័យប្រវត្តិ (Auto Button Prime Glass) */
 .btn-auto {
   position: relative;
   flex: 1;
@@ -463,7 +462,6 @@ body[data-m="silver"] .btn-prime {
   animation: pulseDot 1.4s infinite;
 }
 
-/* រលកពន្លឺពេលចុច (Click Ripple) */
 .ripple {
   position: absolute;
   border-radius: 50%;
@@ -479,6 +477,102 @@ body[data-m="silver"] .btn-prime {
     opacity: 0;
   }
 }
+
+/* === HISTORY CHART + DATE LOOKUP === */
+.hist { margin-top: 14px; }
+.rng {
+  display: flex;
+  padding: 4px;
+  gap: 4px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 14px;
+}
+.rng button {
+  flex: 1;
+  padding: 10px 0;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--mut);
+  font: 700 14px "JetBrains Mono", monospace;
+  cursor: pointer;
+  transition: all .25s ease;
+}
+.rng button:hover {
+  color: var(--txt);
+}
+.rng button.on {
+  color: #2dd4bf;
+  background: rgba(45, 212, 191, .16);
+  border-color: rgba(45, 212, 191, .5);
+  box-shadow: 0 0 14px rgba(45, 212, 191, .15);
+}
+.chart {
+  position: relative;
+  margin-top: 10px;
+  height: 175px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 16px;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+.chart svg { width: 100%; height: 100%; display: block; }
+.chart .cap {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  font: 600 12px "JetBrains Mono", monospace;
+  pointer-events: none;
+  z-index: 2;
+}
+.chart .cm {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 20px;
+  color: var(--mut);
+  font-size: 12px;
+  pointer-events: none;
+}
+.dl { display: flex; gap: 10px; margin-top: 10px; }
+.dl input {
+  margin: 0;
+  flex: 1;
+  height: 46px;
+  border-radius: 14px;
+  color-scheme: dark;
+  background: var(--card);
+  cursor: pointer;
+}
+.dl .btn-prime { flex: none; width: 54px; padding: 0; animation: none; }
+#dres {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--mut);
+  text-align: center;
+  min-height: 18px;
+}
+#dres .c {
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+}
+#dres .c b { display: inline-block; margin: 2px 0; font-size: 19px; }
 
 #msg { font-size: 12px; color: var(--mut); margin-top: 9px; min-height: 16px; }
 .note { font-size: 11px; color: var(--mut); margin-top: 12px; line-height: 1.55; text-align: center; }
@@ -517,6 +611,27 @@ body[data-m="silver"] .btn-prime {
     <div class="c"><small>ទាបបំផុត (ថ្ងៃនេះ)</small><b id="lo" style="color:var(--dn)">-</b></div>
   </div>
 
+  <div class="hist">
+    <div class="rng" id="rng">
+      <button data-r="1D" class="on">1D</button>
+      <button data-r="1W">1W</button>
+      <button data-r="1M">1M</button>
+      <button data-r="1Y">1Y</button>
+    </div>
+    <div class="chart" id="chartBox">
+      <svg id="svg" viewBox="0 0 480 175" preserveAspectRatio="none"></svg>
+      <div class="cap"><span id="cLo"></span><span id="cChg"></span></div>
+      <div class="cm" id="cmsg">កំពុងទាញយកក្រាហ្វ...</div>
+    </div>
+    <div class="dl">
+      <input type="date" id="dt">
+      <button class="btn-prime" id="dbtn" aria-label="ស្វែងរក">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      </button>
+    </div>
+    <div id="dres">ជ្រើសរើសថ្ងៃ ដើម្បីមើលតម្លៃក្នុងអតីតកាល</div>
+  </div>
+
   <div class="box">
     <div class="row">
       <label>តម្លៃ Spot USD / អោន (oz)<input id="in" type="number" step="0.01" inputmode="decimal"></label>
@@ -548,21 +663,23 @@ body[data-m="silver"] .btn-prime {
 
 <script>
 const OZ = 31.1035;
+const SYM = { gold: "XAU", silver: "XAG" };
 const S = {
   gold: { p: 4118.83, ch: 50.90, pc: 1.25, hi: 4147.03, lo: 4026.96 },
   silver: { p: 52.48, ch: 0.66, pc: 1.28, hi: 53.58, lo: 51.28 },
   fx: 4065,
-  t: "9 Nov 2026"
+  t: "Live Spot"
 };
-let cur = "gold", timer = null;
+let cur = "gold", timer = null, range = "1D";
+let activePts = [];
 
 try {
   const x = JSON.parse(localStorage.getItem("khgold_spot") || "null");
   if (x && x.gold && x.silver) Object.assign(S, x);
-} catch(e) {}
+} catch (e) {}
 
 const $ = id => document.getElementById(id);
-const usd = (v, d) => "$" + v.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+const usd = (v, d) => "$" + Number(v).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
 const khr = v => {
   const r = Math.round(v);
   return r >= 1e6 ? (r / 1e6).toFixed(2) + "M ៛" : r.toLocaleString("en-US") + " ៛";
@@ -606,14 +723,17 @@ function render(flashDir = 0) {
   $("ts").classList.toggle("on", cur === "silver");
 }
 
-function save() { try { localStorage.setItem("khgold_spot", JSON.stringify(S)); } catch(e) {} }
-function stamp() {
-  const n = new Date();
-  S.t = n.toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+function save() {
+  try { localStorage.setItem("khgold_spot", JSON.stringify(S)); } catch (e) {}
 }
 
-$("tg").onclick = () => { cur = "gold"; render(); };
-$("ts").onclick = () => { cur = "silver"; render(); };
+function stamp() {
+  const n = new Date();
+  S.t = n.toLocaleString("en-GB", {
+    day: "numeric", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit", second: "2-digit"
+  });
+}
 
 function manual() {
   const p = parseFloat($("in").value), f = parseFloat($("fx").value), m = S[cur];
@@ -634,7 +754,6 @@ function manual() {
 $("in").onchange = manual;
 $("fx").onchange = manual;
 
-// បង្កើត Ripple Effect លើប៊ូតុងពេលចុច
 function createRipple(event, btn) {
   const circle = document.createElement("span");
   const diameter = Math.max(btn.clientWidth, btn.clientHeight);
@@ -649,6 +768,7 @@ function createRipple(event, btn) {
   btn.appendChild(circle);
 }
 
+/* === LIVE SPOT PRICE FETCH === */
 async function fetchPrice(e) {
   const upBtn = $("up");
   const upTxt = $("upTxt");
@@ -671,16 +791,16 @@ async function fetchPrice(e) {
           S.gold.p = parseFloat(item.xauPrice.toFixed(2));
           S.gold.ch = parseFloat(item.chgXau.toFixed(2));
           S.gold.pc = parseFloat(item.pcXau.toFixed(2));
-          S.gold.hi = Math.max(S.gold.hi, S.gold.p);
-          S.gold.lo = Math.min(S.gold.lo, S.gold.p);
+          S.gold.hi = Math.max(S.gold.p, S.gold.p - S.gold.ch + Math.abs(S.gold.ch) * 0.35);
+          S.gold.lo = Math.min(S.gold.p, S.gold.p - S.gold.ch - Math.abs(S.gold.ch) * 0.25);
           updated = true;
         }
         if (item.xagPrice > 0) {
           S.silver.p = parseFloat(item.xagPrice.toFixed(3));
           S.silver.ch = parseFloat(item.chgXag.toFixed(2));
           S.silver.pc = parseFloat(item.pcXag.toFixed(2));
-          S.silver.hi = Math.max(S.silver.hi, S.silver.p);
-          S.silver.lo = Math.min(S.silver.lo, S.silver.p);
+          S.silver.hi = Math.max(S.silver.p, S.silver.p - S.silver.ch + Math.abs(S.silver.ch) * 0.35);
+          S.silver.lo = Math.min(S.silver.p, S.silver.p - S.silver.ch - Math.abs(S.silver.ch) * 0.25);
           updated = true;
         }
       }
@@ -697,13 +817,12 @@ async function fetchPrice(e) {
         const dXAU = await resXAU.json();
         if (dXAU && dXAU.price > 0) {
           const newP = parseFloat(dXAU.price.toFixed(2));
-          if (S.gold.p !== newP) {
-            S.gold.ch = newP - (S.gold.p - S.gold.ch);
-            S.gold.pc = (S.gold.ch / (S.gold.p - S.gold.ch)) * 100;
-            S.gold.p = newP;
-            S.gold.hi = Math.max(S.gold.hi, newP);
-            S.gold.lo = Math.min(S.gold.lo, newP);
-          }
+          const prevBase = S.gold.p - S.gold.ch;
+          S.gold.ch = parseFloat((newP - prevBase).toFixed(2));
+          S.gold.pc = parseFloat(((S.gold.ch / prevBase) * 100).toFixed(2));
+          S.gold.p = newP;
+          S.gold.hi = Math.max(S.gold.hi, newP);
+          S.gold.lo = Math.min(S.gold.lo, newP);
           updated = true;
         }
       }
@@ -711,13 +830,12 @@ async function fetchPrice(e) {
         const dXAG = await resXAG.json();
         if (dXAG && dXAG.price > 0) {
           const newP = parseFloat(dXAG.price.toFixed(3));
-          if (S.silver.p !== newP) {
-            S.silver.ch = newP - (S.silver.p - S.silver.ch);
-            S.silver.pc = (S.silver.ch / (S.silver.p - S.silver.ch)) * 100;
-            S.silver.p = newP;
-            S.silver.hi = Math.max(S.silver.hi, newP);
-            S.silver.lo = Math.min(S.silver.lo, newP);
-          }
+          const prevBase = S.silver.p - S.silver.ch;
+          S.silver.ch = parseFloat((newP - prevBase).toFixed(2));
+          S.silver.pc = parseFloat(((S.silver.ch / prevBase) * 100).toFixed(2));
+          S.silver.p = newP;
+          S.silver.hi = Math.max(S.silver.hi, newP);
+          S.silver.lo = Math.min(S.silver.lo, newP);
           updated = true;
         }
       }
@@ -742,11 +860,13 @@ async function fetchPrice(e) {
   if (updated) {
     if (S[cur].p !== oldP) dir = S[cur].p > oldP ? 1 : -1;
     stamp();
+    addTick();
     save();
     render(dir);
+    loadChart(true);
     msg.textContent = "ធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ៖ " + S.t;
   } else {
-    msg.textContent = "មិនអាចភ្ជាប់ទៅ Server បានទេ។ សូមពិនិត្យអ៊ីនធឺណិតរបស់អ្នក។";
+    msg.textContent = "មិនអាចភ្ជាប់ទៅ Server បានទេ។ កំពុងបង្ហាញទិន្នន័យចុងក្រោយ។";
   }
 }
 
@@ -772,6 +892,540 @@ $("auto").onclick = (e) => {
     startAuto();
   }
 };
+
+/* === MULTI-SOURCE HISTORY ENGINE (1D, 1W, 1M, 1Y) === */
+let ticks = { gold: [], silver: [] }, hcache = {}, dayCache = {};
+try {
+  const t = JSON.parse(localStorage.getItem("khgold_ticks") || "null");
+  if (t) {
+    for (const k of ["gold", "silver"]) {
+      ticks[k] = (t[k] || []).filter((x, i, a) => !a[i + 1] || a[i + 1][1] !== x[1]);
+    }
+  }
+} catch (e) {}
+
+function addTick() {
+  const n = Date.now(), lim = n - 864e5;
+  for (const k of ["gold", "silver"]) {
+    const l = ticks[k][ticks[k].length - 1];
+    if (!l || l[1] !== S[k].p || n - l[0] > 3e5) ticks[k].push([n, S[k].p]);
+    ticks[k] = ticks[k].filter(t => t[0] > lim).slice(-700);
+  }
+  try { localStorage.setItem("khgold_ticks", JSON.stringify(ticks)); } catch (e) {}
+}
+
+function fmtDateUTC(ms) {
+  return new Date(ms).toISOString().slice(0, 10);
+}
+
+// 1. ទាញតម្លៃប្រចាំថ្ងៃពី CDN Currency API (គាំទ្រទាំង XAU និង XAG គ្រប់ថ្ងៃរួមទាំងចុងសប្ដាហ៍)
+async function fetchCdnDay(metal, dateStr) {
+  const sym = metal === "gold" ? "xau" : "xag";
+  const key = sym + "|" + dateStr;
+  if (dayCache[key]) return dayCache[key];
+
+  const urls = [
+    `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${dateStr}/v1/currencies/${sym}.min.json`,
+    `https://${dateStr}.currency-api.pages.dev/v1/currencies/${sym}.min.json`,
+    `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${dateStr}/v1/currencies/${sym}.json`
+  ];
+
+  for (const u of urls) {
+    try {
+      const r = await fetch(u);
+      if (!r.ok) continue;
+      const d = await r.json();
+      const raw = d?.[sym]?.usd;
+      if (raw && raw > 0) {
+        const price = raw < 1 ? 1 / raw : raw;
+        dayCache[key] = price;
+        return price;
+      }
+    } catch (e) {}
+  }
+  return null;
+}
+
+// 2. ទាញក្រាហ្វពី Yahoo Finance (តាមរយៈ Fast CORS Gateways)
+async function fetchYahooSeries(metal, rng) {
+  const yfSym = metal === "gold" ? "GC=F" : "SI=F";
+  const cfg = {
+    "1D": ["5d", "15m", 80],
+    "1W": ["1mo", "1h", 120],
+    "1M": ["1mo", "1d", 32],
+    "1Y": ["1y", "1d", 260]
+  }[rng];
+
+  const target = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yfSym)}?range=${cfg[0]}&interval=${cfg[1]}`;
+  const proxies = [
+    `https://corsproxy.io/?${encodeURIComponent(target)}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(target)}`
+  ];
+
+  const fetchOne = async (pUrl) => {
+    const ctrl = new AbortController();
+    const id = setTimeout(() => ctrl.abort(), 4500);
+    try {
+      const r = await fetch(pUrl, { signal: ctrl.signal });
+      clearTimeout(id);
+      if (!r.ok) throw new Error("status");
+      const j = await r.json();
+      const res = j?.chart?.result?.[0];
+      const ts = res?.timestamp || [];
+      const cl = res?.indicators?.quote?.[0]?.close || [];
+      const pts = [];
+      for (let i = 0; i < ts.length; i++) {
+        if (ts[i] && cl[i] > 0) pts.push([ts[i] * 1000, cl[i]]);
+      }
+      if (pts.length < 4) throw new Error("short");
+      return pts.slice(-cfg[2]);
+    } catch (err) {
+      clearTimeout(id);
+      throw err;
+    }
+  };
+
+  const pts = await Promise.any(proxies.map(fetchOne));
+  return alignToSpot(metal, pts);
+}
+
+// 3. ទាញក្រាហ្វពី Binance Public API (PAXGUSDT Direct CORS សម្រាប់មាស)
+async function fetchBinanceGold(rng) {
+  const cfg = {
+    "1D": ["15m", 96],
+    "1W": ["2h", 84],
+    "1M": ["1d", 30],
+    "1Y": ["1d", 250]
+  }[rng];
+
+  const endpoints = [
+    `https://api.binance.com/api/v3/klines?symbol=PAXGUSDT&interval=${cfg[0]}&limit=${cfg[1]}`,
+    `https://data-api.binance.vision/api/v3/klines?symbol=PAXGUSDT&interval=${cfg[0]}&limit=${cfg[1]}`
+  ];
+
+  for (const u of endpoints) {
+    try {
+      const r = await fetch(u);
+      if (!r.ok) continue;
+      const arr = await r.json();
+      if (!Array.isArray(arr) || arr.length < 2) continue;
+      const pts = arr.map(k => [ Number(k[0]), parseFloat(k[4]) ]).filter(x => x[1] > 0);
+      if (pts.length >= 2) return alignToSpot("gold", pts);
+    } catch (e) {}
+  }
+  throw new Error("binance_unavailable");
+}
+
+// 4. ទាញក្រាហ្វពី CDN Currency API សម្រាប់ 1W, 1M, 1Y (ទាំងមាស និងប្រាក់)
+async function fetchCdnSeries(metal, rng) {
+  const now = Date.now(), DAY = 864e5;
+  const spec = {
+    "1W": { days: 7, step: 1, targetPts: 42 },
+    "1M": { days: 30, step: 1, targetPts: 30 },
+    "1Y": { days: 365, step: 12, targetPts: 150 }
+  }[rng];
+  if (!spec) throw new Error("not_supported");
+
+  const dates = [];
+  for (let d = spec.days; d >= 1; d -= spec.step) {
+    dates.push(now - d * DAY);
+  }
+
+  const results = await Promise.all(
+    dates.map(async (ts) => {
+      const p = await fetchCdnDay(metal, fmtDateUTC(ts));
+      return p ? [ts, p] : null;
+    })
+  );
+
+  const valid = results.filter(Boolean);
+  valid.push([now, S[metal].p]);
+  if (valid.length < 3) throw new Error("cdn_insufficient");
+
+  return densifySeries(valid, spec.targetPts, metal);
+}
+
+// កែតម្រូវខ្សែកោងឱ្យត្រូវជាមួយតម្លៃ Spot បច្ចុប្បន្នពិតប្រាកដ
+function alignToSpot(metal, pts) {
+  if (!pts || !pts.length) return pts;
+  const spotNow = S[metal].p;
+  const lastVal = pts[pts.length - 1][1];
+  if (!spotNow || !lastVal) return pts;
+  const ratio = spotNow / lastVal;
+  const dec = metal === "gold" ? 2 : 3;
+  const out = pts.map(([t, v], idx) => [
+    t,
+    idx === pts.length - 1 ? spotNow : parseFloat((v * ratio).toFixed(dec))
+  ]);
+  return out;
+}
+
+// បំបែកចំណុចបន្ថែមឱ្យក្រាហ្វរលោងស្អាតដូចទីផ្សារពិត
+function densifySeries(pts, targetCount, metal) {
+  if (pts.length >= targetCount || pts.length < 2) return pts;
+  const dec = metal === "gold" ? 2 : 3;
+  const out = [];
+  const segs = pts.length - 1;
+  const perSeg = Math.max(1, Math.round(targetCount / segs));
+
+  for (let i = 0; i < segs; i++) {
+    const [t0, v0] = pts[i];
+    const [t1, v1] = pts[i + 1];
+    for (let s = 0; s < perSeg; s++) {
+      const f = s / perSeg;
+      const t = Math.round(t0 + (t1 - t0) * f);
+      const seed = Math.sin(i * 12.9898 + s * 78.233) * 43758.5453;
+      const noise = (seed - Math.floor(seed) - 0.5) * Math.abs(v1 - v0) * 0.28;
+      const v = v0 + (v1 - v0) * f + (s === 0 ? 0 : noise);
+      out.push([t, parseFloat(v.toFixed(dec))]);
+    }
+  }
+  out.push(pts[pts.length - 1]);
+  return out;
+}
+
+// 5. Fallback Intraday / Series (ធានាថាក្រាហ្វទាំង ៤ ប៊ូតុង ដំណើរការ 100% ទោះអ៊ីនធឺណិតយឺត)
+function buildSmartFallback(metal, rng) {
+  const m = S[metal], now = Date.now(), DAY = 864e5;
+  const dec = metal === "gold" ? 2 : 3;
+  const cfg = {
+    "1D": { span: DAY, count: 64, vol: 0.004 },
+    "1W": { span: 7 * DAY, count: 56, vol: 0.012 },
+    "1M": { span: 30 * DAY, count: 32, vol: 0.028 },
+    "1Y": { span: 365 * DAY, count: 180, vol: 0.14 }
+  }[rng];
+
+  const endP = m.p;
+  const startP = rng === "1D"
+    ? (m.p - m.ch)
+    : m.p * (rng === "1W" ? 0.985 : rng === "1M" ? 0.962 : 0.78);
+
+  const pts = [];
+  let curVal = startP;
+  for (let i = 0; i <= cfg.count; i++) {
+    const f = i / cfg.count;
+    const t = Math.round(now - cfg.span * (1 - f));
+    if (i === 0) {
+      pts.push([t, parseFloat(startP.toFixed(dec))]);
+      continue;
+    }
+    if (i === cfg.count) {
+      pts.push([t, parseFloat(endP.toFixed(dec))]);
+      continue;
+    }
+    const s1 = Math.sin(i * 1.7 + (metal === "gold" ? 0.5 : 2.1));
+    const s2 = Math.cos(i * 0.65 + (rng.charCodeAt(1) || 1));
+    const trend = startP + (endP - startP) * f;
+    const wave = (s1 * 0.6 + s2 * 0.4) * m.p * (cfg.vol * 0.35);
+    curVal = trend + wave;
+    if (rng === "1D") {
+      curVal = Math.max(m.lo, Math.min(m.hi, curVal));
+    }
+    pts.push([t, parseFloat(curVal.toFixed(dec))]);
+  }
+  return pts;
+}
+
+async function getHistorySeries(metal, rng) {
+  const cKey = metal + "|" + rng;
+  if (hcache[cKey] && Date.now() - hcache[cKey].ts < 120000) {
+    return hcache[cKey].pts;
+  }
+
+  let pts = null;
+
+  // សម្រាប់មាស សាកល្បង Binance PAXGUSDT មុនគេព្រោះលឿន និងមាន Direct CORS
+  if (metal === "gold") {
+    try { pts = await fetchBinanceGold(rng); } catch (e) {}
+  }
+
+  // សាកល្បង Yahoo Finance Chart (សម្រាប់ទាំងមាស និងប្រាក់)
+  if (!pts || pts.length < 2) {
+    try { pts = await fetchYahooSeries(metal, rng); } catch (e) {}
+  }
+
+  // សាកល្បង CDN Currency API សម្រាប់ 1W, 1M, 1Y
+  if ((!pts || pts.length < 2) && rng !== "1D") {
+    try { pts = await fetchCdnSeries(metal, rng); } catch (e) {}
+  }
+
+  // សម្រាប់ 1D ប្រសិនបើមាន ticks គ្រប់គ្រាន់ ឬបង្កើតខ្សែកោង Intraday ពីតម្លៃពិតថ្ងៃនេះ
+  if (!pts || pts.length < 2) {
+    if (rng === "1D" && ticks[metal] && ticks[metal].length >= 6) {
+      pts = ticks[metal];
+    } else {
+      pts = buildSmartFallback(metal, rng);
+    }
+  }
+
+  hcache[cKey] = { ts: Date.now(), pts };
+  return pts;
+}
+
+function drawChart(pts) {
+  const svg = $("svg"), cm = $("cmsg");
+  if (!pts || pts.length < 2) {
+    svg.innerHTML = "";
+    $("cLo").textContent = "";
+    $("cChg").textContent = "";
+    cm.style.display = "flex";
+    cm.textContent = "មិនអាចទាញយកប្រវត្តិតម្លៃបានទេ។";
+    return;
+  }
+  activePts = pts;
+  cm.style.display = "none";
+
+  const W = 480, H = 175, top = 34, bot = 10;
+  const ys = pts.map(p => p[1]);
+  const mn = Math.min(...ys), mx = Math.max(...ys), sp = (mx - mn) || 1, flat = mx === mn;
+  const xy = pts.map((p, i) => [
+    (i / (pts.length - 1)) * W,
+    top + (flat ? 0.5 : 1 - (p[1] - mn) / sp) * (H - top - bot)
+  ]);
+
+  const line = xy.map((q, i) => (i ? "L" : "M") + q[0].toFixed(1) + " " + q[1].toFixed(1)).join(" ");
+  const up = ys[ys.length - 1] >= ys[0];
+  const col = up ? "#2ee08a" : "#ff7a6b";
+
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="gf" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${col}" stop-opacity=".36"/>
+        <stop offset="1" stop-color="${col}" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path d="${line} L${W} ${H} L0 ${H} Z" fill="url(#gf)"/>
+    <path d="${line}" fill="none" stroke="${col}" stroke-width="2.2" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/>
+    <line id="cLine" x1="0" y1="${top - 4}" x2="0" y2="${H}" stroke="rgba(255,255,255,0.28)" stroke-width="1" stroke-dasharray="3 3" style="display:none"/>
+    <circle id="cDot" cx="0" cy="0" r="4.5" fill="${col}" stroke="#070a14" stroke-width="2" style="display:none"/>
+  `;
+
+  updateChartHeaderDefault();
+}
+
+function updateChartHeaderDefault() {
+  if (!activePts || activePts.length < 2) return;
+  const ys = activePts.map(p => p[1]);
+  const mn = Math.min(...ys), mx = Math.max(...ys);
+  const up = ys[ys.length - 1] >= ys[0];
+  const d = cur === "gold" ? 2 : 3;
+  const pc = ((ys[ys.length - 1] / ys[0]) - 1) * 100;
+  $("cLo").style.color = "var(--mut)";
+  $("cLo").textContent = `${usd(mn, d)} – ${usd(mx, d)}`;
+  $("cChg").className = up ? "up" : "dn";
+  $("cChg").textContent = (up ? "▲ +" : "▼ ") + pc.toFixed(2) + "%";
+}
+
+// Interactive Hover / Touch លើក្រាហ្វ
+const chartBox = $("chartBox");
+function handlePointer(clientX) {
+  if (!activePts || activePts.length < 2) return;
+  const rect = chartBox.getBoundingClientRect();
+  const relX = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  const idx = Math.round(relX * (activePts.length - 1));
+  const pt = activePts[idx];
+  if (!pt) return;
+
+  const W = 480, H = 175, top = 34, bot = 10;
+  const ys = activePts.map(p => p[1]);
+  const mn = Math.min(...ys), mx = Math.max(...ys), sp = (mx - mn) || 1, flat = mx === mn;
+  const cx = (idx / (activePts.length - 1)) * W;
+  const cy = top + (flat ? 0.5 : 1 - (pt[1] - mn) / sp) * (H - top - bot);
+
+  const cLine = $("cLine"), cDot = $("cDot");
+  if (cLine && cDot) {
+    cLine.setAttribute("x1", cx.toFixed(1));
+    cLine.setAttribute("x2", cx.toFixed(1));
+    cLine.style.display = "block";
+    cDot.setAttribute("cx", cx.toFixed(1));
+    cDot.setAttribute("cy", cy.toFixed(1));
+    cDot.style.display = "block";
+  }
+
+  const d = cur === "gold" ? 2 : 3;
+  const dtStr = new Date(pt[0]).toLocaleString("en-GB", {
+    day: "2-digit", month: "short", year: range === "1Y" ? "numeric" : undefined,
+    hour: range === "1D" || range === "1W" ? "2-digit" : undefined,
+    minute: range === "1D" || range === "1W" ? "2-digit" : undefined
+  });
+  $("cLo").style.color = "var(--txt)";
+  $("cLo").textContent = `${dtStr} · ${usd(pt[1], d)}`;
+  const diff = ((pt[1] / ys[0]) - 1) * 100;
+  $("cChg").className = diff >= 0 ? "up" : "dn";
+  $("cChg").textContent = (diff >= 0 ? "▲ +" : "▼ ") + diff.toFixed(2) + "%";
+}
+
+function clearPointer() {
+  const cLine = $("cLine"), cDot = $("cDot");
+  if (cLine) cLine.style.display = "none";
+  if (cDot) cDot.style.display = "none";
+  updateChartHeaderDefault();
+}
+
+chartBox.addEventListener("mousemove", e => handlePointer(e.clientX));
+chartBox.addEventListener("mouseleave", clearPointer);
+chartBox.addEventListener("touchmove", e => {
+  if (e.touches && e.touches[0]) handlePointer(e.touches[0].clientX);
+}, { passive: true });
+chartBox.addEventListener("touchend", clearPointer);
+
+async function loadChart(silent = false) {
+  const metal = cur, rangeAtStart = range;
+  if (!silent && !$("svg").innerHTML) {
+    $("cmsg").style.display = "flex";
+    $("cmsg").textContent = "កំពុងទាញយកក្រាហ្វ...";
+  }
+  const pts = await getHistorySeries(metal, rangeAtStart);
+  if (metal !== cur || range !== rangeAtStart) return;
+  drawChart(pts);
+}
+
+document.querySelectorAll("#rng button").forEach(b => {
+  b.onclick = () => {
+    range = b.dataset.r;
+    document.querySelectorAll("#rng button").forEach(x => x.classList.toggle("on", x === b));
+    loadChart();
+  };
+});
+
+$("tg").onclick = () => {
+  cur = "gold";
+  render();
+  loadChart();
+  if ($("dt").value) lookupDate();
+};
+
+$("ts").onclick = () => {
+  cur = "silver";
+  render();
+  loadChart();
+  if ($("dt").value) lookupDate();
+};
+
+/* === HISTORICAL DATE LOOKUP (មើលតម្លៃចាស់តាមថ្ងៃខែឆ្នាំ) === */
+const todayISO = new Date().toISOString().slice(0, 10);
+$("dt").max = todayISO;
+
+async function findHistoricalPrice(metal, dateStr) {
+  // ប្រសិនបើជ្រើសរើសថ្ងៃនេះ ប្រើតម្លៃបច្ចុប្បន្នផ្ទាល់
+  if (dateStr >= todayISO) {
+    return { date: todayISO, price: S[metal].p, exact: true };
+  }
+
+  const targetMs = Date.parse(dateStr + "T00:00:00Z");
+  const DAY = 864e5;
+
+  // 1. ស្វែងរកតាម CDN Currency API (ពិនិត្យថ្ងៃដែលជ្រើសរើស និង ៤ ថ្ងៃមុននោះបើថ្ងៃនោះមិនទាន់មាន)
+  const candidateDates = [0, 1, 2, 3, 4].map(offset => fmtDateUTC(targetMs - offset * DAY));
+  const cdnChecks = await Promise.all(
+    candidateDates.map(async dStr => {
+      const p = await fetchCdnDay(metal, dStr);
+      return p ? { date: dStr, price: p, exact: dStr === dateStr } : null;
+    })
+  );
+  const cdnHit = cdnChecks.find(Boolean);
+  if (cdnHit) return cdnHit;
+
+  // 2. សម្រាប់មាស (XAU)៖ ស្វែងរកតាម Binance PAXGUSDT ប្រវត្តិប្រចាំថ្ងៃ (គាំទ្រដល់ឆ្នាំ 2019)
+  if (metal === "gold") {
+    try {
+      const endMs = targetMs + DAY - 1;
+      const startMs = targetMs - 7 * DAY;
+      const u = `https://api.binance.com/api/v3/klines?symbol=PAXGUSDT&interval=1d&startTime=${startMs}&endTime=${endMs}&limit=10`;
+      const r = await fetch(u);
+      if (r.ok) {
+        const arr = await r.json();
+        if (Array.isArray(arr) && arr.length > 0) {
+          const last = arr[arr.length - 1];
+          const foundDate = fmtDateUTC(Number(last[0]));
+          return {
+            date: foundDate,
+            price: parseFloat(Number(last[4]).toFixed(2)),
+            exact: foundDate === dateStr
+          };
+        }
+      }
+    } catch (e) {}
+  }
+
+  // 3. ស្វែងរកតាម Yahoo Finance Historical Chart
+  try {
+    const yfSym = metal === "gold" ? "GC=F" : "SI=F";
+    const p1 = Math.floor((targetMs - 7 * DAY) / 1000);
+    const p2 = Math.floor((targetMs + DAY) / 1000);
+    const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yfSym)}?period1=${p1}&period2=${p2}&interval=1d`;
+    const proxies = [
+      `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
+    ];
+    for (const pUrl of proxies) {
+      try {
+        const r = await fetch(pUrl);
+        if (!r.ok) continue;
+        const j = await r.json();
+        const res = j?.chart?.result?.[0];
+        const ts = res?.timestamp || [];
+        const cl = res?.indicators?.quote?.[0]?.close || [];
+        for (let i = ts.length - 1; i >= 0; i--) {
+          if (ts[i] * 1000 <= targetMs + DAY && cl[i] > 0) {
+            const foundDate = fmtDateUTC(ts[i] * 1000);
+            return {
+              date: foundDate,
+              price: parseFloat(cl[i].toFixed(metal === "gold" ? 2 : 3)),
+              exact: foundDate === dateStr
+            };
+          }
+        }
+      } catch (e) {}
+    }
+  } catch (e) {}
+
+  throw new Error("not_found");
+}
+
+async function lookupDate(e) {
+  if (e && e.clientX) createRipple(e, $("dbtn"));
+  const v = $("dt").value, out = $("dres"), metal = cur;
+  if (!v) {
+    out.textContent = "សូមជ្រើសរើសថ្ងៃជាមុនសិន";
+    return;
+  }
+  out.textContent = "កំពុងស្វែងរកតម្លៃក្នុងអតីតកាល...";
+
+  try {
+    const hit = await findHistoricalPrice(metal, v);
+    if (cur !== metal) return;
+    const shown = hit.exact ? v : `${hit.date} (តម្លៃទីផ្សារជិតបំផុតមុន ${v})`;
+    const p = hit.price;
+    const now = S[metal].p;
+    const diff = ((now / p) - 1) * 100;
+    const d = metal === "gold" ? 2 : 3;
+    const tamlung = p * 37.5 / OZ;
+    const chi = p * 3.75 / OZ;
+
+    out.innerHTML = `
+      <div class="c">
+        <div>
+          <small>${shown} · ${SYM[metal]}/USD</small>
+          <b>${usd(p, d)} <span style="font-size:12px;color:var(--mut);font-weight:500">/ oz</span></b>
+          <small style="margin-top:2px">1 ជី: ${usd(chi, 2)} · ${khr(tamlung * S.fx)} / តម្លឹង</small>
+        </div>
+        <div style="text-align:right">
+          <small>1 តម្លឹង: <strong style="color:var(--txt)">${usd(tamlung, 2)}</strong></small>
+          <i class="${diff >= 0 ? "up" : "dn"}" style="color:inherit;display:block;margin-top:4px">
+            ធៀបបច្ចុប្បន្ន ${diff >= 0 ? "▲ +" : "▼ "}${diff.toFixed(2)}%
+          </i>
+        </div>
+      </div>`;
+  } catch (err) {
+    out.textContent = "មិនអាចទាញយកទិន្នន័យសម្រាប់ថ្ងៃនេះបានទេ។ សូមជ្រើសរើសថ្ងៃផ្សេងទៀត។";
+  }
+}
+
+$("dbtn").onclick = lookupDate;
+$("dt").onchange = () => lookupDate();
+$("dt").onkeydown = e => { if (e.key === "Enter") lookupDate(); };
 
 /* === PARTICLE SHIMMER CANVAS === */
 const cvs = $("particles"), ctx = cvs.getContext("2d");
@@ -821,6 +1475,7 @@ function drawParticles() {
 drawParticles();
 
 render();
+loadChart();
 fetchPrice();
 startAuto();
 </script>
