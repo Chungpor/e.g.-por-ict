@@ -111,8 +111,8 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{ outline:2px 
 .kg-dres .kg-c b{ display:inline-block; margin:2px 0; font-size:19px; }
 .kg-up{ color:var(--kg-up); } .kg-dn{ color:var(--kg-dn); }
 
-/* Top banner: hide "Por ICT News" and "Membership" (desktop + mobile menu) */
-#navNewsLink,#navMembershipLink,#mobileNewsLink,#mobileMembershipLink{ display:none !important; }
+/* Top banner: "Por ICT News" and "Membership" enabled */
+/* #navNewsLink,#navMembershipLink,#mobileNewsLink,#mobileMembershipLink{ display:none !important; } */
 
 /* ===== Top banner colours: one calm palette (ivory · gold · jade · cinnabar) ===== */
 .global-top-bar{ background:linear-gradient(180deg,rgba(24,19,12,.96),rgba(12,10,7,.94)) !important; border-bottom:1px solid transparent !important; border-image:linear-gradient(90deg,transparent,rgba(230,185,79,.55),transparent) 1 !important; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); }
@@ -1753,7 +1753,6 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{ outline:2px 
   </div>
 
   <script src="live-engine.js"></script>
-  <script src="liveengine.js"></script>
   <script src="script.js"></script>
 
   <!-- ==========================================
@@ -2642,6 +2641,8 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{ outline:2px 
         $('kgFx').value = S.fx;
         $('kgTabGold').classList.toggle('on', cur === 'gold');
         $('kgTabSilver').classList.toggle('on', cur === 'silver');
+
+        root.dispatchEvent(new CustomEvent('kg-spot-updated'));
       }
 
       function save() { try { localStorage.setItem('khgold_spot', JSON.stringify(S)); } catch (e) { /* ignore */ } }
@@ -2704,20 +2705,22 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{ outline:2px 
           const resGP = await fetch('https://data-asg.goldprice.org/dbXRates/USD');
           if (resGP.ok) {
             const dataGP = await resGP.json();
-            if (dataGP && dataGP.items && dataGP.items[0]) {
-              const item = dataGP.items[0];
-              if (item.xauPrice > 0) {
-                S.gold.p = parseFloat(item.xauPrice.toFixed(2));
-                S.gold.ch = parseFloat(item.chgXau.toFixed(2));
-                S.gold.pc = parseFloat(item.pcXau.toFixed(2));
+            const item = dataGP && dataGP.items && dataGP.items[0];
+            if (item) {
+              const xauP = Number(item.xauPrice);
+              const xagP = Number(item.xagPrice);
+              if (xauP > 0) {
+                S.gold.p = parseFloat(xauP.toFixed(2));
+                S.gold.ch = parseFloat((Number(item.chgXau) || 0).toFixed(2));
+                S.gold.pc = parseFloat((Number(item.pcXau) || 0).toFixed(2));
                 S.gold.hi = Math.max(S.gold.hi, S.gold.p);
                 S.gold.lo = Math.min(S.gold.lo, S.gold.p);
                 updated = true;
               }
-              if (item.xagPrice > 0) {
-                S.silver.p = parseFloat(item.xagPrice.toFixed(3));
-                S.silver.ch = parseFloat(item.chgXag.toFixed(2));
-                S.silver.pc = parseFloat(item.pcXag.toFixed(2));
+              if (xagP > 0) {
+                S.silver.p = parseFloat(xagP.toFixed(3));
+                S.silver.ch = parseFloat((Number(item.chgXag) || 0).toFixed(2));
+                S.silver.pc = parseFloat((Number(item.pcXag) || 0).toFixed(2));
                 S.silver.hi = Math.max(S.silver.hi, S.silver.p);
                 S.silver.lo = Math.min(S.silver.lo, S.silver.p);
                 updated = true;
@@ -2735,11 +2738,13 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{ outline:2px 
             ]);
             if (resXAU.ok) {
               const dXAU = await resXAU.json();
-              if (dXAU && dXAU.price > 0) {
-                const newP = parseFloat(dXAU.price.toFixed(2));
+              const rawXau = Number(dXAU && dXAU.price);
+              if (rawXau > 0) {
+                const newP = parseFloat(rawXau.toFixed(2));
                 if (S.gold.p !== newP) {
-                  S.gold.ch = newP - (S.gold.p - S.gold.ch);
-                  S.gold.pc = (S.gold.ch / (S.gold.p - S.gold.ch)) * 100;
+                  const baseGold = (S.gold.p - S.gold.ch) || newP;
+                  S.gold.ch = newP - baseGold;
+                  S.gold.pc = (S.gold.ch / baseGold) * 100;
                   S.gold.p = newP;
                   S.gold.hi = Math.max(S.gold.hi, newP);
                   S.gold.lo = Math.min(S.gold.lo, newP);
@@ -2749,11 +2754,13 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{ outline:2px 
             }
             if (resXAG.ok) {
               const dXAG = await resXAG.json();
-              if (dXAG && dXAG.price > 0) {
-                const newP = parseFloat(dXAG.price.toFixed(3));
+              const rawXag = Number(dXAG && dXAG.price);
+              if (rawXag > 0) {
+                const newP = parseFloat(rawXag.toFixed(3));
                 if (S.silver.p !== newP) {
-                  S.silver.ch = newP - (S.silver.p - S.silver.ch);
-                  S.silver.pc = (S.silver.ch / (S.silver.p - S.silver.ch)) * 100;
+                  const baseSilver = (S.silver.p - S.silver.ch) || newP;
+                  S.silver.ch = newP - baseSilver;
+                  S.silver.pc = (S.silver.ch / baseSilver) * 100;
                   S.silver.p = newP;
                   S.silver.hi = Math.max(S.silver.hi, newP);
                   S.silver.lo = Math.min(S.silver.lo, newP);
@@ -3105,7 +3112,7 @@ function buildSmartFallback(metal, rng) {
 async function getHistorySeries(metal, rng) {
   const cKey = metal + "|" + rng;
   if (hcache[cKey] && Date.now() - hcache[cKey].ts < 120000) {
-    return hcache[cKey].pts;
+    return alignToSpot(metal, hcache[cKey].pts);
   }
 
   let pts = null;
@@ -3172,8 +3179,8 @@ function drawChart(pts) {
     </defs>
     <path d="${line} L${W} ${H} L0 ${H} Z" fill="url(#kggf)"/>
     <path d="${line}" fill="none" stroke="${col}" stroke-width="2.2" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/>
-    <line id="cLine" x1="0" y1="${top - 4}" x2="0" y2="${H}" stroke="rgba(255,255,255,0.28)" stroke-width="1" stroke-dasharray="3 3" style="display:none"/>
-    <circle id="cDot" cx="0" cy="0" r="4.5" fill="${col}" stroke="#0c0a07" stroke-width="2" style="display:none"/>
+    <line id="kgCLine" x1="0" y1="${top - 4}" x2="0" y2="${H}" stroke="rgba(255,255,255,0.28)" stroke-width="1" stroke-dasharray="3 3" style="display:none"/>
+    <circle id="kgCDot" cx="0" cy="0" r="4.5" fill="${col}" stroke="#0c0a07" stroke-width="2" style="display:none"/>
   `;
 
   updateChartHeaderDefault();
@@ -3375,7 +3382,6 @@ async function lookupDate(e) {
   }
 }
 
-
   document.querySelectorAll('#kgRng button').forEach((b) => {
     b.onclick = () => {
       range = b.dataset.r;
@@ -3389,6 +3395,20 @@ async function lookupDate(e) {
   $('kgDbtn').onclick = lookupDate;
   $('kgDt').onchange = () => lookupDate();
   $('kgDt').onkeydown = (e) => { if (e.key === 'Enter') lookupDate(); };
+
+  // Record intraday ticks and re-align chart whenever live/manual spot updates
+  root.addEventListener('kg-spot-updated', () => {
+    const now = Date.now();
+    ['gold', 'silver'].forEach((m) => {
+      const val = S[m] && S[m].p;
+      if (val > 0) {
+        ticks[m].push([now, val]);
+        if (ticks[m].length > 120) ticks[m].shift();
+      }
+    });
+    loadChart(true);
+    if ($('kgDt').value) lookupDate();
+  });
 
   // Follow the Gold / Silver tabs
   let lastM = curM();
