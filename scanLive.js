@@ -35,8 +35,9 @@
     USOIL:  { label: 'USOIL',  tv: 'OANDA:WTICOUSD',  pair: 'USOIL',   oanda: 'WTICO_USD',  td: 'WTI/USD', dec: 3 },
     NASDAQ: { label: 'NASDAQ', tv: 'OANDA:NAS100USD', pair: 'NAS100',  oanda: 'NAS100_USD', td: 'NDX',     dec: 1 },
     EURUSD: { label: 'EURUSD', tv: 'OANDA:EURUSD',    pair: 'EUR/USD', oanda: 'EUR_USD',    td: 'EUR/USD', dec: 5 },
-    BTCUSD: { label: 'BTCUSD', tv: 'OANDA:BTCUSD',    pair: 'BTC/USD', oanda: 'BTC_USD',    td: 'BTC/USD', dec: 2 },
-    ETHUSD: { label: 'ETHUSD', tv: 'OANDA:ETHUSD',    pair: 'ETH/USD', oanda: 'ETH_USD',    td: 'ETH/USD', dec: 2 }
+    // Crypto: no OANDA. Price from Binance (what CoinMarketCap averages in); free, no API key.
+    BTCUSDT: { label: 'BTCUSDT', tv: 'BINANCE:BTCUSDT', pair: 'BTC/USDT', binance: 'BTCUSDT', td: 'BTC/USD', dec: 2 },
+    ETHUSDT: { label: 'ETHUSDT', tv: 'BINANCE:ETHUSDT', pair: 'ETH/USDT', binance: 'ETHUSDT', td: 'ETH/USD', dec: 2 }
   };
   const TFS = {
     M1:  { tv: '1',   g: 'M1',  sel: '1m', td: '1min' },
@@ -240,12 +241,13 @@
   function canTabCapture() {
     return !IS_MOBILE && !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
   }
-  const hasFeed = () => !!(lsGet(LS.token) || lsGet(LS.td));
+  const hasFeed = () => !!(SYMBOLS[cur.sym].binance || lsGet(LS.token) || lsGet(LS.td));
 
   function refreshMode() {
     const m = el('plMode');
     if (!m) return;
-    if (lsGet(LS.token)) m.textContent = '🟢 Auto · OANDA feed (គ្មាន Allow)';
+    if (SYMBOLS[cur.sym].binance) m.textContent = '🟢 Auto · Binance feed (គ្មាន Allow · គ្មាន Key)';
+    else if (lsGet(LS.token)) m.textContent = '🟢 Auto · OANDA feed (គ្មាន Allow)';
     else if (lsGet(LS.td)) m.textContent = '🟢 Auto · Twelve Data (គ្មាន Allow)';
     else if (canTabCapture()) m.textContent = '🖥️ ថត Tab (Allow តែ 1 ដង)';
     else m.textContent = '⚠️ ទូរស័ព្ទ៖ ដាក់ API key (⚙ Feed)';
@@ -253,7 +255,7 @@
 
   function setSymbol(k) {
     if (!SYMBOLS[k] || busy) return;
-    cur.sym = k; lsSet(LS.sym, k); paintTabs(); mountTradingView();
+    cur.sym = k; lsSet(LS.sym, k); paintTabs(); mountTradingView(); refreshMode();
   }
   function setTf(k) {
     if (!TFS[k] || busy) return;
@@ -261,9 +263,59 @@
   }
 
   // ---------------------------------------------------- TradingView widget --
-  let mountTimer = null;
+  let mountTimer = null, watchTimer = null, retryTimer = null, retryN = 0;
+
+  // Small status chip + manual reconnect button inside the chart box
+  function plNote(msg) {
+    const box = el('porLiveChartBox');
+    if (!box) return;
+    let n = box.querySelector('.pl-note');
+    if (!msg) { if (n) n.remove(); return; }
+    if (!n) {
+      n = document.createElement('div');
+      n.className = 'pl-note';
+      n.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:7;padding:8px 14px;border-radius:12px;background:rgba(2,6,23,.92);border:1px solid rgba(34,211,238,.5);color:#67e8f9;font:700 12px sans-serif;pointer-events:none;white-space:nowrap';
+      box.appendChild(n);
+    }
+    n.textContent = msg;
+  }
+  function addReconnectBtn(box) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = '🔄 Reconnect';
+    b.style.cssText = 'position:absolute;right:8px;bottom:8px;z-index:8;padding:5px 10px;border-radius:10px;background:rgba(2,6,23,.85);border:1px solid rgba(34,211,238,.45);color:#67e8f9;font:800 11px sans-serif;cursor:pointer';
+    b.addEventListener('click', () => { retryN = 0; mountTradingView(); });
+    box.appendChild(b);
+  }
+  // Chart dropped (script failed / no iframe / offline) -> retry with back-off 3s, 6s, 12s … 30s
+  function scheduleReconnect(why) {
+    clearTimeout(retryTimer);
+    retryN++;
+    const wait = Math.min(3000 * Math.pow(2, retryN - 1), 30000);
+    plNote('⚠️ Chart ដាច់ (' + why + ') · ភ្ជាប់ឡើងវិញក្នុង ' + Math.round(wait / 1000) + 's…');
+    retryTimer = setTimeout(mountTradingView, wait);
+  }
+  function watchAlive() {
+    clearTimeout(watchTimer);
+    watchTimer = setTimeout(() => {
+      const box = el('porLiveChartBox');
+      if (!box) return;
+      if (box.querySelector('iframe')) { retryN = 0; plNote(''); }
+      else scheduleReconnect(navigator.onLine === false ? 'offline' : 'no response');
+    }, 9000);
+  }
+  window.addEventListener('online', () => { retryN = 0; mountTradingView(); });
+  window.addEventListener('offline', () => plNote('⚠️ គ្មាន Internet — នឹងភ្ជាប់ឡើងវិញពេលមាន'));
+  let hiddenAt = 0;
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { hiddenAt = Date.now(); return; }
+    const box = el('porLiveChartBox');
+    // Back after a long absence (phone sleep / tab switch): iframe websocket is usually dead
+    if (box && hiddenAt && Date.now() - hiddenAt > 60000) { retryN = 0; mountTradingView(); }
+  });
+
   function mountTradingView() {
-    clearTimeout(mountTimer);
+    clearTimeout(mountTimer); clearTimeout(retryTimer);
     mountTimer = setTimeout(() => {
       const box = el('porLiveChartBox');
       if (!box) return;
@@ -277,6 +329,7 @@
       const s = document.createElement('script');
       s.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
       s.async = true;
+      s.onerror = () => scheduleReconnect('load failed');
       s.text = JSON.stringify({
         autosize: true,
         symbol: SYMBOLS[cur.sym].tv,
@@ -298,6 +351,8 @@
       wrap.appendChild(inner);
       wrap.appendChild(s);
       box.appendChild(wrap);
+      addReconnectBtn(box);
+      watchAlive();
     }, 120);
   }
 
@@ -387,6 +442,21 @@
       o: parseFloat(c.mid.o), h: parseFloat(c.mid.h), l: parseFloat(c.mid.l), c: parseFloat(c.mid.c)
     }));
     if (cs.length < 10) throw new Error('OANDA មិនបានផ្តល់ទិន្នន័យគ្រប់គ្រាន់');
+    return cs;
+  }
+
+  // A1) Binance public klines (crypto; free, no key, CORS-enabled) -> same canvas
+  async function fetchBinanceCandles(count = 120) {
+    const IV = { M1: '1m', M5: '5m', M15: '15m', M30: '30m', H1: '1h', H4: '4h', D1: '1d' };
+    const url = 'https://api.binance.com/api/v3/klines?symbol=' + SYMBOLS[cur.sym].binance +
+      '&interval=' + IV[cur.tf] + '&limit=' + count;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Binance ' + res.status);
+    const data = await res.json();
+    const cs = (Array.isArray(data) ? data : []).map((k) => ({
+      t: k[0] / 1000, o: parseFloat(k[1]), h: parseFloat(k[2]), l: parseFloat(k[3]), c: parseFloat(k[4])
+    })).filter((c) => isFinite(c.o + c.h + c.l + c.c));
+    if (cs.length < 10) throw new Error('Binance មិនបានផ្តល់ទិន្នន័យគ្រប់គ្រាន់');
     return cs;
   }
 
@@ -486,7 +556,7 @@
     // header (pair + timeframe for OCR) + OHLC
     g.textAlign = 'left'; g.textBaseline = 'alphabetic';
     g.fillStyle = '#f8fafc'; g.font = `700 32px ${SANS}`;
-    g.fillText(`${cfg.label} · ${tfKey} · OANDA`, 28, 52);
+    g.fillText(`${cfg.label} · ${tfKey} · ${cfg.binance ? 'BINANCE' : 'OANDA'}`, 28, 52);
     g.fillStyle = '#94a3b8'; g.font = `500 20px ${MONO}`;
     g.fillText(
       `O ${last.o.toFixed(cfg.dec)}  H ${last.h.toFixed(cfg.dec)}  L ${last.l.toFixed(cfg.dec)}  C ${last.c.toFixed(cfg.dec)}`,
@@ -498,7 +568,8 @@
   async function captureFromFeed() {
     const errs = [];
     const providers = [];
-    if (lsGet(LS.token)) providers.push(['OANDA', fetchOandaCandles]);
+    if (SYMBOLS[cur.sym].binance) providers.push(['Binance', fetchBinanceCandles]);
+    if (SYMBOLS[cur.sym].oanda && lsGet(LS.token)) providers.push(['OANDA', fetchOandaCandles]);
     if (lsGet(LS.td)) providers.push(['Twelve Data', fetchTwelveCandles]);
     for (const [name, fn] of providers) {
       try {
