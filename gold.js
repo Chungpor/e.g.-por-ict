@@ -166,6 +166,13 @@
         return Number(basisOffsets[sym] || 0);
     }
 
+    // Spot gold (OANDA/Swissquote) is closed from Fri ~22:00 UTC to Sun ~22:00 UTC.
+    // In that window the spot feed returns a frozen price, so forcing PAXG to match it makes the price look flat.
+    function isGoldMarketClosed() {
+        const d = new Date(), day = d.getUTCDay(), h = d.getUTCHours();
+        return day === 6 || (day === 5 && h >= 22) || (day === 0 && h < 22);
+    }
+
     function applyOffsetToCandle(c, offset) {
         if (!offset) return { ...c };
         return {
@@ -196,6 +203,9 @@
         const off = getOffset(state.symbol);
         if (state.oandaActive) {
             pill.textContent = '● OANDA v20 DIRECT';
+        } else if (state.symbol === 'XAUUSDT' && isGoldMarketClosed()) {
+            pill.textContent = '● GOLD MARKET CLOSED (weekend)';
+            pill.title = 'Spot gold is closed until Sunday 22:00 UTC. Showing PAXG with the last open-session offset.';
         } else if (state.symbol === 'XAUUSDT') {
             const sign = off >= 0 ? '+' : '';
             pill.textContent = `● OANDA SPOT SYNCED (${sign}${off.toFixed(2)})`;
@@ -208,6 +218,7 @@
     // Fetch real-time OANDA:XAUUSD price from TradingView Scanner or Swissquote Institutional XAU/USD Feed
     async function syncTrueOandaSpot() {
         if (state.oandaActive || manualBasisLock) return;
+        if (isGoldMarketClosed()) { updateBasisPill(); return; } // keep last open-session offset; don't flatten price to frozen quote
         let trueGoldPrice = null, trueBid = null, trueAsk = null;
 
         // 1. Try TradingView CFD Scanner for exact OANDA:XAUUSD tick
@@ -1351,7 +1362,7 @@
         rawQuotes[sym] = { price: rawPrice, change, high: rawHigh, low: rawLow, bid: rawBid, ask: rawAsk };
         if (!hadRaw && sym === 'XAUUSDT') syncTrueOandaSpot();
         const off = getOffset(sym);
-        const st = sym === 'XAUUSDT' ? spotTargets.XAUUSDT : null;
+        const st = (sym === 'XAUUSDT' && !isGoldMarketClosed()) ? spotTargets.XAUUSDT : null;
         onCalibratedTicker(
             sym,
             rawPrice + off,
