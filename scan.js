@@ -1620,6 +1620,21 @@ function showError(msg) {
 
 const MAX_IMAGE_BYTES = 15 * 1024 * 1024; // 15 MB
 
+// New manual image (upload / drop / paste) => back to AUTO-DETECT for pair + timeframe,
+// so an old selection (e.g. XAU/USD from the live panel) never sticks to a new chart.
+function resetPairTfToAuto() {
+  state.selectedPair = 'AUTO';
+  state.selectedTf = 'AUTO';
+  const ps = $('livePairSelect'); if (ps) ps.value = 'AUTO';
+  document.querySelectorAll('#tfSelectorBar .tf-btn').forEach((b) => {
+    b.className = b.dataset.tf === 'AUTO'
+      ? 'tf-btn py-1.5 rounded-xl bg-cyan-500 text-slate-950 border border-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.4)] cursor-pointer'
+      : 'tf-btn py-1.5 rounded-xl bg-[#131d31] text-slate-300 border border-slate-700 hover:border-cyan-400 cursor-pointer';
+  });
+  const badge = $('liveFeedBadge');
+  if (badge) badge.textContent = '🔍 AUTO-DETECT PAIR';
+}
+
 function handleFile(file) {
   if (state.scanning) return;
   if (!file || !file.type || !file.type.startsWith('image/')) {
@@ -1633,6 +1648,7 @@ function handleFile(file) {
   state.activeLobbyItemId = null;
   show($('resultCard'), false);
   state.mime = file.type;
+  if (!window.__porLiveFeeding) resetPairTfToAuto();
 
   const reader = new FileReader();
   reader.onload = (e) => {
@@ -2056,6 +2072,10 @@ function renderResult() {
   }
 
   $('rPair').textContent = r.pair || '';
+  try {
+    const fb = $('liveFeedBadge');
+    if (fb && r.pair) fb.textContent = (state.selectedPair === 'AUTO' ? '🔍 AUTO → ' : '● ') + r.pair + (r.timeframe ? ' • ' + r.timeframe : '');
+  } catch (_) {}
   $('rTimeframe').textContent = r.timeframe ? `(${r.timeframe})` : '';
   $('rTrend').textContent = r.trend || '';
   $('rCur').textContent = r.currentPrice || '-';

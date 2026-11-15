@@ -34,7 +34,9 @@
     XAGUSD: { label: 'XAGUSD', tv: 'OANDA:XAGUSD',    pair: 'XAG/USD', oanda: 'XAG_USD',    td: 'XAG/USD', dec: 3 },
     USOIL:  { label: 'USOIL',  tv: 'OANDA:WTICOUSD',  pair: 'USOIL',   oanda: 'WTICO_USD',  td: 'WTI/USD', dec: 3 },
     NASDAQ: { label: 'NASDAQ', tv: 'OANDA:NAS100USD', pair: 'NAS100',  oanda: 'NAS100_USD', td: 'NDX',     dec: 1 },
-    EURUSD: { label: 'EURUSD', tv: 'OANDA:EURUSD',    pair: 'EUR/USD', oanda: 'EUR_USD',    td: 'EUR/USD', dec: 5 }
+    EURUSD: { label: 'EURUSD', tv: 'OANDA:EURUSD',    pair: 'EUR/USD', oanda: 'EUR_USD',    td: 'EUR/USD', dec: 5 },
+    BTCUSD: { label: 'BTCUSD', tv: 'OANDA:BTCUSD',    pair: 'BTC/USD', oanda: 'BTC_USD',    td: 'BTC/USD', dec: 2 },
+    ETHUSD: { label: 'ETHUSD', tv: 'OANDA:ETHUSD',    pair: 'ETH/USD', oanda: 'ETH_USD',    td: 'ETH/USD', dec: 2 }
   };
   const TFS = {
     M1:  { tv: '1',   g: 'M1',  sel: '1m', td: '1min' },
@@ -77,6 +79,12 @@
     st.id = 'porLiveStyles';
     st.textContent = `
       #porLivePanel .pl-sym, #porLivePanel .pl-tf { transition: all .15s; cursor: pointer; }
+      /* Themed horizontal scrollbar (cyan thumb on dark track) */
+      #porLivePanel #plSymbols, #porLivePanel .overflow-x-auto { scrollbar-width: thin; scrollbar-color: #22d3ee #0b1220; }
+      #porLivePanel #plSymbols::-webkit-scrollbar, #porLivePanel .overflow-x-auto::-webkit-scrollbar { height: 6px; }
+      #porLivePanel #plSymbols::-webkit-scrollbar-track, #porLivePanel .overflow-x-auto::-webkit-scrollbar-track { background: #0b1220; border-radius: 999px; }
+      #porLivePanel #plSymbols::-webkit-scrollbar-thumb, #porLivePanel .overflow-x-auto::-webkit-scrollbar-thumb { background: linear-gradient(90deg,#22d3ee,#2979ff); border-radius: 999px; }
+      #porLivePanel #plSymbols::-webkit-scrollbar-button, #porLivePanel .overflow-x-auto::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
       #porLivePanel .pl-sym { padding: 7px 14px; border-radius: 12px; font-weight: 800; font-size: 12px;
         background: rgba(15,23,42,.85); border: 1px solid #334155; color: #cbd5e1; white-space: nowrap; }
       #porLivePanel .pl-sym.active { background: rgba(6,182,212,.18); border-color: #22d3ee; color: #67e8f9;
@@ -532,7 +540,8 @@
         : 'tf-btn py-1.5 rounded-xl bg-[#131d31] text-slate-300 border border-slate-700 hover:border-cyan-400 cursor-pointer';
     });
 
-    handleFile(new File([blob], lastName, { type: 'image/png' }));
+    window.__porLiveFeeding = true;
+    try { handleFile(new File([blob], lastName, { type: 'image/png' })); } finally { window.__porLiveFeeding = false; }
     for (let i = 0; i < 60; i++) {                        // wait for FileReader (≤ 6 s)
       if (state.imageBase64) { if (window.__porLive) window.__porLive.b64 = state.imageBase64; return; }
       await sleep(100);

@@ -746,6 +746,7 @@ function extractPairAndTimeframeFromText(rawText) {
   const up = String(rawText || '').toUpperCase();
   const pairPatterns = [
     /\b(XAU\s*\/?\s*USD|GOLD)\b/,
+    /\b(ETHEREUM|BITCOIN)\b/,
     /\b(ETH\s*\/?\s*USDT(?:\.P)?|ETH\s*\/?\s*USD)\b/,
     /\b(BTC\s*\/?\s*USDT(?:\.P)?|BTC\s*\/?\s*USD)\b/,
     /\b(SOL\s*\/?\s*USDT|BNB\s*\/?\s*USDT|XRP\s*\/?\s*USDT|BONK\s*\/?\s*USDT|COQ\s*\/?\s*USDT)\b/,
@@ -758,6 +759,9 @@ function extractPairAndTimeframeFromText(rawText) {
     if (m) {
       pair = m[1].replace(/\s+/g, '').replace('.P', '');
       if (pair === 'GOLD') pair = 'XAU/USD';
+      if (pair === 'ETHEREUM') pair = 'ETH/USD';
+      if (pair === 'BITCOIN') pair = 'BTC/USD';
+      pair = pair.replace(/^([A-Z]{3})(USDT?|JPY|CAD)$/, '$1/$2');
       break;
     }
   }
