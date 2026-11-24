@@ -455,6 +455,17 @@ button:active { transform: scale(.97); }
 .cd-date input { color-scheme: dark; }
 [data-theme="light"] .cd-date input { color-scheme: light; }
 @media(max-width:600px) { .cd-grid { grid-template-columns: 1fr 1fr; } .cd-grid > div:last-child { grid-column: span 2; } }
+
+/* MANUAL PLAN */
+.mode-switch { display: flex; gap: 8px; }
+.mode-switch button.active { background: var(--blue); color: #031018; }
+.mp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.mp-col { background: var(--inset); border: 1px solid var(--line); border-radius: 14px; padding: 15px; }
+.mp-col h3 { font-size: 13px; letter-spacing: 1.5px; margin: 0 0 12px; color: var(--white); }
+.mp-col input { margin-bottom: 14px; color-scheme: dark; }
+[data-theme="light"] .mp-col input { color-scheme: light; }
+.mp-net { font-size: 26px; font-weight: 800; margin: 4px 0 10px; overflow-wrap: anywhere; }
+@media(max-width:600px) { .mp-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 
@@ -486,8 +497,8 @@ button:active { transform: scale(.97); }
 
 <section class="card hero">
   <div class="label">Remaining Recovery Target</div>
-  <div class="big" id="remaining">$5,853.42</div>
-  <div class="small">Initial Recovery Target: $5,853.42</div>
+  <div class="big" id="remaining">$0.00</div>
+  <div class="small" id="initialTarget">Initial Recovery Target: $0.00</div>
 </section>
 
 <section class="stats">
@@ -516,11 +527,54 @@ button:active { transform: scale(.97); }
   <div class="track"><div class="bar" id="bar"></div></div>
   <div class="progress-info">
     <span id="recovered">$0.00 recovered</span>
-    <span id="left">$5,853.42 remaining</span>
+    <span id="left">$0.00 remaining</span>
   </div>
 </section>
 
 <section class="card" style="margin-bottom:16px">
+  <div class="progress-title">
+    <strong>PLAN MODE</strong>
+    <div class="mode-switch">
+      <button class="secondary" id="modeAuto" onclick="setMode('auto')">AUTO</button>
+      <button class="secondary" id="modeManual" onclick="setMode('manual')">MANUAL</button>
+    </div>
+  </div>
+  <div class="small">Auto: days and daily targets are calculated from the goal date. Manual: you choose the month, the week and the amounts yourself.</div>
+</section>
+
+<section class="card" id="manualPlan" style="margin-bottom:16px;display:none">
+  <div class="progress-title">
+    <strong>MY MONTH &amp; WEEK PLAN</strong>
+    <span class="blue">SET BY YOU</span>
+  </div>
+  <div class="mp-grid">
+    <div class="mp-col">
+      <h3>MONTH</h3>
+      <label for="mMonth">CHOOSE MONTH</label>
+      <input id="mMonth" type="month">
+      <label for="mAmt">MONTH TARGET ($)</label>
+      <input id="mAmt" type="number" min="0.01" step="0.01" placeholder="Enter amount">
+      <div class="label" id="mRange">No month chosen</div>
+      <div class="mp-net" id="mNet">$0.00</div>
+      <div class="track"><div class="bar" id="mBar"></div></div>
+      <div class="small" id="mNote">Choose a month and enter an amount.</div>
+    </div>
+    <div class="mp-col">
+      <h3>WEEK</h3>
+      <label for="wStart">WEEK STARTS ON</label>
+      <input id="wStart" type="date">
+      <label for="wAmt">WEEK TARGET ($)</label>
+      <input id="wAmt" type="number" min="0.01" step="0.01" placeholder="Enter amount">
+      <div class="label" id="wRange">No week chosen</div>
+      <div class="mp-net" id="wNet">$0.00</div>
+      <div class="track"><div class="bar" id="wBar"></div></div>
+      <div class="small" id="wNote">Choose a start date and enter an amount.</div>
+    </div>
+  </div>
+  <div class="small">Progress counts the wins and losses you record inside the chosen month or week (7 days from the start date).</div>
+</section>
+
+<section class="card" id="autoPlan" style="margin-bottom:16px">
   <div class="progress-title">
     <strong>COUNTDOWN TO GOAL</strong>
     <span class="cd-status" id="cdStatus">-</span>
@@ -578,12 +632,12 @@ button:active { transform: scale(.97); }
     </div>
     <div>
       <label>TARGET ($)</label>
-      <input id="target" type="number" value="5853.42" min="0.01" step="0.01">
+      <input id="target" type="number" placeholder="Enter your target" min="0.01" step="0.01">
     </div>
   </div>
 
   <div class="small" id="tradeGoal">
-    235 winning trades required at $25 TP, assuming no losses.
+    Enter your target to see the winning trades required.
   </div>
 </section>
 
@@ -794,7 +848,7 @@ requestAnimationFrame(animate);
    RECOVERY COUNTER
 ================================= */
 
-const DEFAULT_TARGET = 5853.42;
+const DEFAULT_TARGET = 0;
 
 let trades = [];
 
@@ -859,6 +913,7 @@ function render() {
   if (!Number.isFinite(target) || target <= 0) {
     target = DEFAULT_TARGET;
   }
+  $("initialTarget").textContent = "Initial Recovery Target: " + money(target);
 
   let wins = trades.filter(t => t.type === "win");
   let losses = trades.filter(t => t.type === "loss");
@@ -868,7 +923,7 @@ function render() {
 
   let net = winTotal - lossTotal;
   let remaining = Math.max(0, target - net);
-  let percent = Math.max(0, Math.min(100, net / target * 100));
+  let percent = target > 0 ? Math.max(0, Math.min(100, net / target * 100)) : 0;
 
   $("remaining").textContent = money(remaining);
   $("profit").textContent = money(net);
@@ -881,12 +936,14 @@ function render() {
   $("left").textContent = money(remaining) + " remaining";
 
   let tp = Number($("tp").value);
-  let needed = tp > 0 ? Math.ceil(target / tp) : 0;
+  let needed = tp > 0 && target > 0 ? Math.ceil(target / tp) : 0;
 
-  $("tradeGoal").textContent =
-    needed + " winning trades required at " + money(tp) + " TP, assuming no losses.";
+  $("tradeGoal").textContent = target > 0
+    ? needed + " winning trades required at " + money(tp) + " TP, assuming no losses."
+    : "Enter your target to see the winning trades required.";
 
   renderCountdown(net, target, tp, Number($("sl").value));
+  renderManual(tp);
 
   /* HISTORY */
   $("history").innerHTML = trades.length
@@ -1032,7 +1089,7 @@ function renderCountdown(net, target, tp, sl) {
   $("cdPerDay").textContent = tdLeft ? money(remainingNow / tdLeft) + " per day from now" : "";
   $("cdTodayLabel").textContent = label;
   $("cdToday").textContent = money(perDay);
-  $("cdTodayNote").textContent = remainingNow === 0
+  $("cdTodayNote").textContent = !(target > 0) ? "Enter your target above" : remainingNow === 0
     ? "Goal reached"
     : tradingToday && need === 0
       ? "Today's target hit - stop or protect profit"
@@ -1049,7 +1106,8 @@ function renderCountdown(net, target, tp, sl) {
   const plannedToday = target * Math.min(1, tradingDays(startDay, nextDay(today)) / totalTd);
   const diff = net - plannedToday;
 
-  if (remainingNow === 0) { status.className = "cd-status good"; status.textContent = "Goal reached"; }
+  if (!(target > 0)) { status.className = "cd-status"; status.textContent = "Set a target"; }
+  else if (remainingNow === 0) { status.className = "cd-status good"; status.textContent = "Goal reached"; }
   else if (dl <= today) { status.className = "cd-status bad"; status.textContent = "Goal date passed"; }
   else if (Math.abs(diff) < tp) { status.className = "cd-status"; status.textContent = "On pace"; }
   else if (diff > 0) { status.className = "cd-status good"; status.textContent = "Ahead " + money(diff); }
@@ -1057,13 +1115,13 @@ function renderCountdown(net, target, tp, sl) {
 
   /* checkpoints: every Friday plus the last trading day before the goal date */
   const points = [];
-  for (let d = new Date(startDay); d < dl; d.setDate(d.getDate() + 1)) {
+  for (let d = new Date(startDay); target > 0 && d < dl; d.setDate(d.getDate() + 1)) {
     if (d.getDay() === 5) points.push(new Date(d));
   }
   let last = new Date(dl);
   last.setDate(last.getDate() - 1);
   while (last >= startDay && !isWeekday(last)) last.setDate(last.getDate() - 1);
-  if (last >= startDay && !points.some(p => dayKey(p) === dayKey(last))) points.push(last);
+  if (target > 0 && last >= startDay && !points.some(p => dayKey(p) === dayKey(last))) points.push(last);
 
   $("cdPoints").innerHTML = points.map(p => {
     const planned = target * tradingDays(startDay, nextDay(p)) / totalTd;
@@ -1110,6 +1168,95 @@ setInterval(tickCountdown, 1000);
 
 /* roll the countdown over at midnight */
 setInterval(render, 60000);
+
+/* =================================
+   MANUAL MONTH / WEEK PLAN
+================================= */
+
+let plan = { mode: "auto", month: "", mAmt: "", wStart: "", wAmt: "" };
+
+try {
+  const p = JSON.parse(localStorage.getItem("goldPlan") || "{}");
+  if (p && typeof p === "object") Object.keys(plan).forEach(k => { if (typeof p[k] === "string") plan[k] = p[k]; });
+} catch (error) {}
+
+function savePlan() {
+  try { localStorage.setItem("goldPlan", JSON.stringify(plan)); } catch (error) {}
+}
+
+function setMode(m) {
+  plan.mode = m === "manual" ? "manual" : "auto";
+  savePlan();
+  applyMode();
+}
+
+function applyMode() {
+  const man = plan.mode === "manual";
+  $("manualPlan").style.display = man ? "" : "none";
+  $("autoPlan").style.display = man ? "none" : "";
+  $("modeManual").classList.toggle("active", man);
+  $("modeAuto").classList.toggle("active", !man);
+  if (man) renderManual(Number($("tp").value));
+}
+
+function netBetween(from, to) {
+  return trades.reduce((s, t) =>
+    t.ts >= from.getTime() && t.ts < to.getTime() ? s + (t.type === "win" ? 1 : -1) * Number(t.amount) : s, 0);
+}
+
+function paintPeriod(p, from, to, amtText, tp, noteEmpty) {
+  const amt = Number(amtText);
+  if (!from) {
+    $(p + "Range").textContent = p === "m" ? "No month chosen" : "No week chosen";
+    $(p + "Net").textContent = money(0);
+    $(p + "Bar").style.width = "0%";
+    $(p + "Note").textContent = noteEmpty;
+    return;
+  }
+  const last = new Date(to); last.setDate(last.getDate() - 1);
+  const net = netBetween(from, to);
+  $(p + "Range").textContent = shortDate(from) + " - " + shortDate(last);
+  $(p + "Net").textContent = money(net);
+  $(p + "Net").style.color = net >= 0 ? "var(--green)" : "var(--red)";
+  if (!Number.isFinite(amt) || amt <= 0) {
+    $(p + "Bar").style.width = "0%";
+    $(p + "Note").textContent = "Enter your target amount.";
+    return;
+  }
+  const left = Math.max(0, amt - net);
+  $(p + "Bar").style.width = Math.max(0, Math.min(100, net / amt * 100)) + "%";
+  $(p + "Note").textContent = left === 0
+    ? "Target reached (" + money(amt) + ")"
+    : money(left) + " left of " + money(amt) + (tp > 0 ? " - about " + Math.ceil(left / tp) + " more wins at " + money(tp) + " TP" : "");
+}
+
+function renderManual(tp) {
+  if (plan.mode !== "manual") return;
+  let mFrom = null, mTo = null;
+  const mm = /^(\d{4})-(\d{2})$/.exec(plan.month);
+  if (mm) { mFrom = new Date(+mm[1], +mm[2] - 1, 1); mTo = new Date(+mm[1], +mm[2], 1); }
+  paintPeriod("m", mFrom, mTo, plan.mAmt, tp, "Choose a month and enter an amount.");
+
+  const wFrom = parseDay(plan.wStart);
+  const wTo = wFrom ? new Date(wFrom.getFullYear(), wFrom.getMonth(), wFrom.getDate() + 7) : null;
+  paintPeriod("w", wFrom, wTo, plan.wAmt, tp, "Choose a start date and enter an amount.");
+}
+
+[["mMonth", "month"], ["mAmt", "mAmt"], ["wStart", "wStart"], ["wAmt", "wAmt"]].forEach(([id, key]) => {
+  $(id).value = plan[key];
+  $(id).addEventListener("input", function () {
+    plan[key] = this.value;
+    savePlan();
+    renderManual(Number($("tp").value));
+  });
+});
+
+try { $("target").value = localStorage.getItem("goldTarget") || ""; } catch (error) {}
+$("target").addEventListener("input", function () {
+  try { localStorage.setItem("goldTarget", this.value); } catch (error) {}
+});
+
+applyMode();
 
 ["tp", "sl", "target"].forEach(id => {
   $(id).addEventListener("input", render);
