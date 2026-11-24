@@ -169,6 +169,21 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{ outline:2px 
 #navLogoutBtn:hover{ color:#fff !important; background:var(--cc) !important; }
 </style>
 
+<style id="tradehistory-card">
+/* Trade History card + nav (violet #b18cff) */
+.badge-violet{ color:#b18cff; background:rgba(177,140,255,.12); border:1px solid rgba(177,140,255,.4); }
+.por-tradehistory-promo-card:hover{ border-color:rgba(177,140,255,.55) !important; box-shadow:0 10px 34px rgba(177,140,255,.14); }
+.btn-violet-action{ background:linear-gradient(135deg,#c9b0ff,#9068f0) !important; color:#140a2e !important; border:0 !important; box-shadow:0 4px 16px rgba(177,140,255,.3); }
+.btn-violet-action:hover{ filter:brightness(1.08); }
+.th-card-live{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-family:"JetBrains Mono",monospace; font-size:13px; }
+.th-card-live strong{ font-size:18px; letter-spacing:-.01em; }
+.th-card-live .th-pos{ color:#5fd39a; } .th-card-live .th-neg{ color:#ff7b6b; }
+.th-card-live .th-meta{ color:#a79d89; font-size:12px; }
+.th-live-dot{ width:8px; height:8px; border-radius:50%; background:#b18cff; box-shadow:0 0 10px #b18cff; }
+#navTradeHistoryLink,#mobileTradeHistoryLink{ --nc:#b18cff; }
+.nav-center-links #navTradeHistoryLink,.mobile-nav-links #mobileTradeHistoryLink{ color:var(--nc) !important; }
+.nav-center-links #navTradeHistoryLink:hover,.mobile-nav-links #mobileTradeHistoryLink:hover{ color:var(--nc) !important; background:color-mix(in srgb,var(--nc) 14%,transparent) !important; border-color:color-mix(in srgb,var(--nc) 45%,transparent) !important; }
+</style>
 </head>
 <body>
   <!-- ==========================================
@@ -302,6 +317,9 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{ outline:2px 
 
         <!-- POR-SNR Auto Signal (Red) -->
         <a href="auto.html" id="navPreviewLink" class="nav-link nav-link-red">POR-SNR Auto Signal</a>
+
+        <!-- Trade History (Violet) -->
+        <a href="Tradehistory.html" id="navTradeHistoryLink" class="nav-link">Trade History</a>
 
         <a href="#membership" id="navMembershipLink" class="nav-link" data-i18n="nav_membership">Membership</a>
         <a href="#contact" id="navContactLink" class="nav-link" data-i18n="nav_contact">Contact Us</a>
@@ -485,6 +503,7 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{ outline:2px 
         <a href="scan.html" id="mobileScanLink" class="mobile-nav-link-item nav-link-aqua" data-i18n="nav_scan">Por - SNR Scanner</a>
         <a href="gold.html" id="mobileTradesLink" class="mobile-nav-link-item nav-link-yellow">POR AI MARKET ANALYZER</a>
         <a href="auto.html" id="mobilePreviewLink" class="mobile-nav-link-item nav-link-red">POR-SNR Auto Signal</a>
+        <a href="Tradehistory.html" id="mobileTradeHistoryLink" class="mobile-nav-link-item">Trade History</a>
         <a href="#membership" id="mobileMembershipLink" class="mobile-nav-link-item" data-i18n="nav_membership">Membership</a>
         <a href="#contact" id="mobileContactLink" class="mobile-nav-link-item" data-i18n="nav_contact">Contact Us</a>
 
@@ -977,6 +996,26 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{ outline:2px 
           </div>
           <p class="promo-card-desc" lang="km">តម្លៃមាស និងប្រាក់ Spot ពិតប្រាកដ គិតជា USD និងប្រាក់រៀល ក្នុងមួយអោន តម្លឹង ជី និងហ៊ុន។</p>
           <a href="javascript:void(0)" id="openGoldKhBtn" class="product-chart-btn btn-gold-action" onclick="goToKhmerGold(event)">OPEN GOLD PRIME KHMER ➔</a>
+        </div>
+
+        <!-- Feature Card 11: Trade History (Violet #b18cff) — links to Tradehistory.html, live stats from saved trades -->
+        <div class="product-feature-card por-tradehistory-promo-card" id="openTradeHistoryCard" onclick="location.href='Tradehistory.html'" style="cursor:pointer;">
+          <div class="product-card-badge badge-violet">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 12 7 12 10 4 14 20 17 12 21 12"></polyline>
+            </svg>
+          </div>
+          <div>
+            <span class="promo-sub-label">GOLD TERMINAL · RECOVERY SYSTEM · WIN / LOSS LOG</span>
+            <h3 class="product-card-title">Trade History</h3>
+          </div>
+          <div class="th-card-live" aria-live="polite">
+            <span class="th-live-dot"></span>
+            <strong id="thCardNet">--</strong>
+            <span class="th-meta" id="thCardMeta">No trades yet</span>
+          </div>
+          <p class="promo-card-desc">Log every win and loss, track net profit against your recovery target, and watch the progress bar, daily goal and deadline countdown in real time.</p>
+          <a href="Tradehistory.html" id="openTradeHistoryBtn" class="product-chart-btn btn-violet-action" onclick="event.stopPropagation();">OPEN TRADE HISTORY ➔</a>
         </div>
 
       </section>
@@ -3430,6 +3469,34 @@ async function lookupDate(e) {
       var el = document.getElementById('khmerGoldSection');
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+  </script>
+  <script>
+    /* Trade History card: live net / win-loss summary read from the same saved trades (localStorage "goldTrades") */
+    (function () {
+      function money(n) { return (n < 0 ? '-$' : '$') + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+      function update() {
+        var netEl = document.getElementById('thCardNet'), metaEl = document.getElementById('thCardMeta');
+        if (!netEl || !metaEl) return;
+        var trades = [];
+        try {
+          var saved = JSON.parse(localStorage.getItem('goldTrades') || '[]');
+          if (Array.isArray(saved)) trades = saved.filter(function (t) {
+            return t && (t.type === 'win' || t.type === 'loss') && isFinite(Number(t.amount)) && Number(t.amount) > 0;
+          });
+        } catch (e) {}
+        var w = 0, l = 0, net = 0;
+        trades.forEach(function (t) {
+          if (t.type === 'win') { w++; net += Number(t.amount); } else { l++; net -= Number(t.amount); }
+        });
+        netEl.textContent = money(net);
+        netEl.className = net >= 0 ? 'th-pos' : 'th-neg';
+        metaEl.textContent = trades.length ? (w + ' wins · ' + l + ' losses') : 'No trades yet';
+      }
+      update();
+      window.addEventListener('storage', update);
+      window.addEventListener('pageshow', update);
+      document.addEventListener('visibilitychange', function () { if (!document.hidden) update(); });
+    })();
   </script>
 </body>
 </html>
