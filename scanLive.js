@@ -30,11 +30,11 @@
 
   // ---------------------------------------------------------------- config --
   const SYMBOLS = {
-    XAUUSD: { label: 'XAUUSD', tv: 'OANDA:XAUUSD',    pair: 'XAU/USD', oanda: 'XAU_USD',    td: 'XAU/USD', dec: 2 },
+    XAUUSD: { label: 'XAUUSD', tv: 'OANDA:XAUUSD',    pair: 'XAU/USD', proxy: 'PAXGUSDT', proxyNote: 'PAXG≈XAU', oanda: 'XAU_USD',    td: 'XAU/USD', dec: 2 },
     XAGUSD: { label: 'XAGUSD', tv: 'OANDA:XAGUSD',    pair: 'XAG/USD', oanda: 'XAG_USD',    td: 'XAG/USD', dec: 3 },
     USOIL:  { label: 'USOIL',  tv: 'OANDA:WTICOUSD',  pair: 'USOIL',   oanda: 'WTICO_USD',  td: 'WTI/USD', dec: 3 },
     NASDAQ: { label: 'NASDAQ', tv: 'OANDA:NAS100USD', pair: 'NAS100',  oanda: 'NAS100_USD', td: 'NDX',     dec: 1 },
-    EURUSD: { label: 'EURUSD', tv: 'OANDA:EURUSD',    pair: 'EUR/USD', oanda: 'EUR_USD',    td: 'EUR/USD', dec: 5 },
+    EURUSD: { label: 'EURUSD', tv: 'OANDA:EURUSD',    pair: 'EUR/USD', proxy: 'EURUSDT', proxyNote: 'EURUSDT≈EURUSD', oanda: 'EUR_USD',    td: 'EUR/USD', dec: 5 },
     // Crypto: no OANDA. Price from Binance (what CoinMarketCap averages in); free, no API key.
     BTCUSDT: { label: 'BTCUSDT', tv: 'BINANCE:BTCUSDT', pair: 'BTC/USDT', binance: 'BTCUSDT', td: 'BTC/USD', dec: 2 },
     ETHUSDT: { label: 'ETHUSDT', tv: 'BINANCE:ETHUSDT', pair: 'ETH/USDT', binance: 'ETHUSDT', td: 'ETH/USD', dec: 2 }
@@ -72,6 +72,7 @@
   let busy = false;
   let lastBlob = null;
   let lastName = '';
+  let lastSource = '';                       // which engine produced the last screenshot
 
   // ------------------------------------------------------------------- UI ---
   function injectStyles() {
@@ -147,6 +148,7 @@
 
       <button type="button" id="plBtnMode" class="${IS_MOBILE ? '' : 'hidden'} w-full py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-slate-200 text-xs font-extrabold cursor-pointer">👆 Chart៖ អូស Chart (ចុចដើម្បីប្តូរទៅ Scroll ទំព័រ)</button>
       <div id="porLiveChartBox" class="w-full rounded-xl overflow-hidden border border-slate-800 bg-[#0b111e]"></div>
+      <button type="button" id="plBtnReconnect" class="w-full py-2 rounded-xl bg-slate-800/80 border border-cyan-500/40 text-cyan-300 text-xs font-extrabold cursor-pointer">🔄 Reconnect</button>
 
       <div id="plSettings" class="hidden p-3 rounded-xl bg-slate-900/80 border border-slate-700 space-y-2 text-xs">
         <div class="font-extrabold text-cyan-300">OANDA v20 candle feed (សម្រាប់ថតស្ងាត់ / ដំណើរការលើទូរស័ព្ទ)</div>
@@ -209,6 +211,7 @@
         ? '📜 កំពុង Scroll ទំព័រ (ចុចដើម្បីអូស Chart វិញ)'
         : '👆 Chart៖ អូស Chart (ចុចដើម្បីប្តូរទៅ Scroll ទំព័រ)';
     });
+    el('plBtnReconnect').addEventListener('click', () => { retryN = 0; plNote('🔄 កំពុងភ្ជាប់ឡើងវិញ…'); mountTradingView(); });
     el('plBtnSettings').addEventListener('click', () => el('plSettings').classList.toggle('hidden'));
     el('plStyle').addEventListener('change', (e) => {
       if (typeof setTradeStyle === 'function') setTradeStyle(e.target.value, false);
@@ -241,7 +244,7 @@
   function canTabCapture() {
     return !IS_MOBILE && !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
   }
-  const hasFeed = () => !!(SYMBOLS[cur.sym].binance || lsGet(LS.token) || lsGet(LS.td));
+  const hasFeed = () => !!(SYMBOLS[cur.sym].binance || SYMBOLS[cur.sym].proxy || lsGet(LS.token) || lsGet(LS.td));
 
   function refreshMode() {
     const m = el('plMode');
@@ -249,6 +252,7 @@
     if (SYMBOLS[cur.sym].binance) m.textContent = '🟢 Auto · Binance feed (គ្មាន Allow · គ្មាន Key)';
     else if (lsGet(LS.token)) m.textContent = '🟢 Auto · OANDA feed (គ្មាន Allow)';
     else if (lsGet(LS.td)) m.textContent = '🟢 Auto · Twelve Data (គ្មាន Allow)';
+    else if (SYMBOLS[cur.sym].proxy) m.textContent = '🟢 Auto · Binance ' + SYMBOLS[cur.sym].proxyNote + ' (គ្មាន Allow · គ្មាន Key)';
     else if (canTabCapture()) m.textContent = '🖥️ ថត Tab (Allow តែ 1 ដង)';
     else m.textContent = '⚠️ ទូរស័ព្ទ៖ ដាក់ API key (⚙ Feed)';
   }
@@ -283,7 +287,7 @@
     const b = document.createElement('button');
     b.type = 'button';
     b.textContent = '🔄 Reconnect';
-    b.style.cssText = 'position:absolute;right:8px;bottom:8px;z-index:8;padding:5px 10px;border-radius:10px;background:rgba(2,6,23,.85);border:1px solid rgba(34,211,238,.45);color:#67e8f9;font:800 11px sans-serif;cursor:pointer';
+    b.style.cssText = 'position:absolute;left:8px;top:8px;z-index:8;padding:3px 8px;border-radius:8px;background:rgba(2,6,23,.55);border:1px solid rgba(34,211,238,.3);color:#67e8f9;font:700 10px sans-serif;cursor:pointer;opacity:.7';
     b.addEventListener('click', () => { retryN = 0; mountTradingView(); });
     box.appendChild(b);
   }
@@ -351,7 +355,6 @@
       wrap.appendChild(inner);
       wrap.appendChild(s);
       box.appendChild(wrap);
-      addReconnectBtn(box);
       watchAlive();
     }, 120);
   }
@@ -420,6 +423,7 @@
       canvas.width = vw; canvas.height = vh;          // user picked another tab/window
       ctx.drawImage(v, 0, 0);
     }
+    lastSource = 'TradingView Tab';
     return await canvasToBlob(canvas);
   }
 
@@ -446,9 +450,9 @@
   }
 
   // A1) Binance public klines (crypto; free, no key, CORS-enabled) -> same canvas
-  async function fetchBinanceCandles(count = 120) {
+  async function fetchBinanceCandles(count = 120, symbolOverride) {
     const IV = { M1: '1m', M5: '5m', M15: '15m', M30: '30m', H1: '1h', H4: '4h', D1: '1d' };
-    const url = 'https://api.binance.com/api/v3/klines?symbol=' + SYMBOLS[cur.sym].binance +
+    const url = 'https://api.binance.com/api/v3/klines?symbol=' + (symbolOverride || SYMBOLS[cur.sym].binance) +
       '&interval=' + IV[cur.tf] + '&limit=' + count;
     const res = await fetch(url);
     if (!res.ok) throw new Error('Binance ' + res.status);
@@ -484,7 +488,7 @@
     return (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * p;
   }
 
-  function renderCandleCanvas(cs, cfg, tfKey) {
+  function renderCandleCanvas(cs, cfg, tfKey, srcLabel) {
     const W = 1280, H = 720;
     const canvas = document.createElement('canvas');
     canvas.width = W; canvas.height = H;
@@ -529,18 +533,83 @@
       g.fillRect(x - bw / 2, Math.min(yo, yc), bw, Math.max(2, Math.abs(yo - yc)));
     });
 
-    // time labels (below the axis-OCR band)
+    // time labels — always HH:MM (minutes visible) on intraday, aligned to round
+    // clock times (like TradingView), with a faint vertical grid line + tick mark
     const tz = 'Asia/Phnom_Penh';
-    const fmtT = (t) => {
+    const isDaily = TFS[tfKey].g === 'D';
+    const fmtHM = (t) => new Date(t * 1000).toLocaleTimeString('en-GB',
+      { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: tz });
+    const fmtDay = (t) => new Date(t * 1000).toLocaleDateString('en-GB',
+      { day: '2-digit', month: 'short', timeZone: tz });
+    // UTC offset (seconds) of tz at time t — keeps tick alignment correct in any timezone
+    const tzOff = (t) => {
       const d = new Date(t * 1000);
-      return TFS[tfKey].g === 'D'
-        ? d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', timeZone: tz })
-        : d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: tz });
+      const o = {};
+      new Intl.DateTimeFormat('en-US', { timeZone: tz, hour12: false, year: 'numeric', month: '2-digit',
+        day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        .formatToParts(d).forEach((q) => { o[q.type] = q.value; });
+      const asUtc = Date.UTC(+o.year, +o.month - 1, +o.day, (+o.hour) % 24, +o.minute, +o.second);
+      return Math.round(asUtc / 1000 - Math.floor(t));
     };
-    g.fillStyle = '#94a3b8'; g.font = `500 20px ${MONO}`; g.textAlign = 'center';
-    const every = Math.max(1, Math.round(n / 6));
-    for (let i = Math.floor(every / 2); i < n; i += every) {
-      g.fillText(fmtT(cs[i].t), L + slot * i + slot / 2, H - 24);
+
+    // candle spacing in seconds (median of gaps -> ignores weekend/session gaps)
+    const gaps = [];
+    for (let i = 1; i < n; i++) gaps.push(cs[i].t - cs[i - 1].t);
+    gaps.sort((a, b) => a - b);
+    const tfSec = Math.max(60, gaps.length ? gaps[Math.floor(gaps.length / 2)] : 60);
+
+    // pick the smallest "nice" clock step that keeps labels ≥ 120px apart
+    const STEPS = [60, 120, 300, 600, 900, 1800, 3600, 7200, 10800, 14400, 21600, 43200, 86400];
+    const minPx = 120;
+    const needSec = (minPx / slot) * tfSec;
+    let stepSec = STEPS[STEPS.length - 1];
+    for (const st of STEPS) { if (st >= needSec && st >= tfSec) { stepSec = st; break; } }
+
+    const ticks = [];                       // { i, label, major }
+    let lastX = -1e9;
+    for (let i = 0; i < n; i++) {
+      const t = cs[i].t;
+      const loc = t + tzOff(t);
+      const prevLoc = i > 0 ? cs[i - 1].t + tzOff(cs[i - 1].t) : loc - tfSec;
+      // first candle at/after a round boundary
+      const crossed = Math.floor(loc / stepSec) !== Math.floor(prevLoc / stepSec);
+      if (!crossed && i !== 0) continue;
+      if (i === 0 && !isDaily && (loc % stepSec) > tfSec) continue;   // skip unaligned first candle
+      const x = L + slot * i + slot / 2;
+      if (x - lastX < minPx * 0.85) continue;
+      const newDay = Math.floor(loc / 86400) !== Math.floor(prevLoc / 86400);
+      const label = isDaily ? fmtDay(t) : (newDay && i > 0 ? fmtDay(t) : fmtHM(t));
+      ticks.push({ i, label, major: !isDaily && newDay && i > 0 });
+      lastX = x;
+    }
+    // safety net: never leave the axis empty
+    if (!ticks.length) {
+      const every = Math.max(1, Math.round(n / 6));
+      for (let i = Math.floor(every / 2); i < n; i += every) {
+        ticks.push({ i, label: isDaily ? fmtDay(cs[i].t) : fmtHM(cs[i].t), major: false });
+      }
+    }
+    g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+    ticks.forEach((tk) => {
+      const x = L + slot * tk.i + slot / 2;
+      g.strokeStyle = tk.major ? 'rgba(148,163,184,0.28)' : 'rgba(148,163,184,0.10)';
+      g.lineWidth = 1;
+      g.beginPath(); g.moveTo(x, T); g.lineTo(x, B + 8); g.stroke();      // vertical grid + tick
+      g.fillStyle = tk.major ? '#e2e8f0' : '#94a3b8';
+      g.font = `${tk.major ? 700 : 500} 20px ${MONO}`;
+      g.fillText(tk.label, x, H - 24);
+    });
+    // exact time of the last (live) candle, with minutes, on the axis edge
+    {
+      const lt = cs[n - 1].t;
+      const lx = L + slot * (n - 1) + slot / 2;
+      const lab = isDaily ? fmtDay(lt) : fmtHM(lt);
+      g.font = `700 20px ${MONO}`;
+      const tw = g.measureText(lab).width + 14;
+      const bx = Math.min(Math.max(lx - tw / 2, L), R - tw);
+      g.fillStyle = '#334155'; g.fillRect(bx, H - 50, tw, 30);
+      g.fillStyle = '#f8fafc'; g.textAlign = 'center';
+      g.fillText(lab, bx + tw / 2, H - 28);
     }
 
     // live price line + tag
@@ -556,7 +625,7 @@
     // header (pair + timeframe for OCR) + OHLC
     g.textAlign = 'left'; g.textBaseline = 'alphabetic';
     g.fillStyle = '#f8fafc'; g.font = `700 32px ${SANS}`;
-    g.fillText(`${cfg.label} · ${tfKey} · ${cfg.binance ? 'BINANCE' : 'OANDA'}`, 28, 52);
+    g.fillText(`${cfg.label} · ${tfKey} · ${srcLabel || (cfg.binance ? 'BINANCE' : 'OANDA')}`, 28, 52);
     g.fillStyle = '#94a3b8'; g.font = `500 20px ${MONO}`;
     g.fillText(
       `O ${last.o.toFixed(cfg.dec)}  H ${last.h.toFixed(cfg.dec)}  L ${last.l.toFixed(cfg.dec)}  C ${last.c.toFixed(cfg.dec)}`,
@@ -568,14 +637,17 @@
   async function captureFromFeed() {
     const errs = [];
     const providers = [];
+    let srcLabel = SYMBOLS[cur.sym].binance ? 'BINANCE' : 'OANDA';
     if (SYMBOLS[cur.sym].binance) providers.push(['Binance', fetchBinanceCandles]);
-    if (SYMBOLS[cur.sym].oanda && lsGet(LS.token)) providers.push(['OANDA', fetchOandaCandles]);
-    if (lsGet(LS.td)) providers.push(['Twelve Data', fetchTwelveCandles]);
+    if (SYMBOLS[cur.sym].oanda && lsGet(LS.token)) providers.push(['OANDA', (n) => { srcLabel = 'OANDA'; return fetchOandaCandles(n); }]);
+    if (lsGet(LS.td)) providers.push(['Twelve Data', (n) => { srcLabel = 'TWELVE DATA'; return fetchTwelveCandles(n); }]);
+    if (SYMBOLS[cur.sym].proxy) providers.push(['Binance proxy', (n) => { srcLabel = 'BINANCE ' + SYMBOLS[cur.sym].proxyNote; return fetchBinanceCandles(n, SYMBOLS[cur.sym].proxy); }]);
     for (const [name, fn] of providers) {
       try {
         const cs = await fn(120);
         window.__porLive = { candles: cs, sym: cur.sym, tf: cur.tf, ts: Date.now(), b64: null };
-        return await canvasToBlob(renderCandleCanvas(cs, SYMBOLS[cur.sym], cur.tf));
+        lastSource = srcLabel;
+        return await canvasToBlob(renderCandleCanvas(cs, SYMBOLS[cur.sym], cur.tf, srcLabel));
       } catch (e) { console.warn(name + ' feed failed:', e); errs.push(e.message); }
     }
     throw new Error('Feed មិនដំណើរការ (' + errs.join(' | ') + ')');
@@ -614,10 +686,48 @@
     window.__porLiveFeeding = true;
     try { handleFile(new File([blob], lastName, { type: 'image/png' })); } finally { window.__porLiveFeeding = false; }
     for (let i = 0; i < 60; i++) {                        // wait for FileReader (≤ 6 s)
-      if (state.imageBase64) { if (window.__porLive) window.__porLive.b64 = state.imageBase64; return; }
+      if (state.imageBase64) {
+        if (window.__porLive) window.__porLive.b64 = state.imageBase64;
+        autoSaveCaptureHistory();
+        return;
+      }
       await sleep(100);
     }
     throw new Error('មិនអាចដាក់រូបភាពចូល Scan បានទេ');
+  }
+
+  // Screenshot ready -> automatically record it in the account History (no button needed).
+  // The scan result + chart thumbnail still go to the History Lobby after the scan finishes.
+  function autoSaveCaptureHistory() {
+    try {
+      if (typeof addHistoryLog !== 'function') return;
+      const c = SYMBOLS[cur.sym];
+      addHistoryLog('CAPTURE', `ថត Chart ${c.label} (${cur.tf}) រួចរាល់ • ${lastSource || 'Live'} • ${lastName}`);
+    } catch (e) { console.warn('auto history failed:', e); }
+  }
+
+  // Screenshot + signal -> History Lobby. scanChart() normally saves it itself; if that save
+  // was skipped or failed for any reason, save it here so a signal is never lost.
+  function safeLobbyCount() {
+    try { return typeof getScanLobbyList === 'function' ? getScanLobbyList().length : -1; } catch (e) { return -1; }
+  }
+  function blobToDataUrl(blob) {
+    return new Promise((resolve) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(String(fr.result || ''));
+      fr.onerror = () => resolve('');
+      fr.readAsDataURL(blob);
+    });
+  }
+  async function ensureSignalSavedToLobby(idBefore, countBefore) {
+    try {
+      if (!state.result || typeof window.saveScanToHistoryLobby !== 'function') return;
+      const savedByScan = state.activeLobbyItemId && state.activeLobbyItemId !== idBefore;
+      const grew = countBefore >= 0 && safeLobbyCount() > countBefore;
+      if (savedByScan || grew) return;                    // already in the Lobby
+      const shot = lastBlob ? await blobToDataUrl(lastBlob) : '';
+      await window.saveScanToHistoryLobby(state.result, shot);
+    } catch (e) { console.warn('lobby save fallback failed:', e); }
   }
 
   // --------------------------------------------------------------- actions ---
@@ -675,7 +785,10 @@
       step = 1; paintSteps(1);
       await feedIntoScan(blob);
       step = 2; paintSteps(2);
+      const lobbyIdBefore = state.activeLobbyItemId;
+      const lobbyCountBefore = safeLobbyCount();
       await window.scanChart();                           // same entry point as the normal Scan button
+      await ensureSignalSavedToLobby(lobbyIdBefore, lobbyCountBefore);   // screenshot + signal -> History Lobby, guaranteed
       if (state.result) {
         paintSteps(3);
         const rc = el('resultCard');
