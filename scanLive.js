@@ -91,6 +91,23 @@
         background: rgba(15,23,42,.85); border: 1px solid #334155; color: #cbd5e1; white-space: nowrap; }
       #porLivePanel .pl-sym.active { background: rgba(6,182,212,.18); border-color: #22d3ee; color: #67e8f9;
         box-shadow: 0 0 14px rgba(34,211,238,.35); }
+      /* Colored symbol buttons: each symbol has its own accent (--c) */
+      #porLivePanel .pl-sym[data-sym] { --c: #22d3ee;
+        color: var(--c); border-color: color-mix(in srgb, var(--c) 55%, transparent);
+        background: color-mix(in srgb, var(--c) 10%, rgba(15,23,42,.85)); }
+      #porLivePanel .pl-sym[data-sym]:hover { background: color-mix(in srgb, var(--c) 20%, rgba(15,23,42,.85)); }
+      #porLivePanel .pl-sym[data-sym].active { color: var(--c); border: 2px solid var(--c); padding: 6px 13px;
+        background: color-mix(in srgb, var(--c) 22%, rgba(15,23,42,.9));
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--c) 25%, transparent), 0 0 16px color-mix(in srgb, var(--c) 45%, transparent); }
+      #porLivePanel .pl-sym[data-sym=XAUUSD]  { --c: #22d3ee; }
+      #porLivePanel .pl-sym[data-sym=XAGUSD]  { --c: #5eead4; }
+      #porLivePanel .pl-sym[data-sym=USOIL]   { --c: #3b82f6; }
+      #porLivePanel .pl-sym[data-sym=NASDAQ]  { --c: #c084fc; }
+      #porLivePanel .pl-sym[data-sym=EURUSD]  { --c: #60a5fa; }
+      #porLivePanel .pl-sym[data-sym=GBPUSD]  { --c: #2dd4bf; }
+      #porLivePanel .pl-sym[data-sym=USDJPY]  { --c: #f87171; }
+      #porLivePanel .pl-sym[data-sym=BTCUSDT] { --c: #fbbf24; }
+      #porLivePanel .pl-sym[data-sym=ETHUSDT] { --c: #818cf8; }
       #porLivePanel .pl-tf { padding: 6px 0; border-radius: 10px; font-weight: 800; font-size: 12px;
         background: #131d31; border: 1px solid #334155; color: #cbd5e1; }
       #porLivePanel .pl-tf.active { background: #06b6d4; border-color: #67e8f9; color: #020617; }
