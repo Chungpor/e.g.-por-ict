@@ -1995,3 +1995,6 @@ img,canvas,svg,video{max-width:100%}
   .backdrop-blur-md,.backdrop-blur-sm,.backdrop-blur{-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
   body{padding-bottom:calc(3rem + env(safe-area-inset-bottom))}
 }
+
+#aboutAiCard summary::-webkit-details-marker{display:none}
+#aboutAiCard[open] summary span:last-child{display:none}
