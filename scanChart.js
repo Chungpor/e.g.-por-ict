@@ -486,7 +486,7 @@ CRITICAL STEP 3 — RETURN ONLY VALID JSON MATCHING THIS SCHEMA:
   "tp1": "Exact Take Profit 1 at Internal Gap Roadblock / 1-TF-Lower Roadblock (single number)",
   "tp2": "Exact Take Profit 2 at External Range Liquidity BSL/SSL / Opposing Fresh SNR (single number)",
   "rrRatio": "${cfg.rrRatio}",
-  "confidence": "98.1%",
+  "confidence": "Your honest 0-100 percent estimate for THIS chart (e.g. 62%). Never reuse a fixed number",
   "keyFlipRule": "Explain in Khmer which KEY Por - SNR rule, 4.11 Zikir (HSL+ISL), Rare #Flipped_SNR/#Doji_SNR, or ICT PD Array triggered",
   "detailedAnalysis": "Write a clear 2-3 sentence institutional analysis in Khmer explaining the Liquidity Sweep / Fresh SNR / HSL+ISL Night Market / #Flipped_SNR setup, why the 3-Tier Perfect Entry is placed here, where TP1/TP2 target, and how SL is protected.",
   "tierEntries": {
@@ -547,7 +547,7 @@ function isValidGeminiKeyFormat(key) {
 }
 
 async function callGeminiWithFallback(apiKey, payload) {
-  const modelsToTry = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+  const modelsToTry = (window.PorModels && window.PorModels.active().models) || ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
   const RETRYABLE = [404, 408, 429, 500, 502, 503, 504];
   let lastError = 'Gemini API unavailable';
 
@@ -558,14 +558,15 @@ async function callGeminiWithFallback(apiKey, payload) {
       try {
         const res = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey.trim())}`,
-          { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: ctrl.signal }
+          { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(window.PorModels ? window.PorModels.tuneConfig(model, payload) : payload), signal: ctrl.signal }
         );
         clearTimeout(timer);
-        if (res.ok) return await res.json();
+        if (res.ok) { const j = await res.json(); j.__model = model; return j; }
 
         let detail = '';
         try { detail = (await res.json()).error?.message || ''; } catch (e) {}
         lastError = `API ${res.status} (${model}): ${detail}`;
+        if (res.status === 403 && /pro/.test(model)) break;               // no access to this model: next model
         if (!RETRYABLE.includes(res.status)) throw new Error(lastError); // bad key / bad request: stop
         if (res.status === 404) break;                                    // model missing: next model
         await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));      // brief backoff, retry once
@@ -1666,9 +1667,22 @@ async function scanChart() {
           }
         };
 
+        const readText = (d) => d?.candidates?.[0]?.content?.parts?.filter((p) => !p.thought).map((p) => p.text || '').join('') || '';
         const data = await callGeminiWithFallback(apiKey, payload);
-        const raw = data?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') || '';
-        parsedResult = parseGeminiJson(raw);
+        parsedResult = parseGeminiJson(readText(data));
+        parsedResult.__engine = 'gemini';
+        parsedResult.__model = data.__model;
+        if (window.PorModels) {
+          // TypeSafe: validate types + price order; one corrective retry with the exact issues
+          parsedResult = await window.PorModels.validateWithRetry(parsedResult, async (issues) => {
+            const fix = JSON.parse(JSON.stringify(payload));
+            fix.contents[0].parts.push({ text: 'Your previous JSON had these problems: ' + issues.join('; ') + '. Return the full corrected JSON only.' });
+            const d2 = await callGeminiWithFallback(apiKey, fix);
+            const p2 = parseGeminiJson(readText(d2));
+            p2.__engine = 'gemini'; p2.__model = d2.__model;
+            return p2;
+          });
+        }
       } catch (geminiErr) {
         console.warn('Gemini API failed, switching to Local Smart Chart Vision Engine:', geminiErr);
       }
@@ -1676,11 +1690,13 @@ async function scanChart() {
 
     if (!parsedResult) {
       parsedResult = await analyzeChartLocallyWithVision(previewSrc, newsMode, tradeStyle);
+      parsedResult.__engine = 'local';
     }
 
     state.result = calibrateSniperResult(parsedResult, tradeStyle);
     consumeKeyScanIfNeeded();
     window.renderResult();
+    if (window.PorModels) window.PorModels.scheduleQra(state.result);
 
     // Auto-save scan result + compressed chart thumbnail into After-Scan History Lobby
     if (typeof window.saveScanToHistoryLobby === 'function') {
