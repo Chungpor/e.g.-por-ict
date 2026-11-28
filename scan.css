@@ -26,7 +26,7 @@ svg.lucide{width:1em;height:1em;flex-shrink:0}
 /* Aqua Back to Main Dashboard Button Glow */
 .aqua-back-btn {
   box-shadow: 0 0 18px rgba(0, 255, 255, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.15);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  transition: transform .1s ease, box-shadow .1s ease, background-color .1s ease, border-color .1s ease;
 }
 .aqua-back-btn:hover {
   transform: translateY(-1px);
@@ -150,7 +150,7 @@ svg.lucide{width:1em;height:1em;flex-shrink:0}
   overflow: hidden;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  transition: transform 0.2s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  transition: transform .1s ease, border-color .125s ease, box-shadow .125s ease;
 }
 
 .winrate-live-row:hover {
@@ -191,7 +191,7 @@ svg.lucide{width:1em;height:1em;flex-shrink:0}
   overflow: hidden;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.22s ease, border-color 0.22s ease;
+  transition: transform .11s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow .11s ease, border-color .11s ease;
   box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.10);
 }
 
@@ -204,7 +204,7 @@ svg.lucide{width:1em;height:1em;flex-shrink:0}
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
   transform: skewX(-25deg);
-  transition: left 0.55s ease;
+  transition: left .275s ease;
   pointer-events: none;
 }
 
@@ -267,7 +267,7 @@ body.light-mode #bgTradeCanvas {
   background: linear-gradient(180deg, rgba(14, 29, 62, 0.92) 0%, rgba(9, 19, 42, 0.96) 100%);
   border: 1px solid rgba(56, 189, 248, 0.28);
   box-shadow: 0 8px 22px -6px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.08);
-  transition: all 0.2s ease;
+  transition: all .1s ease;
 }
 .hp-guide-btn:hover {
   border-color: rgba(0, 229, 255, 0.65);
@@ -361,7 +361,7 @@ body.light-mode #bgTradeCanvas {
   background: rgba(9, 15, 29, 0.9);
   border: 1px solid rgba(56, 189, 248, 0.32);
   border-radius: 14px;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: transform .1s ease, border-color .1s ease, box-shadow .1s ease;
 }
 .tier-entry-card:hover {
   transform: translateY(-2px);
@@ -411,7 +411,7 @@ body.light-mode #bgTradeCanvas {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform .1s ease, box-shadow .1s ease;
 }
 .floating-bot-fab:hover {
   transform: translateY(-3px) scale(1.05);
@@ -424,7 +424,7 @@ body.light-mode #bgTradeCanvas {
 .trade-style-card {
   position: relative;
   overflow: hidden;
-  transition: all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: all .11s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .trade-style-card.active-scalp {
   background: linear-gradient(135deg, rgba(6, 182, 212, 0.26), rgba(15, 23, 42, 0.96));
@@ -497,7 +497,7 @@ body.light-mode #bgTradeCanvas {
 }
 
 .ict-confluence-pill {
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: transform .1s ease, box-shadow .1s ease, border-color .1s ease;
 }
 .ict-confluence-pill:hover {
   transform: translateY(-1px);
@@ -508,7 +508,7 @@ body.light-mode #bgTradeCanvas {
 /* AFTER-SCAN HISTORY LOBBY STYLES                           */
 /* ========================================================= */
 .history-lobby-shell {
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: box-shadow .15s ease, border-color .15s ease;
 }
 
 .history-lobby-shell.lobby-new-flash {
@@ -524,7 +524,7 @@ body.light-mode #bgTradeCanvas {
   border-radius: 18px;
   transform-origin: center top;
   will-change: transform, opacity, max-height, margin, padding;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: transform .1s ease, border-color .1s ease, box-shadow .1s ease;
 }
 
 .scan-lobby-card:hover {
@@ -543,11 +543,11 @@ body.light-mode #bgTradeCanvas {
 /* ========================================================= */
 .scan-lobby-card.deleting-smooth {
   pointer-events: none;
-  animation: cardSmoothDelete 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: cardSmoothDelete .19s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .scan-lobby-card.updating-flash {
-  animation: cardUpdateFlash 0.6s ease;
+  animation: cardUpdateFlash .3s ease;
 }
 
 @keyframes cardUpdateFlash {
@@ -588,7 +588,7 @@ body.light-mode #bgTradeCanvas {
     0 25px 70px -10px rgba(0, 0, 0, 0.9),
     0 0 40px rgba(244, 63, 94, 0.22),
     inset 0 1px 1px rgba(255, 255, 255, 0.15);
-  animation: modalPopSmooth 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: modalPopSmooth .12s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes modalPopSmooth {
@@ -629,7 +629,7 @@ body.light-mode #bgTradeCanvas {
 
 .tg-glow-card {
   animation: tgPulseGlow 3s ease-in-out infinite;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform .1s ease, box-shadow .1s ease;
 }
 
 .tg-glow-card:hover {
@@ -662,11 +662,11 @@ body.light-mode #bgTradeCanvas {
 .fx-press {
   scale: 0.95;
   filter: brightness(1.25) saturate(1.1);
-  transition: scale .09s ease-out, filter .09s ease-out;
+  transition: scale .045s ease-out, filter .045s ease-out;
 }
 button, a, [role="button"], .cursor-pointer, label[for] {
   transition-property: scale, filter, background-color, border-color, color, box-shadow, opacity;
-  transition-duration: .18s;
+  transition-duration: .09s;
   transition-timing-function: cubic-bezier(.2,.8,.2,1);
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -684,7 +684,7 @@ button:disabled { cursor: not-allowed; }
   box-shadow: 0 0 18px rgb(var(--fx-rgb, 34,211,238) / .6);
   transform: scale(0);
   opacity: .9;
-  animation: fxRipple .6s cubic-bezier(.2,.7,.3,1) forwards;
+  animation: fxRipple .3s cubic-bezier(.2,.7,.3,1) forwards;
 }
 @keyframes fxRipple {
   to { transform: scale(var(--fx-size, 10)); opacity: 0; }
@@ -707,14 +707,14 @@ button:disabled { cursor: not-allowed; }
     rgb(var(--fx-rgb, 34,211,238) / .18) 28%,
     rgb(var(--fx-rgb, 34,211,238) / 0) 62%);
   clip-path: circle(0% at var(--fx-x, 50%) var(--fx-y, 50%));
-  animation: fxBodyWash .85s cubic-bezier(.2,.7,.3,1) forwards;
+  animation: fxBodyWash .425s cubic-bezier(.2,.7,.3,1) forwards;
 }
 @keyframes fxBodyWash {
   0%   { opacity: 1; clip-path: circle(0% at var(--fx-x, 50%) var(--fx-y, 50%)); }
   60%  { opacity: .8; }
   100% { opacity: 0; clip-path: circle(150% at var(--fx-x, 50%) var(--fx-y, 50%)); }
 }
-body.fx-tint { box-shadow: inset 0 0 120px rgb(var(--fx-rgb, 34,211,238) / .22); transition: box-shadow .5s ease; }
+body.fx-tint { box-shadow: inset 0 0 120px rgb(var(--fx-rgb, 34,211,238) / .22); transition: box-shadow .25s ease; }
 @media (prefers-reduced-motion: reduce) { .fx-body-wash { display: none; } }
 
 /* ========================================================= */
@@ -747,7 +747,7 @@ body.fx-tint { box-shadow: inset 0 0 120px rgb(var(--fx-rgb, 34,211,238) / .22);
 #scanLobbyList, #historyContent {
   position: relative;            /* ចាំបាច់សម្រាប់គណនា offsetTop នៃកាត */
   perspective: none;             /* ប្រើ perspective() ក្នុងកាតនីមួយៗវិញ */
-  transition: box-shadow 0.35s ease;
+  transition: box-shadow .175s ease;
 }
 #scanLobbyList.is-scrolling,
 #historyContent.is-scrolling {
@@ -770,10 +770,10 @@ body.fx-tint { box-shadow: inset 0 0 120px rgb(var(--fx-rgb, 34,211,238) / .22);
   transform-origin: 50% 50%;
   backface-visibility: hidden;
   transition:
-    border-color 0.25s ease,
-    box-shadow 0.25s ease,
-    background-color 0.25s ease,
-    translate 0.3s cubic-bezier(0.22, 1, 0.36, 1) !important;
+    border-color .125s ease,
+    box-shadow .125s ease,
+    background-color .125s ease,
+    translate .15s cubic-bezier(0.22, 1, 0.36, 1) !important;
   transition-delay: 0ms !important;
 }
 #scanLobbyList .scan-lobby-card { cursor: grab; }
@@ -791,11 +791,11 @@ body.fx-tint { box-shadow: inset 0 0 120px rgb(var(--fx-rgb, 34,211,238) / .22);
 }
 #scanLobbyList .scan-lobby-card.fx-enter,
 #historyContent .fx-row.fx-enter {
-  animation: fxCardIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--fx-delay, 0ms) backwards;
+  animation: fxCardIn .3s cubic-bezier(0.22, 1, 0.36, 1) var(--fx-delay, 0ms) backwards;
 }
-#scanLobbyList .scan-lobby-card.updating-flash { animation: cardUpdateFlash 0.6s ease; }
+#scanLobbyList .scan-lobby-card.updating-flash { animation: cardUpdateFlash .3s ease; }
 #scanLobbyList .scan-lobby-card.deleting-smooth {
-  animation: cardSmoothDelete 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: cardSmoothDelete .19s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 /* ពេលកំពុងចុចអូស (Mouse) */
@@ -831,7 +831,7 @@ body.fx-tint { box-shadow: inset 0 0 120px rgb(var(--fx-rgb, 34,211,238) / .22);
   45%  { transform: scale(1.09); box-shadow: 0 0 22px rgba(24, 255, 255, 0.55); }
   100% { transform: scale(1); }
 }
-.lobby-filter-btn.fx-pop { animation: fxTabPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.lobby-filter-btn.fx-pop { animation: fxTabPop .2s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
 @media (prefers-reduced-motion: reduce) {
   #scanLobbyList .scan-lobby-card,
@@ -864,7 +864,7 @@ body.fx-tint { box-shadow: inset 0 0 120px rgb(var(--fx-rgb, 34,211,238) / .22);
   padding:var(--fc-pad);
   box-shadow:var(--fc-shadow);
   line-height:1.5;
-  transition:transform .22s var(--fc-ease),box-shadow .22s ease,border-color .22s ease,background .22s ease;
+  transition:transform .11s var(--fc-ease),box-shadow .11s ease,border-color .11s ease,background .11s ease;
   -webkit-tap-highlight-color:transparent;
 }
 
@@ -1255,7 +1255,7 @@ body.fx-tint { box-shadow: inset 0 0 120px rgb(var(--fx-rgb, 34,211,238) / .22);
   border:1px solid var(--pill-edge,rgba(56,189,248,.35));
   color:var(--pill-text,#7dd3fc);
   box-shadow:0 8px 20px -10px rgba(0,0,0,.8),inset 0 1px 1px rgba(255,255,255,.08);
-  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease,filter .2s ease;
+  transition:transform .1s ease,box-shadow .1s ease,border-color .1s ease,filter .1s ease;
 }
 .footer-pill:hover{
   transform:translateY(-2px);
@@ -1409,7 +1409,7 @@ body.fx-tint { box-shadow: inset 0 0 120px rgb(var(--fx-rgb, 34,211,238) / .22);
   background:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.12);
   color:#94a3b8;
-  transition:transform .25s ease,background .2s ease,color .2s ease;
+  transition:transform .125s ease,background .1s ease,color .1s ease;
 }
 #profileModal button[data-close]:hover{
   background:rgba(244,63,94,.18);
@@ -1441,7 +1441,7 @@ body.fx-tint { box-shadow: inset 0 0 120px rgb(var(--fx-rgb, 34,211,238) / .22);
     0 0 30px rgba(0,229,255,.5),
     0 0 60px rgba(250,204,21,.22) !important;
   animation:profAvatarGlow 4s ease-in-out infinite;
-  transition:transform .25s ease;
+  transition:transform .125s ease;
 }
 #profileModal label[for="profileImgInput"]:hover{transform:scale(1.04)}
 @keyframes profAvatarGlow{
@@ -1496,7 +1496,7 @@ body.fx-tint { box-shadow: inset 0 0 120px rgb(var(--fx-rgb, 34,211,238) / .22);
   background:rgba(0,229,255,.1);
   border:1px solid rgba(0,229,255,.35);
   text-decoration:none !important;
-  transition:background .2s ease,box-shadow .2s ease;
+  transition:background .1s ease,box-shadow .1s ease;
 }
 #btnCopyAccount:hover{
   background:rgba(0,229,255,.22);
@@ -1508,7 +1508,7 @@ body.fx-tint { box-shadow: inset 0 0 120px rgb(var(--fx-rgb, 34,211,238) / .22);
   background:linear-gradient(160deg,rgba(24,38,66,.9),rgba(12,20,38,.95)) !important;
   border:1px solid rgba(56,189,248,.35) !important;
   box-shadow:0 10px 24px -12px rgba(0,0,0,.8),inset 0 1px 1px rgba(255,255,255,.08);
-  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+  transition:transform .1s ease,box-shadow .1s ease,border-color .1s ease;
 }
 #btnOpenHistory:hover{
   transform:translateY(-2px);
@@ -1521,7 +1521,7 @@ body.fx-tint { box-shadow: inset 0 0 120px rgb(var(--fx-rgb, 34,211,238) / .22);
   background:rgba(14,24,44,.9) !important;
   border:1px solid rgba(56,189,248,.28) !important;
   box-shadow:inset 0 2px 6px rgba(0,0,0,.45);
-  transition:border-color .2s ease,box-shadow .2s ease;
+  transition:border-color .1s ease,box-shadow .1s ease;
 }
 #profileNicknameInput:focus{
   border-color:#18ffff !important;
@@ -1535,7 +1535,7 @@ body.fx-tint { box-shadow: inset 0 0 120px rgb(var(--fx-rgb, 34,211,238) / .22);
   overflow:hidden;
   font-weight:800;
   animation:bkPulse 3s ease-in-out infinite;
-  transition:transform .2s ease,filter .2s ease;
+  transition:transform .1s ease,filter .1s ease;
 }
 #btnSaveProfile{
   --bk-glow-a:rgba(34,211,238,.45);--bk-glow-b:rgba(6,182,212,.2);
@@ -1628,7 +1628,7 @@ button[data-lobby-del]{
   border:1px solid var(--bk-edge) !important;
   box-shadow:0 0 16px var(--bk-glow-a),0 0 30px var(--bk-glow-b),inset 0 1px 2px rgba(255,255,255,.55);
   animation:bkPulse 3.2s ease-in-out infinite;
-  transition:transform .2s ease,filter .2s ease;
+  transition:transform .1s ease,filter .1s ease;
 }
 #btnScan *,
 #btnNewScanFromLobby *,
@@ -1750,7 +1750,7 @@ button[data-lobby-del]:hover{
   border:1px solid var(--bk-edge) !important;
   box-shadow:0 0 16px var(--bk-glow-a),0 0 30px var(--bk-glow-b),inset 0 1px 2px rgba(255,255,255,.55);
   animation:bkPulse 3.2s ease-in-out infinite;
-  transition:transform .2s ease,filter .2s ease;
+  transition:transform .1s ease,filter .1s ease;
 }
 .footer-pill *,
 #btnSendCustomRegime *,
@@ -1909,7 +1909,7 @@ button[data-lobby-del]::after{
   opacity:.9;
 }
 .ticker-track .tk-flip{
-  animation:tkFlip .9s ease-out 1;
+  animation:tkFlip .45s ease-out 1;
 }
 @keyframes tkFlip{
   0%{opacity:.35;transform:scale(1.18)}
@@ -1963,3 +1963,35 @@ button[data-lobby-del]::after{
 .crt-fx .tl{top:8px;left:8px;border-right:0;border-bottom:0}.crt-fx .tr{top:8px;right:8px;border-left:0;border-bottom:0}
 .crt-fx .bl{bottom:8px;left:8px;border-right:0;border-top:0}.crt-fx .br{bottom:8px;right:8px;border-left:0;border-top:0}
 .lobby-filter-btn[data-lobby-filter="CRT_CANDLE"]{--bk-edge:rgba(217,249,157,.75);--bk-glow-a:rgba(163,230,53,.4);--bk-glow-b:rgba(101,163,13,.18);background:linear-gradient(180deg,#d9f99d 0%,#a3e635 48%,#4d7c0f 100%) !important}
+
+/* =====================================================================
+   UX / PERFORMANCE PATCH  (faster UI + better responsive)
+   ===================================================================== */
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+body{min-height:100vh;min-height:100dvh}
+/* BUG FIX: body is user-select:none -> inputs unusable/unselectable on iOS Safari */
+input,textarea,select,[contenteditable="true"],.selectable,pre,code{
+  -webkit-user-select:text;user-select:text}
+/* BUG FIX: tall modals were clipped on small phones (no scroll, items-center) */
+div[id$="Modal"].fixed{
+  overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  align-items:safe center;
+  padding-top:max(1rem,env(safe-area-inset-top));
+  padding-bottom:max(1rem,env(safe-area-inset-bottom))}
+div[id$="Modal"].fixed>div{max-height:calc(100dvh - 2rem);overflow-y:auto;overscroll-behavior:contain}
+/* Faster, snappier touch response */
+button,a,label,select,input,[role="button"],[data-lobby-filter]{touch-action:manipulation}
+button:active,[role="button"]:active{transition-duration:.06s}
+/* Accessibility: visible keyboard focus + bigger tap targets on touch screens */
+:focus-visible{outline:2px solid #22d3ee;outline-offset:2px}
+@media (pointer:coarse){
+  button,[role="button"],select,input:not([type="checkbox"]):not([type="radio"]){min-height:40px}
+}
+img,canvas,svg,video{max-width:100%}
+#historyContent,#scanLobbyList{overflow-wrap:anywhere}
+/* Rendering performance */
+#scanLobbyList .scan-lobby-card{content-visibility:auto;contain-intrinsic-size:auto 120px}
+@media (max-width:640px){
+  .backdrop-blur-md,.backdrop-blur-sm,.backdrop-blur{-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+  body{padding-bottom:calc(3rem + env(safe-area-inset-bottom))}
+}

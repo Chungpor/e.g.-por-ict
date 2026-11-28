@@ -568,7 +568,7 @@ async function callGeminiWithFallback(apiKey, payload) {
         lastError = `API ${res.status} (${model}): ${detail}`;
         if (!RETRYABLE.includes(res.status)) throw new Error(lastError); // bad key / bad request: stop
         if (res.status === 404) break;                                    // model missing: next model
-        await new Promise((r) => setTimeout(r, 800 * (attempt + 1)));      // brief backoff, retry once
+        await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));      // brief backoff, retry once
       } catch (err) {
         clearTimeout(timer);
         if (err.name === 'AbortError') { lastError = `Timeout (${model})`; break; }

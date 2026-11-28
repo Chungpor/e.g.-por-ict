@@ -257,7 +257,7 @@ function flashButton(btn, doneHtml, originalHtml) {
   if (!btn) return;
   btn.innerHTML = doneHtml;
   icons();
-  setTimeout(() => { btn.innerHTML = originalHtml; icons(); }, 2200);
+  setTimeout(() => { btn.innerHTML = originalHtml; icons(); }, 1400);
 }
 
 // ==========================================
@@ -659,6 +659,7 @@ $('btnRecordLoss')?.addEventListener('click', () => {
 });
 
 setInterval(() => {
+  if (document.hidden) return;
   const path = $('winrateWavePath');
   const dot = $('winrateDot');
   if (!path || !dot) return;
@@ -679,7 +680,7 @@ setInterval(() => {
   }
 }, 250);
 
-setInterval(tickLiveWinrateAction, 1800);
+setInterval(() => { if (!document.hidden) tickLiveWinrateAction(); }, 900);
 
 // ==========================================
 // 6. LANGUAGE SWITCHER & THEME
@@ -1574,7 +1575,7 @@ function completeOneTimePaymentAndShowKey(pkg, sourceLabel = 'ABA KHQR') {
   state.latestIssuedKey = generatedKey;
   show($('khqrUsedOverlay'), true);
   addHistoryLog('ABA KHQR PAID', `បានទូទាត់ ${pkg.title} (${pkg.price}$) តាម ${sourceLabel} • ទទួលបាន KEY: ${generatedKey}`);
-  setTimeout(() => { closeModal('khqrModal'); openReceiveKeyModalWithKey(generatedKey, pkg); }, 600);
+  setTimeout(() => { closeModal('khqrModal'); openReceiveKeyModalWithKey(generatedKey, pkg); }, 300);
 }
 
 $('receiptUploadInput')?.addEventListener('change', (e) => {
@@ -2511,7 +2512,7 @@ window.saveScanToHistoryLobby = async function(scanResult, previewDataUrl) {
   const lobbyShell = $('scanHistoryLobby');
   if (lobbyShell) {
     lobbyShell.classList.add('lobby-new-flash');
-    setTimeout(() => lobbyShell.classList.remove('lobby-new-flash'), 1800);
+    setTimeout(() => lobbyShell.classList.remove('lobby-new-flash'), 900);
   }
   return newEntry;
 };
@@ -2793,7 +2794,7 @@ function renderScanHistoryLobby() {
           saveScanLobbyList(backupList.filter((x) => x.id !== targetId));
           renderScanHistoryLobby();
           showDeleteUndoToast('🗑️ បានលុបប្រវត្តិស្កេន ១ ដោយជោគជ័យ!', backupList);
-        }, 350);
+        }, 180);
       } else {
         saveScanLobbyList(backupList.filter((x) => x.id !== targetId));
         renderScanHistoryLobby();
@@ -2836,10 +2837,10 @@ $('btnClearScanLobby')?.addEventListener('click', () => {
       const container = $('scanLobbyList');
       const cards = container ? Array.from(container.querySelectorAll('.scan-lobby-card')) : [];
       cards.forEach((card, idx) => {
-        setTimeout(() => card.classList.add('deleting-smooth'), idx * 45);
+        setTimeout(() => card.classList.add('deleting-smooth'), idx * 22);
       });
 
-      const totalWait = Math.min(600, cards.length * 45 + 340);
+      const totalWait = Math.min(300, cards.length * 22 + 170);
       setTimeout(() => {
         saveScanLobbyList([]);
         renderScanHistoryLobby();
@@ -3704,7 +3705,7 @@ icons();
     dot.style.setProperty('--fx-size', String(Math.min(Math.max(big / 7, 6), 22)));
     document.body.appendChild(dot);
     dot.addEventListener('animationend', () => dot.remove(), { once: true });
-    setTimeout(() => dot.remove(), 900);
+    setTimeout(() => dot.remove(), 450);
   }
 
   function release() {
@@ -3725,7 +3726,7 @@ icons();
   }, { passive: true });
 
   ['pointerup', 'pointercancel', 'pointerleave', 'dragstart', 'blur'].forEach((ev) =>
-    window.addEventListener(ev, () => setTimeout(release, 90), { passive: true })
+    window.addEventListener(ev, () => setTimeout(release, 45), { passive: true })
   );
 })();
 
@@ -3974,7 +3975,7 @@ icons();
         const target = btn.offsetLeft - (bar.clientWidth - btn.offsetWidth) / 2;
         bar.scrollTo({ left: Math.max(0, target), behavior: reduceMotion ? 'auto' : 'smooth' });
         btn.classList.add('fx-pop');
-        setTimeout(() => btn.classList.remove('fx-pop'), 420);
+        setTimeout(() => btn.classList.remove('fx-pop'), 210);
       });
     });
   }
@@ -4112,7 +4113,7 @@ icons();
   }
 
   refresh();
-  setInterval(refresh, REFRESH_MS);
+  setInterval(() => { if (!document.hidden) refresh(); }, REFRESH_MS);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
 })();
 
@@ -4189,4 +4190,4 @@ renderResult = function () {
   sbRenderResultBanner();
 };
 sbRender();
-setInterval(sbRender, 1000);
+setInterval(() => { if (!document.hidden) sbRender(); }, 1000);

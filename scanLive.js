@@ -840,6 +840,7 @@
 
   // The 7-strategy cards call the original (lexical) setTradeStyle, so also poll cheaply:
   setInterval(() => {
+    if (document.hidden) return;
     const s = el('plStyle');
     if (s && typeof state !== 'undefined' && state.tradeStyle && s.value !== state.tradeStyle) s.value = state.tradeStyle;
   }, 1000);
